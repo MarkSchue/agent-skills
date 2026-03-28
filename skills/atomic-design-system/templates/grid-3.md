@@ -3,94 +3,81 @@
 ```yaml
 id: grid-3
 type: template
-description: Adaptive card grid that scales from two to four equally-sized columns for parallel content.
-tags: [grid, adaptive, cards, parallel, overview]
-preview: previews/templates/grid-3.png
-canvas-size: "{{design-config.canvas}}"
-max_elements: 4
-compatible_aspect_ratios: ["16:9", "4:3"]
-compatible_molecules: [mission-card, topic-card, kpi-card, profile-card, role-card, objective-card, location-card, contact-card, quote-card, waveform-card, dot-chart-card, daily-header-card, header-list-card]
+description: >
+  Three equal-width columns for parallel content. Scales to the number of
+  populated blocks (2–4). Gutter and padding are CSS-token-driven.
+tags: [grid, three-column, parallel, overview, cards]
+compatible_molecules: [kpi-card, mission-card, chart-card, objective-card, quote-card, stacked-text]
 ```
 
-## Slot Definitions
+## Layout Pictogram
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  [SLOT-HEADER]  ──────────────────────────────────────── full width     │
-├───────────────┬───────────────┬───────────────┬───────────────┬──────────┤
-│               │               │               │               │          │
-│   SLOT-A      │   SLOT-B      │   SLOT-C      │   SLOT-D      │ adaptive │
-│   (equal)     │   (equal)     │   (equal)     │   (equal)     │ 2–4 cols │
-│               │               │               │               │          │
-│               │               │               │               │          │
-└───────────────┴───────────────┴───────────────┴───────────────┴──────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│  [accent bar]                                                            │
+│  [logo-primary]                              [logo-secondary]            │
+│  SLIDE TITLE                                                             │
+│  ──────────────────────────────────────────────── [header divider]      │
+│                                                                          │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐               │
+│  │               │  │               │  │               │               │
+│  │   BLOCK A     │  │   BLOCK B     │  │   BLOCK C     │               │
+│  │  (33% width)  │  │  (33% width)  │  │  (33% width)  │               │
+│  │               │  │               │  │               │               │
+│  │               │  │               │  │               │               │
+│  └───────────────┘  └───────────────┘  └───────────────┘               │
+│                                                                          │
+│  ──────────────────── [footer divider]  [page number]                   │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Slot Specifications
 
-| Slot | Accepts | Required | Width | Height |
-|---|---|---|---|---|
-| `slot-header` | `text-heading` | no | 100% | auto |
-| `slot-a` | Any molecule | yes | adaptive | 75% canvas height |
-| `slot-b` | Any molecule | no | adaptive | 75% canvas height |
-| `slot-c` | Any molecule | no | adaptive | 75% canvas height |
-| `slot-d` | Any molecule | no | adaptive | 75% canvas height |
+| Slot | Accepts | Required | Width |
+|------|---------|----------|-------|
+| Block A | any molecule | yes | `(canvas_w − 2×margin − 2×gap) / 3` |
+| Block B | any molecule | no | same |
+| Block C | any molecule | no | same |
 
-- Column gutter: `{{theme.spacing.m}}`
-- Outer margin: `{{design-config.canvas.margin}}`
-- All populated card slots are equal height and share the available content area
+Renderer auto-scales to 2–4 blocks.
 
-## Background & Decoration
+## CSS Token Reference
 
-- Background: `{{theme.color.surface}}`
-- Card borders provided by individual molecules' `border-subtle` tokens
+### Content area & blocks
+| Token | Default | Purpose |
+|-------|---------|---------|
+| `--content-area-bg-color` | `transparent` | Content-zone background |
+| `--content-area-padding` | `0` | Inset around all blocks (px) |
+| `--content-block-gap` | `24` | Column gutter (px) |
+| `--content-block-bg-color` | `transparent` | Default fill per column |
+| `--content-block-padding` | `0` | Inner padding per column (px) |
 
-## Design Constraints
-
-- Best results come from compact cards with a consistent information density across all columns
-- `topic-card` is the preferred molecule for 4-column layouts because it remains readable at narrower widths
-- Slot heights are synchronized to the shared content area; shorter cards keep bottom breathing room
-
-## Validation Rules
-
-- `n × slot width + (n - 1) × gutter + 2 × margin ≤ canvas width`, where `n ∈ {2, 3, 4}`
-- The renderer derives the column count from the number of populated molecule blocks
-- More than 4 blocks are ignored by the renderer
+(Slide-chrome and divider tokens same as `grid-2` — see that template.)
 
 ## Example Usage
 
+```markdown
+# KPIs at a Glance
+<!-- layout: grid-3 -->
+
+## Reliability
 ```yaml
-template: grid-3
-slots:
-  slot-header:
-    atom: text-heading
-    params: {text: "Q3 Highlights", level: h2, accent-rule: true}
-  slot-a:
-    molecule: topic-card
-    params:
-      title: "Modernization"
-      items:
-        - {label: "Topic", text: "Upgrade packages reduce energy use and improve ride comfort."}
-        - {label: "Topic", text: "Retrofit offers address ageing controller installations."}
-  slot-b:
-    molecule: topic-card
-    params:
-      title: "Service"
-      items:
-        - {label: "Topic", text: "Remote support workflows shorten dispatch time."}
-        - {label: "Topic", text: "Predictive alerts improve first-time fix rate."}
-  slot-c:
-    molecule: topic-card
-    params:
-      title: "Digital"
-      items:
-        - {label: "Topic", text: "Customer apps increase transparency for building managers."}
-        - {label: "Topic", text: "Usage dashboards highlight peak traffic patterns."}
-  slot-d:
-    molecule: topic-card
-    params:
-      title: "Portfolio"
-      items:
-        - {label: "Topic", text: "Bundled contracts simplify multi-site renewal conversations."}
-        - {label: "Topic", text: "Cross-sell packages raise service penetration per account."}
+molecule: kpi-card
+value: 99.94 %
+trend: up
+```
+
+## Latency
+```yaml
+molecule: kpi-card
+value: 48 ms
+trend: down
+```
+
+## Errors
+```yaml
+molecule: kpi-card
+value: 0.06 %
+trend: down
+```
 ```

@@ -7,15 +7,13 @@ To add a new template:
          render(self, ctx, slide, blocks, margin, content_y, content_h,
                 width, height, dispatch_fn) -> None
   2. Import it here and add it to TEMPLATE_REGISTRY.
-  3. Announce the slug in registry.yaml and the SKILL.md templates section.
+  3. Add a template spec .md in .github/agents/atomic-design-system/templates/.
 """
 
 from rendering.templates.hero_title      import HeroTitleLayout
 from rendering.templates.grid            import GridLayout, AsymmetricGridLayout
 from rendering.templates.row_layout      import RowLayout
 from rendering.templates.grid_row_layout import GridRowLayout
-from rendering.templates.data_insight    import DataInsightLayout
-from rendering.templates.numbered_list   import NumberedListLayout
 
 TEMPLATE_REGISTRY: dict = {
     # ── Hero ──────────────────────────────────────────────────────────────
@@ -25,7 +23,6 @@ TEMPLATE_REGISTRY: dict = {
     "grid-2":           GridLayout(cols=2),
     "grid-3":           GridLayout(cols=3),
     "grid-4":           GridLayout(cols=4),
-    "comparison-2col":  GridLayout(cols=2),
 
     # ── Asymmetric column grids ───────────────────────────────────────────
     "grid-2-1":         AsymmetricGridLayout(weights=(2, 1)),
@@ -40,10 +37,6 @@ TEMPLATE_REGISTRY: dict = {
     # ── Grid × row layouts ────────────────────────────────────────────────
     "grid-row-2-2":     GridRowLayout(cols=2, rows=2),
     "grid-row-3-2":     GridRowLayout(cols=3, rows=2),
-
-    # ── Specialised ───────────────────────────────────────────────────────
-    "data-insight":     DataInsightLayout(),
-    "numbered-list":    NumberedListLayout(),
 }
 
 __all__ = ["TEMPLATE_REGISTRY"]
