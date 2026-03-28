@@ -1,0 +1,142 @@
+# Theme Bridge: PowerPoint (pptx)
+# ─────────────────────────────────────────────────────────────────────────────
+# Translates agnostic design tokens to python-pptx attribute names and values.
+# All lengths are in EMUs (English Metric Units): 1 pt = 12700 EMU, 1 inch = 914400 EMU.
+# Conversion helper: px_to_emu(px) = px * 914400 / 96
+# Used by pptx_builder.py during Phase 6 (Assembly).
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: theme-bridge-pptx
+platform: pptx
+unit-system:
+  length: emu               # English Metric Units
+  coordinate-origin: top-left
+  px-to-emu-factor: 9525   # at 96 DPI: 1px = 9525 EMU
+
+# ── Color mapping ─────────────────────────────────────────────────────────────
+# Token → python-pptx RGBColor or theme color index
+colors:
+  primary:
+    RGBColor:     "{{colors.primary | strip_hash}}"
+    theme-role:   dk1                    # maps to dark text slot when used as text
+  secondary:
+    RGBColor:     "{{colors.secondary | strip_hash}}"
+  accent:
+    RGBColor:     "{{colors.accent | strip_hash}}"
+  neutral:
+    RGBColor:     "{{colors.neutral | strip_hash}}"
+  surface:
+    RGBColor:     "{{colors.surface | strip_hash}}"
+  on-surface:
+    RGBColor:     "{{colors.on-surface | strip_hash}}"
+  on-primary:
+    RGBColor:     "{{colors.on-primary | strip_hash}}"
+  error:
+    RGBColor:     "{{colors.error | strip_hash}}"
+  warning:
+    RGBColor:     "{{colors.warning | strip_hash}}"
+  success:
+    RGBColor:     "{{colors.success | strip_hash}}"
+
+# ── Shape / line mapping ─────────────────────────────────────────────────────
+# python-pptx line properties: width (EMU), dash type, color
+shapes:
+  accent-line:
+    line_width:    "{{shapes.accent-line.stroke-width * 12700}}"   # pt → EMU
+    color:         "{{colors.primary | strip_hash}}"
+    dash_style:    solid
+  thin-line:
+    line_width:    12700      # 1pt
+    color:         "{{colors.neutral | strip_hash}}"
+    dash_style:    solid
+  thick-line:
+    line_width:    38100      # 3pt
+    color:         "{{colors.on-surface | strip_hash}}"
+    dash_style:    solid
+  divider:
+    line_width:    12700      # 1pt
+    color:         "{{colors.neutral | strip_hash}}"
+    dash_style:    solid
+    # Opacity handled via shape transparency attribute; 30% → transparency=0.70
+    transparency: 0.70
+  border-subtle:
+    line_width:    12700
+    color:         "{{colors.neutral | strip_hash}}"
+    transparency:  0.50
+  border-strong:
+    line_width:    25400      # 2pt
+    color:         "{{colors.primary | strip_hash}}"
+    dash_style:    solid
+
+# ── Border radius mapping ────────────────────────────────────────────────────
+# python-pptx: no direct border radius; approximated using adjustments on RoundRect shape
+borders:
+  radius-sharp:   0             # 0 adjustment value
+  radius-medium:  "{{borders.radius-medium * 9525}}"   # px → EMU
+  radius-large:   "{{borders.radius-large * 9525}}"
+
+# ── Elevation / shadow mapping ───────────────────────────────────────────────
+# python-pptx supports shadow via sp3d / outerShadow CT elements
+elevation:
+  none:
+    outer_shadow: null
+  low:
+    outer_shadow:
+      blurRad: "{{elevation.low.blur * 12700}}"      # pt → EMU
+      dist:    "{{elevation.low.distance * 12700}}"
+      dir:     5400000   # 90° in 1/60000 degree units
+      alpha:   "{{(elevation.low.opacity * 100000) | int}}"
+      color:   "000000"
+  medium:
+    outer_shadow:
+      blurRad: "{{elevation.medium.blur * 12700}}"
+      dist:    "{{elevation.medium.distance * 12700}}"
+      dir:     5400000
+      alpha:   "{{(elevation.medium.opacity * 100000) | int}}"
+      color:   "000000"
+  high:
+    outer_shadow:
+      blurRad: "{{elevation.high.blur * 12700}}"
+      dist:    "{{elevation.high.distance * 12700}}"
+      dir:     5400000
+      alpha:   "{{(elevation.high.opacity * 100000) | int}}"
+      color:   "000000"
+
+# ── Spacing mapping ───────────────────────────────────────────────────────────
+# Spacing values converted to EMU
+spacing:
+  xs:  "{{spacing.xs  * 9525}}"
+  s:   "{{spacing.s   * 9525}}"
+  m:   "{{spacing.m   * 9525}}"
+  l:   "{{spacing.l   * 9525}}"
+  xl:  "{{spacing.xl  * 9525}}"
+
+# ── Typography mapping ────────────────────────────────────────────────────────
+# python-pptx font properties
+typography:
+  heading-display:
+    size:   "{{typography.heading-display.size * 100}}"  # pt × 100 (hundredths of a point)
+    bold:   "{{typography.heading-display.weight >= 600}}"
+    name:   "{{typography.font-family}}"
+  heading:
+    size:   "{{typography.heading.size * 100}}"
+    bold:   "{{typography.heading.weight >= 600}}"
+    name:   "{{typography.font-family}}"
+  heading-sub:
+    size:   "{{typography.heading-sub.size * 100}}"
+    bold:   false
+    name:   "{{typography.font-family}}"
+  body:
+    size:   "{{typography.body.size * 100}}"
+    bold:   false
+    name:   "{{typography.font-family}}"
+  caption:
+    size:   "{{typography.caption.size * 100}}"
+    bold:   false
+    name:   "{{typography.font-family}}"
+
+# ── Canvas / Slide size mapping ───────────────────────────────────────────────
+canvas:
+  slide_width:  "{{canvas.width  * 9525}}"  # px → EMU
+  slide_height: "{{canvas.height * 9525}}"
+  background_color: "{{colors.surface | strip_hash}}"

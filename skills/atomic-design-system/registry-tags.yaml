@@ -1,0 +1,152 @@
+# Registry Tag Vocabulary
+# -------------------------------------------------------
+# Controlled vocabulary for tags used in registry.yaml.
+# New tags must be added here before use.
+# The lint.py script validates all tags against this list.
+# -------------------------------------------------------
+
+version: 1
+
+categories:
+  element-type:
+    - icon
+    - svg
+    - chart
+    - badge
+    - text
+    - shape
+    - panel
+    - card
+    - figure
+    - wrapper
+
+  chart-types:
+    - bar
+    - pie
+    - donut
+    - gantt
+    - sparkline
+    - data-viz
+    - time-series
+    - visualization
+
+  domain:
+    - strategy
+    - data
+    - team
+
+  strategy-topics:
+    - mission
+    - vision
+    - statement
+    - okr
+    - objective
+    - goals
+    - progress
+    - key-results
+    - timeline
+    - milestones
+    - history
+    - roadmap
+    - planning
+    - swimlane
+    - product
+    - quote
+    - testimonial
+    - attribution
+    - customer
+
+  data-topics:
+    - kpi
+    - metric
+    - performance
+    - value
+    - trend
+    - insight
+    - analysis
+    - summary
+    - comparison
+    - before-after
+    - option
+    - versus
+    - decision
+    - distribution
+    - proportion
+    - comparison
+    - schedule
+    - project
+
+  team-topics:
+    - person
+    - profile
+    - bio
+    - avatar
+    - contact
+    - business-card
+    - communication
+    - outreach
+    - email
+    - org
+    - org-design
+    - grid
+    - people
+    - lineup
+    - leadership
+    - role
+    - responsibilities
+    - hr
+    - reporting
+    - location
+    - office
+    - site
+    - geography
+    - address
+
+  layout:
+    - hero
+    - title
+    - cover
+    - intro
+    - section-break
+    - two-column
+    - three-column
+    - grid
+    - cards
+    - parallel
+    - overview
+    - split
+    - list
+    - numbered
+    - steps
+    - process
+    - how-to
+    - ranking
+    - mixed
+
+  visual-properties:
+    - decorative
+    - status
+    - action
+    - illustration
+    - indicator
+    - label
+    - priority
+    - success
+    - warning
+    - error
+    - separator
+    - rule
+    - line
+    - accent-line
+    - border
+    - divider
+    - heading
+    - typography
+    - h1
+    - h2
+    - h3
+    - body
+    - copy
+    - paragraph
+    - bullets
+    - numbered

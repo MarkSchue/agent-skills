@@ -1,0 +1,115 @@
+# Carbon Design System — White Theme Design Config
+# ─────────────────────────────────────────────────────────────────────────────
+# System:  IBM Carbon Design System v11
+# Theme:   White (Light)
+# Source:  https://carbondesignsystem.com/elements/color/overview/
+# ─────────────────────────────────────────────────────────────────────────────
+
+canvas:
+  aspect-ratio: "16:9"
+  width:  1920
+  height: 1080
+  margin: 80
+  padding: 16                # Carbon: standard padding = 16px = spacing-05
+  gutter: 16                 # Carbon: standard gutter = spacing-05
+  baseline-grid: 8           # Carbon: 8px mini unit
+
+platform: pptx              # Change to: drawio | pptx
+
+preset: carbon
+
+colors:
+  # ── Backgrounds & Layers ────────────────────────────────
+  primary:              "#0f62fe"    # IBM Blue 60 — primary action
+  on-primary:           "#ffffff"    # White on blue
+  primary-container:    "#d0e2ff"    # Blue 20 — recessive blue fill
+  on-primary-container: "#001d6c"    # Blue 90 — text on primary-container
+
+  secondary:            "#6f6f6f"    # Gray 60 — secondary emphasis
+  on-secondary:         "#ffffff"
+  secondary-container:  "#e0e0e0"    # Gray 20
+  on-secondary-container: "#161616"  # Gray 100
+
+  # ── Surfaces / Layers ───────────────────────────────────
+  surface:              "#ffffff"    # $background
+  on-surface:           "#161616"    # $text-primary (Gray 100)
+  on-surface-variant:   "#525252"    # $text-secondary (Gray 70)
+  surface-variant:      "#f4f4f4"    # $layer-01 (Gray 10)
+  surface-container-lowest: "#ffffff"
+  surface-container-low:    "#f4f4f4"    # $layer-01
+  surface-container:        "#e0e0e0"    # $layer-accent-01
+  surface-container-high:   "#c6c6c6"    # $layer-selected-01 at active
+  surface-container-highest:"#8d8d8d"    # $border-strong-01
+
+  # ── Status Colors ───────────────────────────────────────
+  error:                "#da1e28"    # $support-error (Red 60)
+  on-error:             "#ffffff"
+  error-container:      "#fff1f1"    # Red 10
+  on-error-container:   "#750e13"    # Red 90
+
+  warning:              "#f1c21b"    # $support-warning (Yellow 30)
+  success:              "#24a148"    # $support-success (Green 50)
+  on-success:           "#ffffff"
+
+  # ── Outline / Border ────────────────────────────────────
+  outline:              "#8d8d8d"    # $border-strong-01 (Gray 50)
+  outline-variant:      "#e0e0e0"    # $border-subtle-00 (Gray 20)
+  neutral:              "#6f6f6f"    # $text-secondary
+  border-subtle:        "#c6c6c6"    # $border-subtle-01 (Gray 30)
+
+  # ── Inverse ─────────────────────────────────────────────
+  inverse-surface:      "#393939"    # $button-secondary
+  inverse-on-surface:   "#f4f4f4"    # $text-inverse reversed
+  inverse-primary:      "#78a9ff"    # $link-inverse (Blue 40)
+
+  # ── Scrim ────────────────────────────────────────────────
+  scrim:                "rgba(22,22,22,0.50)"  # $overlay
+
+borders:
+  radius-sharp:   0           # Carbon: sharp corners (no radius by default)
+  radius-medium:  4           # Carbon: 4px radius for tags, notifications
+  radius-large:   8           # Carbon: 8px radius for modals, cards
+
+typography:
+  font-family: "IBM Plex Sans"
+  heading-display:
+    size: 54
+    weight: 300               # IBM Plex Light
+    line-height: 1.11
+  heading:
+    size: 32
+    weight: 400
+    line-height: 1.25
+  heading-sub:
+    size: 20
+    weight: 400
+    line-height: 1.4
+  body:
+    size: 16
+    weight: 400
+    line-height: 1.5
+  label:
+    size: 14
+    weight: 400
+    line-height: 1.43
+  caption:
+    size: 12
+    weight: 400
+    line-height: 1.33
+  annotation:
+    size: 12
+    weight: 600               # SemiBold for label/heading-01 style
+    line-height: 1.285
+
+spacing:
+  xs:   4                     # spacing-02
+  s:    8                     # spacing-03
+  m:   16                     # spacing-05
+  l:   24                     # spacing-06
+  xl:  48                     # spacing-09
+
+elevation:
+  none:   {blur: 0,  distance: 0,  opacity: 0}
+  low:    {blur: 2,  distance: 1,  angle: 90, opacity: 0.10}
+  medium: {blur: 8,  distance: 2,  angle: 90, opacity: 0.15}
+  high:   {blur: 16, distance: 4,  angle: 90, opacity: 0.20}
