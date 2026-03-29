@@ -245,6 +245,16 @@ class RenderContext:
     # Centralised sizing so all molecule renderers produce consistent
     # header baselines on cards that share the same row (same height).
     # These read optional CSS tokens to allow theme-wide overrides.
+    #
+    # Templates set ``ctx.ref_h = content_h`` before their dispatch loop so
+    # that all cards on the same slide (regardless of individual height)
+    # receive identical header heights, icon sizes, and gaps.
+    # Templates clear it with ``ctx.ref_h = None`` after the loop.
+
+    def _ref(self, h: int) -> int:
+        """Return the slide reference height when set, else the card's own h."""
+        ref = getattr(self, "ref_h", None)
+        return ref if (ref and ref > 0) else h
 
     def card_pad_px(self, w: int, h: int) -> int:
         """Inner card padding in px.
@@ -268,6 +278,8 @@ class RenderContext:
         Shared by all molecule renderers so the divider line sits at the
         same Y position across every card in a grid row.  The icon badge
         fits inside this height; it does **not** inflate it.
+        Uses ``ctx.ref_h`` (slide content height) when available so that
+        cards of different heights on the same slide get identical header zones.
         Reads ``--card-header-height`` CSS token as a fixed override.
         """
         raw = self.theme_var("--card-header-height", "").strip()
@@ -277,14 +289,31 @@ class RenderContext:
                 return v
         except (ValueError, TypeError):
             pass
-        return max(34, int(h * 0.12))
+        return max(34, int(self._ref(h) * 0.12))
+
+    def card_header_gap(self, h: int) -> int:
+        """Gap between the header row and the divider line in px.
+
+        Uses ``ctx.ref_h`` (slide content height) when available so that
+        cards of different heights on the same slide get the identical gap.
+        Reads ``--card-header-gap`` CSS token as a fixed override.
+        """
+        raw = self.theme_var("--card-header-gap", "").strip()
+        try:
+            v = int(float(raw)) if raw else 0
+            if v > 0:
+                return v
+        except (ValueError, TypeError):
+            pass
+        return max(self.spacing("s"), int(self._ref(h) * 0.018))
 
     def card_header_font_size(self, title: str = "", text_w: int = 200,
                                h: int = 300) -> int:
         """Header / title font size in pt.
 
+        Uses ``ctx.ref_h`` (slide content height) when available.
         Returns the value of ``--card-header-font-size`` when set; otherwise
-        uses the responsive fit formula that caps at ``h × 3.4 %``.
+        uses the responsive fit formula that caps at ``ref_h × 3.4 %``.
         """
         raw = self.theme_var("--card-header-font-size", "").strip()
         try:
@@ -293,7 +322,8 @@ class RenderContext:
                 return v
         except (ValueError, TypeError):
             pass
-        cap = max(self.font_size("body"), min(22, int(h * 0.034)))
+        ref = self._ref(h)
+        cap = max(self.font_size("body"), min(22, int(ref * 0.034)))
         if not title or text_w <= 0:
             return cap
         return self.fit_text_size(
@@ -336,8 +366,9 @@ class RenderContext:
         """Compute icon-badge side length in px.
 
         Uses ``--icon-size`` CSS token as the base value when set; otherwise
-        derives the size from card dimensions (responsive formula).  Result is
-        always clamped to [24, 96] px.
+        uses ``ctx.ref_h`` (slide content height) so all cards on the same
+        slide get a consistent badge size regardless of individual card height.
+        Result is always clamped to [24, 96] px.
         """
         raw = self.theme_var("--icon-size", "").strip()
         try:
@@ -346,7 +377,8 @@ class RenderContext:
             base = None
         if base and base > 0:
             return max(24, min(96, base))
-        return max(36, min(72, int(min(card_w, card_h) * 0.14)))
+        ref = self._ref(card_h)
+        return max(36, min(72, int(ref * 0.14)))
 
     def icon_radius(self, size: int) -> int:
         """Compute icon-badge corner radius in px.

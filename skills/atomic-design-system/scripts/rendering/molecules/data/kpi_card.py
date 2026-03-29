@@ -41,7 +41,7 @@ class KpiCard:
 
         pad      = ctx.card_pad_px(w, h)
         inner_w  = w - pad * 2
-        header_gap = max(ctx.spacing("s"), int(h * 0.018))
+        header_gap = ctx.card_header_gap(h)
         icon_size = ctx.icon_size(w, h) if icon_raw else 0
         header_h  = ctx.card_header_h(w, h)
         icon_size = min(icon_size, header_h)  # never overflow header zone onto divider
@@ -83,7 +83,7 @@ class KpiCard:
                          fill=icon_bg, stroke=ctx.icon_stroke(props), radius=icon_radius)
                 ctx.draw_icon(icon_x, icon_y, icon_size, icon_size, icon_raw, color=icon_fg)
 
-            content_y = header_y + header_h + max(8, int(h * 0.018))
+            content_y = header_y + header_h + header_gap
 
         if show_header_line:
             line_x, line_w = ctx.card_divider_span("header", x + pad, inner_w, props)

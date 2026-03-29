@@ -42,7 +42,7 @@ class ChartCard:
         title_color = ctx.card_title_color(chart_data, default_token="text-on-muted")
         body_color = ctx.card_body_color(chart_data, default_token="text-secondary")
         header_h  = ctx.card_header_h(w, h)
-        header_gap = max(ctx.spacing("s"), int(h * 0.018))
+        header_gap = ctx.card_header_gap(h)
         content_y = y + card_pad
 
         if show_header:
@@ -63,7 +63,7 @@ class ChartCard:
                          fill=icon_bg, stroke=ctx.icon_stroke(chart_data), radius=icon_radius)
                 ctx.draw_icon(icon_x, icon_y, icon_size, icon_size, icon_raw, color=icon_fg)
 
-            content_y += header_h + max(8, int(h * 0.018))
+            content_y += header_h + header_gap
 
         if show_header_line:
             line_x, line_w = ctx.card_divider_span("header", x + card_pad, w - card_pad * 2, chart_data)

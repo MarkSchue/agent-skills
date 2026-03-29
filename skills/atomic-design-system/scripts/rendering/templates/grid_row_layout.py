@@ -45,6 +45,7 @@ class GridRowLayout:
         cell_w = (cw - gap * (cols - 1)) // cols
         cell_h = (ch_avail - gap * (rows - 1)) // rows
 
+        ctx.ref_h = cell_h  # harmonise sizing — all cells equal height, scale to cell
         for idx, block in enumerate(blocks[:cols * rows]):
             row_i = idx // cols
             col_i = idx % cols
@@ -70,3 +71,5 @@ class GridRowLayout:
 
             dispatch_fn(ctx, mol, block_props, block.get("body", ""),
                         rx, ry, rw, rh, slide, idx)
+
+        ctx.ref_h = None  # clear slide reference height

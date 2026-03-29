@@ -48,18 +48,31 @@ class RowLayout:
         ch_avail = content_h - 2 * cap_pad
 
         total_weight = sum(self.weights) or rows
-        total_gap    = gap * (rows - 1)
-        row_heights  = [
-            max(1, int((ch_avail - total_gap) * w / total_weight))
+        # unit_h is the height of a weight-1 row, consistent across all row
+        # layouts with the same total_weight so that weight-1 rows (e.g. the
+        # bottom row in row-2-1 and every row in row-3) start at the same
+        # absolute Y and produce identical divider positions cross-slide.
+        #   ch_avail = unit_h * total_weight + (total_weight - 1) * gap
+        #   → unit_h = (ch_avail - (total_weight - 1) * gap) / total_weight
+        # A weight-w row spans w units plus (w-1) gutters that it absorbs.
+        unit_h      = (ch_avail - (total_weight - 1) * gap) / total_weight
+        row_heights = [
+            max(1, int(unit_h * w + (w - 1) * gap))
             for w in self.weights
         ]
         # Correct rounding error on the last row
-        assigned = sum(row_heights[:-1]) + total_gap
+        between_rows_gap = gap * (rows - 1)
+        assigned = sum(row_heights[:-1]) + between_rows_gap
         row_heights[-1] = max(1, ch_avail - assigned)
 
         card_w   = cw - 2 * blk_pad
         cursor_y = cy0
 
+        # Use the smallest row card height as ref_h so the header zone is
+        # proportional to the compact rows. Tall rows get the same small header,
+        # leaving more body space — matching visual rhythm across row layouts.
+        min_card_h = min(max(1, rh - 2 * blk_pad) for rh in row_heights)
+        ctx.ref_h = min_card_h  # harmonise header sizing across all rows in this slide
         for i, row_h in enumerate(row_heights):
             if i >= len(blocks):
                 break
@@ -83,3 +96,5 @@ class RowLayout:
                         rx, ry, card_w, rh, slide, i)
 
             cursor_y += row_h + gap
+
+        ctx.ref_h = None  # clear slide reference height

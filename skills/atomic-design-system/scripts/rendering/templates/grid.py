@@ -32,11 +32,12 @@ class GridLayout:
             cols = min(4, max(1, len(blocks)))
 
         card_w = (width - 2 * margin - (cols - 1) * ctx.gutter) // cols
-        card_h = content_h - ctx.spacing("m")
+        card_h = content_h
 
+        ctx.ref_h = card_h  # all columns same height — consistent within slide
         for i, block in enumerate(blocks[:cols]):
             cx  = margin + i * (card_w + ctx.gutter)
-            cy  = content_y + ctx.spacing("m")
+            cy  = content_y
             mol = block.get("molecule") or (
                   slide.molecule_hints[i] if i < len(slide.molecule_hints) else "")
             # Inject the ## heading as "title" prop so molecules can render a
@@ -46,6 +47,7 @@ class GridLayout:
                 block_props["title"] = block["title"]
             dispatch_fn(ctx, mol, block_props, block.get("body", ""),
                         cx, cy, card_w, card_h, slide, i)
+        ctx.ref_h = None  # clear slide reference height
 
 
 class AsymmetricGridLayout:
@@ -84,6 +86,7 @@ class AsymmetricGridLayout:
         col_widths = [w0, w1]
         card_h     = ch_avail - 2 * blk_pad
 
+        ctx.ref_h = card_h  # both columns same height — consistent within slide
         for i, col_w in enumerate(col_widths):
             if i >= len(blocks):
                 break
@@ -105,3 +108,4 @@ class AsymmetricGridLayout:
             dispatch_fn(ctx, mol, block_props, block.get("body", ""),
                         ox + blk_pad, oy + blk_pad,
                         col_w - 2 * blk_pad, card_h, slide, i)
+        ctx.ref_h = None  # clear slide reference height

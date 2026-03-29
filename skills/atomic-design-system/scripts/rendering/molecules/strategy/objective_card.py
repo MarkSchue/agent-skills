@@ -63,7 +63,7 @@ class ObjectiveCard:
 
         # Centralized header height so divider lines are aligned across all cards.
         header_h   = ctx.card_header_h(w, h)
-        header_gap = max(ctx.spacing("s"), int(h * 0.018))
+        header_gap = ctx.card_header_gap(h)
 
         oy = y + card_pad
 

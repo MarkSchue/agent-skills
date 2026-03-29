@@ -44,7 +44,7 @@ class MissionCard:
         header_h    = ctx.card_header_h(w, h)
         icon_size   = min(icon_size, header_h)  # never overflow header zone onto divider
         icon_radius = ctx.icon_radius(icon_size) if icon_raw else 0
-        header_gap  = max(ctx.spacing("s"), int(h * 0.018))
+        header_gap  = ctx.card_header_gap(h)
 
         current_y = y + card_pad
 
