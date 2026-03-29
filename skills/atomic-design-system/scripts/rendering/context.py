@@ -241,6 +241,68 @@ class RenderContext:
         align = str(raw if raw is not None else self.theme_var("--card-header-icon-align", default)).strip().lower()
         return align if align in {"left", "right"} else default
 
+    # ── Card geometry helpers ─────────────────────────────────────────────
+    # Centralised sizing so all molecule renderers produce consistent
+    # header baselines on cards that share the same row (same height).
+    # These read optional CSS tokens to allow theme-wide overrides.
+
+    def card_pad_px(self, w: int, h: int) -> int:
+        """Inner card padding in px.
+
+        Uses **card height only** (not ``min(w, h)``) so all cards in the
+        same grid row share the same padding regardless of column width.
+        Reads ``--card-padding`` CSS token as a fixed override.
+        """
+        raw = self.theme_var("--card-padding", "").strip()
+        try:
+            v = int(float(raw)) if raw else 0
+            if v > 0:
+                return v
+        except (ValueError, TypeError):
+            pass
+        return max(self.PAD, int(h * 0.055))
+
+    def card_header_h(self, w: int, h: int) -> int:
+        """Standard card header height in px.
+
+        Shared by all molecule renderers so the divider line sits at the
+        same Y position across every card in a grid row.  The icon badge
+        fits inside this height; it does **not** inflate it.
+        Reads ``--card-header-height`` CSS token as a fixed override.
+        """
+        raw = self.theme_var("--card-header-height", "").strip()
+        try:
+            v = int(float(raw)) if raw else 0
+            if v > 0:
+                return v
+        except (ValueError, TypeError):
+            pass
+        return max(34, int(h * 0.12))
+
+    def card_header_font_size(self, title: str = "", text_w: int = 200,
+                               h: int = 300) -> int:
+        """Header / title font size in pt.
+
+        Returns the value of ``--card-header-font-size`` when set; otherwise
+        uses the responsive fit formula that caps at ``h × 3.4 %``.
+        """
+        raw = self.theme_var("--card-header-font-size", "").strip()
+        try:
+            v = int(float(raw)) if raw else 0
+            if v > 0:
+                return v
+        except (ValueError, TypeError):
+            pass
+        cap = max(self.font_size("body"), min(22, int(h * 0.034)))
+        if not title or text_w <= 0:
+            return cap
+        return self.fit_text_size(
+            title, text_w,
+            max_size=cap,
+            min_size=self.font_size("label"),
+            bold=True, safety=0.92,
+        )
+
     # ── Icon badge helpers ────────────────────────────────────────────────
     # These read the canonical --color-icon-* / --icon-* CSS tokens so every
     # molecule gets a consistent single source of truth.  Pass a props dict

@@ -12,8 +12,8 @@ class MissionCard:
 
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                body: str = "") -> None:
-        # Responsive padding — matches ChartCard / TrendCard
-        card_pad = max(ctx.PAD, int(min(w, h) * 0.055))
+        # Consistent padding + header height via centralized helpers
+        card_pad = ctx.card_pad_px(w, h)
         inner_w  = w - card_pad * 2
 
         # ── Card frame ─────────────────────────────────────────────────────
@@ -39,27 +39,19 @@ class MissionCard:
         icon_bg       = ctx.icon_bg(props)
         icon_fg       = ctx.icon_fg(props)
 
-        # Responsive icon size + header height — mirror ChartCard exactly so
-        # divider lines align when cards sit side-by-side in a grid row.
+        # icon badge + centralized header height so divider aligns with neighbours
         icon_size   = ctx.icon_size(w, h) if icon_raw else 0
+        header_h    = ctx.card_header_h(w, h)
+        icon_size   = min(icon_size, header_h)  # never overflow header zone onto divider
         icon_radius = ctx.icon_radius(icon_size) if icon_raw else 0
-        header_gap  = max(8, int(h * 0.018))
-        header_h    = max(34, int(h * 0.12), icon_size)
+        header_gap  = max(ctx.spacing("s"), int(h * 0.018))
 
         current_y = y + card_pad
 
         # ── Header row: title (left) + icon badge (right) — same as ChartCard
         if show_header:
             text_w     = inner_w - (icon_size + header_gap if icon_raw else 0)
-            label_max  = max(ctx.font_size("body"), min(22, int(h * 0.034)))
-            title_size = ctx.fit_text_size(
-                title,
-                max(40, text_w),
-                max_size=label_max,
-                min_size=ctx.font_size("label"),
-                bold=True,
-                safety=0.92,
-            )
+            title_size = ctx.card_header_font_size(title, max(40, text_w), h)
             if title:
                 ctx.text(x + card_pad, current_y, max(40, text_w), header_h, title,
                          size=title_size, bold=True,

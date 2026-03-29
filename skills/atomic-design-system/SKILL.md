@@ -108,6 +108,20 @@ atomic-design-system/
 └── evals/           evals.json
 ```
 
+### Project folder structure (created by `scaffold_project.py`)
+
+```
+<project-name>/
+├── deck.md      slide source
+├── theme.css    standalone brand theme (no @import)
+├── output/      build target (.pptx / .drawio)
+├── qa/          QA render target (JPEG per slide)
+└── assets/
+    ├── icons/   SVG / PNG icons used in slides
+    ├── logos/   brand logos (SVG preferred)
+    └── images/  photos, illustrations, raster assets
+```
+
 ---
 
 ## Token Syntax
@@ -454,6 +468,7 @@ Run with the project's Python environment:
 
 | Script | Purpose |
 |---|---|
+| `scripts/scaffold_project.py <name> <theme>` | Create a new project folder (theme.css · deck.md · output/ · qa/ · assets/) |
 | `scripts/lint.py` | Full validation (naming, tokens, registry) |
 | `scripts/preview_generator.py [id]` | Regenerate preview PNGs |
 | `scripts/visual_extractor.py <source>` | Extract tokens from image / PPTX / URL |

@@ -28,8 +28,8 @@ class ObjectiveCard:
 
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
-        # Responsive padding — matches ChartCard / TrendCard / MissionCard
-        card_pad = max(ctx.PAD, int(min(w, h) * 0.055))
+        # Centralized padding + header height for consistent baseline alignment
+        card_pad = ctx.card_pad_px(w, h)
         inner_w  = w - card_pad * 2
 
         # ── Card frame ────────────────────────────────────────────────────
@@ -61,10 +61,9 @@ class ObjectiveCard:
         GAP_S  = ctx.spacing("s")    # 8
         GAP_M  = max(12, int(h * 0.024))  # responsive, matches ChartCard post-divider
 
-        # Single header row height — same formula as MissionCard / ChartCard so
-        # the divider line sits at the same Y on both cards in the grid row.
-        header_h   = max(34, int(h * 0.12))
-        header_gap = max(8, int(h * 0.018))
+        # Centralized header height so divider lines are aligned across all cards.
+        header_h   = ctx.card_header_h(w, h)
+        header_gap = max(ctx.spacing("s"), int(h * 0.018))
 
         oy = y + card_pad
 
@@ -85,15 +84,7 @@ class ObjectiveCard:
             # Objective title — fills the remaining width beside the badge
             title_x = x + card_pad + badge_w + badge_gap
             title_w = max(40, inner_w - badge_w - badge_gap)
-            label_max  = max(ctx.font_size("body"), min(22, int(h * 0.034)))
-            obj_sz     = ctx.fit_text_size(
-                obj,
-                title_w,
-                max_size=label_max,
-                min_size=ctx.font_size("label"),
-                bold=True,
-                safety=0.92,
-            )
+            obj_sz = ctx.card_header_font_size(obj, title_w, h)
             if obj:
                 ctx.text(title_x, oy, title_w, header_h, obj,
                          size=obj_sz, bold=True,

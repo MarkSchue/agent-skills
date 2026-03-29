@@ -86,9 +86,9 @@ class TrendCard:
         ctx.text(x + card_pad, vy, w - card_pad * 2, val_h, value,
                  size=val_sz, bold=True, color=ctx.color("text-highlight"))
 
-        icon_name = ("trend-up"      if trend == "up"   else
-                     "trend-down"    if trend == "down" else
-                     "trend-neutral")
+        icon_name = ("arrow_upward"   if trend == "up"   else
+                     "arrow_downward" if trend == "down" else
+                     "remove")
         tc = (ctx.color("success") if trend == "up" else
               ctx.color("error")   if trend == "down" else
               ctx.color("text-secondary"))

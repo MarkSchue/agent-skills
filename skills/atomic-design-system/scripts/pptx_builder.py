@@ -197,7 +197,7 @@ class PptxBuilder:
 
     def _logos(self, ctx: PptxCtx, chrome: dict, width: int,
                margin: int, accent_offset: int = 0) -> None:
-        """Render primary (left) and secondary (right) logos in the header area."""
+        """Render primary (right) and secondary (left) logos in the header area."""
         logo_y = margin + accent_offset
         for side in ("primary", "secondary"):
             src = chrome.get(f"logo_{side}_src", "none")
@@ -216,8 +216,8 @@ class PptxBuilder:
                     src_path = css_dir / src_path
             if not src_path.exists():
                 continue
-            lx = (margin if side == "primary"
-                  else width - margin - lw)
+            lx = (width - margin - lw if side == "primary"
+                  else margin)
             ly = logo_y + max(0, (chrome["header_height"] - lh) // 2)
             try:
                 ctx.slide.shapes.add_picture(

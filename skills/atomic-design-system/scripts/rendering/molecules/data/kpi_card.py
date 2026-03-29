@@ -10,13 +10,12 @@ class KpiCard:
 
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
-        PAD = ctx.PAD
         ctx.rect(x, y, w, h,
                  fill=ctx.card_bg_color(props, "bg-card"),
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
-        label = str(props.get("label", ""))
+        label = str(props.get("label") or props.get("title") or "")
         unit  = str(props.get("unit",  ""))
         value = str(props.get("value", "—"))
         trend = resolve_trend(props.get("trend", "neutral"))
@@ -40,13 +39,13 @@ class KpiCard:
         header_text_color = ctx.card_title_color(props, default_token="text-on-muted")
         body_text_color = ctx.card_body_color(props, default_token="text-on-muted")
 
-        min_side = min(w, h)
-        pad = max(PAD, int(min_side * 0.055))
-        inner_w = w - pad * 2
-        header_gap = max(ctx.spacing("s"), int(min_side * 0.02))
+        pad      = ctx.card_pad_px(w, h)
+        inner_w  = w - pad * 2
+        header_gap = max(ctx.spacing("s"), int(h * 0.018))
         icon_size = ctx.icon_size(w, h) if icon_raw else 0
-        header_h = max(34, int(h * 0.12), icon_size)
-        label_size = max(ctx.font_size("body"), min(22, int(h * 0.034)))
+        header_h  = ctx.card_header_h(w, h)
+        icon_size = min(icon_size, header_h)  # never overflow header zone onto divider
+        label_size = ctx.card_header_font_size("", inner_w, h)
         unit_size = max(ctx.font_size("caption"), min(ctx.font_size("body"), int(h * 0.026)))
         compact_value = "".join(c for c in value if not c.isspace())
         char_count = max(1, len(compact_value))
@@ -116,9 +115,9 @@ class KpiCard:
                  size=value_size, bold=True, color=ctx.color("text-highlight"),
                  align="left", valign="middle")
 
-        icon_name = ("trend-up"      if trend == "up"   else
-                     "trend-down"    if trend == "down" else
-                     "trend-neutral")
+        icon_name = ("arrow_upward"   if trend == "up"   else
+                     "arrow_downward" if trend == "down" else
+                     "remove")
         tc = (ctx.color("success") if trend == "up" else
               ctx.color("error")   if trend == "down" else
               ctx.color("text-secondary"))

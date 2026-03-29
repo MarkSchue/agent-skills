@@ -1,0 +1,5 @@
+pyyaml
+python-pptx
+pillow
+requests
+cairosvg

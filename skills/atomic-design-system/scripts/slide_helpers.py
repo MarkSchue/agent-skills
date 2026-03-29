@@ -30,6 +30,7 @@ from rendering.molecules import MOLECULE_REGISTRY  # type: ignore[import]
 # ── Regex ─────────────────────────────────────────────────────────────────────
 
 _CHART_FENCE_RE = re.compile(r"```chart:\w+\n.*?```", re.DOTALL)
+_YAML_FENCE_RE  = re.compile(r"```(?:yaml)?\n(.*?)```", re.DOTALL)
 
 
 # ── Prop parsing ──────────────────────────────────────────────────────────────
@@ -86,7 +87,17 @@ def _extract_section_blocks(slide: "Slide") -> list:
 
         body_clean = re.sub(r"<!--.*?-->", "", sec_body, flags=re.DOTALL).strip()
         body_clean = _CHART_FENCE_RE.sub("", body_clean).strip()
+        # Unwrap plain ```yaml ... ``` fences so the content is parsed as props
+        body_clean = _YAML_FENCE_RE.sub(lambda m: m.group(1), body_clean).strip()
+        # Strip trailing slide-separator (---) that leaks from raw slide body
+        body_clean = re.sub(r"\s*^---\s*$", "", body_clean, flags=re.MULTILINE).strip()
         props = _parse_props(body_clean)
+        # Fallback: molecule declared inside yaml block as ``molecule: kpi-card``
+        if not mol and isinstance(props, dict) and props.get("molecule"):
+            mol = str(props.pop("molecule")).strip()
+            mol_index += 1
+        elif isinstance(props, dict):
+            props.pop("molecule", None)  # remove stray key if mol was already set
         blocks.append({"title": lines[0].strip(), "molecule": mol,
                        "props": props, "body": body_clean})
     return blocks
@@ -121,10 +132,19 @@ def dispatch(ctx, molecule: str, props: dict, body: str,
     mol = molecule.lower().replace("_", "-")
 
     if mol == "chart-card":
+        # Prefer a fenced ```chart:xxx``` block; fall back to inline props
         if slide.chart_blocks and index < len(slide.chart_blocks):
             chart = slide.chart_blocks[index]
-            MOLECULE_REGISTRY["chart-card"].render(
-                ctx, chart.chart_type, chart.data, x, y, w, h)
+            chart_type = chart.chart_type
+            chart_data = chart.data
+        elif props:
+            chart_type = str(props.get("chart-type") or props.get("chart_type") or "bar")
+            chart_data = dict(props)
+            chart_data.pop("chart-type", None)
+            chart_data.pop("chart_type", None)
+        else:
+            return
+        MOLECULE_REGISTRY["chart-card"].render(ctx, chart_type, chart_data, x, y, w, h)
         return
 
     renderer = MOLECULE_REGISTRY.get(mol)

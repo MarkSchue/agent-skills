@@ -26,11 +26,15 @@ Options
 What is created
 ───────────────
     <out>/<project-name>/
-        theme.css     Full standalone copy of the base theme with brand overrides
-                      applied directly in :root — no @import, one file.
-        deck.md       Starter slide deck wired to the chosen theme
-        output/       Build target (draw.io / pptx files go here)
-        qa/           QA render target
+        theme.css         Full standalone copy of the base theme with brand overrides
+                          applied directly in :root — no @import, one file.
+        deck.md           Starter slide deck wired to the chosen theme
+        output/           Build target (draw.io / pptx files go here)
+        qa/               QA render target
+        assets/           Project assets root
+          icons/          SVG / PNG icons used in slides
+          logos/          Brand logos (SVG preferred)
+          images/         Photos, illustrations, and other raster assets
 """
 
 from __future__ import annotations
@@ -234,6 +238,10 @@ def main() -> None:
     # ── Create folder structure ───────────────────────────────────────────────
     (project / "output").mkdir(parents=True)
     (project / "qa").mkdir(parents=True)
+    for asset_dir in ("assets/icons", "assets/logos", "assets/images"):
+        sub = project / asset_dir
+        sub.mkdir(parents=True)
+        (sub / ".gitkeep").touch()  # keep empty dirs in git
 
     # ── Write theme.css ───────────────────────────────────────────────────────
     theme_css = build_theme_css(
@@ -260,6 +268,7 @@ def main() -> None:
     print(f"  deck.md    — starter deck with 3 slides")
     print(f"  output/    — build target")
     print(f"  qa/        — QA render target")
+    print(f"  assets/    — icons/ · logos/ · images/")
     print()
     print("Next step:")
     print(f"  python scripts/drawio_builder.py {args.project_name}/deck.md")

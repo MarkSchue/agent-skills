@@ -24,7 +24,7 @@ class ChartCard:
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
-        card_pad = max(ctx.PAD, int(min(w, h) * 0.055))
+        card_pad = ctx.card_pad_px(w, h)
         title_raw = chart_data.get("title")
         title = str(title_raw or f"chart:{chart_type}")
 
@@ -41,22 +41,15 @@ class ChartCard:
         icon_fg = ctx.icon_fg(chart_data)
         title_color = ctx.card_title_color(chart_data, default_token="text-on-muted")
         body_color = ctx.card_body_color(chart_data, default_token="text-secondary")
-        header_h = max(34, int(h * 0.12), ctx.icon_size(w, h) if icon_raw else 0)
-        header_gap = max(ctx.spacing("s"), int(min(w, h) * 0.02))
+        header_h  = ctx.card_header_h(w, h)
+        header_gap = max(ctx.spacing("s"), int(h * 0.018))
         content_y = y + card_pad
 
         if show_header:
             icon_size = ctx.icon_size(w, h) if icon_raw else 0
+            icon_size = min(icon_size, header_h)  # never overflow header zone onto divider
             text_w = w - card_pad * 2 - (icon_size + header_gap if icon_raw else 0)
-            label_size = max(ctx.font_size("body"), min(22, int(h * 0.034)))
-            title_size = ctx.fit_text_size(
-                title,
-                max(40, text_w),
-                max_size=label_size,
-                min_size=ctx.font_size("label"),
-                bold=True,
-                safety=0.92,
-            )
+            title_size = ctx.card_header_font_size(title, max(40, text_w), h)
 
             ctx.text(x + card_pad, content_y, max(40, text_w), header_h, title,
                      size=title_size, bold=True,
