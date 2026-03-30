@@ -34,10 +34,13 @@ from pathlib import Path
 
 from pptx import Presentation
 from pptx.util import Emu
+from pptx.oxml.ns import qn
+from lxml import etree
 
 sys.path.insert(0, str(Path(__file__).parent))
 from design_system_utils import DesignSystem
 from md_parser import parse_markdown, Slide
+from agenda_injector import inject_agenda_slides, materialize_agenda_to_deck
 from rendering.context import PptxCtx
 from rendering.templates import TEMPLATE_REGISTRY
 from slide_helpers import _extract_section_blocks, dispatch
@@ -48,6 +51,94 @@ from qa_render import render as qa_render
 
 def px(v: int | float) -> int:
     return int(v * 9525)
+
+
+# ── PowerPoint section injection ──────────────────────────────────────────────
+
+def _inject_pptx_sections(prs: Presentation, slides: list) -> None:
+    """Inject p14:sectionLst into the presentation XML so PowerPoint shows
+    section separators in the slide panel and presenter view.
+
+    Sections are derived from ``slide.section`` on each Slide object.
+    Slides with ``section == None`` or ``section_index == -1`` are placed
+    in an implicit first section named after the first slide's title.
+
+    Only runs when at least 2 distinct section names are present.
+    """
+    import uuid as _uuid
+
+    # Collect ordered (section_name → [pptx_slide_index]) mapping
+    section_order: list[str] = []
+    section_map: dict[str, list[int]] = {}
+
+    # Build a lookup of section index → section name (from content slides)
+    sec_idx_to_name: dict[int, str] = {}
+    for slide_obj in slides:
+        si = getattr(slide_obj, "section_index", -1)
+        sn = getattr(slide_obj, "section", None) or ""
+        if si >= 0 and sn and si not in sec_idx_to_name:
+            sec_idx_to_name[si] = sn
+
+    for pptx_idx, slide_obj in enumerate(slides):
+        is_agenda = getattr(slide_obj, "is_agenda_slide", False)
+        hl_idx    = getattr(slide_obj, "agenda_highlight_index", -1)
+
+        if is_agenda and hl_idx >= 0:
+            # Highlighted agenda → belongs to the section it introduces
+            sec_name = sec_idx_to_name.get(hl_idx, f"Section {hl_idx + 1}")
+        elif is_agenda:
+            # Overview agenda (hl=-1) → put in the first section (cover)
+            sec_name = sec_idx_to_name.get(0, "Cover")
+        else:
+            sec_name = getattr(slide_obj, "section", None) or sec_idx_to_name.get(0, "Cover")
+
+        if sec_name not in section_map:
+            section_map[sec_name] = []
+            section_order.append(sec_name)
+        section_map[sec_name].append(pptx_idx)
+
+    if len(section_order) < 2:
+        return   # nothing meaningful to inject
+
+    # Build rId lookup: pptx slide index → relationship id
+    def _rId(pptx_slide_index: int) -> str | None:
+        target_part = prs.slides[pptx_slide_index].part
+        for rId, rel in prs.part.rels.items():
+            if hasattr(rel, "_target") and rel._target is target_part:
+                return rId
+        return None
+
+    P14 = "http://schemas.microsoft.com/office/powerpoint/2010/main"
+    R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+
+    sec_lst_el = etree.Element(f"{{{P14}}}sectionLst",
+                               nsmap={"p14": P14, "r": R_NS})
+
+    for sec_name in section_order:
+        sec_el = etree.SubElement(sec_lst_el, f"{{{P14}}}section")
+        sec_el.set("name", sec_name or "Default")
+        sec_el.set("id", "{" + str(_uuid.uuid4()).upper() + "}")
+        sld_id_lst = etree.SubElement(sec_el, f"{{{P14}}}sldIdLst")
+        for pptx_idx in section_map.get(sec_name, []):
+            rId = _rId(pptx_idx)
+            if rId:
+                sld_el = etree.SubElement(sld_id_lst, f"{{{P14}}}sldId")
+                sld_el.set(f"{{{R_NS}}}id", rId)
+
+    # Inject into presentation extLst
+    prs_el = prs.element
+    extLst = prs_el.find(qn("p:extLst"))
+    if extLst is None:
+        extLst = etree.SubElement(prs_el, qn("p:extLst"))
+
+    # Remove any existing section extension to avoid duplicates
+    for ext in list(extLst):
+        if ext.get("uri") == "{521415D9-36F7-43E2-AB2F-B90AF26B5E84}":
+            extLst.remove(ext)
+
+    ext_el = etree.SubElement(extLst, qn("p:ext"))
+    ext_el.set("uri", "{521415D9-36F7-43E2-AB2F-B90AF26B5E84}")
+    ext_el.append(sec_lst_el)
 
 
 # ── PptxBuilder ───────────────────────────────────────────────────────────────
@@ -73,6 +164,7 @@ class PptxBuilder:
             self._build_slide(prs, slide_obj, page_num=i + 1, total=total)
             print(f"  Slide {i + 1}: {slide_obj.title}")
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        _inject_pptx_sections(prs, slides)
         prs.save(str(output_path))
         print(f"Wrote {output_path}")
 
@@ -352,6 +444,9 @@ def build_pptx(md_path: Path, stylesheet_path, output_path: Path, qa: bool = Tru
               file=__import__('sys').stderr)
     ds     = DesignSystem.load(css)
     slides = parse_markdown(md_path)
+    if slides and slides[0].front_matter.get("auto-agenda", True):
+        slides = inject_agenda_slides(slides)
+        materialize_agenda_to_deck(md_path, slides)
     PptxBuilder(ds).build(slides, output_path)
 
     if qa:

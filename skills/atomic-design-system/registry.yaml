@@ -59,6 +59,12 @@ atoms:
     tags: [shape, divider, separator, rule, line, accent-line, border]
     preview: previews/atoms/shape-divider.png
 
+  - id: agenda-entry
+    description: Single agenda row with number, time, or icon label plus bold title and optional description.
+    file: atoms/ui/agenda-entry.md
+    tags: [agenda, schedule, entry, row, layout, program, event, highlight, list]
+    preview: previews/atoms/agenda-entry.png
+
   - id: chart-waveform
     description: Amplitude bar waveform from normalized values or auto-generated sample. Suitable for signal, audio, or any time-series amplitude data.
     file: atoms/chart/waveform.md
@@ -146,6 +152,14 @@ molecules:
     preview: previews/molecules/topic-card.png
     domain: strategy
     required_atoms: [text-heading, text-body, shape-divider]
+
+  - id: agenda-card
+    description: Responsive agenda schedule card with number, time, or icon labels and optional highlight row.
+    file: molecules/strategy/agenda-card.md
+    tags: [strategy, agenda, program, schedule, event, list, entry, rows, highlight]
+    preview: previews/molecules/strategy/agenda-card.png
+    domain: strategy
+    required_atoms: [agenda-entry, shape-divider]
 
   # ── Data & Performance domain ─────────────────────────────────────
   - id: kpi-card

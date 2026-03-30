@@ -94,16 +94,17 @@ Follow in sequence. Do not skip or reorder.
 atomic-design-system/
 ├── SKILL.md · registry.yaml · registry-tags.yaml
 ├── atoms/           icon-wrapper · chart-bar · chart-pie · chart-gantt · badge-status
-│                    text-heading · text-body · shape-divider · svg/
+│                    text-heading · text-body · shape-divider · agenda-entry · svg/
 ├── molecules/
 │   ├── strategy/    mission-card · timeline-panel · objective-card · quote-card · roadmap-panel
+│   │               agenda-card
 │   ├── data/        kpi-card · trend-card · data-insight-panel · comparison-card · chart-card
 │   └── team/        profile-card · team-grid-panel · contact-card · role-card · location-card
 ├── templates/       hero-title · comparison-2col · grid-3 · numbered-list · data-insight
 ├── designthemes/    materialdesign3/theme.css · carbon/theme.css · liquidglass/theme.css
 ├── previews/        atoms/ · molecules/ · templates/
 ├── assets/          theme-bridges/ · neutral-theme.yaml
-├── references/      design-system-concepts.md · token-reference.md
+├── references/      deck-syntax.md · design-system-concepts.md · token-reference.md
 ├── scripts/         (see Scripts section)
 └── evals/           evals.json
 ```
@@ -446,28 +447,62 @@ When a user provides a screenshot, `.pptx`, `.drawio`, or URL to "match this des
 
 ## Markdown Slide Input Format
 
+### New hierarchy (recommended — H1/H2/H3)
+
 ```markdown
 ---
 theme: ./theme.css
 ---
 
-# Slide Title
+# Section Title          ← H1 = logical section / agenda entry
+## Slide Title           ← H2 = one physical slide
 <!-- layout: hero-title -->
 
 Content goes here.
 
-## Section
-<!-- layout: data-insight -->
-<!-- card: kpi-card, trend-card -->
-
-```chart:bar
-labels: [Q1, Q2, Q3]
-values: [82, 91, 105]
-unit: M€
-```
+### Card Block           ← H3 = one card zone within the slide
+<!-- card: kpi-card -->
+value: 42M€
 ```
 
-- `#` H1 = new slide · `##` H2 = new section (same slide unless followed by `#`)
+- `#` H1 = **section** (agenda entry) — groups slides together
+- `##` H2 = **slide** — one physical output slide
+- `###` H3 = **card block** within a slide
+
+The parser auto-detects this model when any H2 heading appears inside an H1 section.
+
+### Legacy format (backward compat — H1/H2)
+
+If the document contains **no H2 headings inside H1 sections**, the legacy model is used:
+
+- `#` H1 = slide · `##` H2 = card block within the slide
+
+Existing decks without H2 slides continue to work unmodified.
+
+### Agenda auto-generation
+
+When a deck uses the new H1/H2/H3 hierarchy and has ≥ 2 sections, the builder
+automatically injects agenda slides:
+
+1. **Overview agenda** (no highlight) is inserted as slide 2 (after the cover).
+2. **Highlighted agenda** (current section highlighted) is inserted before the
+   first slide of each section.
+
+Resulting order: cover → overview agenda → [hl:section1] → section-1 slides → [hl:section2] → section-2 slides → …
+
+Each agenda slide uses the `grid-1-2` layout:
+- Left column: `stacked-text` molecule with the section title
+- Right column: `agenda-card` molecule with all section entries
+
+**To opt out**, add `auto-agenda: false` to the deck front-matter:
+
+```markdown
+---
+theme: ./theme.css
+auto-agenda: false
+---
+```
+
 - `<!-- layout: <template-id> -->` = force template · `<!-- card: <molecule-id>, ... -->` = suggest molecules
 - No hint = skill auto-selects from registry
 
@@ -487,6 +522,11 @@ unit: M€
 ## References
 
 Load only when deeper guidance is needed:
+- `references/deck-syntax.md` — **Canonical `deck.md` authoring syntax.** Load this whenever writing
+  or editing a `deck.md` file. Contains every template, every molecule's parameter schema, the
+  front-matter keys, and annotated examples. **Update this file whenever a new molecule, template,
+  or front-matter key is added to the design system — add a changelog row and the full parameter
+  table for the new element.**
 - `references/design-system-concepts.md` — Atomic design theory, token system design, glossary
 - `references/token-reference.md` — Complete token catalogue with allowed values and defaults
 

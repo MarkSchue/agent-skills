@@ -14,6 +14,7 @@ from .strategy.roadmap_panel     import RoadmapPanel
 from .strategy.timeline_panel    import TimelinePanel
 from .strategy.topic_card        import TopicCard
 from .strategy.quarter_grid_card import QuarterGridCard
+from .strategy.agenda_card       import AgendaCard
 
 from .data.kpi_card           import KpiCard
 from .data.trend_card         import TrendCard
@@ -44,6 +45,7 @@ MOLECULE_REGISTRY: dict = {
     "stacked-text":        TopicCard(),        # preferred name
     "4-6-card":            QuarterGridCard(),  # numbered/icon quarter grid (4–6 items)
     "quarter-grid":        QuarterGridCard(),  # alternate slug
+    "agenda-card":         AgendaCard(),
     # Data
     "kpi-card":            KpiCard(),
     "trend-card":          TrendCard(),

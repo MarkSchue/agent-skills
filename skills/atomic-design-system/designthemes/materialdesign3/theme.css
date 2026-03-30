@@ -179,6 +179,16 @@
   --color-objective-badge-bg:     var(--color-primary);            /* quarter badge background              */
   --color-objective-badge-fg:     var(--color-on-primary);         /* quarter badge text                   */
 
+  /* Agenda card component tokens */
+  --color-agenda-label:         var(--color-primary);              /* number / time / icon label color     */
+  --color-agenda-icon-bg:       var(--color-primary);              /* icon badge background                */
+  --color-agenda-icon-fg:       var(--color-on-primary);           /* icon badge glyph / letter            */
+  --color-agenda-title:         var(--color-on-surface);           /* entry title text color               */
+  --color-agenda-body:          var(--color-on-surface-variant);   /* entry description / body color       */
+  --color-agenda-highlight-bg:  var(--color-primary-container);    /* highlighted entry row background     */
+  --color-agenda-highlight-fg:  var(--color-on-primary-container); /* highlighted entry text color         */
+  --color-agenda-divider:       var(--color-line-default);         /* between-entry divider line color     */
+
   /* Progress bar tokens (objective-card, and any future progress molecule) */
   --color-progress-high:          var(--color-success);            /* ≥ 80 %                                */
   --color-progress-mid:           var(--color-warning);            /* 40 – 79 %                             */

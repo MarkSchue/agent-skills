@@ -35,6 +35,7 @@ from xml.etree import ElementTree as ET
 sys.path.insert(0, str(Path(__file__).parent))
 from design_system_utils import DesignSystem
 from md_parser import parse_markdown, Slide
+from agenda_injector import inject_agenda_slides, materialize_agenda_to_deck
 from rendering.context import DrawioCtx
 from rendering.templates import TEMPLATE_REGISTRY
 from slide_helpers import _extract_section_blocks, dispatch
@@ -356,6 +357,9 @@ def build_drawio(md_path: Path, stylesheet_path, output_path: Path) -> None:
               file=__import__('sys').stderr)
     ds     = DesignSystem.load(css)
     slides = parse_markdown(md_path)
+    if slides and slides[0].front_matter.get("auto-agenda", True):
+        slides = inject_agenda_slides(slides)
+        materialize_agenda_to_deck(md_path, slides)
     DrawioBuilder(ds).build(slides, output_path)
 
 

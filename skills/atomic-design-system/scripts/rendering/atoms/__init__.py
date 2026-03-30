@@ -10,6 +10,7 @@ from .chart.dot_line          import DotLineAtom
 from .data.stat_display       import StatDisplayAtom
 from .data.metric_footer      import MetricFooterAtom
 from .data.icon_title_header  import IconTitleHeaderAtom
+from .ui.agenda_entry         import AgendaEntryAtom
 
 __all__ = [
     "WaveformAtom",
@@ -17,4 +18,5 @@ __all__ = [
     "StatDisplayAtom",
     "MetricFooterAtom",
     "IconTitleHeaderAtom",
+    "AgendaEntryAtom",
 ]

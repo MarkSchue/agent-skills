@@ -1,5 +1,6 @@
 """
-rendering/atoms/ui — UI atom renderers (placeholder for future atoms)
+rendering/atoms/ui — UI atom renderers
 """
+from .agenda_entry import AgendaEntryAtom
 
-__all__: list = []
+__all__ = ["AgendaEntryAtom"]

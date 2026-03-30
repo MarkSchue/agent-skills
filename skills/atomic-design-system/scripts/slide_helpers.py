@@ -61,9 +61,26 @@ def _parse_props(text: str) -> dict:
 # ── Block extraction ──────────────────────────────────────────────────────────
 
 def _extract_section_blocks(slide: "Slide") -> list:
-    """Split a slide's raw markdown on ## headings into a list of block dicts."""
+    """Split a slide's raw markdown into a list of block dicts.
+
+    If ``slide.synthetic_blocks`` is set (e.g. for agenda slides injected by
+    ``agenda_injector``), those pre-built blocks are returned directly without
+    any further parsing.
+
+    The split delimiter adapts to ``slide.block_level``:
+    - ``"h2"`` (legacy)  → split on ``##`` headings
+    - ``"h3"`` (new)     → split on ``###`` headings
+    """
+    # ── Synthetic bypass ──────────────────────────────────────────────────────
+    if getattr(slide, "synthetic_blocks", None) is not None:
+        return slide.synthetic_blocks  # type: ignore[return-value]
+
+    # ── Dynamic delimiter ─────────────────────────────────────────────────────
+    block_level = getattr(slide, "block_level", "h2")
+    delimiter   = r"^###\s+" if block_level == "h3" else r"^##\s+"
+
     blocks: list = []
-    sections     = re.split(r"^##\s+", slide.raw, flags=re.MULTILINE)
+    sections     = re.split(delimiter, slide.raw, flags=re.MULTILINE)
     section_mols = list(slide.molecule_hints)
     mol_index    = 0
 

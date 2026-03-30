@@ -19,6 +19,7 @@ categories:
     - card
     - figure
     - wrapper
+    - layout
 
   chart-types:
     - bar
@@ -55,6 +56,9 @@ categories:
     - testimonial
     - attribution
     - customer
+    - agenda
+    - program
+    - event
 
   data-topics:
     - kpi
@@ -122,6 +126,9 @@ categories:
     - how-to
     - ranking
     - mixed
+    - row
+    - entry
+    - rows
 
   visual-properties:
     - decorative
@@ -150,3 +157,4 @@ categories:
     - paragraph
     - bullets
     - numbered
+    - highlight

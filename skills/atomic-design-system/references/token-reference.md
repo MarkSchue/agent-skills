@@ -220,3 +220,39 @@ Accepted truthy values: `true / 1 / yes / on / show`
 Every molecule Python class **must** pass `props` to every geometry helper call.
 Never compute geometry inline — this bypasses both CSS tokens and per-card overrides.
 See `context.py` module docstring for the canonical call pattern.
+
+---
+
+## Agenda Card Component Tokens
+
+Defined in every theme CSS file.  Override them per-theme or per-card.
+
+### CSS Theme Tokens (`--color-agenda-*`)
+
+| Token | Default | Description |
+|-------|---------|-------------|
+| `--color-agenda-label` | `var(--color-primary)` | Number / time / icon label colour |
+| `--color-agenda-icon-bg` | `var(--color-primary)` | Icon badge background fill |
+| `--color-agenda-icon-fg` | `var(--color-on-primary)` | Icon badge glyph / letter colour |
+| `--color-agenda-title` | `var(--color-on-surface)` | Entry title text colour |
+| `--color-agenda-body` | `var(--color-on-surface-variant)` | Entry description / body colour |
+| `--color-agenda-highlight-bg` | `var(--color-primary-container)` | Highlighted entry row background |
+| `--color-agenda-highlight-fg` | `var(--color-on-primary-container)` | Highlighted entry text colour |
+| `--color-agenda-divider` | `var(--color-line-default)` | Between-entry divider line colour |
+
+### Per-Card Instance Override Keys
+
+Written in the YAML block of an `agenda-card` molecule in `deck.md`.
+Priority chain: **per-card prop → `--color-agenda-*` CSS token → semantic fallback**.
+
+| Key | Description |
+|-----|-------------|
+| `label-color` | Override `--color-agenda-label` for this card only |
+| `icon-bg` | Override `--color-agenda-icon-bg` for this card only |
+| `icon-fg` | Override `--color-agenda-icon-fg` for this card only |
+| `title-color` | Override `--color-agenda-title` for this card only |
+| `body-color` | Override `--color-agenda-body` for this card only |
+| `highlight-bg` | Override `--color-agenda-highlight-bg` for this card only |
+| `show-dividers` | `true/false` — show or hide the between-entry divider lines |
+| `divider-color` | Colour for between-entry dividers |
+| `show-header` | `true/false` — show or hide the card header zone |

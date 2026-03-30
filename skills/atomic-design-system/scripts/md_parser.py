@@ -1,12 +1,17 @@
 """
 md_parser.py — Parse annotated Markdown to a structured slide plan
 ─────────────────────────────────────────────────────────────────────────────
-Reads a Markdown file and returns a list of Slide objects describing:
-  - slide title (H1)
-  - layout hint (<!-- layout: grid-3 -->)
-  - molecule hints (<!-- card: kpi-card, trend-card -->)
-  - inline chart data blocks (```chart:bar ... ```)
-  - body text for text atoms
+Document hierarchy (new convention)
+────────────────────────────────────
+  # Section Name       ← H1 = agenda entry / logical section
+  ## Slide Title       ← H2 = one physical slide
+  ### Card Block       ← H3 = one card zone within a slide
+
+Backward compatibility
+──────────────────────
+  If no H2 headings are found under any H1, the parser falls back to the
+  legacy model where H1 = slide and H2 = card block.  This keeps existing
+  deck.md files working without modification.
 
 Usage:
     from scripts.md_parser import parse_markdown
@@ -14,6 +19,7 @@ Usage:
     slides = parse_markdown("path/to/deck.md")
     for slide in slides:
         print(slide.title, slide.template_hint, slide.molecule_hints)
+        print("section:", slide.section, "index:", slide.section_index)
 """
 
 from __future__ import annotations
@@ -45,19 +51,32 @@ class Slide:
     raw: str                            # raw source text of this slide section
     chrome_overrides: dict = field(default_factory=dict)  # from <!-- chrome --> block
 
+    # ── Section / hierarchy fields (new hierarchy model) ─────────────────────
+    section: str | None   = None   # H1 section title this slide belongs to
+    section_index: int    = -1     # 0-based index of the section (-1 = no section)
 
-# ── Parsing ───────────────────────────────────────────────────────────────────
+    # ── Synthetic-slide fields (set by agenda_injector) ───────────────────────
+    is_agenda_slide: bool           = False   # True for auto-generated agenda slides
+    agenda_highlight_index: int     = -1      # which section is highlighted (-1 = none)
+    synthetic_blocks: list | None   = None    # pre-built blocks; bypasses block extractor
+
+    # ── Block level: "h2" (legacy) or "h3" (new hierarchy) ───────────────────
+    block_level: str = "h2"   # h2 → split card blocks on ##; h3 → split on ###
+
+
+# ── Regex constants ───────────────────────────────────────────────────────────
 
 _LAYOUT_COMMENT  = re.compile(r"<!--\s*layout:\s*([^\s>]+)\s*-->", re.IGNORECASE)
 _CARD_COMMENT    = re.compile(r"<!--\s*card:\s*([^>]+)-->", re.IGNORECASE)
 _CHROME_COMMENT  = re.compile(r"<!--\s*chrome\s*-->", re.IGNORECASE)
 _CHART_FENCE     = re.compile(r"```chart:(\w+)\s*\n(.*?)```", re.DOTALL)
-_H1              = re.compile(r"^#\s+(.+)$", re.MULTILINE)
 _FRONT_MATTER    = re.compile(r"^---\n(.+?)\n---\n", re.DOTALL)
 
 
+# ── Public API ────────────────────────────────────────────────────────────────
+
 def parse_markdown(md_path: str | Path) -> list[Slide]:
-    """Parse a Markdown file and return one Slide per H1 heading."""
+    """Parse a Markdown file; return one Slide per H2 (new model) or H1 (legacy)."""
     text = Path(md_path).read_text(encoding="utf-8")
 
     # Strip global front-matter
@@ -70,28 +89,134 @@ def parse_markdown(md_path: str | Path) -> list[Slide]:
             pass
         text = text[fm_match.end():]
 
-    # Split on H1 headings
-    slide_texts = _split_on_h1(text)
+    if _has_h2_slides(text):
+        return _parse_sections(text, global_front_matter)
+    else:
+        return _parse_legacy(text, global_front_matter)
+
+
+# ── Hierarchy detection ───────────────────────────────────────────────────────
+
+def _has_h2_slides(text: str) -> bool:
+    """Return True when the document uses the new H1 / H2 / H3 hierarchy."""
+    in_h1 = False
+    for line in text.splitlines():
+        stripped = line.rstrip()
+        if re.match(r"^#(?!#)\s+\S", stripped):    # exactly H1
+            in_h1 = True
+        elif re.match(r"^##(?!#)\s+\S", stripped): # exactly H2
+            if in_h1:
+                return True
+    return False
+
+
+# ── New hierarchy parser: H1 = section, H2 = slide, H3 = card block ──────────
+
+def _parse_sections(text: str, global_front_matter: dict) -> list[Slide]:
+    """Parse the H1/H2/H3 hierarchy; return flat list of Slide objects."""
+    slides: list[Slide] = []
+    slide_idx = 0
+    section_idx = -1
+    current_section: str | None = None
+
+    for sec_title, sec_body in _split_on_heading(text, level=1):
+        if sec_title.strip():
+            section_idx += 1
+            current_section = sec_title.strip()
+
+        h2_slides = _split_on_heading(sec_body, level=2)
+
+        if not h2_slides:
+            if sec_body.strip():
+                slides.append(_make_slide(
+                    idx=slide_idx,
+                    title=current_section or sec_title,
+                    body=sec_body,
+                    global_fm=global_front_matter,
+                    section=current_section,
+                    section_index=section_idx,
+                    block_level="h3",
+                ))
+                slide_idx += 1
+            continue
+
+        for h2_title, h2_body in h2_slides:
+            slides.append(_make_slide(
+                idx=slide_idx,
+                title=h2_title.strip() or current_section or "",
+                body=h2_body,
+                global_fm=global_front_matter,
+                section=current_section,
+                section_index=section_idx,
+                block_level="h3",
+            ))
+            slide_idx += 1
+
+    return slides
+
+
+def _split_on_heading(text: str, level: int) -> list[tuple[str, str]]:
+    """Split *text* on exactly *level* hashes; return [(title, body), ...].
+
+    A preamble before the first heading is returned with an empty title.
+    """
+    pattern = re.compile(r"^" + "#" * level + r"(?!#)\s+(.+)$", re.MULTILINE)
+    parts: list[tuple[str, str]] = []
+    last_end   = 0
+    last_title = ""
+
+    for m in pattern.finditer(text):
+        fragment = text[last_end:m.start()]
+        if fragment.strip() or parts:
+            parts.append((last_title, fragment))
+        last_title = m.group(1).strip()
+        last_end   = m.end() + 1   # skip newline after heading
+
+    remainder = text[last_end:]
+    if remainder.strip() or last_title:
+        parts.append((last_title, remainder))
+
+    return parts
+
+
+def _make_slide(idx: int, title: str, body: str, global_fm: dict,
+                section: str | None, section_index: int,
+                block_level: str = "h2") -> Slide:
+    """Construct a Slide from parsed fields."""
+    return Slide(
+        index            = idx,
+        title            = title,
+        template_hint    = _extract_layout_hint(body),
+        molecule_hints   = _extract_molecule_hints(body),
+        body_paragraphs  = _extract_body_paragraphs(body),
+        chart_blocks     = _extract_chart_blocks(body),
+        front_matter     = global_fm,
+        raw              = body,
+        chrome_overrides = _extract_chrome_overrides(body),
+        section          = section,
+        section_index    = section_index,
+        block_level      = block_level,
+    )
+
+
+# ── Legacy parser: H1 = slide, H2 = card block ───────────────────────────────
+
+def _parse_legacy(text: str, global_front_matter: dict) -> list[Slide]:
+    """Original parsing: H1 = slide, H2 = card block."""
     slides: list[Slide] = []
 
-    for idx, (title, body) in enumerate(slide_texts):
-        template_hint  = _extract_layout_hint(body)
-        molecule_hints = _extract_molecule_hints(body)
-        chart_blocks   = _extract_chart_blocks(body)
-        body_paragraphs = _extract_body_paragraphs(body)
-
-        chrome_overrides = _extract_chrome_overrides(body)
-
+    for idx, (title, body) in enumerate(_split_on_h1(text)):
         slides.append(Slide(
             index            = idx,
             title            = title,
-            template_hint    = template_hint,
-            molecule_hints   = molecule_hints,
-            body_paragraphs  = body_paragraphs,
-            chart_blocks     = chart_blocks,
+            template_hint    = _extract_layout_hint(body),
+            molecule_hints   = _extract_molecule_hints(body),
+            body_paragraphs  = _extract_body_paragraphs(body),
+            chart_blocks     = _extract_chart_blocks(body),
             front_matter     = global_front_matter,
             raw              = body,
-            chrome_overrides = chrome_overrides,
+            chrome_overrides = _extract_chrome_overrides(body),
+            block_level      = "h2",
         ))
 
     return slides
@@ -107,9 +232,8 @@ def _split_on_h1(text: str) -> list[tuple[str, str]]:
     for line in lines:
         h1_match = re.match(r"^#\s+(.+)$", line.rstrip())
         if h1_match:
-            # Only keep a preamble section if it has non-whitespace content
             body_text = "".join(current_body)
-            if body_text.strip() or len(parts) > 0:
+            if body_text.strip() or parts:
                 parts.append((current_title, body_text))
             current_title = h1_match.group(1).strip()
             current_body = []
@@ -121,6 +245,8 @@ def _split_on_h1(text: str) -> list[tuple[str, str]]:
 
     return parts
 
+
+# ── Field extractors ──────────────────────────────────────────────────────────
 
 def _extract_layout_hint(text: str) -> str | None:
     match = _LAYOUT_COMMENT.search(text)
@@ -139,30 +265,21 @@ def _extract_chart_blocks(text: str) -> list[ChartBlock]:
     blocks: list[ChartBlock] = []
     for match in _CHART_FENCE.finditer(text):
         chart_type = match.group(1).strip()
-        data_raw   = match.group(2).strip()
         try:
-            data = yaml.safe_load(data_raw) or {}
+            data = yaml.safe_load(match.group(2).strip()) or {}
         except yaml.YAMLError:
-            data = {"_raw": data_raw}
+            data = {"_raw": match.group(2).strip()}
         blocks.append(ChartBlock(chart_type=chart_type, data=data))
     return blocks
 
 
 def _extract_chrome_overrides(text: str) -> dict:
-    """Extract per-slide chrome overrides from a <!-- chrome --> YAML block.
-
-    Example in deck.md::
-
-        <!-- chrome -->
-        show_page_numbers: false
-        footer_text: ""
-    """
+    """Extract per-slide chrome overrides from a <!-- chrome --> YAML block."""
     m = _CHROME_COMMENT.search(text)
     if not m:
         return {}
-    after = text[m.end():]
     yaml_lines: list[str] = []
-    for line in after.splitlines():
+    for line in text[m.end():].splitlines():
         stripped = line.strip()
         if not stripped:
             if yaml_lines:
@@ -188,13 +305,9 @@ def _extract_chrome_overrides(text: str) -> dict:
 
 def _extract_body_paragraphs(text: str) -> list[str]:
     """Return non-empty paragraphs, excluding comment lines and fenced blocks."""
-    # Remove chart blocks
     cleaned = _CHART_FENCE.sub("", text)
-    # Remove HTML comments
     cleaned = re.sub(r"<!--.*?-->", "", cleaned, flags=re.DOTALL)
-    # Remove H2 headings (section markers)
-    cleaned = re.sub(r"^##.*$", "", cleaned, flags=re.MULTILINE)
-    # Split into paragraphs
+    cleaned = re.sub(r"^#{2,3}.*$", "", cleaned, flags=re.MULTILINE)
     paragraphs = [p.strip() for p in re.split(r"\n{2,}", cleaned)]
     return [p for p in paragraphs if p]
 
@@ -202,17 +315,12 @@ def _extract_body_paragraphs(text: str) -> list[str]:
 # ── Markdown template generation ──────────────────────────────────────────────
 
 def generate_md_template(ideas: list[str], registry: dict | None = None) -> str:
-    """
-    Generate a structured Markdown template from a list of rough slide ideas.
-
-    ideas: list of brief descriptions like ["Company overview", "Q3 revenue results"]
-    Returns: a Markdown string ready for user editing
-    """
+    """Generate a structured Markdown template from a list of rough slide ideas."""
     lines: list[str] = ["---", "design-config: ./design-config.yaml", "---", ""]
 
     for i, idea in enumerate(ideas):
         lines.append(f"# {idea}")
-        lines.append("<!-- layout: [TODO: choose template — hero-title | comparison-2col | grid-3 | numbered-list | data-insight] -->")
+        lines.append("<!-- layout: [TODO: choose template] -->")
         lines.append("<!-- card: [TODO: choose molecules] -->")
         lines.append("")
         lines.append("[TODO: Add slide content here]")
