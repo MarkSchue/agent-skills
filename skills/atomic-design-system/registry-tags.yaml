@@ -59,6 +59,18 @@ categories:
     - agenda
     - program
     - event
+    - columns
+    - conclusion
+    - summary
+    - steps
+    - process
+    - numbered
+    - metrics
+    - grid
+    - matrix
+    - agile
+    - user-story
+    - backlog
 
   data-topics:
     - kpi
@@ -79,6 +91,8 @@ categories:
     - comparison
     - schedule
     - project
+    - table
+    - estimation
 
   team-topics:
     - person

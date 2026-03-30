@@ -11,7 +11,14 @@ from .strategy.mission_card      import MissionCard
 from .strategy.objective_card    import ObjectiveCard
 from .strategy.quote_card        import QuoteCard
 from .strategy.roadmap_panel     import RoadmapPanel
-from .strategy.timeline_panel    import TimelinePanel
+from .strategy.column_conclusion_card import ColumnConclusionCard
+from .strategy.grid_card          import GridCard
+from .strategy.numbered_list_card  import NumberedListCard
+from .strategy.table_summary_card  import TableSummaryCard
+from .strategy.step_card         import StepCard
+from .strategy.table_card        import TableCard
+from .strategy.timeline_card     import TimelineCard
+from .strategy.user_story_card   import UserStoryCard
 from .strategy.topic_card        import TopicCard
 from .strategy.quarter_grid_card import QuarterGridCard
 from .strategy.agenda_card       import AgendaCard
@@ -40,7 +47,14 @@ MOLECULE_REGISTRY: dict = {
     "objective-card":      ObjectiveCard(),
     "quote-card":          QuoteCard(),
     "roadmap-panel":       RoadmapPanel(),
-    "timeline-panel":      TimelinePanel(),
+    "column-conclusion-card": ColumnConclusionCard(),
+    "grid-card":            GridCard(),
+    "numbered-list-card":   NumberedListCard(),
+    "table-summary-card":   TableSummaryCard(),
+    "step-card":           StepCard(),
+    "table-card":          TableCard(),
+    "timeline-card":       TimelineCard(),
+    "user-story-card":     UserStoryCard(),
     "topic-card":          TopicCard(),        # legacy alias
     "stacked-text":        TopicCard(),        # preferred name
     "4-6-card":            QuarterGridCard(),  # numbered/icon quarter grid (4–6 items)
@@ -65,4 +79,4 @@ MOLECULE_REGISTRY: dict = {
     "header-list-card":    HeaderListCard(),
 }
 
-__all__ = ["MOLECULE_REGISTRY", "ChartCard"]
+__all__ = ["MOLECULE_REGISTRY", "ChartCard", "StepCard", "TableCard"]

@@ -105,11 +105,67 @@ molecules:
     domain: strategy
     required_atoms: [icon-wrapper, text-heading, text-body, shape-divider]
 
-  - id: timeline-panel
-    description: Horizontal or vertical timeline showing ordered milestones with dates and status badges.
-    file: molecules/strategy/timeline-panel.md
-    tags: [strategy, timeline, milestones, history, roadmap]
-    preview: previews/molecules/timeline-panel.png
+  - id: column-conclusion-card
+    description: 2–5 equal columns with optional icon, large metric, bold headline, body text, conclusion divider, and chevron.
+    file: molecules/strategy/column-conclusion-card.md
+    tags: [strategy, columns, conclusion, summary, card]
+    preview: previews/molecules/column-conclusion-card.png
+    domain: strategy
+    required_atoms: [icon-wrapper, text-heading, text-body, shape-divider]
+
+  - id: grid-card
+    description: Matrix grid with row-label column, column headers, data rows, cell spanning, and per-cell fill and text customisation.
+    file: molecules/strategy/grid-card.md
+    tags: [strategy, grid, matrix, card]
+    preview: previews/molecules/grid-card.png
+    domain: strategy
+    required_atoms: [text-heading, text-body, badge-status]
+
+  - id: numbered-list-card
+    description: Row-based list with number, badge, or icon gutter, optional bold headline column, and body text. Dividers between rows.
+    file: molecules/strategy/numbered-list-card.md
+    tags: [strategy, list, numbered, steps, card]
+    preview: previews/molecules/numbered-list-card.png
+    domain: strategy
+    required_atoms: [text-heading, text-body, shape-divider, badge-status]
+
+  - id: step-card
+    description: 1–5 column process/step layout with numbered circles or icons, colored accent lines, bold headlines, and body text below a divider.
+    file: molecules/strategy/step-card.md
+    tags: [strategy, steps, process, numbered, card]
+    preview: previews/molecules/step-card.png
+    domain: strategy
+    required_atoms: [text-heading, text-body, shape-divider]
+
+  - id: table-card
+    description: Card-framed data table with header row, alternating fills, and optional total row. Uses native PPTX table and draw.io mxTable.
+    file: molecules/strategy/table-card.md
+    tags: [strategy, data, table, estimation, card]
+    preview: previews/molecules/table-card.png
+    domain: strategy
+    required_atoms: [text-heading, text-body, shape-divider]
+
+  - id: table-summary-card
+    description: KPI strip plus annotated remarks for display beside or beneath a data table. Supports companion table-mode styling.
+    file: molecules/strategy/table-summary-card.md
+    tags: [strategy, table, kpi, summary, card]
+    preview: previews/molecules/table-summary-card.png
+    domain: strategy
+    required_atoms: [text-heading, text-body, badge-status, shape-divider]
+
+  - id: user-story-card
+    description: Structured agile story card with header ID badge and configurable labelled field grid.
+    file: molecules/strategy/user-story-card.md
+    tags: [strategy, agile, user-story, backlog, card]
+    preview: previews/molecules/user-story-card.png
+    domain: strategy
+    required_atoms: [text-heading, text-body, badge-status, shape-divider]
+
+  - id: timeline-card
+    description: Card-framed horizontal or vertical milestone timeline with status dots, per-instance color/orientation overrides, and optional header.
+    file: molecules/strategy/timeline-card.md
+    tags: [strategy, timeline, milestones, roadmap, phases, card]
+    preview: previews/molecules/timeline-card.png
     domain: strategy
     required_atoms: [text-heading, text-body, badge-status, shape-divider]
 

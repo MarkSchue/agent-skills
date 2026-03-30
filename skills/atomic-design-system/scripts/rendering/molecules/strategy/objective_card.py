@@ -100,11 +100,12 @@ class ObjectiveCard:
             oy += GAP_M
 
         # ── Key-result rows ───────────────────────────────────────────────
-        n_krs     = max(len(krs), 1)
-        kr_area_h = y + h - oy - card_pad
-        kr_slot_h = max(36, min(80, kr_area_h // n_krs))
-        bar_h     = max(4, min(10, kr_slot_h // 7))
-        label_h   = kr_slot_h - bar_h - GAP_XS
+        n_krs      = max(len(krs), 1)
+        kr_row_gap = GAP_S   # ctx.spacing("s") = 8 px between KR rows
+        kr_area_h  = y + h - oy - card_pad - kr_row_gap * (n_krs - 1)
+        kr_slot_h  = max(36, min(80, kr_area_h // n_krs))
+        bar_h      = max(4, min(10, kr_slot_h // 7))
+        label_h    = kr_slot_h - bar_h - GAP_XS
 
         kr_sz   = min(ctx.font_size("body"), max(ctx.font_size("caption"), int(kr_slot_h * 0.35)))
         ratio_w = max(52, int(inner_w * 0.13))
@@ -149,6 +150,6 @@ class ObjectiveCard:
             ctx.rect(x + card_pad, bar_y, fill_w, bar_h,
                      fill=pct_c, radius=bar_r)
 
-            ky += kr_slot_h
+            ky += kr_slot_h + kr_row_gap
             if ky > y + h - card_pad:
                 break

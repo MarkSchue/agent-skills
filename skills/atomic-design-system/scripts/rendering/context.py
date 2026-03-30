@@ -126,6 +126,69 @@ class RenderContext:
     def line(self, x1, y1, x2, y2, color=None):
         raise NotImplementedError
 
+    def native_table(self, x, y, w, h, *,
+                     columns, data_rows,
+                     has_header=True, has_total=False,
+                     header_fill=None, header_text_color=None,
+                     row_fill=None, alt_fill=None,
+                     total_fill=None, total_text_color=None,
+                     border_color=None, text_size=None,
+                     bold_header=True, bold_total=True) -> None:
+        """Render a data table. Primitive fallback used by both backends.
+
+        Subclasses (DrawioCtx, PptxCtx) override this with platform-native
+        table elements. This base implementation draws the table using
+        rect() + text() primitives so it always degrades gracefully.
+
+        Parameters
+        ----------
+        columns   : list[dict]        {label, width_frac, align}
+        data_rows : list[list[str]]   data content only (no header)
+        has_header: draw column labels as a styled header row
+        has_total : treat last data_row as a total/sum row
+        """
+        n_cols = max(1, len(columns))
+        total_frac = sum(c.get("width_frac", 1.0 / n_cols) for c in columns) or 1.0
+        col_widths = [max(1, int(w * c.get("width_frac", 1.0 / n_cols) / total_frac))
+                      for c in columns]
+        col_widths[-1] = max(1, w - sum(col_widths[:-1]))
+
+        all_rows: list = []
+        if has_header:
+            all_rows.append([str(c.get("label", "")) for c in columns])
+        all_rows.extend([list(r) for r in data_rows])
+        n_rows = max(1, len(all_rows))
+        row_h  = max(16, h // n_rows)
+
+        hf  = header_fill       or self.color("primary")
+        htc = header_text_color or self.color("on-primary")
+        rf  = row_fill          or self.color("surface")
+        af  = alt_fill          or self.color("surface-variant")
+        tf  = total_fill        or self.color("surface-variant")
+        ttc = total_text_color  or self.color("on-surface")
+        bc  = border_color      or self.color("border-subtle")
+        sz  = text_size         or self.font_size("caption")
+
+        for r_idx, row in enumerate(all_rows):
+            is_hdr   = r_idx == 0 and has_header
+            is_tot   = r_idx == len(all_rows) - 1 and has_total
+            data_idx = r_idx - (1 if has_header else 0)
+            fill = (hf  if is_hdr else
+                    tf  if is_tot else
+                    rf  if data_idx % 2 == 0 else af)
+            tc   = htc if is_hdr else (ttc if is_tot else self.color("on-surface"))
+            bold = (bold_header and is_hdr) or (bold_total and is_tot)
+            ry   = y + r_idx * row_h
+            self.rect(x, ry, w, row_h, fill=fill, stroke=bc)
+            cx = x
+            for c_idx, (cell_text, col_w) in enumerate(zip(row, col_widths)):
+                align = (columns[c_idx].get("align", "left")
+                         if c_idx < len(columns) else "left")
+                self.text(cx + 4, ry, col_w - 8, row_h,
+                          str(cell_text), size=sz, bold=bold, color=tc,
+                          align=align, valign="middle", inner_margin=0)
+                cx += col_w
+
     # -- Design tokens ---------------------------------------------------------
 
     @property
@@ -826,6 +889,106 @@ class DrawioCtx(RenderContext):
                        "width": str(int(r * 2)), "height": str(int(r * 2)),
                        "as": "geometry"})
 
+    def native_table(self, x, y, w, h, *,
+                     columns, data_rows,
+                     has_header=True, has_total=False,
+                     header_fill=None, header_text_color=None,
+                     row_fill=None, alt_fill=None,
+                     total_fill=None, total_text_color=None,
+                     border_color=None, text_size=None,
+                     bold_header=True, bold_total=True) -> None:
+        """Native draw.io table using mxTable container + swimlane row children.
+
+        Each row is appended to self.root with parent=<table_id>, and each
+        column cell is appended to self.root with parent=<row_id>. The
+        draw.io childLayout=tableLayout engine then positions them correctly.
+        """
+        n_cols = max(1, len(columns))
+        total_frac = sum(c.get("width_frac", 1.0 / n_cols) for c in columns) or 1.0
+        col_widths = [max(1, int(w * c.get("width_frac", 1.0 / n_cols) / total_frac))
+                      for c in columns]
+        col_widths[-1] = max(1, w - sum(col_widths[:-1]))
+
+        all_rows: list = []
+        if has_header:
+            all_rows.append([str(c.get("label", "")) for c in columns])
+        all_rows.extend([list(r) for r in data_rows])
+        n_rows = max(1, len(all_rows))
+        row_h  = max(20, h // n_rows)
+
+        hf  = header_fill       or self.color("primary")
+        htc = header_text_color or self.color("on-primary")
+        rf  = row_fill          or self.color("surface")
+        af  = alt_fill          or self.color("surface-variant")
+        tf  = total_fill        or self.color("surface-variant")
+        ttc = total_text_color  or self.color("on-surface")
+        bc  = border_color      or self.color("border-subtle")
+        sz  = text_size         or self.font_size("caption")
+        fnt = self.font
+
+        # ── Table container cell ─────────────────────────────────────────────
+        tbl_id    = self._new_id()
+        tbl_style = (
+            "shape=table;startSize=0;container=1;collapsible=0;"
+            "childLayout=tableLayout;fixedRows=1;rowLines=0;"
+            f"fontFamily={fnt};fontSize={sz};"
+            f"strokeColor={bc};fillColor=none;html=1;"
+        )
+        tbl_cell = ET.SubElement(self.root, "mxCell",
+                                 {"id": tbl_id, "parent": "1",
+                                  "value": "", "style": tbl_style, "vertex": "1"})
+        ET.SubElement(tbl_cell, "mxGeometry",
+                      {"x": str(int(x)), "y": str(int(y)),
+                       "width": str(int(w)), "height": str(int(n_rows * row_h)),
+                       "as": "geometry"})
+
+        # ── Row + cell children ───────────────────────────────────────────────
+        for r_idx, row_data in enumerate(all_rows):
+            is_hdr   = r_idx == 0 and has_header
+            is_tot   = r_idx == len(all_rows) - 1 and has_total
+            data_idx = r_idx - (1 if has_header else 0)
+            fill = (hf  if is_hdr else
+                    tf  if is_tot else
+                    rf  if data_idx % 2 == 0 else af)
+            tc   = htc if is_hdr else (ttc if is_tot else self.color("on-surface"))
+            bold_val = 1 if ((bold_header and is_hdr) or (bool(has_total) and is_tot)) else 0
+
+            row_id    = self._new_id()
+            row_style = (
+                f"swimlane;startSize={row_h};horizontal=0;"
+                f"fillColor={fill};strokeColor={bc};"
+                f"fontStyle={bold_val};"
+                f"fontFamily={fnt};fontSize={sz};"
+                f"fontColor={tc};align=left;"
+            )
+            row_cell = ET.SubElement(self.root, "mxCell",
+                                     {"id": row_id, "parent": tbl_id,
+                                      "value": "", "style": row_style, "vertex": "1"})
+            ET.SubElement(row_cell, "mxGeometry",
+                          {"y": str(r_idx * row_h), "width": str(int(w)),
+                           "height": str(row_h), "as": "geometry"})
+
+            cx_off = 0
+            for c_idx, (cell_text, col_w) in enumerate(zip(row_data, col_widths)):
+                c_align = (columns[c_idx].get("align", "left")
+                           if c_idx < len(columns) else "left")
+                cell_style = (
+                    f"text;strokeColor=none;fillColor=none;"
+                    f"align={c_align};verticalAlign=middle;"
+                    f"spacingLeft=4;spacingRight=4;overflow=hidden;"
+                    f"fontFamily={fnt};fontSize={sz};"
+                    f"fontColor={tc};fontStyle={bold_val};"
+                )
+                c_cell = ET.SubElement(self.root, "mxCell",
+                                       {"id": self._new_id(), "parent": row_id,
+                                        "value": str(cell_text),
+                                        "style": cell_style, "vertex": "1"})
+                ET.SubElement(c_cell, "mxGeometry",
+                              {"x": str(cx_off), "y": "0",
+                               "width": str(col_w), "height": str(row_h),
+                               "as": "geometry"})
+                cx_off += col_w
+
     # -- Design tokens (resolved from CSS) -------------------------------------
 
     @property
@@ -1140,6 +1303,105 @@ class PptxCtx(RenderContext):
         shape.fill.solid()
         shape.fill.fore_color.rgb = self._rgb(fill)
         shape.line.fill.background()
+
+    def native_table(self, x, y, w, h, *,
+                     columns, data_rows,
+                     has_header=True, has_total=False,
+                     header_fill=None, header_text_color=None,
+                     row_fill=None, alt_fill=None,
+                     total_fill=None, total_text_color=None,
+                     border_color=None, text_size=None,
+                     bold_header=True, bold_total=True) -> None:
+        """Native python-pptx table via slide.shapes.add_table()."""
+        from pptx.util import Emu, Pt
+        from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+
+        n_cols = max(1, len(columns))
+        total_frac = sum(c.get("width_frac", 1.0 / n_cols) for c in columns) or 1.0
+        col_widths_frac = [c.get("width_frac", 1.0 / n_cols) / total_frac
+                           for c in columns]
+
+        all_rows: list = []
+        if has_header:
+            all_rows.append([str(c.get("label", "")) for c in columns])
+        all_rows.extend([list(r) for r in data_rows])
+        n_rows = max(1, len(all_rows))
+
+        px = self._px
+        tbl_shape = self.slide.shapes.add_table(
+            n_rows, n_cols,
+            Emu(px(x)), Emu(px(y)), Emu(px(w)), Emu(px(h))
+        )
+        tbl = tbl_shape.table
+
+        # ── Column widths ─────────────────────────────────────────────────
+        for c_idx, frac in enumerate(col_widths_frac):
+            tbl.columns[c_idx].width = Emu(px(int(w * frac)))
+
+        # ── Row heights ───────────────────────────────────────────────────
+        row_h_px = max(20, h // n_rows)
+        for r_row in tbl.rows:
+            r_row.height = Emu(px(row_h_px))
+
+        hf  = header_fill       or self.color("primary")
+        htc = header_text_color or self.color("on-primary")
+        rf  = row_fill          or self.color("surface")
+        af  = alt_fill          or self.color("surface-variant")
+        tf  = total_fill        or self.color("surface-variant")
+        ttc = total_text_color  or self.color("on-surface")
+        sz  = text_size         or self.font_size("caption")
+        fnt = self.font
+
+        align_map = {"left": PP_ALIGN.LEFT, "center": PP_ALIGN.CENTER,
+                     "right": PP_ALIGN.RIGHT}
+
+        for r_idx, row_data in enumerate(all_rows):
+            is_hdr   = r_idx == 0 and has_header
+            is_tot   = r_idx == len(all_rows) - 1 and has_total
+            data_idx = r_idx - (1 if has_header else 0)
+            fill_hex = (hf  if is_hdr else
+                        tf  if is_tot else
+                        rf  if data_idx % 2 == 0 else af)
+            tc_hex   = htc if is_hdr else (ttc if is_tot else self.color("on-surface"))
+            bold     = (bold_header and is_hdr) or (bool(has_total) and is_tot)
+
+            for c_idx, cell_text in enumerate(row_data[:n_cols]):
+                cell = tbl.cell(r_idx, c_idx)
+                # Fill
+                rgb = self._rgb(fill_hex)
+                if rgb is not None:
+                    cell.fill.solid()
+                    cell.fill.fore_color.rgb = rgb
+                else:
+                    cell.fill.background()
+                # Text
+                cell.text = str(cell_text)
+                tf_obj = cell.text_frame
+                tf_obj.word_wrap = True
+                p = tf_obj.paragraphs[0]
+                col_align = (columns[c_idx].get("align", "left")
+                             if c_idx < len(columns) else "left")
+                p.alignment = align_map.get(col_align, PP_ALIGN.LEFT)
+                if p.runs:
+                    run = p.runs[0]
+                else:
+                    run = p.add_run()
+                    run.text = str(cell_text)
+                run.font.size  = Pt(sz)
+                run.font.bold  = bold
+                run.font.name  = fnt
+                rgb_tc = self._rgb(tc_hex)
+                if rgb_tc is not None:
+                    run.font.color.rgb = rgb_tc
+                # Cell margins
+                cell.margin_left   = Emu(px(4))
+                cell.margin_right  = Emu(px(4))
+                cell.margin_top    = Emu(px(2))
+                cell.margin_bottom = Emu(px(2))
+                try:
+                    cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+                except Exception:
+                    pass
 
     # -- Design tokens (resolved from CSS) ------------------------------------
 

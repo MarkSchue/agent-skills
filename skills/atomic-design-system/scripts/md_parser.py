@@ -71,6 +71,7 @@ _CARD_COMMENT    = re.compile(r"<!--\s*card:\s*([^>]+)-->", re.IGNORECASE)
 _CHROME_COMMENT  = re.compile(r"<!--\s*chrome\s*-->", re.IGNORECASE)
 _CHART_FENCE     = re.compile(r"```chart:(\w+)\s*\n(.*?)```", re.DOTALL)
 _FRONT_MATTER    = re.compile(r"^---\n(.+?)\n---\n", re.DOTALL)
+_NO_AGENDA       = re.compile(r"<!--\s*no-agenda\s*-->", re.IGNORECASE)
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
@@ -120,9 +121,18 @@ def _parse_sections(text: str, global_front_matter: dict) -> list[Slide]:
     current_section: str | None = None
 
     for sec_title, sec_body in _split_on_heading(text, level=1):
-        if sec_title.strip():
+        sec_title_clean = sec_title.strip()
+        # Detect <!-- no-agenda --> in the preamble of the section body (before the first ## slide)
+        _preamble_end = re.search(r"^##(?!#)\s", sec_body, re.MULTILINE)
+        _preamble     = sec_body[:_preamble_end.start()] if _preamble_end else sec_body
+        no_agenda     = bool(_NO_AGENDA.search(_preamble))
+        if sec_title_clean and not no_agenda:
             section_idx += 1
-            current_section = sec_title.strip()
+            current_section = sec_title_clean
+        elif sec_title_clean and no_agenda:
+            current_section = sec_title_clean  # keep name for display, but exclude from agenda
+
+        effective_section_idx = -1 if no_agenda else section_idx
 
         h2_slides = _split_on_heading(sec_body, level=2)
 
@@ -134,7 +144,7 @@ def _parse_sections(text: str, global_front_matter: dict) -> list[Slide]:
                     body=sec_body,
                     global_fm=global_front_matter,
                     section=current_section,
-                    section_index=section_idx,
+                    section_index=effective_section_idx,
                     block_level="h3",
                 ))
                 slide_idx += 1
@@ -147,7 +157,7 @@ def _parse_sections(text: str, global_front_matter: dict) -> list[Slide]:
                 body=h2_body,
                 global_fm=global_front_matter,
                 section=current_section,
-                section_index=section_idx,
+                section_index=effective_section_idx,
                 block_level="h3",
             ))
             slide_idx += 1
