@@ -32,20 +32,20 @@ class KpiCard:
         if not show_footer:
             comp = ""
 
-        header_line_color = ctx.card_line_color("header", ctx.color("line-default"))
-        footer_line_color = ctx.card_line_color("footer", ctx.color("line-default"))
+        header_line_color = ctx.card_line_color("header", ctx.color("line-default"), props)
+        footer_line_color = ctx.card_line_color("footer", ctx.color("line-default"), props)
         icon_bg = ctx.icon_bg(props)
         icon_fg = ctx.icon_fg(props)
         header_text_color = ctx.card_title_color(props, default_token="text-on-muted")
         body_text_color = ctx.card_body_color(props, default_token="text-on-muted")
 
-        pad      = ctx.card_pad_px(w, h)
+        pad      = ctx.card_pad_px(w, h, props)
         inner_w  = w - pad * 2
-        header_gap = ctx.card_header_gap(h)
-        icon_size = ctx.icon_size(w, h) if icon_raw else 0
-        header_h  = ctx.card_header_h(w, h)
+        header_gap = ctx.card_header_gap(h, props)
+        icon_size = ctx.icon_size(w, h, props) if icon_raw else 0
+        header_h  = ctx.card_header_h(w, h, props)
         icon_size = min(icon_size, header_h)  # never overflow header zone onto divider
-        label_size = ctx.card_header_font_size("", inner_w, h)
+        label_size = ctx.card_header_font_size("", inner_w, h, props)
         unit_size = max(ctx.font_size("caption"), min(ctx.font_size("body"), int(h * 0.026)))
         compact_value = "".join(c for c in value if not c.isspace())
         char_count = max(1, len(compact_value))
@@ -78,7 +78,7 @@ class KpiCard:
             if icon_raw:
                 icon_x = x + w - pad - icon_size
                 icon_y = header_y + max(0, (header_h - icon_size) // 2)
-                icon_radius = ctx.icon_radius(icon_size)
+                icon_radius = ctx.icon_radius(icon_size, props)
                 ctx.rect(icon_x, icon_y, icon_size, icon_size,
                          fill=icon_bg, stroke=ctx.icon_stroke(props), radius=icon_radius)
                 ctx.draw_icon(icon_x, icon_y, icon_size, icon_size, icon_raw, color=icon_fg)

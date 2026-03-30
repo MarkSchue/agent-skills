@@ -42,7 +42,7 @@ class HeaderListCard:
 
         if show_header_line:
             ctx.divider(x + PAD, y + strip_h, w - PAD * 2,
-                        color=ctx.card_line_color("header", ctx.color("line-default")))
+                        color=ctx.card_line_color("header", ctx.color("line-default"), props))
 
         sec_lbl   = str(props.get("section-label", ""))
         sec_lbl_y = content_top

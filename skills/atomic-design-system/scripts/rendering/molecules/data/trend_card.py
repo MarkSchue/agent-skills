@@ -26,28 +26,20 @@ class TrendCard:
         has_spark = bool(sparkline and isinstance(sparkline, list)
                          and len(sparkline) > 1)
 
-        card_pad = max(ctx.PAD, int(min(w, h) * 0.055))
+        card_pad = ctx.card_pad_px(w, h, props)
 
         # ── Card header (matches ChartCard pattern) ──────────────────────────
         show_header      = bool(title_text) and ctx.card_section_enabled(props, "header", default=True)
         show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
         title_color      = ctx.card_title_color(props, default_token="text-on-muted")
 
-        # Match ChartCard's header_h formula (no icon branch) so divider lines
-        # sit at the same Y as neighbouring chart-card columns in grid-3.
-        header_h   = max(34, int(h * 0.12))
-        header_gap = max(8, int(h * 0.018))
+        # Centralized header helpers — consistent with all other card molecules.
+        header_h   = ctx.card_header_h(w, h, props)
+        header_gap = ctx.card_header_gap(h, props)
         content_y  = y + card_pad
 
         if show_header:
-            title_size = ctx.fit_text_size(
-                title_text,
-                w - card_pad * 2,
-                max_size=max(ctx.font_size("body"), min(22, int(h * 0.034))),
-                min_size=ctx.font_size("label"),
-                bold=True,
-                safety=0.92,
-            )
+            title_size = ctx.card_header_font_size(title_text, w - card_pad * 2, h, props)
             ctx.text(x + card_pad, content_y, w - card_pad * 2, header_h,
                      title_text,
                      size=title_size, bold=True,
@@ -61,7 +53,7 @@ class TrendCard:
                                                     w - card_pad * 2, props)
             ctx.divider(line_x, content_y,
                         line_w, color=ctx.card_line_color("header",
-                                                          ctx.color("line-default")))
+                                                          ctx.color("line-default"), props))
             content_y += max(12, int(h * 0.024))
 
         # ── Remaining content geometry ────────────────────────────────────────

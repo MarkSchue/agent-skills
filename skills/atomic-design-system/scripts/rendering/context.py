@@ -22,6 +22,53 @@ Public API shared by both backends
     ctx.status_color(status)  → (bg_hex, fg_hex)
     ctx.progress_color(pct)   → hex color
     ctx.card_bg_color(props, default_token) → hex  (semantic card bg with deck.md override via card_bg: filled|clean|alt|featured)
+
+Per-Card Instance Overrides — Canonical Pattern
+------------------------------------------------
+Every molecule renderer MUST pass ``props`` to all geometry helpers so that
+individual card instances in ``deck.md`` can override values without touching
+the theme.  The priority chain is: per-card prop → CSS token → computed default.
+
+    # Canonical pattern — copy into every new molecule renderer
+    pad         = ctx.card_pad_px(w, h, props)
+    header_h    = ctx.card_header_h(w, h, props)
+    header_gap  = ctx.card_header_gap(h, props)
+    title_size  = ctx.card_header_font_size(title, text_w, h, props)
+    icon_sz     = ctx.icon_size(w, h, props)
+    icon_r      = ctx.icon_radius(icon_sz, props)
+    hdr_color   = ctx.card_line_color("header", ctx.color("line-default"), props)
+    ftr_color   = ctx.card_line_color("footer", ctx.color("line-default"), props)
+
+Overridable props accepted in deck.md YAML front-matter (hyphen or underscore forms):
+
+    # Geometry
+    card-padding: 24
+    card-header-height: 50
+    card-header-gap: 12
+    card-header-font-size: 14
+    icon-size: 36
+    icon-radius: 0
+
+    # Colors
+    header-line-color: "#E53935"
+    footer-line-color: "#E53935"
+    card_bg: filled | clean | alt | featured
+    title-color: "#hex"
+    body-color: "#hex"
+    icon-bg: "#hex"
+    icon-fg: "#hex"
+    icon-stroke: "#hex"
+
+    # Visibility  (none/false/0/off/hide → disabled; true/1/yes/on/show → enabled)
+    show-header: none
+    show-header-line: none
+    show-footer: none
+    show-footer-line: none
+
+    # Alignment
+    header-align: left | center | right
+    header-line-width: 50%
+    header-line-align: center
 """
 
 from __future__ import annotations
@@ -189,8 +236,17 @@ class RenderContext:
             return self._boolish(raw, default)
         return self.theme_flag(f"--card-{section}-line-display", default)
 
-    def card_line_color(self, section: str, default_color: str) -> str:
-        """Return the shared divider color for a semantic card section."""
+    def card_line_color(self, section: str, default_color: str,
+                        props: dict | None = None) -> str:
+        """Return the shared divider color for a semantic card section.
+
+        Per-card override: set ``header-line-color: #hex`` or
+        ``footer-line-color: #hex`` in the card's deck.md props block.
+        Theme-wide: ``--card-{section}-line-color`` CSS token.
+        """
+        raw = self._prop_value(props, f"{section}-line-color", f"{section}_line_color")
+        if raw:
+            return str(raw)
         return self.theme_var(f"--card-{section}-line-color", default_color)
 
     @staticmethod
@@ -256,13 +312,22 @@ class RenderContext:
         ref = getattr(self, "ref_h", None)
         return ref if (ref and ref > 0) else h
 
-    def card_pad_px(self, w: int, h: int) -> int:
+    def card_pad_px(self, w: int, h: int, props: dict | None = None) -> int:
         """Inner card padding in px.
 
         Uses **card height only** (not ``min(w, h)``) so all cards in the
         same grid row share the same padding regardless of column width.
-        Reads ``--card-padding`` CSS token as a fixed override.
+        Per-card override: ``card-padding: <px>`` in the card's deck.md props block.
+        Theme-wide: ``--card-padding`` CSS token.
         """
+        raw_prop = self._prop_value(props, "card-padding", "card_padding")
+        if raw_prop is not None:
+            try:
+                v = int(float(str(raw_prop)))
+                if v > 0:
+                    return v
+            except (ValueError, TypeError):
+                pass
         raw = self.theme_var("--card-padding", "").strip()
         try:
             v = int(float(raw)) if raw else 0
@@ -272,7 +337,7 @@ class RenderContext:
             pass
         return max(self.PAD, int(h * 0.055))
 
-    def card_header_h(self, w: int, h: int) -> int:
+    def card_header_h(self, w: int, h: int, props: dict | None = None) -> int:
         """Standard card header height in px.
 
         Shared by all molecule renderers so the divider line sits at the
@@ -280,8 +345,17 @@ class RenderContext:
         fits inside this height; it does **not** inflate it.
         Uses ``ctx.ref_h`` (slide content height) when available so that
         cards of different heights on the same slide get identical header zones.
-        Reads ``--card-header-height`` CSS token as a fixed override.
+        Per-card override: ``card-header-height: <px>`` in the card's deck.md props block.
+        Theme-wide: ``--card-header-height`` CSS token.
         """
+        raw_prop = self._prop_value(props, "card-header-height", "card_header_height")
+        if raw_prop is not None:
+            try:
+                v = int(float(str(raw_prop)))
+                if v > 0:
+                    return v
+            except (ValueError, TypeError):
+                pass
         raw = self.theme_var("--card-header-height", "").strip()
         try:
             v = int(float(raw)) if raw else 0
@@ -291,13 +365,22 @@ class RenderContext:
             pass
         return max(34, int(self._ref(h) * 0.12))
 
-    def card_header_gap(self, h: int) -> int:
+    def card_header_gap(self, h: int, props: dict | None = None) -> int:
         """Gap between the header row and the divider line in px.
 
         Uses ``ctx.ref_h`` (slide content height) when available so that
         cards of different heights on the same slide get the identical gap.
-        Reads ``--card-header-gap`` CSS token as a fixed override.
+        Per-card override: ``card-header-gap: <px>`` in the card's deck.md props block.
+        Theme-wide: ``--card-header-gap`` CSS token.
         """
+        raw_prop = self._prop_value(props, "card-header-gap", "card_header_gap")
+        if raw_prop is not None:
+            try:
+                v = int(float(str(raw_prop)))
+                if v > 0:
+                    return v
+            except (ValueError, TypeError):
+                pass
         raw = self.theme_var("--card-header-gap", "").strip()
         try:
             v = int(float(raw)) if raw else 0
@@ -308,13 +391,22 @@ class RenderContext:
         return max(self.spacing("s"), int(self._ref(h) * 0.018))
 
     def card_header_font_size(self, title: str = "", text_w: int = 200,
-                               h: int = 300) -> int:
+                               h: int = 300,
+                               props: dict | None = None) -> int:
         """Header / title font size in pt.
 
         Uses ``ctx.ref_h`` (slide content height) when available.
-        Returns the value of ``--card-header-font-size`` when set; otherwise
-        uses the responsive fit formula that caps at ``ref_h × 3.4 %``.
+        Per-card override: ``card-header-font-size: <pt>`` in the card's deck.md props block.
+        Theme-wide: ``--card-header-font-size`` CSS token.
         """
+        raw_prop = self._prop_value(props, "card-header-font-size", "card_header_font_size")
+        if raw_prop is not None:
+            try:
+                v = int(float(str(raw_prop)))
+                if v > 0:
+                    return v
+            except (ValueError, TypeError):
+                pass
         raw = self.theme_var("--card-header-font-size", "").strip()
         try:
             v = int(float(raw)) if raw else 0
@@ -362,14 +454,24 @@ class RenderContext:
             return str(raw)
         return self.theme_var("--color-icon-stroke", self.color(default_token))
 
-    def icon_size(self, card_w: int, card_h: int) -> int:
+    def icon_size(self, card_w: int, card_h: int,
+                  props: dict | None = None) -> int:
         """Compute icon-badge side length in px.
 
         Uses ``--icon-size`` CSS token as the base value when set; otherwise
         uses ``ctx.ref_h`` (slide content height) so all cards on the same
         slide get a consistent badge size regardless of individual card height.
         Result is always clamped to [24, 96] px.
+        Per-card override: ``icon-size: <px>`` in the card's deck.md props block.
         """
+        raw_prop = self._prop_value(props, "icon-size", "icon_size")
+        if raw_prop is not None:
+            try:
+                v = int(float(str(raw_prop)))
+                if v > 0:
+                    return max(24, min(96, v))
+            except (ValueError, TypeError):
+                pass
         raw = self.theme_var("--icon-size", "").strip()
         try:
             base = int(float(raw)) if raw else None
@@ -380,13 +482,21 @@ class RenderContext:
         ref = self._ref(card_h)
         return max(36, min(72, int(ref * 0.14)))
 
-    def icon_radius(self, size: int) -> int:
+    def icon_radius(self, size: int, props: dict | None = None) -> int:
         """Compute icon-badge corner radius in px.
 
         Uses ``--icon-radius`` CSS token when set; otherwise derives the radius
         from the badge size and the ``radius-sharp`` / ``radius-large`` design
         tokens.
+        Per-card override: ``icon-radius: <px>`` in the card's deck.md props block.
         """
+        raw_prop = self._prop_value(props, "icon-radius", "icon_radius")
+        if raw_prop is not None:
+            try:
+                r = int(float(str(raw_prop)))
+                return max(0, r)
+            except (ValueError, TypeError):
+                pass
         raw = self.theme_var("--icon-radius", "").strip()
         try:
             r = int(float(raw)) if raw else None

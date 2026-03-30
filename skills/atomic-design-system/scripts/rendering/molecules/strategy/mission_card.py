@@ -13,7 +13,7 @@ class MissionCard:
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                body: str = "") -> None:
         # Consistent padding + header height via centralized helpers
-        card_pad = ctx.card_pad_px(w, h)
+        card_pad = ctx.card_pad_px(w, h, props)
         inner_w  = w - card_pad * 2
 
         # ── Card frame ─────────────────────────────────────────────────────
@@ -35,23 +35,23 @@ class MissionCard:
         title_color   = ctx.card_title_color(props, default_token="text-default")
         body_color    = ctx.card_body_color(props, default_token="text-default")
         header_align  = ctx.card_header_align(props, default="left")
-        divider_color = ctx.card_line_color("header", ctx.color("line-default"))
+        divider_color = ctx.card_line_color("header", ctx.color("line-default"), props)
         icon_bg       = ctx.icon_bg(props)
         icon_fg       = ctx.icon_fg(props)
 
         # icon badge + centralized header height so divider aligns with neighbours
-        icon_size   = ctx.icon_size(w, h) if icon_raw else 0
-        header_h    = ctx.card_header_h(w, h)
+        icon_size   = ctx.icon_size(w, h, props) if icon_raw else 0
+        header_h    = ctx.card_header_h(w, h, props)
         icon_size   = min(icon_size, header_h)  # never overflow header zone onto divider
-        icon_radius = ctx.icon_radius(icon_size) if icon_raw else 0
-        header_gap  = ctx.card_header_gap(h)
+        icon_radius = ctx.icon_radius(icon_size, props) if icon_raw else 0
+        header_gap  = ctx.card_header_gap(h, props)
 
         current_y = y + card_pad
 
         # ── Header row: title (left) + icon badge (right) — same as ChartCard
         if show_header:
             text_w     = inner_w - (icon_size + header_gap if icon_raw else 0)
-            title_size = ctx.card_header_font_size(title, max(40, text_w), h)
+            title_size = ctx.card_header_font_size(title, max(40, text_w), h, props)
             if title:
                 ctx.text(x + card_pad, current_y, max(40, text_w), header_h, title,
                          size=title_size, bold=True,

@@ -29,7 +29,7 @@ class ObjectiveCard:
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
         # Centralized padding + header height for consistent baseline alignment
-        card_pad = ctx.card_pad_px(w, h)
+        card_pad = ctx.card_pad_px(w, h, props)
         inner_w  = w - card_pad * 2
 
         # ── Card frame ────────────────────────────────────────────────────
@@ -48,7 +48,7 @@ class ObjectiveCard:
         # ── Token resolution (standard card contract) ─────────────────────
         title_color   = ctx.card_title_color(props, default_token="text-default")
         header_align  = ctx.card_header_align(props, default="left")
-        divider_color = ctx.card_line_color("header", ctx.color("line-default"))
+        divider_color = ctx.card_line_color("header", ctx.color("line-default"), props)
         badge_bg      = ctx.theme_var("--color-objective-badge-bg", ctx.color("primary"))
         badge_fg      = ctx.theme_var("--color-objective-badge-fg", ctx.color("on-primary"))
         bar_track     = ctx.theme_var("--color-progress-bar-track",  ctx.color("surface-variant"))
@@ -62,8 +62,8 @@ class ObjectiveCard:
         GAP_M  = max(12, int(h * 0.024))  # responsive, matches ChartCard post-divider
 
         # Centralized header height so divider lines are aligned across all cards.
-        header_h   = ctx.card_header_h(w, h)
-        header_gap = ctx.card_header_gap(h)
+        header_h   = ctx.card_header_h(w, h, props)
+        header_gap = ctx.card_header_gap(h, props)
 
         oy = y + card_pad
 
@@ -84,7 +84,7 @@ class ObjectiveCard:
             # Objective title — fills the remaining width beside the badge
             title_x = x + card_pad + badge_w + badge_gap
             title_w = max(40, inner_w - badge_w - badge_gap)
-            obj_sz = ctx.card_header_font_size(obj, title_w, h)
+            obj_sz = ctx.card_header_font_size(obj, title_w, h, props)
             if obj:
                 ctx.text(title_x, oy, title_w, header_h, obj,
                          size=obj_sz, bold=True,

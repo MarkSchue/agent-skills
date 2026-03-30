@@ -344,6 +344,35 @@ No renderer or spec may invent a separate card container language when the visua
 
 ---
 
+### Principle 7 — Per-Card Instance Overrides: Always Pass `props`
+
+Every molecule renderer **MUST** pass `props` to every geometry helper in `context.py` so that
+individual card instances in `deck.md` can customise geometry and color without touching the theme.
+The priority chain — per-card prop → CSS token → computed default — is enforced by the helpers;
+the renderer must not short-circuit it.
+
+**Canonical call pattern (copy into every new renderer):**
+```python
+pad         = ctx.card_pad_px(w, h, props)
+header_h    = ctx.card_header_h(w, h, props)
+header_gap  = ctx.card_header_gap(h, props)
+title_size  = ctx.card_header_font_size(title, text_w, h, props)
+icon_sz     = ctx.icon_size(w, h, props)
+icon_r      = ctx.icon_radius(icon_sz, props)
+hdr_color   = ctx.card_line_color("header", ctx.color("line-default"), props)
+ftr_color   = ctx.card_line_color("footer", ctx.color("line-default"), props)
+```
+
+**Rules:**
+1. Never compute padding, header height, icon size, or line color inline — always use the centralized helpers with `props`.
+2. Passing `props=None` or `props={}` is a safe no-op — it will not change default behaviour.
+3. Do not read `props` keys directly in the renderer body. Use `ctx._prop_value(props, "key-name", "key_name")` only when adding a helper that doesn't exist yet in `context.py`.
+4. Document every new overridable key in `references/token-reference.md` under "Card Instance Override Keys" and in the `context.py` module docstring.
+
+See `references/design-system-concepts.md §2b` for the complete list of supported override keys.
+
+---
+
 ## Theme Stylesheet (CSS)
 
 Each design system provides `theme.css`. A project references it:
@@ -449,8 +478,9 @@ unit: M€
 1. Create the Markdown spec in the correct folder:
    - Atom: `atoms/<type>-<variant>.md` · Molecule: `molecules/<domain>/<role>-card.md` · Template: `templates/<structure>.md`
 2. Add a registry entry in `registry.yaml`.
-3. Generate a preview PNG: `python scripts/preview_generator.py <element-id>`.
-4. Run `python scripts/lint.py` to validate naming, tokens, and registry consistency.
+3. **For molecule Python renderers:** follow Principle 7 — pass `props` to every geometry helper and never inline geometry formulas. See the canonical call pattern in Principle 7 above.
+4. Generate a preview PNG: `python scripts/preview_generator.py <element-id>`.
+5. Run `python scripts/lint.py` to validate naming, tokens, and registry consistency.
 
 ---
 

@@ -45,7 +45,7 @@ class ContactCard:
         if show_header_line:
             line_x, line_w = ctx.card_divider_span("header", x + pad, w - pad * 2, props)
             ctx.divider(line_x, content_y, line_w,
-                        color=ctx.card_line_color("header", ctx.color("line-default")))
+                        color=ctx.card_line_color("header", ctx.color("line-default"), props))
             content_y += section_gap
 
         ry = content_y

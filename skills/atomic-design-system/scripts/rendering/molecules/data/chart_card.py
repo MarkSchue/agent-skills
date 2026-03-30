@@ -24,7 +24,7 @@ class ChartCard:
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
-        card_pad = ctx.card_pad_px(w, h)
+        card_pad = ctx.card_pad_px(w, h, chart_data)
         title_raw = chart_data.get("title")
         title = str(title_raw or f"chart:{chart_type}")
 
@@ -41,15 +41,15 @@ class ChartCard:
         icon_fg = ctx.icon_fg(chart_data)
         title_color = ctx.card_title_color(chart_data, default_token="text-on-muted")
         body_color = ctx.card_body_color(chart_data, default_token="text-secondary")
-        header_h  = ctx.card_header_h(w, h)
-        header_gap = ctx.card_header_gap(h)
+        header_h  = ctx.card_header_h(w, h, chart_data)
+        header_gap = ctx.card_header_gap(h, chart_data)
         content_y = y + card_pad
 
         if show_header:
-            icon_size = ctx.icon_size(w, h) if icon_raw else 0
+            icon_size = ctx.icon_size(w, h, chart_data) if icon_raw else 0
             icon_size = min(icon_size, header_h)  # never overflow header zone onto divider
             text_w = w - card_pad * 2 - (icon_size + header_gap if icon_raw else 0)
-            title_size = ctx.card_header_font_size(title, max(40, text_w), h)
+            title_size = ctx.card_header_font_size(title, max(40, text_w), h, chart_data)
 
             ctx.text(x + card_pad, content_y, max(40, text_w), header_h, title,
                      size=title_size, bold=True,
@@ -58,7 +58,7 @@ class ChartCard:
             if icon_raw:
                 icon_x = x + w - card_pad - icon_size
                 icon_y = content_y + max(0, (header_h - icon_size) // 2)
-                icon_radius = ctx.icon_radius(icon_size)
+                icon_radius = ctx.icon_radius(icon_size, chart_data)
                 ctx.rect(icon_x, icon_y, icon_size, icon_size,
                          fill=icon_bg, stroke=ctx.icon_stroke(chart_data), radius=icon_radius)
                 ctx.draw_icon(icon_x, icon_y, icon_size, icon_size, icon_raw, color=icon_fg)
@@ -68,7 +68,7 @@ class ChartCard:
         if show_header_line:
             line_x, line_w = ctx.card_divider_span("header", x + card_pad, w - card_pad * 2, chart_data)
             ctx.divider(line_x, content_y, line_w,
-                        color=ctx.card_line_color("header", ctx.color("line-default")))
+                        color=ctx.card_line_color("header", ctx.color("line-default"), chart_data))
             content_y += max(12, int(h * 0.024))
 
         footer_h = max(18, int(h * 0.06)) if show_footer else 0
@@ -79,7 +79,7 @@ class ChartCard:
             divider_y = footer_y - divider_gap
             line_x, line_w = ctx.card_divider_span("footer", x + card_pad, w - card_pad * 2, chart_data)
             ctx.divider(line_x, divider_y, line_w,
-                        color=ctx.card_line_color("footer", ctx.color("line-default")))
+                        color=ctx.card_line_color("footer", ctx.color("line-default"), chart_data))
             content_bottom = divider_y - divider_gap
         elif show_footer:
             content_bottom = footer_y - max(ctx.spacing("s"), int(h * 0.012))

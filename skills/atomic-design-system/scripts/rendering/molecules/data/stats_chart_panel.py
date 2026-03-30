@@ -49,7 +49,7 @@ class StatsChartPanel:
 
         if show_header_line:
             ctx.divider(x + PAD, y + header_h, w - PAD * 2,
-                        color=ctx.card_line_color("header", ctx.color("line-default")))
+                        color=ctx.card_line_color("header", ctx.color("line-default"), props))
 
         # --- Stats column ---------------------------------------------------
         stats   = props.get("stats") or []

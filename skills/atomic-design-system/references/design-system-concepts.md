@@ -49,6 +49,58 @@ Token resolution is depth-first; nested objects are resolved recursively by `Des
 
 ---
 
+## 2b. Per-Card Instance Overrides
+
+Beyond the global theme, individual card instances in `deck.md` can override geometry
+and color values via their YAML props block.  This forms a three-tier override chain:
+
+```
+Per-card prop  (deck.md YAML)
+    ↓  if absent
+CSS theme token  (theme.css)
+    ↓  if absent / 0
+Computed default  (context.py formula)
+```
+
+### Overridable Keys
+
+All keys accept both hyphen (`card-padding`) and underscore (`card_padding`) forms.
+
+| Key | Type | Effect |
+|-----|------|--------|
+| `card-padding` | int (px) | Inner padding of the card body |
+| `card-header-height` | int (px) | Reserved height for the header zone |
+| `card-header-gap` | int (px) | Gap between header and body |
+| `card-header-font-size` | int (px) | Title font size in the header |
+| `icon-size` | int (px) | Icon bounding-box size |
+| `icon-radius` | int (px) | Icon background corner radius |
+| `header-line-color` | hex | Colour of the header divider line |
+| `footer-line-color` | hex | Colour of the footer divider line |
+| `card_bg` | `filled\|clean\|alt\|featured` | Semantic card background variant |
+| `title-color` | hex | Card title text colour |
+| `body-color` | hex | Body / description text colour |
+| `icon-bg` | hex | Icon background fill |
+| `icon-fg` | hex | Icon foreground / glyph colour |
+| `icon-stroke` | hex | Icon stroke / outline colour |
+| `show-header` | bool\* | Show or hide the whole header zone |
+| `show-header-line` | bool\* | Show or hide the header divider line |
+| `show-footer` | bool\* | Show or hide the footer zone |
+| `show-footer-line` | bool\* | Show or hide the footer divider line |
+| `header-align` | `left\|center\|right` | Title alignment in the header |
+| `header-line-width` | `50%` etc. | Width of the header line as a % of card width |
+| `header-line-align` | `left\|center\|right` | Alignment of the header line |
+
+\* Boolish: `none / false / 0 / off / hide / hidden / suppress` → disabled; `true / 1 / yes / on / show` → enabled.
+
+### Renderer Rule
+
+Every molecule Python class **must** pass `props` to every geometry helper (see `context.py`
+module docstring for the canonical call pattern).  This is a non-negotiable authoring rule
+enforced by code review — a molecule that computes geometry inline ignores both CSS tokens
+and per-card overrides.
+
+---
+
 ## 3. Six-Phase Pipeline
 
 The agent follows this pipeline on every slide-generation request:

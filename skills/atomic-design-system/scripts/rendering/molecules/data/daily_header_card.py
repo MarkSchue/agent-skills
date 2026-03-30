@@ -34,7 +34,7 @@ class DailyHeaderCard:
 
         if show_footer_line:
             ctx.divider(x + PAD, footer_y - footer_gap, w - PAD * 2,
-                        color=ctx.card_line_color("footer", ctx.color("line-default")))
+                        color=ctx.card_line_color("footer", ctx.color("line-default"), props))
 
         if show_footer and date:
             ctx.text(x + PAD, footer_y, w // 2, footer_h, date,

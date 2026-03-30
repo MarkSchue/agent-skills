@@ -39,7 +39,7 @@ class DataInsightPanel:
         if show_header_line:
             line_x, line_w = ctx.card_divider_span("header", x + pad, w - pad * 2, props)
             ctx.divider(line_x, content_top, line_w,
-                        color=ctx.card_line_color("header", ctx.color("line-default")))
+                        color=ctx.card_line_color("header", ctx.color("line-default"), props))
             content_top += section_gap
 
         footer_h = max(20, int(h * 0.07)) if show_footer else 0
@@ -49,7 +49,7 @@ class DataInsightPanel:
         if show_footer_line:
             divider_y = footer_y - section_gap
             ctx.divider(x + pad, divider_y, w - pad * 2,
-                        color=ctx.card_line_color("footer", ctx.color("line-default")))
+                        color=ctx.card_line_color("footer", ctx.color("line-default"), props))
             content_bottom = divider_y - section_gap
 
         if insights:

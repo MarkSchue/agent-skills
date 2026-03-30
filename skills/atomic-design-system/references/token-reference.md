@@ -159,3 +159,64 @@ To add a new token:
 
 The `scripts/lint.py` resolver checks that all `{{theme.*}}` tokens in element
 files resolve without error when loaded against `neutral-theme.yaml`.
+
+---
+
+## Card Instance Override Keys
+
+These keys are written in the YAML front-matter of an individual card block in `deck.md`.
+They bypass the theme and apply only to that one card instance.  Both hyphen (`card-padding`)
+and underscore (`card_padding`) variants are accepted by all helpers.
+
+The **priority chain** for every geometry helper is:
+`per-card prop → CSS theme token (--card-*) → computed default`
+
+### Geometry Overrides
+
+| Key | Type | Geometry Helper | Description |
+|-----|------|-----------------|-------------|
+| `card-padding` | int (px) | `ctx.card_pad_px(w, h, props)` | Inner padding of the card body |
+| `card-header-height` | int (px) | `ctx.card_header_h(w, h, props)` | Reserved height of the header zone |
+| `card-header-gap` | int (px) | `ctx.card_header_gap(h, props)` | Gap between header and body |
+| `card-header-font-size` | int (px) | `ctx.card_header_font_size(title, tw, h, props)` | Title font size in the header |
+| `icon-size` | int (px) | `ctx.icon_size(w, h, props)` | Icon bounding-box size |
+| `icon-radius` | int (px) | `ctx.icon_radius(size, props)` | Icon background corner radius |
+
+### Color Overrides
+
+| Key | Type | Helper | Description |
+|-----|------|--------|-------------|
+| `header-line-color` | hex | `ctx.card_line_color("header", default, props)` | Header divider line colour |
+| `footer-line-color` | hex | `ctx.card_line_color("footer", default, props)` | Footer divider line colour |
+| `card_bg` | `filled\|clean\|alt\|featured` | `ctx.card_bg_color(props, "bg-card")` | Semantic card background variant |
+| `title-color` | hex | `ctx.card_title_color(props)` | Card title text colour |
+| `body-color` | hex | `ctx.card_body_color(props)` | Body / description text colour |
+| `icon-bg` | hex | `ctx.icon_bg(props)` | Icon background fill |
+| `icon-fg` | hex | `ctx.icon_fg(props)` | Icon foreground / glyph colour |
+| `icon-stroke` | hex | `ctx.icon_stroke(props)` | Icon stroke / outline colour |
+
+### Visibility Toggles
+
+Accepted falsy values: `none / false / 0 / off / hide / hidden / suppress`
+Accepted truthy values: `true / 1 / yes / on / show`
+
+| Key | Helper | Description |
+|-----|--------|-------------|
+| `show-header` | `ctx.card_section_enabled("header", props)` | Show or hide the whole header zone |
+| `show-header-line` | `ctx.card_line_enabled("header", props)` | Show or hide the header divider line |
+| `show-footer` | `ctx.card_section_enabled("footer", props)` | Show or hide the footer zone |
+| `show-footer-line` | `ctx.card_line_enabled("footer", props)` | Show or hide the footer divider line |
+
+### Alignment Overrides
+
+| Key | Accepted Values | Helper | Description |
+|-----|-----------------|--------|-------------|
+| `header-align` | `left \| center \| right` | `ctx.card_header_align(props)` | Title alignment in the header |
+| `header-line-width` | `50%` etc. | `ctx.card_divider_span(w, props)` | Width of the header line as % of card width |
+| `header-line-align` | `left \| center \| right` | `ctx.card_header_align(props)` | Alignment of the header line |
+
+### Renderer Authoring Rule
+
+Every molecule Python class **must** pass `props` to every geometry helper call.
+Never compute geometry inline — this bypasses both CSS tokens and per-card overrides.
+See `context.py` module docstring for the canonical call pattern.

@@ -45,7 +45,7 @@ class TopicCard:
         inner_y = y + pad
         inner_w = w - pad * 2
         inner_bottom = y + h - pad
-        divider_color = ctx.card_line_color("header", ctx.color("line-default"))
+        divider_color = ctx.card_line_color("header", ctx.color("line-default"), props)
         title_color = ctx.card_title_color(props, default_token="text-default")
         body_color = ctx.card_body_color(props, default_token="text-default")
 
