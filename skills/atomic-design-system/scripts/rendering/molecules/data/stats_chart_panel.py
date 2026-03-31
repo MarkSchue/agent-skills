@@ -21,7 +21,7 @@ class StatsChartPanel:
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
-        header_h = max(40, int(h * 0.18))
+        header_h = max(60, int(h * 0.22))
         body_y   = y + header_h + PAD
         body_h   = h - header_h - PAD * 2
         left_w   = int(w * 0.35)
@@ -43,7 +43,7 @@ class StatsChartPanel:
                            pill=pill,
                            pill_bg=ctx.color("surface-variant"),
                            pill_color=ctx.color("on-surface"),
-                           title_color=ctx.color("surface"),
+                           title_color=ctx.card_title_color(props, default_token="on-surface"),
                            sub_color=ctx.color("on-surface-variant"),
                            icon_name=icon_raw)
 
@@ -83,8 +83,8 @@ class StatsChartPanel:
                      align="left", valign="bottom")
             _stat.render(ctx, lx, sy + row_h // 2 - 4, lw, row_h // 2 + 4,
                          value=stat_val, unit=stat_unit, sublabel="",
-                         val_color=ctx.color("surface"),
-                         unit_color=ctx.color("surface"),
+                         val_color=ctx.color("on-surface"),
+                         unit_color=ctx.color("on-surface-variant"),
                          sub_color=ctx.color("on-surface-variant"),
                          align="left")
 

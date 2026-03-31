@@ -197,8 +197,8 @@ class ColumnConclusionCard:
         headline_sz = max(10, min(22, int(col_w * 0.10 + 4)))
         body_sz     = ctx.font_size("body")
 
-        # Auto value size: prominent, scales with column dimensions
-        auto_val_sz = max(22, min(52, int(min(col_w * 0.32, col_zone_h * 0.28))))
+        # Auto value size: number only — unit is rendered as a separate smaller label below
+        auto_val_sz = max(16, min(28, int(min(col_w * 0.24, col_zone_h * 0.18))))
 
         # Auto icon size
         auto_icon_sz = ctx.icon_size(col_w, col_zone_h, props)
@@ -229,16 +229,19 @@ class ColumnConclusionCard:
             # Determine which zones are active and sizes
             has_icon  = bool(icon_str)
             has_value = bool(value_str)
+            has_unit  = has_value and bool(value_unit)
+            unit_sz   = max(10, int(val_sz * 0.55))
 
-            icon_zone_h   = (icon_sz + GAP_S)  if has_icon  else 0
-            value_zone_h  = (int(val_sz * 1.35) + GAP_XS) if has_value else 0
+            icon_zone_h     = (icon_sz + GAP_S)         if has_icon  else 0
+            value_zone_h    = (int(val_sz * 1.35) + GAP_XS)  if has_value else 0
+            unit_zone_h     = (int(unit_sz * 1.3) + GAP_XS)  if has_unit  else 0
             headline_zone_h = (int(headline_sz * 1.5) * max(1, len(headline) // max(1, col_w // max(1, headline_sz)) + 1))
             headline_zone_h = min(headline_zone_h, int(col_zone_h * 0.35))
             headline_zone_h = max(int(headline_sz * 1.5), headline_zone_h) if headline else 0
-            body_zone_h   = (max(20, col_zone_h - icon_zone_h - value_zone_h - headline_zone_h - GAP_S * 2)
+            body_zone_h   = (max(20, col_zone_h - icon_zone_h - value_zone_h - unit_zone_h - headline_zone_h - GAP_S * 2)
                              if body_text else 0)
 
-            total_h = icon_zone_h + value_zone_h + headline_zone_h + body_zone_h
+            total_h = icon_zone_h + value_zone_h + unit_zone_h + headline_zone_h + body_zone_h
             # Centre the stack vertically in col_zone_h
             start_y = content_top + max(0, (col_zone_h - total_h) // 2)
             iy      = start_y
@@ -248,16 +251,25 @@ class ColumnConclusionCard:
                 ctx.draw_icon(sx, iy, col_w, icon_sz, icon_str, color=col_icon_color)
                 iy += icon_sz + GAP_S
 
-            # Metric value + unit
+            # Metric value — number only, bold and prominent
             if has_value:
-                display = f"{value_str} {value_unit}".strip() if value_unit else value_str
                 ctx.text(sx, iy, col_w, int(val_sz * 1.35),
-                         display,
+                         value_str,
                          size=val_sz, bold=True,
                          color=col_val_color,
                          align=text_align, valign="middle",
                          inner_margin=0)
                 iy += int(val_sz * 1.35) + GAP_XS
+
+            # Unit label — smaller caption below the number
+            if has_unit:
+                ctx.text(sx, iy, col_w, int(unit_sz * 1.3),
+                         value_unit,
+                         size=unit_sz, bold=False,
+                         color=col_val_color,
+                         align=text_align, valign="middle",
+                         inner_margin=0)
+                iy += int(unit_sz * 1.3) + GAP_XS
 
             # Headline
             if headline:
@@ -296,7 +308,7 @@ class ColumnConclusionCard:
                     pass
 
             div_y = col_zone_bottom
-            chev_sz = max(6, GAP_M // 2 + 2)   # half-width of chevron arms
+            chev_sz = max(14, GAP_M)   # half-width of chevron arms — prominent but proportional
 
             # Full-width divider
             if show_conc_div:

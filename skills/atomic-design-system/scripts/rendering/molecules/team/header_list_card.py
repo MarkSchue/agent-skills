@@ -53,8 +53,19 @@ class HeaderListCard:
         items     = props.get("items") or []
         gutter    = 10
         pc_y      = sec_lbl_y + (28 if sec_lbl else 4)
-        pc_h      = max(80, int(h * 0.22))
         pc_w      = (w - PAD * 2 - gutter) // 2
+
+        # compute item card height from content so nothing overflows
+        IPAD    = 10          # inner padding
+        lbl_h   = 22          # item-label row
+        sq_sz   = 16          # bullet square size
+        sq_gap  = 6           # gap between label and square
+        txt_gap = 6           # gap between square bottom and title
+        ttl_h   = 20          # item-title row
+        det_h   = 32          # item-detail (up to 2 lines)
+        det_gap = 4
+        pc_h    = IPAD + lbl_h + sq_gap + sq_sz + txt_gap + ttl_h + det_gap + det_h + IPAD
+        pc_h    = max(pc_h, int(h * 0.30))
 
         for i, appt in enumerate(items[:2]):
             if not isinstance(appt, dict):
@@ -69,17 +80,24 @@ class HeaderListCard:
             item_title  = str(appt.get("item-title",  ""))
             item_detail = str(appt.get("item-detail", ""))
 
-            ctx.text(pcx + 10, pc_y + 10, pc_w - 20, 22, item_label,
+            # row 1 — label ("Weekly")
+            ctx.text(pcx + IPAD, pc_y + IPAD, pc_w - IPAD * 2, lbl_h, item_label,
                      size=ctx.font_size("caption"), bold=True, color=ctx.color("on-surface"))
 
-            pav_y = pc_y + 36
-            ctx.rect(pcx + 10, pav_y, 24, 24,
-                     fill=ctx.color("surface-variant"), radius=12)
+            # row 2 — bullet square
+            sq_y = pc_y + IPAD + lbl_h + sq_gap
+            ctx.rect(pcx + IPAD, sq_y, sq_sz, sq_sz,
+                     fill=ctx.color("surface-variant"), radius=4)
 
-            ctx.text(pcx + 10, pav_y + 28, pc_w - 20, 18, item_title,
+            # row 3 — title directly beneath bullet
+            ttl_y = sq_y + sq_sz + txt_gap
+            ctx.text(pcx + IPAD, ttl_y, pc_w - IPAD * 2, ttl_h, item_title,
                      size=ctx.font_size("annotation"), bold=True, color=ctx.color("on-surface"))
+
+            # row 4 — detail beneath title
             if item_detail:
-                ctx.text(pcx + 10, pav_y + 44, pc_w - 20, 16, item_detail,
+                det_y = ttl_y + ttl_h + det_gap
+                ctx.text(pcx + IPAD, det_y, pc_w - IPAD * 2, det_h, item_detail,
                          size=ctx.font_size("annotation"), color=ctx.color("on-surface-variant"))
 
         footer_bar_h = max(40, int(h * 0.09))
@@ -88,11 +106,6 @@ class HeaderListCard:
         if cta_label:
             cta_w = max(120, len(cta_label) * 9 + 32)
             cta_x = x + w - cta_w - PAD
-            for bi in range(2):
-                ic_x = x + PAD + bi * 44
-                ctx.ellipse(ic_x, fb_y + (footer_bar_h - 36) // 2, 36, 36,
-                             fill=ctx.color("surface-variant"),
-                             stroke=ctx.color("border-subtle"))
             ctx.badge(cta_x, fb_y + (footer_bar_h - 36) // 2, cta_w, 36,
                       cta_label,
                       fill=ctx.color("primary"),

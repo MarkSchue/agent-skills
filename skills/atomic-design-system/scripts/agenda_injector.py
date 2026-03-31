@@ -181,6 +181,19 @@ _AGENDA_SECTION_RE = re.compile(
 )
 
 
+def strip_agenda_from_deck(md_path: Path) -> None:
+    """Remove any ``# __agenda__`` section from deck.md without writing a new one.
+
+    Called when ``auto-agenda: true`` so the source file stays clean — agenda
+    slides are injected purely at build time from the ``#`` section headers.
+    """
+    text = Path(md_path).read_text(encoding="utf-8")
+    stripped = _AGENDA_SECTION_RE.sub("", text).lstrip("\n")
+    if stripped != text:
+        Path(md_path).write_text(stripped, encoding="utf-8")
+        print(f"Removed stale __agenda__ block from {md_path}")
+
+
 def materialize_agenda_to_deck(md_path: Path, slides_after_injection: list[Slide]) -> None:
     """Write (or overwrite) the ``# __agenda__`` section at the top of deck.md.
 

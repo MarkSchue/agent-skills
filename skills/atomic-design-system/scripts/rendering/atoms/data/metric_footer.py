@@ -38,8 +38,10 @@ class MetricFooterAtom:
         if left_label:
             txt = f"{left_label}  {left_value}" if left_value else left_label
             ctx.text(x, cy, w // 2, th, txt,
-                     size=ctx.font_size("annotation"), color=text_color, align="left", valign="middle")
+                     size=ctx.font_size("annotation"), color=text_color,
+                     align="left", valign="middle", italic=True)
         if right_label:
             txt = f"{right_label}  {right_value}" if right_value else right_label
             ctx.text(x + w // 2, cy, w // 2, th, txt,
-                     size=ctx.font_size("annotation"), color=text_color, align="right", valign="middle")
+                     size=ctx.font_size("annotation"), color=text_color,
+                     align="right", valign="middle", italic=True)

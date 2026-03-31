@@ -51,13 +51,16 @@ class GridLayout:
 
 
 class AsymmetricGridLayout:
-    """Two-column layout with configurable width ratio.
+    """Multi-column layout with configurable per-column width ratios.
 
-    weights=(2, 1)  → left column is twice the width of the right  (grid-2-1)
-    weights=(1, 2)  → right column is twice the width of the left  (grid-1-2)
+    Pass any number of integer weights — one per column:
+
+        weights=(2, 1)     → two columns, left 2× the width of right  (grid-2-1)
+        weights=(1, 2)     → two columns, right 2× the width of left  (grid-1-2)
+        weights=(2, 1, 1)  → three columns, first is 2× the other two (grid-2-1-1)
     """
 
-    def __init__(self, weights: tuple[int, int] = (1, 1)) -> None:
+    def __init__(self, weights: tuple[int, ...] = (1, 1)) -> None:
         self.weights = weights
 
     def render(self, ctx, slide: "Slide", blocks: list,
@@ -68,6 +71,7 @@ class AsymmetricGridLayout:
         if not blocks:
             blocks = _blocks_from_body(slide)
 
+        n        = len(self.weights)
         gap      = ctx.content_gap
         cap_pad  = ctx.content_padding
         blk_pad  = ctx.block_padding
@@ -79,14 +83,20 @@ class AsymmetricGridLayout:
         cw       = width - 2 * margin - 2 * cap_pad
         ch_avail = content_h - 2 * cap_pad
 
-        total_w = sum(self.weights) or 2
-        w0 = max(1, int((cw - gap) * self.weights[0] / total_w))
-        w1 = max(1, cw - gap - w0)
+        total_w   = sum(self.weights) or n
+        avail_w   = cw - gap * (n - 1)
 
-        col_widths = [w0, w1]
-        card_h     = ch_avail - 2 * blk_pad
+        # Compute each column width from weights, ensure they sum exactly to avail_w
+        col_widths: list[int] = []
+        for i, wt in enumerate(self.weights):
+            if i < n - 1:
+                col_widths.append(max(1, int(avail_w * wt / total_w)))
+            else:
+                col_widths.append(max(1, avail_w - sum(col_widths)))
 
-        ctx.ref_h = card_h  # both columns same height — consistent within slide
+        card_h = ch_avail - 2 * blk_pad
+
+        ctx.ref_h = card_h  # all columns same height — consistent within slide
         for i, col_w in enumerate(col_widths):
             if i >= len(blocks):
                 break

@@ -36,10 +36,11 @@ class StatDisplayAtom:
             bold=True,
             safety=0.90,
         )
-        unit_sz = max(14, int(h * 0.07))
+        unit_sz = max(12, int(h * 0.07))
         sub_sz  = 11
         val_h   = int(val_sz * 1.2)
-        total_h = val_h + (sub_sz + 6 if sublabel else 0)
+        unit_h  = (unit_sz + 4) if unit else 0
+        total_h = val_h + (unit_h + 2 if unit else 0) + (sub_sz + 6 if sublabel else 0)
         start_y = y + max(0, (h - total_h) // 2)
 
         ctx.text(x, start_y, w, val_h, value,
@@ -49,12 +50,13 @@ class StatDisplayAtom:
         if unit:
             u_w = max(40, int(len(unit) * unit_sz * 0.7))
             ux  = (x + w - u_w) if align == "right" else x
-            ctx.text(ux, start_y, u_w, unit_sz + 4, unit,
+            ctx.text(ux, start_y + val_h + 2, u_w, unit_h, unit,
                      size=unit_sz, color=unit_color,
                      align="right" if align == "right" else "left",
                      valign="top")
 
         if sublabel:
-            ctx.text(x, start_y + val_h + 2, w, sub_sz + 4, sublabel,
+            sub_y = start_y + val_h + (unit_h + 4 if unit else 2)
+            ctx.text(x, sub_y, w, sub_sz + 4, sublabel,
                      size=sub_sz, color=sub_color,
                      align=align, valign="top")

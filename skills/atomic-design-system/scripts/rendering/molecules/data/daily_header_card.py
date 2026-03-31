@@ -1,9 +1,9 @@
-"""DailyHeaderCard — dark title card with date/time footer"""
+"""DailyHeaderCard — title card with date/time footer"""
 from __future__ import annotations
 
 
 class DailyHeaderCard:
-    """Render a dark full-bleed title card with date and time in the footer."""
+    """Render a full-bleed title card with date and time in the footer."""
 
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
@@ -29,7 +29,7 @@ class DailyHeaderCard:
         if show_header:
             ctx.text(x + PAD, y + PAD, w - PAD * 2, title_h, title,
                      size=title_sz, bold=True,
-                     color=ctx.color("surface"),
+                     color=ctx.card_title_color(props, default_token="on-surface"),
                      align="left", valign="top")
 
         if show_footer_line:

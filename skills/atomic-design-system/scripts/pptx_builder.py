@@ -40,7 +40,7 @@ from lxml import etree
 sys.path.insert(0, str(Path(__file__).parent))
 from design_system_utils import DesignSystem
 from md_parser import parse_markdown, Slide
-from agenda_injector import inject_agenda_slides, materialize_agenda_to_deck
+from agenda_injector import inject_agenda_slides, materialize_agenda_to_deck, strip_agenda_from_deck
 from rendering.context import PptxCtx
 from rendering.templates import TEMPLATE_REGISTRY
 from slide_helpers import _extract_section_blocks, dispatch
@@ -446,7 +446,7 @@ def build_pptx(md_path: Path, stylesheet_path, output_path: Path, qa: bool = Tru
     slides = parse_markdown(md_path)
     if slides and slides[0].front_matter.get("auto-agenda", True):
         slides = inject_agenda_slides(slides)
-        materialize_agenda_to_deck(md_path, slides)
+        strip_agenda_from_deck(md_path)   # keep source clean; slides are injected at build time
     PptxBuilder(ds).build(slides, output_path)
 
     if qa:

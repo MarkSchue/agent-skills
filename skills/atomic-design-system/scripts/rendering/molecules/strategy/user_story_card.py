@@ -72,6 +72,8 @@ class UserStoryCard:
     def _rc(self, ctx, raw: str, fallback: str) -> str:
         raw = (raw or "").strip()
         if not raw:
+            if not fallback:
+                return ""  # no override, no fallback → let caller's `or` chain activate
             return ctx.color(fallback)
         return raw if raw.startswith("#") else ctx.color(raw)
 

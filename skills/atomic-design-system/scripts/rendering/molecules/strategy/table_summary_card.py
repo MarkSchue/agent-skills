@@ -206,7 +206,11 @@ class TableSummaryCard:
             show_sub     = bool(sublabel)
             has_trend    = trend_str in ("up", "down", "neutral")
 
-            stack_h = (label_h if show_lbl else 0) + value_h + (sub_h if show_sub else 0)
+            GAP_KPI = ctx.spacing("s")   # 8 px gap between label/value/sublabel
+            gap_lv  = GAP_KPI if show_lbl else 0   # gap between label and value
+            gap_vs  = GAP_KPI if show_sub else 0    # gap between value and sublabel
+
+            stack_h = ((label_h + gap_lv) if show_lbl else 0) + value_h + ((gap_vs + sub_h) if show_sub else 0)
             iy = sy + max(cell_pad, (sh - stack_h) // 2)
 
             # Label
@@ -215,7 +219,7 @@ class TableSummaryCard:
                          kpi_label, size=label_sz, bold=False,
                          color=kpi_label_color, align="left", valign="middle",
                          inner_margin=0)
-                iy += label_h
+                iy += label_h + gap_lv
 
             # Value + unit
             per_col_raw   = str(kpi.get("color", "")).strip()
@@ -233,7 +237,7 @@ class TableSummaryCard:
                      size=vsz, bold=True,
                      color=val_color,
                      align="left", valign="middle", inner_margin=0)
-            iy += value_h
+            iy += value_h + gap_vs
 
             # Sub-label
             if show_sub:

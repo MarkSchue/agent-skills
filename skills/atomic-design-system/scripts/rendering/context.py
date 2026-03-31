@@ -1121,6 +1121,71 @@ class PptxCtx(RenderContext):
             self._disable_shadow(shape)
         return shape
 
+    def polygon(self, points: list[tuple[int, int]], fill: str,
+                stroke: str | None = None) -> None:
+        """Draw a filled polygon defined by a list of (x, y) pixel points.
+
+        Uses a PPTX custom geometry (custGeom) so the outline is a true
+        polygon rather than a rectangular bounding box.
+        """
+        from pptx.util import Emu
+        from lxml import etree  # type: ignore[attr-defined]
+        from pptx.oxml.ns import qn
+        if not points or len(points) < 3:
+            return
+        px = self._px
+        xs = [p[0] for p in points]
+        ys = [p[1] for p in points]
+        bx, by = min(xs), min(ys)
+        bw = max(max(xs) - bx, 1)
+        bh = max(max(ys) - by, 1)
+        # Create a placeholder rectangle (geometry will be replaced)
+        shape = self.slide.shapes.add_shape(
+            1, Emu(px(bx)), Emu(px(by)), Emu(px(bw)), Emu(px(bh)))
+        if fill and not self.is_transparent_fill(fill):
+            shape.fill.solid()
+            shape.fill.fore_color.rgb = self._rgb(fill)
+        else:
+            shape.fill.background()
+        if stroke and not self.is_transparent_fill(stroke):
+            shape.line.color.rgb = self._rgb(stroke)
+        else:
+            shape.line.fill.background()
+        if self._shadow_level() == 0:
+            self._disable_shadow(shape)
+        # Replace prstGeom with custGeom using path coordinates relative to
+        # the bounding box (scaled to EMU units so (bx,by)→(0,0))
+        sp   = shape.element
+        spPr = sp.find(qn("p:spPr"))
+        if spPr is None:
+            return
+        prstGeom = spPr.find(qn("a:prstGeom"))
+        if prstGeom is not None:
+            spPr.remove(prstGeom)
+        W = px(bw) * 9525  # px → EMU
+        H = px(bh) * 9525
+        # Build coordinate strings relative to bounding box origin
+        def _pt_xml(p):
+            rx = max(0, min(int(W), int((p[0] - bx) / bw * W)))
+            ry = max(0, min(int(H), int((p[1] - by) / bh * H)))
+            return f'<a:pt x="{rx}" y="{ry}"/>'
+        ns = 'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"'
+        segs = "".join(
+            f"<a:lnTo>{_pt_xml(p)}</a:lnTo>" for p in points[1:]
+        )
+        custGeom_xml = (
+            f'<a:custGeom {ns}><a:avLst/><a:gdLst/><a:ahLst/>'
+            f'<a:cxnLst/><a:rect l="0" t="0" r="{int(W)}" b="{int(H)}"/>'
+            f'<a:pathLst><a:path w="{int(W)}" h="{int(H)}">'
+            f'<a:moveTo>{_pt_xml(points[0])}</a:moveTo>'
+            f'{segs}<a:close/></a:path></a:pathLst></a:custGeom>'
+        )
+        custGeom = etree.fromstring(custGeom_xml)
+        # Insert before fill elements (put it right before xfrm or at index 0)
+        xfrm = spPr.find(qn("a:xfrm"))
+        idx  = list(spPr).index(xfrm) + 1 if xfrm is not None else 0
+        spPr.insert(idx, custGeom)
+
     def text(self, x, y, w, h, text, size=14, bold=False, italic=False,
              color=None, align="left", valign="top", inner_margin: int = 0,
              font: str | None = None):

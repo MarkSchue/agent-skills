@@ -119,17 +119,17 @@ class TopicCard:
             takeaway_y = inner_bottom - takeaway_h
             chevron_w = max(30, min(44, int(inner_w * 0.11)))
             if text_align == "center":
-                # Centre-aligned takeaway keeps chevrons as prefix text
-                ctx.text(inner_x, takeaway_y, inner_w, takeaway_h, f"»» {takeaway}",
+                # Centre-aligned takeaway keeps chevron as prefix text
+                ctx.text(inner_x, takeaway_y, inner_w, takeaway_h, f"» {takeaway}",
                          size=min(ctx.font_size("heading"), 24), bold=True,
                          color=title_color,
                          align="center", valign="middle")
             else:
                 text_x = inner_x + chevron_w + ctx.spacing("s")
                 text_w = max(24, inner_w - chevron_w - ctx.spacing("s"))
-                ctx.text(inner_x, takeaway_y, chevron_w, takeaway_h, "»»",
+                ctx.text(inner_x, takeaway_y, chevron_w, takeaway_h, "»",
                          size=min(ctx.font_size("heading"), 22), bold=True,
-                         color=divider_color,
+                         color=title_color,
                          align="left", valign="middle")
                 ctx.text(text_x, takeaway_y, text_w, takeaway_h, takeaway,
                          size=min(ctx.font_size("heading"), 24), bold=True,

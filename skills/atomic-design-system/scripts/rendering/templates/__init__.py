@@ -14,6 +14,8 @@ from rendering.templates.hero_title      import HeroTitleLayout
 from rendering.templates.grid            import GridLayout, AsymmetricGridLayout
 from rendering.templates.row_layout      import RowLayout
 from rendering.templates.grid_row_layout import GridRowLayout
+from rendering.templates.data_insight    import DataInsightLayout
+from rendering.templates.numbered_list   import NumberedListLayout
 
 TEMPLATE_REGISTRY: dict = {
     # ── Hero ──────────────────────────────────────────────────────────────
@@ -21,12 +23,14 @@ TEMPLATE_REGISTRY: dict = {
 
     # ── Column grids ──────────────────────────────────────────────────────
     "grid-2":           GridLayout(cols=2),
+    "comparison-2col":  GridLayout(cols=2),   # alias: two equal columns for comparison slides
     "grid-3":           GridLayout(cols=3),
     "grid-4":           GridLayout(cols=4),
 
     # ── Asymmetric column grids ───────────────────────────────────────────
     "grid-2-1":         AsymmetricGridLayout(weights=(2, 1)),
     "grid-1-2":         AsymmetricGridLayout(weights=(1, 2)),
+    "grid-2-1-1":       AsymmetricGridLayout(weights=(2, 1, 1)),  # wide left + 2 narrow
 
     # ── Row layouts ───────────────────────────────────────────────────────
     "row-2":            RowLayout(rows=2),
@@ -37,6 +41,10 @@ TEMPLATE_REGISTRY: dict = {
     # ── Grid × row layouts ────────────────────────────────────────────────
     "grid-row-2-2":     GridRowLayout(cols=2, rows=2),
     "grid-row-3-2":     GridRowLayout(cols=3, rows=2),
+
+    # ── Specialised layouts ───────────────────────────────────────────────
+    "data-insight":     DataInsightLayout(),
+    "numbered-list":    NumberedListLayout(),
 }
 
 __all__ = ["TEMPLATE_REGISTRY"]

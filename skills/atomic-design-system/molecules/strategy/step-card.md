@@ -9,6 +9,21 @@ number (or custom text / icon), a short colored accent line, a bold headline, an
 body text below a full-width divider — ideal for process steps, how-it-works
 sections, or phase overviews.
 
+## Layout guidance
+
+> **Column-width rule — always apply this when selecting a layout template.**
+>
+> | Steps | Recommended layout | Rationale |
+> |---|---|---|
+> | 1–3 | `grid-3` (equal columns) | Each step card occupies one equal column alongside other cards |
+> | 4–5 | `grid-2-1-1` (wide left + 2 narrow) | The step card receives double width; narrow columns carry supporting cards (e.g. `numbered-list-card`, `stacked-text`) |
+>
+> With 4–5 steps, each step column is only ~¼ of the slide width in an equal
+> grid — text wraps badly and numbers overflow. Giving the step-card a 2× wide
+> slot (first column of `grid-2-1-1`) restores comfortable reading width per step.
+>
+> **Never** place a 4- or 5-step `step-card` in an equal `grid-3` or `grid-4` layout.
+
 ## Design anatomy
 
 ```

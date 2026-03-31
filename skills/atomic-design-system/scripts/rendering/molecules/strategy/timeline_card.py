@@ -261,18 +261,22 @@ class TimelineCard:
             result_label = str(result.get("label", ""))
             result_desc  = str(result.get("description", ""))
             result_sz    = ctx.font_size("body")
+            desc_sz      = ctx.font_size("annotation")
             rlx          = cx + usable_w + GAP_S
-            rlw          = result_w - GAP_S
-            label_h      = int(result_sz * 1.4) * max(1, len(result_label) // max(rlw // max(result_sz, 1), 1) + 1)
-            label_h      = min(label_h, ch)
-            ctx.text(rlx, cy, rlw, ch,
+            rlw          = max(20, result_w - GAP_S)
+            # Stack label below axis (same rhythm as event labels)
+            below_y      = line_y + dot_r + GAP_S
+            label_h      = max(20, int(result_sz * 1.4))
+            ctx.text(rlx, below_y, rlw, label_h,
                      result_label,
                      size=result_sz, bold=True,
                      color=result_color,
-                     align="left", valign="middle")
+                     align="left", valign="top")
             if result_desc:
-                ctx.text(rlx, cy + ch // 2, rlw, ch // 2, result_desc,
-                         size=ctx.font_size("annotation"),
+                desc_y   = below_y + label_h + GAP_S // 2
+                desc_avail = max(10, cy + ch - desc_y)
+                ctx.text(rlx, desc_y, rlw, desc_avail, result_desc,
+                         size=desc_sz,
                          color=self._resolve_color(ctx, "", "on-surface-variant"),
                          align="left", valign="top")
 
