@@ -65,7 +65,7 @@ and a slightly highlighted background.
 | `info-text-size`     | int    | body font           | Explicit font-size in px for annotation body text |
 | `border-color`       | color  | `border-subtle`     | Divider and chip border color |
 | `show-header`        | bool   | auto                | Show/hide card title header |
-| `show-header-line`   | bool   | `true`              | Line below card title header |
+| `show-header-line`   | bool   | `true` (`false` in `table-mode` unless explicitly overridden) | Line below card title header |
 | `bg-color`           | color  | `bg-card` / `primary-container` in table-mode | Card background |
 
 ### KPI object fields

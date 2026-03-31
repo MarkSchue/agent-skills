@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../slides/Derisking"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.skill": "markdown",
+			"registry.yaml": "yaml",
+			"registry-tags.yaml": "yaml"
+		},
+		"extensions.ignoreRecommendations": false
+	}
+}

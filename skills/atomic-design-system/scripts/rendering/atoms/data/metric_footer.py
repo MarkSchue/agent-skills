@@ -30,18 +30,22 @@ class MetricFooterAtom:
         sep_color   : hex color for the separator line
         props       : optional card props for shared footer visibility overrides
         """
+        text_color = text_color or ctx.card_footer_color(props)
         if ctx.card_line_enabled(props, "footer", default=True):
-            ctx.divider(x, y, w,
-                        color=ctx.card_line_color("footer", sep_color))
+            line_x, line_w = ctx.card_divider_span("footer", x, w, props)
+            ctx.divider(line_x, y, line_w,
+                        color=ctx.card_line_color("footer", sep_color, props))
+        footer_size = ctx.card_footer_font_size(props)
+        footer_italic = ctx.card_footer_italic(props)
         cy = y + 4
         th = max(footer_h - 4, 14)
         if left_label:
             txt = f"{left_label}  {left_value}" if left_value else left_label
             ctx.text(x, cy, w // 2, th, txt,
-                     size=ctx.font_size("annotation"), color=text_color,
-                     align="left", valign="middle", italic=True)
+                     size=footer_size, color=text_color,
+                     align="left", valign="middle", italic=footer_italic, inner_margin=0)
         if right_label:
             txt = f"{right_label}  {right_value}" if right_value else right_label
             ctx.text(x + w // 2, cy, w // 2, th, txt,
-                     size=ctx.font_size("annotation"), color=text_color,
-                     align="right", valign="middle", italic=True)
+                     size=footer_size, color=text_color,
+                     align="right", valign="middle", italic=footer_italic, inner_margin=0)

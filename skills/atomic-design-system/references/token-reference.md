@@ -188,6 +188,7 @@ The **priority chain** for every geometry helper is:
 |-----|------|--------|-------------|
 | `header-line-color` | hex | `ctx.card_line_color("header", default, props)` | Header divider line colour |
 | `footer-line-color` | hex | `ctx.card_line_color("footer", default, props)` | Footer divider line colour |
+| `footer-color` | hex | `ctx.card_footer_color(props)` | Footer metadata text colour |
 | `card_bg` | `filled\|clean\|alt\|featured` | `ctx.card_bg_color(props, "bg-card")` | Semantic card background variant |
 | `title-color` | hex | `ctx.card_title_color(props)` | Card title text colour |
 | `body-color` | hex | `ctx.card_body_color(props)` | Body / description text colour |
@@ -214,6 +215,31 @@ Accepted truthy values: `true / 1 / yes / on / show`
 | `header-align` | `left \| center \| right` | `ctx.card_header_align(props)` | Title alignment in the header |
 | `header-line-width` | `50%` etc. | `ctx.card_divider_span(w, props)` | Width of the header line as % of card width |
 | `header-line-align` | `left \| center \| right` | `ctx.card_header_align(props)` | Alignment of the header line |
+
+### Shared Footer Theme Tokens
+
+These CSS tokens provide one shared footer typography contract for cards that render metadata rows,
+references, timeframes, dates, or source notes.
+
+| Token | Helper | Description |
+|-----|--------|-------------|
+| `--card-footer-height` | `ctx.card_footer_h(h, props)` | Shared footer zone height |
+| `--card-footer-gap` | `ctx.card_footer_gap(h, props)` | Shared gap between footer and surrounding content/divider |
+| `--card-footer-font-size` | `ctx.card_footer_font_size(props)` | Shared footer font size |
+| `--card-footer-color` | `ctx.card_footer_color(props)` | Shared footer text colour |
+| `--card-footer-italic` | `ctx.card_footer_italic(props)` | Shared footer italic toggle |
+
+### Shared Footer Instance Overrides
+
+These keys apply only to a single card instance in `deck.md`.
+
+| Key | Helper | Description |
+|-----|--------|-------------|
+| `card-footer-height` | `ctx.card_footer_h(h, props)` | Override footer zone height for one card |
+| `card-footer-gap` | `ctx.card_footer_gap(h, props)` | Override footer gap for one card |
+| `footer-font-size` | `ctx.card_footer_font_size(props)` | Override footer font size for one card |
+| `footer-color` | `ctx.card_footer_color(props)` | Override footer text colour for one card |
+| `footer-italic` | `ctx.card_footer_italic(props)` | Override footer italic style for one card |
 
 ### Renderer Authoring Rule
 

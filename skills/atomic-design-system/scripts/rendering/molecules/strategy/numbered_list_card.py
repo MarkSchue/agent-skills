@@ -51,6 +51,31 @@ from __future__ import annotations
 class NumberedListCard:
     """Render a numbered list with gutter, optional headline, and body text per row."""
 
+    def layout_requirements(self, ds, props: dict, body: str = "") -> dict:
+        """Return a conservative minimum width/height for safe layout planning."""
+        items = list(props.get("items") or [])
+        title = str(props.get("title", "")).strip()
+        count = max(1, len(items))
+        has_headline = any(
+            isinstance(item, dict) and str(item.get("headline", "")).strip()
+            for item in items
+        )
+        longest_body = max(
+            [len(str((item.get("body") if isinstance(item, dict) else item) or "")) for item in items] or [len(body)]
+        )
+        longest_headline = max(
+            [len(str(item.get("headline", ""))) for item in items if isinstance(item, dict)] or [0]
+        )
+        min_width = ds.font_size("body") * 28
+        if has_headline:
+            min_width += ds.font_size("label") * 4
+        min_width += min(160, longest_body * 2)
+        min_width += min(80, longest_headline * 2)
+        min_height = max(ds.font_size("body") * 14, count * ds.font_size("body") * 4)
+        if title:
+            min_height += ds.font_size("heading-sub") * 2
+        return {"min_width": int(min_width), "min_height": int(min_height)}
+
     # ── Helpers ───────────────────────────────────────────────────────────────
 
     def _rc(self, ctx, raw: str, fallback: str) -> str:

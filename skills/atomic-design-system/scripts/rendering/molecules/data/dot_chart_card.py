@@ -20,7 +20,7 @@ class DotChartCard:
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
-        footer_h = max(28, int(h * 0.08))
+        footer_h = ctx.card_footer_h(h, props)
         main_h   = h - footer_h - PAD
         left_w   = int(w * 0.42)
         right_x  = x + left_w + PAD
@@ -49,6 +49,6 @@ class DotChartCard:
                        left_value="",
                        right_label=str(props.get("right-label", "")),
                        right_value="",
-                       text_color=ctx.color("on-surface-variant"),
+                       text_color=ctx.card_footer_color(props, default_token="text-secondary"),
                        sep_color=ctx.color("border-subtle"),
                        props=props)

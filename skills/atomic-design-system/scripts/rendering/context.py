@@ -52,6 +52,7 @@ Overridable props accepted in deck.md YAML front-matter (hyphen or underscore fo
     # Colors
     header-line-color: "#E53935"
     footer-line-color: "#E53935"
+    footer-color: "#616161"
     card_bg: filled | clean | alt | featured
     title-color: "#hex"
     body-color: "#hex"
@@ -69,6 +70,9 @@ Overridable props accepted in deck.md YAML front-matter (hyphen or underscore fo
     header-align: left | center | right
     header-line-width: 50%
     header-line-align: center
+    footer-font-size: 12
+    card-footer-height: 28
+    card-footer-gap: 8
 """
 
 from __future__ import annotations
@@ -487,6 +491,96 @@ class RenderContext:
             min_size=self.font_size("label"),
             bold=True, safety=0.92,
         )
+
+    def card_footer_h(self, h: int, props: dict | None = None) -> int:
+        """Standard card footer height in px.
+
+        Per-card override: ``card-footer-height: <px>`` in the card's deck.md props block.
+        Theme-wide: ``--card-footer-height`` CSS token.
+        """
+        raw_prop = self._prop_value(props, "card-footer-height", "card_footer_height")
+        if raw_prop is not None:
+            try:
+                v = int(float(str(raw_prop)))
+                if v > 0:
+                    return v
+            except (ValueError, TypeError):
+                pass
+        raw = self.theme_var("--card-footer-height", "").strip()
+        try:
+            v = int(float(raw)) if raw else 0
+            if v > 0:
+                return v
+        except (ValueError, TypeError):
+            pass
+        return max(20, int(self._ref(h) * 0.07))
+
+    def card_footer_gap(self, h: int, props: dict | None = None) -> int:
+        """Gap between footer content and neighbouring content in px.
+
+        Per-card override: ``card-footer-gap: <px>`` in the card's deck.md props block.
+        Theme-wide: ``--card-footer-gap`` CSS token.
+        """
+        raw_prop = self._prop_value(props, "card-footer-gap", "card_footer_gap")
+        if raw_prop is not None:
+            try:
+                v = int(float(str(raw_prop)))
+                if v >= 0:
+                    return v
+            except (ValueError, TypeError):
+                pass
+        raw = self.theme_var("--card-footer-gap", "").strip()
+        try:
+            v = int(float(raw)) if raw else 0
+            if v >= 0:
+                return v
+        except (ValueError, TypeError):
+            pass
+        return max(self.spacing("s"), int(self._ref(h) * 0.016))
+
+    def card_footer_font_size(self, props: dict | None = None,
+                              default_role: str = "caption") -> int:
+        """Footer metadata font size in pt.
+
+        Per-card override: ``footer-font-size: <pt>`` in the card's deck.md props block.
+        Theme-wide: ``--card-footer-font-size`` CSS token.
+        """
+        raw_prop = self._prop_value(props, "footer-font-size", "footer_font_size")
+        if raw_prop is not None:
+            try:
+                v = int(float(str(raw_prop)))
+                if v > 0:
+                    return v
+            except (ValueError, TypeError):
+                pass
+        raw = self.theme_var("--card-footer-font-size", "").strip()
+        try:
+            v = int(float(raw)) if raw else 0
+            if v > 0:
+                return v
+        except (ValueError, TypeError):
+            pass
+        return self.font_size(default_role)
+
+    def card_footer_color(self, props: dict | None = None,
+                          default_token: str = "text-secondary") -> str:
+        """Footer metadata text color.
+
+        Per-card override: ``footer-color`` / ``footer-text-color``.
+        Theme-wide: ``--card-footer-color`` CSS token.
+        """
+        raw = self._prop_value(props, "footer-color", "footer_color", "footer-text-color", "footer_text_color")
+        if raw:
+            return str(raw)
+        return self.theme_var("--card-footer-color", self.color(default_token))
+
+    def card_footer_italic(self, props: dict | None = None,
+                           default: bool = True) -> bool:
+        """Return whether shared footer metadata should render italic."""
+        raw = self._prop_value(props, "footer-italic", "footer_italic")
+        if raw is not None:
+            return self._boolish(raw, default)
+        return self.theme_flag("--card-footer-italic", default)
 
     # ── Icon badge helpers ────────────────────────────────────────────────
     # These read the canonical --color-icon-* / --icon-* CSS tokens so every

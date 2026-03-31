@@ -46,6 +46,18 @@ from __future__ import annotations
 class StepCard:
     """Render a numbered step layout with 1–5 equal columns."""
 
+    def layout_requirements(self, ds, props: dict, body: str = "") -> dict:
+        """Return a conservative minimum width/height for safe layout planning."""
+        steps = list(props.get("steps") or [])[:5]
+        count = max(1, len(steps))
+        title = str(props.get("title", "")).strip()
+        col_min_w = max(ds.font_size("body") * 9, ds.font_size("heading-sub") * 6)
+        min_width = col_min_w * count + ds.spacing("m") * max(0, count - 1) + ds.spacing("l") * 2
+        min_height = max(ds.font_size("body") * 16, ds.font_size("heading-sub") * 10)
+        if title:
+            min_height += ds.font_size("heading-sub") * 2
+        return {"min_width": int(min_width), "min_height": int(min_height)}
+
     # ── Color helpers ─────────────────────────────────────────────────────────
 
     def _resolve_color(self, ctx, raw: str, fallback: str) -> str:

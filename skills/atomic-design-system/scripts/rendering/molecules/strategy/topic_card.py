@@ -8,6 +8,20 @@ class TopicCard:
     Supports ``text_align: left | center | right`` to align all text elements.
     """
 
+    def layout_requirements(self, ds, props: dict, body: str = "") -> dict:
+        """Return a conservative minimum width/height for safe layout planning."""
+        items = self._items_from_props(props, body=body)
+        takeaway = self._takeaway_from_props(props)
+        title = str(props.get("title", "") or props.get("headline", "") or "").strip()
+        longest = max([len(str(item.get("text", "") or item.get("body", "") or "")) for item in items] or [len(body)])
+        min_width = max(ds.font_size("body") * 22, ds.font_size("body") * 18 + min(200, longest * 2))
+        min_height = ds.font_size("body") * 10 + max(0, len(items) - 1) * ds.font_size("body") * 2
+        if title:
+            min_height += ds.font_size("heading-sub") * 2
+        if takeaway:
+            min_height += ds.font_size("heading-sub") * 3
+        return {"min_width": int(min_width), "min_height": int(max(220, min_height))}
+
     @staticmethod
     def _items_from_props(props: dict, body: str = "") -> list[dict]:
         """Normalize rows from common topic-card authoring shapes."""

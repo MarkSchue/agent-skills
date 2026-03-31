@@ -5,7 +5,7 @@ id: role-card
 type: molecule
 domain: team
 layout: stacked-header-body
-description: Card defining an organizational role with responsibilities, required skills, and reporting line.
+description: Card defining an organizational role with responsibilities, required skills, and reporting line using the shared card header/body styling.
 tags: [team, role, responsibilities, org-design, hr]
 preview: previews/molecules/role-card.png
 required_atoms: [text-heading, text-body, badge-status, shape-divider, icon-wrapper]
@@ -27,8 +27,9 @@ max_atoms: 5
 └──────────────────────────────────────────────────────┘
 ```
 
-- Role title is prominent; level badge is secondary.
-- Responsibilities formatted as bullets via `text-body`.
+- Role title uses the shared card header zone and divider rhythm.
+- Level badge is secondary and fitted to the available header width.
+- Responsibilities are normalized to text bullets and scale responsively to the card height.
 
 ## Atoms and Roles
 
@@ -56,7 +57,7 @@ max_atoms: 5
 |---|---|---|
 | `title` | string | Role / position title |
 | `level` | string | Grade or band (e.g. "L5", "Senior") |
-| `responsibilities` | `list[string]` | Key responsibilities (3-6 bullets) |
+| `responsibilities` | `list[string\|object]` | Key responsibilities (3-6 bullets). Object items may use `text`, `body`, or `value`. |
 | `reports-to` | string | Manager role title |
 | `icon-name` | string | Functional area icon |
 

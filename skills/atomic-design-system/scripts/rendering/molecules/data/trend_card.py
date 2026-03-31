@@ -6,6 +6,10 @@ from rendering.input_utils import resolve_trend  # smart trend interpretation
 class TrendCard:
     """Render a trend card with large value, delta, and optional sparkline."""
 
+    @staticmethod
+    def _trend_glyph(trend: str) -> str:
+        return "↑" if trend == "up" else ("↓" if trend == "down" else "→")
+
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
         ctx.rect(x, y, w, h,
@@ -13,9 +17,8 @@ class TrendCard:
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
-        # Card title: explicit 'unit' field is the metric label and takes
-        # priority; fall back to the ## section heading injected as 'title'.
-        title_text = str(props.get("unit") or props.get("title") or "")
+        label_text = str(props.get("label") or "")
+        title_text = str(label_text or props.get("title") or props.get("unit") or "")
         unit       = str(props.get("unit",   ""))
         value      = str(props.get("value",  "—"))
         change     = str(props.get("change", ""))
@@ -31,7 +34,8 @@ class TrendCard:
         # ── Card header (matches ChartCard pattern) ──────────────────────────
         show_header      = bool(title_text) and ctx.card_section_enabled(props, "header", default=True)
         show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
-        title_color      = ctx.card_title_color(props, default_token="text-on-muted")
+        title_color      = ctx.card_title_color(props, default_token="text-default")
+        body_color       = ctx.card_body_color(props, default_token="text-secondary")
 
         # Centralized header helpers — consistent with all other card molecules.
         header_h   = ctx.card_header_h(w, h, props)
@@ -45,7 +49,7 @@ class TrendCard:
                      size=title_size, bold=True,
                      color=title_color,
                      align=ctx.card_header_align(props, default="left"),
-                     valign="middle")
+                     valign="middle", inner_margin=0)
             content_y += header_h + header_gap
 
         if show_header_line:
@@ -58,38 +62,41 @@ class TrendCard:
 
         # ── Remaining content geometry ────────────────────────────────────────
         remaining_h = (y + h) - content_y - card_pad
+        if remaining_h <= 24:
+            return
+
+        delta_text = f"{self._trend_glyph(trend)} {change}".strip() if change else self._trend_glyph(trend)
+        delta_size = ctx.font_size("body")
+        delta_h = max(22, int(delta_size * 1.4))
+        spark_gap = max(8, int(remaining_h * 0.04)) if has_spark else 0
+        spark_target_h = max(28, int(remaining_h * 0.22)) if has_spark else 0
+        value_zone_h = max(40, remaining_h - delta_h - spark_gap - spark_target_h)
 
         val_sz = ctx.fit_text_size(
             value,
             w - card_pad * 2,
-            max_size=max(36, min(120, int(remaining_h * 0.40))),
+            max_size=max(ctx.font_size("heading-sub"), min(ctx.font_size("heading-display"), int(value_zone_h * 0.70))),
             min_size=max(24, ctx.font_size("heading-sub")),
             bold=True,
             safety=0.90,
         )
-        val_h      = max(52, int(remaining_h * 0.38))
-        delta_size = max(ctx.font_size("caption"),  min(ctx.font_size("heading"), int(remaining_h * 0.10)))
-        delta_h    = max(24, int(remaining_h * 0.14))
+        val_h = max(int(val_sz * 1.45), min(value_zone_h, int(val_sz * 2.5)))
 
         vy           = content_y
-        ty           = vy + val_h + 4
-        delta_bottom = ty + delta_h + max(6, int(remaining_h * 0.02))
+        ty           = vy + val_h + max(6, int(remaining_h * 0.02))
+        delta_bottom = ty + delta_h + spark_gap
 
         ctx.text(x + card_pad, vy, w - card_pad * 2, val_h, value,
-                 size=val_sz, bold=True, color=ctx.color("text-highlight"))
+                 size=val_sz, bold=True, color=ctx.color("text-highlight"),
+                 align="left", valign="middle", inner_margin=0)
 
-        icon_name = ("arrow_upward"   if trend == "up"   else
-                     "arrow_downward" if trend == "down" else
-                     "remove")
         tc = (ctx.color("success") if trend == "up" else
               ctx.color("error")   if trend == "down" else
-              ctx.color("text-secondary"))
-        ctx.draw_icon(x + card_pad, ty, delta_h, delta_h, icon_name, color=tc)
-        if change:
-            ctx.text(x + card_pad + delta_h + 8, ty,
-                     max(10, w - card_pad * 2 - delta_h - 12), delta_h,
-                     change, size=delta_size, bold=True, color=tc,
-                     align="left", valign="middle")
+              body_color)
+        ctx.text(x + card_pad, ty,
+                 w - card_pad * 2, delta_h,
+                 delta_text, size=delta_size, bold=True, color=tc,
+                 align="left", valign="middle", inner_margin=0)
 
         if has_spark:
             vals = [float(v) for v in sparkline]

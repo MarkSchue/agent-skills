@@ -264,16 +264,15 @@ class TimelineCard:
             desc_sz      = ctx.font_size("annotation")
             rlx          = cx + usable_w + GAP_S
             rlw          = max(20, result_w - GAP_S)
-            # Stack label below axis (same rhythm as event labels)
-            below_y      = line_y + dot_r + GAP_S
             label_h      = max(20, int(result_sz * 1.4))
-            ctx.text(rlx, below_y, rlw, label_h,
+            label_y      = max(cy, line_y - dot_r - GAP_S - label_h)
+            ctx.text(rlx, label_y, rlw, label_h,
                      result_label,
                      size=result_sz, bold=True,
                      color=result_color,
-                     align="left", valign="top")
+                     align="left", valign="bottom")
             if result_desc:
-                desc_y   = below_y + label_h + GAP_S // 2
+                desc_y   = line_y + dot_r + GAP_S
                 desc_avail = max(10, cy + ch - desc_y)
                 ctx.text(rlx, desc_y, rlw, desc_avail, result_desc,
                          size=desc_sz,

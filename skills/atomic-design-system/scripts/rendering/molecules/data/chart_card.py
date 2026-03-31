@@ -71,18 +71,21 @@ class ChartCard:
                         color=ctx.card_line_color("header", ctx.color("line-default"), chart_data))
             content_y += max(12, int(h * 0.024))
 
-        footer_h = max(18, int(h * 0.06)) if show_footer else 0
+        footer_h = ctx.card_footer_h(h, chart_data) if show_footer else 0
+        footer_gap = ctx.card_footer_gap(h, chart_data) if show_footer else max(ctx.spacing("s"), int(h * 0.014))
+        footer_size = ctx.card_footer_font_size(chart_data)
+        footer_color = ctx.card_footer_color(chart_data, default_token="text-secondary")
+        footer_italic = ctx.card_footer_italic(chart_data)
         footer_y = y + h - card_pad - footer_h
         content_bottom = footer_y
         if show_footer_line:
-            divider_gap = max(ctx.spacing("s"), int(h * 0.014))
-            divider_y = footer_y - divider_gap
+            divider_y = footer_y - footer_gap
             line_x, line_w = ctx.card_divider_span("footer", x + card_pad, w - card_pad * 2, chart_data)
             ctx.divider(line_x, divider_y, line_w,
                         color=ctx.card_line_color("footer", ctx.color("line-default"), chart_data))
-            content_bottom = divider_y - divider_gap
+            content_bottom = divider_y - footer_gap
         elif show_footer:
-            content_bottom = footer_y - max(ctx.spacing("s"), int(h * 0.012))
+            content_bottom = footer_y - footer_gap
 
         content_h = max(24, content_bottom - content_y)
 
@@ -95,8 +98,8 @@ class ChartCard:
 
         if show_footer:
             ctx.text(x + card_pad, footer_y, w - card_pad * 2, footer_h, footer_text,
-                     size=ctx.font_size("annotation"), italic=True,
-                     color=body_color, align="right", valign="middle")
+                     size=footer_size, italic=footer_italic,
+                     color=footer_color, align="right", valign="middle", inner_margin=0)
 
     # -- Internal chart renderers ---------------------------------------------
 

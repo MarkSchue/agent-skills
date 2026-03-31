@@ -309,14 +309,18 @@ class TableSummaryCard:
         inner_w = w - pad * 2
         title   = str(props.get("title", ""))
 
+        # ── Table-companion mode ──────────────────────────────────────────
+        table_mode = self._bool_prop(props, "table-mode", False)
+
         show_header      = bool(title) and ctx.card_section_enabled(props, "header", default=True)
         show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        explicit_header_line = ctx._prop_value(props, "show_header_line", "show-header-line")
+        if table_mode and explicit_header_line is None:
+            show_header_line = False
         title_color      = ctx.card_title_color(props, default_token="text-default")
         header_align     = ctx.card_header_align(props, default="left")
         hdr_div_c        = ctx.card_line_color("header", ctx.color("line-default"), props)
 
-        # ── Table-companion mode ──────────────────────────────────────────
-        table_mode = self._bool_prop(props, "table-mode", False)
         accent_color_raw = str(props.get("accent-color", "")).strip()
         accent_color     = self._rc(ctx, accent_color_raw, "primary")
         accent_stripe_h  = self._int_prop(props, "accent-stripe-h", 4)

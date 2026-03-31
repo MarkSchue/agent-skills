@@ -52,11 +52,12 @@ Proportions:
 - Title wraps — allow up to 3 lines; each line at title_sz pt
 - No icon, no badge — purely typographic
 - Date left-anchored, time right-anchored in footer zone
+- Footer typography uses the shared card footer tokens (`--card-footer-*`) so it stays aligned with other cards
 
 ## CSS Class Map
 
 | Element | CSS Class / Utility Combo | Applied Properties |
 |---------|--------------------------|-------------------|
 | Card container | `.daily-header-card` | `background`, `border-radius` |
-| Date text | `.daily-header-card__date` → `u-text-on-surface-variant u-type-annotation` | `color`, `font-size` |
+| Date text | `.daily-header-card__date` → `u-text-on-surface-variant u-type-caption` | `color`, `font-size` |
 | Subtitle text | `.daily-header-card__subtitle` → `u-text-on-surface-variant u-type-caption` | `color`, `font-size` |

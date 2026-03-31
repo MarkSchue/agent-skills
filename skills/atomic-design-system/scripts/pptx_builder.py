@@ -43,6 +43,7 @@ from md_parser import parse_markdown, Slide
 from agenda_injector import inject_agenda_slides, materialize_agenda_to_deck, strip_agenda_from_deck
 from rendering.context import PptxCtx
 from rendering.templates import TEMPLATE_REGISTRY
+from layout_planner import expand_overflow_slides
 from slide_helpers import _extract_section_blocks, dispatch
 from qa_render import render as qa_render
 
@@ -447,6 +448,7 @@ def build_pptx(md_path: Path, stylesheet_path, output_path: Path, qa: bool = Tru
     if slides and slides[0].front_matter.get("auto-agenda", True):
         slides = inject_agenda_slides(slides)
         strip_agenda_from_deck(md_path)   # keep source clean; slides are injected at build time
+    slides = expand_overflow_slides(slides, ds)
     PptxBuilder(ds).build(slides, output_path)
 
     if qa:

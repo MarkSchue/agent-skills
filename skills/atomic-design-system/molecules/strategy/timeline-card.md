@@ -55,7 +55,7 @@ max_atoms: 8
 | `dot-badge-type`      | enum    | no       | `none` (plain dot, default) · `number` (auto 01,02…) · `text` (reads `badge` per event) · `icon` (reads `badge` as icon name) |
 | `dot-badge-color`     | color   | no       | Badge circle fill color (default: `primary`)         |
 | `dot-badge-text-color`| color   | no       | Text/icon color inside badge (default: `on-primary`) |
-| `result`              | object  | no       | Optional target/result node at the end of the axis — `{label, description, color}`. Also accepts a plain string as shorthand for `label`. |
+| `result`              | object  | no       | Optional target/result node at the end of the axis — `{label, description, color}`. In horizontal mode, the label is placed above the axis and the description below it. Also accepts a plain string as shorthand for `label`. |
 | `line-color`          | color   | no       | Axis line color (default: `border-subtle`)           |
 | `date-color`          | color   | no       | Date label color (default: `primary`)                |
 | `label-color`         | color   | no       | Event label color (default: `on-surface`)            |
@@ -78,8 +78,8 @@ max_atoms: 8
 
 | Field         | Type   | Description                                              |
 |---------------|--------|----------------------------------------------------------|
-| `label`       | string | Bold text shown at the end of the axis                  |
-| `description` | string | Optional smaller text below the label                   |
+| `label`       | string | Bold text shown at the end of the axis; above the axis in horizontal mode |
+| `description` | string | Optional smaller text; below the axis in horizontal mode |
 | `color`       | color  | Text color override (default: `on-surface`)             |
 
 ## CSS Token Map

@@ -20,8 +20,12 @@ class DailyHeaderCard:
         show_footer = bool(date or time_str) and ctx.card_section_enabled(props, "footer", default=True)
         show_footer_line = show_footer and ctx.card_line_enabled(props, "footer", default=True)
 
-        footer_h = max(24, int(h * 0.10)) if show_footer else 0
-        footer_gap = max(ctx.spacing("s"), int(h * 0.016)) if show_footer else 0
+        footer_h = ctx.card_footer_h(h, props) if show_footer else 0
+        footer_gap = ctx.card_footer_gap(h, props) if show_footer else 0
+        footer_size = ctx.card_footer_font_size(props)
+        footer_color = ctx.card_footer_color(props)
+        footer_italic = ctx.card_footer_italic(props)
+
         footer_y = y + h - PAD - footer_h
         title_h  = h - footer_h - PAD * 2 - footer_gap
         title_sz = max(28, min(64, int(h * 0.12)))
@@ -33,16 +37,19 @@ class DailyHeaderCard:
                      align="left", valign="top")
 
         if show_footer_line:
-            ctx.divider(x + PAD, footer_y - footer_gap, w - PAD * 2,
+            line_x, line_w = ctx.card_divider_span("footer", x + PAD, w - PAD * 2, props)
+            ctx.divider(line_x, footer_y - footer_gap, line_w,
                         color=ctx.card_line_color("footer", ctx.color("line-default"), props))
 
         if show_footer and date:
             ctx.text(x + PAD, footer_y, w // 2, footer_h, date,
-                     size=ctx.font_size("annotation"), color=ctx.color("on-surface-variant"),
-                     align="left", valign="middle")
+                     size=footer_size, italic=footer_italic,
+                     color=footer_color,
+                     align="left", valign="middle", inner_margin=0)
 
         if show_footer and time_str:
             ctx.text(x + w // 2, footer_y, w // 2 - PAD, footer_h,
                      time_str,
-                     size=ctx.font_size("annotation"), color=ctx.color("on-surface-variant"),
-                     align="right", valign="middle")
+                     size=footer_size, italic=footer_italic,
+                     color=footer_color,
+                     align="right", valign="middle", inner_margin=0)
