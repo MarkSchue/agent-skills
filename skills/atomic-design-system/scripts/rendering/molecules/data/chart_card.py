@@ -187,7 +187,7 @@ class ChartCard:
 
     def _pie_legend(self, ctx, data: dict,
                     x: int, y: int, w: int, h: int) -> None:
-        PAD             = ctx.PAD
+        PAD             = ctx.card_pad_px(w, h, chart_data)
         slices          = data.get("slices", []) or []
         is_donut        = data.get("_chart_type") == "donut"
         # Verbal configuration — where does the legend go?

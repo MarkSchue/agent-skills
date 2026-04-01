@@ -27,10 +27,9 @@ preview: previews/atoms/badge-status.png
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `text` | string | yes | Badge label text (keep ≤ 20 chars) |
-| `variant` | enum | yes | `success` · `warning` · `error` · `neutral` · `primary` |
-| `icon-id` | string | no | Optional prefix icon from `icon-wrapper` |
-
+| `icon-id` | string | no |
+| `text` | string | yes |
+| `variant` | enum | yes |
 ## Behavior
 
 - Background color is chosen from the `variant` parameter, not from a direct token reference.

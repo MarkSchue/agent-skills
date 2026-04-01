@@ -144,6 +144,12 @@ class StepCard:
         content_h      = content_bottom - cy
         cx             = x + pad
 
+        # Text alignment — horizontal (left/center/right) and vertical (top/middle/bottom)
+        text_align  = str(props.get("text-align")  or props.get("text_align")  or "center").strip().lower()
+        text_valign = str(props.get("text-valign") or props.get("text_valign") or "middle").strip().lower()
+        if text_align  not in ("left", "center", "right"): text_align  = "center"
+        if text_valign not in ("top",  "middle", "bottom"): text_valign = "middle"
+
         # Column layout: equal widths with inter-column gap
         col_gap = max(GAP_S, min(GAP_M, int(inner_w * 0.025)))
         col_w   = max(20, (inner_w - col_gap * (n - 1)) // n)
@@ -234,7 +240,7 @@ class StepCard:
                          headline,
                          size=headline_font_sz, bold=True,
                          color=hc,
-                         align="left", valign="top",
+                         align=text_align, valign=text_valign,
                          inner_margin=0)
 
         # ── Full-width divider ────────────────────────────────────────────
@@ -262,5 +268,5 @@ class StepCard:
                      body_text,
                      size=body_font_sz, bold=False,
                      color=bc,
-                     align="left", valign="top",
+                     align=text_align, valign=text_valign,
                      inner_margin=0)

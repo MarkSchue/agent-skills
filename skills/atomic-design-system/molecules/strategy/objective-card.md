@@ -53,10 +53,18 @@ max_atoms: 5
 
 | Parameter | Type | Description |
 |---|---|---|
-| `objective` | string | The strategic objective statement |
-| `quarter` | string | Label e.g. "Q3 2025" |
-| `key-results` | `list[object]` | Array of `{text, progress}` (progress 0-100) |
-
+| `bar_height/bar-height` | int(px)/size token | Size/spacing value (px or token). |
+| `key_results/key-results` | string | Value from props. |
+| `objective` | string | Text string. |
+| `objective_color/objective-color` | color-token | Color token name (theme color). |
+| `objective_bg/objective-bg` | color-token/bool | `none` or `false` to disable objective background strip; otherwise token/hex. |
+| `progress` | string | Value from props. |
+| `progress_unit/progress-unit` | string | Value from props. |
+| `quarter` | string | Value from props. |
+| `ratio_color/ratio-color` | color-token | Color token name (theme color). |
+| `show_progress/show-progress` | string | Value from props. |
+| `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `title` | string | Text string. |
 ## Example
 
 ```yaml

@@ -41,40 +41,26 @@ sections, or phase overviews.
 
 ## Parameters
 
-| Parameter            | Type   | Default              | Description |
-|----------------------|--------|----------------------|-------------|
-| `title`              | string | —                    | Optional card header title |
-| `steps`              | list   | **required**         | Array of step objects (1–5 items) |
-| `number-type`        | enum   | `number`             | `number` auto 01,02… · `text` (reads step `number`) · `icon` (reads step `icon`) · `none` |
-| `active-step`        | int    | `0` (none)           | 1-based index — automatically highlights that column with `active-color` |
-| `active-color`       | color  | `primary`            | Accent color for the active/highlighted step |
-| `default-color`      | color  | `on-surface-variant` | Accent color for steps without a status |
-| `done-color`         | color  | `success`            | Accent color for `status: done` steps |
-| `muted-color`        | color  | `border-subtle`      | Accent color for `status: muted` steps |
-| `number-size`        | int    | auto                 | Explicit font-size in px for the large number |
-| `show-accent-line`   | bool   | `true`               | Draw the short colored bar under the number |
-| `accent-line-width`  | float  | `0.35`               | Fraction of column width for the accent bar |
-| `accent-line-height` | int    | `3`                  | Thickness of accent bar in px |
-| `divider-position`   | float  | `0.52`               | 0..1 fraction of content height where the horizontal divider sits |
-| `divider-color`      | color  | `border-subtle`      | Full-width divider line color |
-| `headline-color`     | color  | `on-surface`         | Global override for all headline texts |
-| `body-color`         | color  | `on-surface-variant` | Global override for all body texts |
-| `show-header`        | bool   | auto                 | Show/hide card title header |
-| `show-header-line`   | bool   | `true`               | Show/hide line below title header |
-| `bg-color`           | color  | `bg-card`            | Card background override |
-
-### Step object fields
-
-| Field        | Type   | Required | Description |
-|--------------|--------|----------|-------------|
-| `headline`   | string | yes      | Bold step title |
-| `body`       | string | no       | Supporting text shown in the lower zone |
-| `number`     | string | no       | Custom label when `number-type: text` |
-| `icon`       | string | no       | Icon description when `number-type: icon` |
-| `badge`      | string | no       | Alias for `number` / `icon` |
-| `status`     | enum   | no       | `active` · `done` · `muted` · `default` — controls accent color |
-| `color`      | color  | no       | Per-step explicit color override (overrides status) |
-
+| Parameter | Type | Description |
+|---|---|---|
+| `accent-line-height` | int(px)/size token | Size/spacing value (px or token). |
+| `accent-line-width` | int(px)/size token | Size/spacing value (px or token). |
+| `active-color` | color-token | Color token name (theme color). |
+| `active-step` | string | Value from props. |
+| `body-color` | color-token | Color token name (theme color). |
+| `default-color` | color-token | Color token name (theme color). |
+| `divider-color` | color-token | Color token name (theme color). |
+| `divider-position` | string | Value from props. |
+| `done-color` | color-token | Color token name (theme color). |
+| `headline-color` | color-token | Color token name (theme color). |
+| `muted-color` | color-token | Color token name (theme color). |
+| `number-size` | int(px)/size token | Size/spacing value (px or token). |
+| `number-type` | string | Value from props. |
+| `show-accent-line` | string | Value from props. |
+| `steps` | string | List of data items. |
+| `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `text_valign/text-valign` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `title` | string | Text string. |
 ## CSS design tokens
 
 | Token                          | Description               | Default |

@@ -53,12 +53,11 @@ max_atoms: 4
 
 | Parameter | Type | Description |
 |---|---|---|
-| `title` | string | Chart heading |
-| `chart-type` | enum | `bar` · `pie` · `gantt` |
 | `chart-data` | object | Data passed to the chosen chart atom's schema |
+| `chart-type` | enum | `bar` · `pie` · `gantt` |
 | `period` | string | Optional time period badge text |
 | `source` | string | Data source attribution |
-
+| `title` | string | Chart heading |
 ## Example
 
 ```yaml

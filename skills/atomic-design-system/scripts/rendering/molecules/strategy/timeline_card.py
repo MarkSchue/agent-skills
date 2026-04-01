@@ -136,7 +136,31 @@ class TimelineCard:
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
 
-        events = props.get("events", []) or []
+        # ── Alias normalisation ───────────────────────────────────────────
+        # Accept milestones / steps / items in addition to events
+        events = (props.get("events")
+                  or props.get("milestones")
+                  or props.get("steps")
+                  or props.get("items")
+                  or [])
+        # Normalise per-item field aliases:
+        #   label  → date  (the year / period shown above/left of axis)
+        #   title  → label (the event name shown below/right of axis)
+        normalised = []
+        for ev in events:
+            if not isinstance(ev, dict):
+                continue
+            ev = dict(ev)  # shallow copy so we don't mutate the original
+            if "date" not in ev and "label" in ev:
+                ev["date"] = ev.pop("label")
+            if "label" not in ev and "title" in ev:
+                ev["label"] = ev.pop("title")
+            # also accept "name" as label fallback
+            if "label" not in ev and "name" in ev:
+                ev["label"] = ev.pop("name")
+            normalised.append(ev)
+        events = normalised
+
         if not events:
             return
 

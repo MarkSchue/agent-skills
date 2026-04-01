@@ -54,9 +54,15 @@ max_atoms: 12
 
 | Parameter | Type | Description |
 |---|---|---|
-| `title` | string | Panel heading |
-| `lanes` | `list[object]` | Array of `{label, items: [{text, description, status}]}` |
-
+| `desc-color` | color-token | Color token name (theme color). |
+| `dot-color` | color-token | Color token name (theme color). |
+| `item-color` | color-token | Color token name (theme color). |
+| `label-color` | color-token | Color token name (theme color). |
+| `lane-gap` | int(px)/size token | Size/spacing value (px or token). |
+| `lanes` | list | List of data items. |
+| `line-color` | color-token | Color token name (theme color). |
+| `text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `title` | string | Text string. |
 ## Example
 
 ```yaml

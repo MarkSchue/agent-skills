@@ -46,17 +46,14 @@ preview: previews/atoms/agenda-entry.png
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `label_w` | int (px) | yes | — | Width of the left label column. **Must be identical for every entry in a group.** |
-| `gap` | int (px) | no | 12 | Horizontal gap between the label column and the text column. |
-| `label_type` | enum | no | `number` | `number` · `time` · `icon` |
-| `label` | string | yes | — | Number (e.g. `"01"`), time range (e.g. `"08:00–12:00"`), or icon concept name (e.g. `"coffee"`) |
-| `title` | string | yes | — | Bold entry heading (topic + presenter, e.g. `"Workshop \| Group"`) |
-| `description` | string | no | `""` | Body text; use `\n` for up to 2 lines |
-| `highlight` | bool | no | `false` | Draws `primary-container` background — marks the current agenda point |
-| `show_divider` | bool | no | `true` | Draws separator line above the row |
-
----
-
+| `description` | string | no |
+| `gap` | int (px) | no |
+| `highlight` | bool | no |
+| `label` | string | yes |
+| `label_type` | enum | no |
+| `label_w` | int (px) | yes |
+| `show_divider` | bool | no |
+| `title` | string | yes |
 ## Label Variants
 
 ### `number`

@@ -1,10 +1,8 @@
 """StatsChartPanel — dark card with stat column and annotated bar chart"""
 from __future__ import annotations
-from rendering.atoms.data.icon_title_header import IconTitleHeaderAtom
-from rendering.atoms.data.stat_display       import StatDisplayAtom
+from rendering.atoms.data.stat_display import StatDisplayAtom
 
-_header = IconTitleHeaderAtom()
-_stat   = StatDisplayAtom()
+_stat = StatDisplayAtom()
 
 _STATUS_TOKENS = {"error", "success", "warning", "primary", "secondary",
                   "accent", "neutral"}
@@ -15,48 +13,79 @@ class StatsChartPanel:
 
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
-        PAD = ctx.PAD
+        PAD = ctx.card_pad_px(w, h, props)
         ctx.rect(x, y, w, h,
                  fill=ctx.card_bg_color(props, "bg-card"),
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
-        header_h = max(60, int(h * 0.22))
-        body_y   = y + header_h + PAD
-        body_h   = h - header_h - PAD * 2
-        left_w   = int(w * 0.35)
-        right_x  = x + left_w + PAD * 3
-        right_w  = w - left_w - PAD * 4
-
         title    = str(props.get("title",    ""))
-        subtitle = str(props.get("subtitle", ""))
+        subtitle = str(props.get("subtitle", "") or props.get("badge", ""))
         pill     = str(props.get("period",   ""))
-        show_header = bool(title or subtitle or pill) and ctx.card_section_enabled(props, "header", default=True)
+
+        show_header      = bool(title or subtitle or pill) and ctx.card_section_enabled(props, "header", default=True)
         show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
 
-        if show_header:
-            icon_raw = str(props.get("icon-name", "") or props.get("icon", ""))
-            _header.render(ctx, x, y, w, header_h,
-                           icon_bg=ctx.icon_bg(props),
-                           title=title,
-                           subtitle=subtitle,
-                           pill=pill,
-                           pill_bg=ctx.color("surface-variant"),
-                           pill_color=ctx.color("on-surface"),
-                           title_color=ctx.card_title_color(props, default_token="on-surface"),
-                           sub_color=ctx.color("on-surface-variant"),
-                           icon_name=icon_raw)
+        title_color  = ctx.card_title_color(props, default_token="text-default")
+        sub_color    = ctx.color("on-surface-variant")
+        div_color    = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_align = ctx.card_header_align(props, default="left")
 
-        if show_header_line:
-            ctx.divider(x + PAD, y + header_h, w - PAD * 2,
-                        color=ctx.card_line_color("header", ctx.color("line-default"), props))
+        # Stats / body alignment — default center
+        stat_align = str(props.get("text-align") or props.get("text_align") or "center").strip().lower()
+        if stat_align not in ("left", "center", "right"):
+            stat_align = "center"
+
+        cy = y + PAD
+
+        # ── Standard card header (same sizing as all other molecules) ─────────
+        if show_header:
+            inner_w    = w - PAD * 2
+            header_h   = ctx.card_header_h(w, h, props)
+            header_gap = ctx.card_header_gap(h, props)
+            title_sz   = ctx.card_header_font_size(title or subtitle, inner_w, h, props)
+
+            if subtitle:
+                # Title on first line, subtitle beneath — split header_h proportionally
+                title_zone_h = max(int(header_h * 0.55), int(title_sz * 1.3))
+                sub_sz       = max(ctx.font_size("caption"), ctx.font_size("body") - 2)
+                sub_zone_h   = max(int(sub_sz * 1.4), header_h - title_zone_h)
+                ctx.text(x + PAD, cy, inner_w, title_zone_h,
+                         title, size=title_sz, bold=True,
+                         color=title_color,
+                         align=header_align, valign="middle")
+                ctx.text(x + PAD, cy + title_zone_h, inner_w, sub_zone_h,
+                         subtitle, size=sub_sz, bold=False,
+                         color=sub_color,
+                         align=header_align, valign="middle")
+                cy += title_zone_h + sub_zone_h + header_gap
+            else:
+                ctx.text(x + PAD, cy, inner_w, header_h,
+                         title or pill, size=title_sz, bold=True,
+                         color=title_color,
+                         align=header_align, valign="middle")
+                cy += header_h + header_gap
+
+            if pill and subtitle:
+                pass  # pill already shown as subtitle; skip separate badge
+
+            if show_header_line:
+                lx, lw = ctx.card_divider_span("header", x + PAD, inner_w, props)
+                ctx.divider(lx, cy, lw, color=div_color)
+                cy += 1 + ctx.spacing("s")
+
+        body_y  = cy
+        body_h  = max(20, y + h - PAD - body_y)
+        left_w  = int(w * 0.38)
+        right_x = x + left_w + PAD * 2
+        right_w = max(20, w - left_w - PAD * 3)
 
         # --- Stats column ---------------------------------------------------
         stats   = props.get("stats") or []
         n_stats = max(len(stats), 1)
         row_h   = body_h // n_stats
 
-        for i, stat in enumerate(stats[:3]):
+        for i, stat in enumerate(stats[:4]):
             if not isinstance(stat, dict):
                 continue
             sy        = body_y + i * row_h
@@ -80,13 +109,13 @@ class StatsChartPanel:
             lw = left_w - PAD - dot_offset
             ctx.text(lx, sy, lw, row_h // 2, label,
                      size=ctx.font_size("annotation"), color=ctx.color("text-secondary"),
-                     align="left", valign="bottom")
+                     align=stat_align, valign="bottom")
             _stat.render(ctx, lx, sy + row_h // 2 - 4, lw, row_h // 2 + 4,
                          value=stat_val, unit=stat_unit, sublabel="",
                          val_color=ctx.color("on-surface"),
                          unit_color=ctx.color("on-surface-variant"),
                          sub_color=ctx.color("on-surface-variant"),
-                         align="left")
+                         align=stat_align)
 
         # --- Bar chart column -----------------------------------------------
         labels     = props.get("chart-labels") or props.get("labels") or []

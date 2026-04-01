@@ -55,12 +55,13 @@ max_atoms: 5
 
 | Parameter | Type | Description |
 |---|---|---|
-| `title` | string | Role / position title |
-| `level` | string | Grade or band (e.g. "L5", "Senior") |
-| `responsibilities` | `list[string\|object]` | Key responsibilities (3-6 bullets). Object items may use `text`, `body`, or `value`. |
-| `reports-to` | string | Manager role title |
-| `icon-name` | string | Functional area icon |
-
+| `bullet_color/bullet-color` | color-token | Color token name (theme color). |
+| `level` | string | Value from props. |
+| `reports_to/reports-to` | string | Value from props. |
+| `responsibilities` | string | Value from props. |
+| `show_reports/show-reports` | string | Value from props. |
+| `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `title` | string | Text string. |
 ## Example
 
 ```yaml

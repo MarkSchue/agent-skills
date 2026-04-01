@@ -18,13 +18,12 @@ Pinned to the bottom of the parent card. Sits above `border-subtle` top separato
 ## Parameters
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `left-label` | string | yes | Left label text e.g. "Heart rate" |
-| `left-value` | string | no | Left value text e.g. "60–100 bpm"; if absent only label shown |
-| `right-label` | string | no | Right label text |
-| `right-value` | string | no | Right value text e.g. "2L per day" |
-| `color-token` | color-token | no | Text color; defaults `on-surface-variant` |
-| `separator` | boolean | no | Draw top border line; defaults `true` |
-
+| `color-token` | color-token | no |
+| `left-label` | string | yes |
+| `left-value` | string | no |
+| `right-label` | string | no |
+| `right-value` | string | no |
+| `separator` | boolean | no |
 ## Visual Properties
 | Property | Token / Formula |
 |---|---|

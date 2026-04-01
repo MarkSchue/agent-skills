@@ -1,12 +1,12 @@
 ````markdown
-# Molecule: topic-card
+# Molecule: stacked-text
 
 ```yaml
 id: stacked-text
 type: molecule
 domain: strategy
 layout: stacked-header-rows
-description: Compact column card with a title, repeated topic rows, and optional takeaway line. Also registered as topic-card (legacy alias).
+description: Compact column card with a title, repeated body rows, and optional takeaway line. Supports text_align, text_valign, body_font_size overrides.
 tags: [strategy, topic, overview, grid, column, summary]
 preview: previews/molecules/topic-card.png
 required_atoms: [text-heading, text-body, shape-divider]
@@ -60,17 +60,19 @@ max_atoms: 8
 
 | Parameter | Type | Description |
 |---|---|---|
-| `title` | string | Card heading shown in the header area |
-| `items` | `list[object] \| list[string]` | Topic rows as `{text}` / `{body}` or plain strings |
-| `takeaway` | string | Optional bold takeaway line at the bottom |
-| `takeaway-line` | string | Hyphenated alias for `takeaway` |
-| `card_bg` | enum | Optional existing card background override (`default`, `clean`, `filled`, `alt`, `featured`) |
-| `header_align` | enum | Optional shared card header alignment override (`left`, `center`, `right`) |
-| `show_header_line` | boolean | Optional divider below the title; defaults to `true` |
-| `header_line_width` | string/number | Optional shared divider width override (`100%`, `0.7`, `70`) |
-| `header_line_align` | enum | Optional shared divider alignment override (`left`, `center`, `right`) |
-| `text_align` | enum | Global text alignment for all text elements: title, rows, takeaway (`left`, `center`, `right`). Defaults to `left`. When `center`, the takeaway chevrons (»») are suppressed. |
-
+| `body` | string | Value from props. |
+| `body_font_size/body-font-size` | int(px)/size token | Size/spacing value (px or token). |
+| `heading` | string | Value from props. |
+| `headline` | string | Value from props. |
+| `items` | list | List of data items. |
+| `rows` | list | List of data items. |
+| `takeaway` | string | Value from props. |
+| `takeaway_line/takeaway-line` | string | Value from props. |
+| `text` | string | Value from props. |
+| `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `text_valign/text-valign` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `title` | string | Text string. |
+| `topics` | string | Value from props. |
 ## Example
 
 ```yaml

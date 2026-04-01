@@ -55,10 +55,9 @@ max_atoms: 9
 
 | Parameter | Type | Description |
 |---|---|---|
-| `title` | string | Panel heading |
-| `members` | `list[object]` | Array of `{name, title, department, icon-name}` |
-| `columns` | integer | Override column count (2 or 3) |
-
+| `columns` | list | List of data items. |
+| `members` | string | Value from props. |
+| `title` | string | Text string. |
 ## Example
 
 ```yaml

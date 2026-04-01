@@ -33,9 +33,16 @@ class DataInsightPanel:
         title     = str(props.get("title",     "Insights"))
         insights  = self._normalize_insights(props.get("insights", []) or [])
         timeframe = str(props.get("timeframe", ""))
-        header_align = ctx.card_header_align(props, default="left")
-        title_color = ctx.card_title_color(props, default_token="text-default")
-        body_color = ctx.card_body_color(props, default_token="text-secondary")
+
+        # Alignment — applies to header, bullets, and footer
+        text_align   = str(props.get("text-align") or props.get("text_align") or "left").strip().lower()
+        if text_align not in ("left", "center", "right"):
+            text_align = "left"
+        header_align = ctx.card_header_align(props, default=text_align)
+
+        title_color  = ctx.card_title_color(props, default_token="text-default")
+        body_color   = ctx.card_body_color(props, default_token="text-secondary")
+        bullet_color = ctx.color("primary")
         show_header = bool(title) and ctx.card_section_enabled(props, "header", default=True)
         show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
         show_footer = bool(timeframe) and ctx.card_section_enabled(props, "footer", default=True)
@@ -58,12 +65,12 @@ class DataInsightPanel:
                         color=ctx.card_line_color("header", ctx.color("line-default"), props))
             content_top += section_gap
 
-        footer_h = ctx.card_footer_h(h, props) if show_footer else 0
-        footer_gap = ctx.card_footer_gap(h, props) if show_footer else section_gap
-        footer_size = ctx.card_footer_font_size(props)
-        footer_color = ctx.card_footer_color(props, default_token="text-secondary")
+        footer_h      = ctx.card_footer_h(h, props) if show_footer else 0
+        footer_gap    = ctx.card_footer_gap(h, props) if show_footer else section_gap
+        footer_size   = ctx.card_footer_font_size(props)
+        footer_color  = ctx.card_footer_color(props, default_token="text-secondary")
         footer_italic = ctx.card_footer_italic(props)
-        footer_y = y + h - pad - footer_h
+        footer_y      = y + h - pad - footer_h
         content_bottom = footer_y - footer_gap if show_footer else y + h - pad
 
         if show_footer_line:
@@ -74,16 +81,23 @@ class DataInsightPanel:
             content_bottom = divider_y - footer_gap
 
         if insights:
+            # show-bullets prop (default false for data-insight panels — clean prose look)
+            raw_sb = props.get("show-bullets", props.get("show_bullets", False))
+            show_bullets = str(raw_sb).lower() not in ("false", "no", "0") if isinstance(raw_sb, str) else bool(raw_sb)
             BulletListAtom().render(
                 ctx,
                 x + pad, content_top,
                 w - pad * 2, content_bottom - content_top,
                 items=insights,
                 color=body_color,
+                bullet_color=bullet_color,
+                align=text_align,
+                show_bullets=show_bullets,
             )
 
         if show_footer:
             ctx.text(x + pad, footer_y, w - pad * 2, footer_h, timeframe,
                      size=footer_size, italic=footer_italic,
                      color=footer_color,
-                     align="right", valign="middle", inner_margin=0)
+                     align=text_align if text_align != "left" else "right",
+                     valign="middle", inner_margin=0)

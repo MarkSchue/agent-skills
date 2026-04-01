@@ -117,3 +117,25 @@ rows:
 - `total` is rendered as a dedicated final summary row.
 - Because the renderer uses the native table primitive, users can still resize
   columns and edit cells after export.
+
+## Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `alt-fill` | color-token | Value from props. |
+| `alt-rows` | string | Value from props. |
+| `bold-header` | string | Value from props. |
+| `bold-total` | string | Value from props. |
+| `border-color` | color-token | Color token name (theme color). |
+| `columns` | list | List of data items. |
+| `has-header` | string | Value from props. |
+| `header-fill` | color-token | Value from props. |
+| `header-text-color` | color-token | Color token name (theme color). |
+| `row-fill` | color-token | Value from props. |
+| `rows` | list | List of data items. |
+| `subtitle` | string | Text string. |
+| `text-size` | int(px)/size token | Size/spacing value (px or token). |
+| `title` | string | Text string. |
+| `total` | string | Value from props. |
+| `total-fill` | color-token | Value from props. |
+| `total-text-color` | color-token | Color token name (theme color). |

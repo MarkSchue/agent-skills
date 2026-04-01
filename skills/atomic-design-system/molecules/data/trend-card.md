@@ -51,13 +51,17 @@ max_atoms: 4
 
 | Parameter | Type | Description |
 |---|---|---|
-| `label` | string | Metric name |
-| `value` | string | Current period value |
-| `change` | string | Period-on-period delta |
-| `trend` | enum | `up` · `down` · `neutral` |
-| `sparkline` | `list[number]` | 5-12 historical values in chronological order |
-| `unit` | string | Unit suffix |
-
+| `bar_label_position/bar-label-position` | string | Label text content. |
+| `change` | string | Text string. |
+| `label` | string | Text string. |
+| `show_bar_labels/show-bar-labels` | string | Boolean toggle (true/false). |
+| `sparkline` | list | List of data items. |
+| `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `title` | string | Text string. |
+| `trend` | string | Trend enum (up/down/neutral). |
+| `unit` | string | Text string. |
+| `value` | string | Text string. |
+| `x_labels/x-labels` | list | List of x-axis labels. |
 ## Example
 
 ```yaml

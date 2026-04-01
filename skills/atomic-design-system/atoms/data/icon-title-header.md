@@ -18,15 +18,14 @@ Full-width header occupying the top portion of the parent card.
 ## Parameters
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `icon` | string | no | Icon name (material / lucide set) |
-| `icon-bg-token` | color-token | no | Icon tile background; defaults `primary` |
-| `icon-color-token` | color-token | no | Icon fill; defaults `on-primary` |
-| `title` | string | yes | Bold title text |
-| `subtitle` | string | no | Smaller subtitle beneath title |
-| `pill` | string | no | Right-aligned pill badge text e.g. "Monthly ▼" |
-| `pill-bg-token` | color-token | no | Pill background; defaults `surface-variant` |
-| `pill-color-token` | color-token | no | Pill text color; defaults `on-surface-variant` |
-
+| `icon` | string | no |
+| `icon-bg-token` | color-token | no |
+| `icon-color-token` | color-token | no |
+| `pill` | string | no |
+| `pill-bg-token` | color-token | no |
+| `pill-color-token` | color-token | no |
+| `subtitle` | string | no |
+| `title` | string | yes |
 ## Visual Properties
 | Property | Token / Formula |
 |---|---|

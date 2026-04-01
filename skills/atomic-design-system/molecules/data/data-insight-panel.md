@@ -54,12 +54,11 @@ max_atoms: 6
 
 | Parameter | Type | Description |
 |---|---|---|
-| `title` | string | Panel heading |
-| `chart-type` | enum | `bar` · `pie` |
-| `chart-data` | object | Passed to `chart-bar` or `chart-pie` data-input-schema |
-| `insights` | `list[string]` | 2-5 bullet points highlighting key findings |
-| `timeframe` | string | e.g. "Q3 2025" |
-
+| `insights` | string | Value from props. |
+| `show_bullets/show-bullets` | bool | Boolean toggle (true/false). |
+| `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `timeframe` | string | Value from props. |
+| `title` | string | Text string. |
 ## Example
 
 ```yaml

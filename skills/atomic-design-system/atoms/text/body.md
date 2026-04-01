@@ -22,12 +22,11 @@ preview: previews/atoms/text-body.png
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `text` | `string \| list[string]` | yes | Body text or list of bullet strings |
-| `format` | enum | no | `paragraph` · `bullets` · `numbered`; auto-detected from input type |
-| `color-token` | color-token | no | Override text color; defaults to `on-surface` |
-| `max-lines` | integer | no | Truncate with ellipsis after N lines; no limit by default |
-| `emphasis` | `list[string]` | no | Substrings to render in bold / `primary` color |
-
+| `color-token` | color-token | no |
+| `emphasis` | `list[string]` | no |
+| `format` | enum | no |
+| `max-lines` | integer | no |
+| `text` | `string \ | list[string]` |
 ## Behavior
 
 - If `text` is a list, default format is `bullets`.

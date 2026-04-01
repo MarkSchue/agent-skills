@@ -17,14 +17,13 @@ zone-role: stat-right
 ## Parameters
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `value` | string | yes | Formatted metric value e.g. "90", "86", "€12.4M" |
-| `unit` | string | no | Superscript/suffix unit e.g. "bpm", "%", "k" |
-| `sublabel` | string | no | Small label beneath the value |
-| `value-color-token` | color-token | no | Defaults to `on-surface` |
-| `unit-color-token` | color-token | no | Defaults to same as `value-color-token` |
-| `sublabel-color-token` | color-token | no | Defaults to `on-surface-variant` |
-| `align` | enum | no | `left`·`right`·`center`; defaults `right` (matches screenshot style) |
-
+| `align` | enum | no |
+| `sublabel` | string | no |
+| `sublabel-color-token` | color-token | no |
+| `unit` | string | no |
+| `unit-color-token` | color-token | no |
+| `value` | string | yes |
+| `value-color-token` | color-token | no |
 ## Visual Properties
 | Property | Token / Formula |
 |---|---|

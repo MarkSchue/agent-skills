@@ -98,21 +98,32 @@ class QuarterGridCard:
         if not items:
             return
 
-        pad = ctx.PAD
+        pad = ctx.card_pad_px(w, h, props)
         inner_x = x + pad
         inner_y = y + pad
         inner_w = w - pad * 2
         inner_h = h - pad * 2
 
-        # ── Optional card title ───────────────────────────────────────────────
+        # ── Optional card title (standard header contract) ─────────────────────
         card_title = str(props.get("title", "") or "").strip()
-        if card_title:
-            title_h = max(28, int(inner_h * 0.08))
-            ctx.text(inner_x, inner_y, inner_w, title_h, card_title,
-                     size=ctx.font_size("heading-sub"), bold=True,
-                     color=title_color, align=align, valign="middle")
-            inner_y += title_h + ctx.spacing("s")
-            inner_h  = (y + h - pad) - inner_y
+        show_header      = bool(card_title) and ctx.card_section_enabled(props, "header", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        if show_header:
+            header_h   = ctx.card_header_h(w, h, props)
+            header_gap = ctx.card_header_gap(h, props)
+            title_size = ctx.card_header_font_size(card_title, inner_w, h, props)
+            ctx.text(inner_x, inner_y, inner_w, header_h, card_title,
+                     size=title_size, bold=True,
+                     color=title_color,
+                     align=ctx.card_header_align(props, default=align),
+                     valign="middle", inner_margin=0)
+            inner_y += header_h + header_gap
+            if show_header_line:
+                lx, lw = ctx.card_divider_span("header", inner_x, inner_w, props)
+                ctx.divider(lx, inner_y, lw,
+                            color=ctx.card_line_color("header", ctx.color("line-default"), props))
+                inner_y += ctx.spacing("m")
+            inner_h = (y + h - pad) - inner_y
 
         # ── Grid dimensions ───────────────────────────────────────────────────
         n_rows  = math.ceil(len(items) / n_cols)

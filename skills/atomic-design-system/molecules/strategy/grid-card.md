@@ -29,68 +29,22 @@ fully customisable.
 
 ## Parameters
 
-### Card-level
-
-| Parameter              | Type   | Default              | Description |
-|------------------------|--------|----------------------|-------------|
-| `title`                | string | —                    | Optional card header title |
-| `columns`              | list   | —                    | Column header definitions (see below). If omitted, inferred from row cell counts. |
-| `rows`                 | list   | **required**         | Data row definitions (see below) |
-| `label-col-width`      | float  | `0.14`               | Fraction of inner card width for the row-label column. Set to `0` to hide. |
-| `label-col-fill`       | color  | `primary`            | Background fill for row-label cells |
-| `label-col-text-color` | color  | `on-primary`         | Text color in row-label cells |
-| `label-col-align`      | enum   | `center`             | `center` · `left` · `right` — text alignment in row labels |
-| `col-header-fill`      | color  | `surface-variant`    | Default background for column-header row |
-| `col-header-text-color`| color  | `on-surface`         | Default text color in column headers |
-| `col-header-height`    | int    | auto (≈20% of height)| Explicit px height for the column-header row |
-| `cell-fill`            | color  | `bg-card`            | Default data-cell background |
-| `cell-text-color`      | color  | `on-surface`         | Default data-cell text color |
-| `border-color`         | color  | `border-default`     | Cell border / grid-line color |
-| `border-radius`        | int    | `0`                  | Corner radius of each cell in px |
-| `cell-pad`             | int    | spacing s (8)        | Inner cell padding in px |
-| `badge-fill`           | color  | `on-surface`         | Default badge background (column-headers + cells) |
-| `badge-text-color`     | color  | `surface`            | Default badge text color |
-| `show-header`          | bool   | auto                 | Show/hide the card title header block |
-| `show-header-line`     | bool   | `true`               | Line below the card title header |
-| `bg-color`             | color  | `bg-card`            | Card background color override |
-
-### Column object fields
-
-| Field        | Type   | Required | Description |
-|--------------|--------|----------|-------------|
-| `label`      | string | no       | Column header bold text |
-| `subtitle`   | string | no       | Smaller secondary line below the header label |
-| `badge`      | string | no       | Small pill badge at the bottom of the header cell |
-| `width`      | float  | no       | Relative fraction of the content width (auto-normalised across columns) |
-| `fill`       | color  | no       | Per-column header background override |
-| `text-color` | color  | no       | Per-column header text color override |
-
-### Row object fields
-
-| Field         | Type          | Required | Description |
-|---------------|---------------|----------|-------------|
-| `label`       | string        | no       | Row label text (displayed in the left column) |
-| `label-fill`  | color         | no       | Per-row label cell background override |
-| `label-color` | color         | no       | Per-row label text color override |
-| `height`      | int or float  | no       | `> 1` = explicit px · `0..1` = fraction of content height |
-| `cells`       | list          | yes      | Ordered list of cell objects (left → right) |
-
-### Cell object fields
-
-| Field              | Type   | Required | Description |
-|--------------------|--------|----------|-------------|
-| `text`             | string | yes      | Main cell content |
-| `bold`             | bool   | no       | Bold weight for `text`                         default: `false` |
-| `subtitle`         | string | no       | Smaller secondary line below `text` |
-| `badge`            | string | no       | Small pill inside the cell |
-| `badge-fill`       | color  | no       | Per-cell badge fill override |
-| `badge-text-color` | color  | no       | Per-cell badge text color override |
-| `span`             | int    | no       | Number of columns this cell covers             default: `1` |
-| `fill`             | color  | no       | Cell background override |
-| `text-color`       | color  | no       | Cell text color override |
-| `align`            | enum   | no       | `left` · `center` · `right`                    default: `left` |
-| `valign`           | enum   | no       | `top` · `middle` · `bottom`                    default: `middle` |
-
+| Parameter | Type | Description |
+|---|---|---|
+| `badge-fill` | color-token | Value from props. |
+| `badge-text-color` | color-token | Color token name (theme color). |
+| `border-color` | color-token | Color token name (theme color). |
+| `cell-fill` | color-token | Value from props. |
+| `cell-text-color` | color-token | Color token name (theme color). |
+| `col-header-fill` | color-token | Value from props. |
+| `col-header-height` | int(px)/size token | Size/spacing value (px or token). |
+| `col-header-text-color` | color-token | Color token name (theme color). |
+| `columns` | list | List of data items. |
+| `label-col-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `label-col-fill` | color-token | Label text content. |
+| `label-col-text-color` | color-token | Color token name (theme color). |
+| `rows` | list | List of data items. |
+| `title` | string | Text string. |
 ## Examples
 
 ### Stakeholder matrix (matches screenshot pattern)

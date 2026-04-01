@@ -36,10 +36,9 @@ Each stick: top dot at value-proportional height, bottom dot at baseline, vertic
 ## Parameters
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `values` | list[number] | yes | One entry per stick (5–12 recommended) |
-| `dot-color-token` | color-token | no | Dot fill token (default `error`) |
-| `line-color-token` | color-token | no | Stick line token (default `on-surface-variant`) |
-
+| `dot-color-token` | color-token | no |
+| `line-color-token` | color-token | no |
+| `values` | list[number] | yes |
 ## Renderer Notes
 - Normalize `values` to `[0, 1]` range within the atom
 - Top dot Y = `zone_y + zone_h - value * (zone_h - dot_r * 2) - dot_r`

@@ -164,3 +164,22 @@ fields:
   card title in the fixed-height header. The status badge floats right.
 - Setting `cell-fill` to a token like `surface-container` gives a subtle
   depth to the grid while keeping borders clean.
+
+## Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `border-color` | color-token | Color token name (theme color). |
+| `cell-fill` | color-token | Value from props. |
+| `fields` | string | Value from props. |
+| `id` | string | Value from props. |
+| `id-fill` | color-token | Value from props. |
+| `id-text-color` | color-token | Color token name (theme color). |
+| `label-color` | color-token | Color token name (theme color). |
+| `placeholder-color` | color-token | Color token name (theme color). |
+| `status` | string | Text string. |
+| `status-fill` | color-token | Value from props. |
+| `status-text-color` | color-token | Color token name (theme color). |
+| `story-id` | string | Value from props. |
+| `title` | string | Text string. |
+| `value-color` | color-token | Color token name (theme color). |

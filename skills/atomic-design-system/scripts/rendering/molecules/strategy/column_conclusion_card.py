@@ -62,24 +62,13 @@ class ColumnConclusionCard:
         return raw if raw.startswith("#") else ctx.color(raw)
 
     def _draw_chevron(self, ctx, cx: int, cy: int, sz: int, color: str) -> None:
-        """Draw a downward-pointing filled V chevron centred at (cx, cy)."""
-        t = max(3, sz // 4)   # arm thickness
-        try:
-            # 6-point polygon: outer V, inner V (clockwise)
-            pts = [
-                (cx - sz,     cy - sz // 2),       # A outer top-left
-                (cx,          cy + sz // 2),        # B outer bottom
-                (cx + sz,     cy - sz // 2),        # C outer top-right
-                (cx + sz - t, cy - sz // 2),        # D inner top-right
-                (cx,          cy + sz // 2 - t),    # E inner bottom
-                (cx - sz + t, cy - sz // 2),        # F inner top-left
-            ]
-            ctx.polygon(pts, fill=color, stroke=None)
-        except Exception:
-            # Fallback: text character
-            ctx.text(cx - sz, cy - sz, sz * 2, sz * 2, "∨",
-                     size=max(10, sz), bold=True, color=color,
-                     align="center", valign="middle", inner_margin=0)
+        """Draw a downward-pointing chevron centred at (cx, cy) using the
+        icon system so it renders identically in PPTX and draw.io."""
+        icon_w = sz * 2
+        icon_h = sz * 2
+        icon_x = cx - sz
+        icon_y = cy - sz
+        ctx.draw_icon(icon_x, icon_y, icon_w, icon_h, "arrow_downward", color=color)
 
     # ── Main render ───────────────────────────────────────────────────────────
 
@@ -175,6 +164,13 @@ class ColumnConclusionCard:
         if text_align not in ("left", "center", "right"):
             text_align = "center"
 
+        # Vertical alignment for the column content stack.
+        # Controls both where the stack is anchored (top/middle/bottom) and
+        # the valign used inside each text box.
+        col_valign = str(props.get("col-valign") or props.get("col_valign") or "middle").strip().lower()
+        if col_valign not in ("top", "middle", "bottom"):
+            col_valign = "middle"
+
         raw_val_sz   = props.get("value-size", "")
         global_val_sz = 0
         if raw_val_sz:
@@ -203,88 +199,110 @@ class ColumnConclusionCard:
         # Auto icon size
         auto_icon_sz = ctx.icon_size(col_w, col_zone_h, props)
 
-        for i, col in enumerate(cols_raw):
+        # ── Pass 1: collect per-column data + zone heights ─────────────────
+        col_data = []
+        for col in cols_raw:
             if not isinstance(col, dict):
                 col = {"headline": str(col)}
 
-            sx = x + pad + i * (col_w + col_gap)
+            icon_str   = str(col.get("icon", "")).strip()
+            value_str  = str(col.get("value", "")).strip()
+            value_unit = str(col.get("value-unit", "")).strip()
+            headline   = str(col.get("headline", "")).strip()
+            body_text  = str(col.get("body", "")).strip()
 
-            icon_str    = str(col.get("icon", "")).strip()
-            value_str   = str(col.get("value", "")).strip()
-            value_unit  = str(col.get("value-unit", "")).strip()
-            headline    = str(col.get("headline", "")).strip()
-            body_text   = str(col.get("body", "")).strip()
-
-            # Per-column color override
-            col_color_raw = str(col.get("color", "")).strip()
+            col_color_raw  = str(col.get("color", "")).strip()
             col_val_color  = (self._rc(ctx, col_color_raw, "primary")
                               if col_color_raw else global_val_color)
             col_icon_color = (self._rc(ctx, col_color_raw, "on-surface-variant")
                               if col_color_raw else global_icon_color)
 
-            icon_sz  = global_icon_sz or auto_icon_sz
-            val_sz   = global_val_sz  or auto_val_sz
+            icon_sz = global_icon_sz or auto_icon_sz
+            val_sz  = global_val_sz  or auto_val_sz
+            unit_sz = max(10, int(val_sz * 0.55))
 
-            # ── Vertical stack within column ──────────────────────────────
-            # Determine which zones are active and sizes
             has_icon  = bool(icon_str)
             has_value = bool(value_str)
             has_unit  = has_value and bool(value_unit)
-            unit_sz   = max(10, int(val_sz * 0.55))
 
-            icon_zone_h     = (icon_sz + GAP_S)         if has_icon  else 0
-            value_zone_h    = (int(val_sz * 1.35) + GAP_XS)  if has_value else 0
-            unit_zone_h     = (int(unit_sz * 1.3) + GAP_XS)  if has_unit  else 0
-            headline_zone_h = (int(headline_sz * 1.5) * max(1, len(headline) // max(1, col_w // max(1, headline_sz)) + 1))
-            headline_zone_h = min(headline_zone_h, int(col_zone_h * 0.35))
-            headline_zone_h = max(int(headline_sz * 1.5), headline_zone_h) if headline else 0
-            body_zone_h   = (max(20, col_zone_h - icon_zone_h - value_zone_h - unit_zone_h - headline_zone_h - GAP_S * 2)
-                             if body_text else 0)
+            icon_zone_h  = (icon_sz + GAP_S)              if has_icon  else 0
+            value_zone_h = (int(val_sz  * 1.35) + GAP_XS) if has_value else 0
+            unit_zone_h  = (int(unit_sz * 1.30) + GAP_XS) if has_unit  else 0
+            hl_raw_h     = (int(headline_sz * 1.5)
+                            * max(1, len(headline) // max(1, col_w // max(1, headline_sz)) + 1))
+            hl_raw_h     = min(hl_raw_h, int(col_zone_h * 0.35))
+            headline_zone_h = max(int(headline_sz * 1.5), hl_raw_h) if headline else 0
 
-            total_h = icon_zone_h + value_zone_h + unit_zone_h + headline_zone_h + body_zone_h
-            # Centre the stack vertically in col_zone_h
-            start_y = content_top + max(0, (col_zone_h - total_h) // 2)
-            iy      = start_y
+            col_data.append(dict(
+                icon_str=icon_str, value_str=value_str, value_unit=value_unit,
+                headline=headline, body_text=body_text,
+                col_val_color=col_val_color, col_icon_color=col_icon_color,
+                icon_sz=icon_sz, val_sz=val_sz, unit_sz=unit_sz,
+                has_icon=has_icon, has_value=has_value, has_unit=has_unit,
+                icon_zone_h=icon_zone_h, value_zone_h=value_zone_h,
+                unit_zone_h=unit_zone_h, headline_zone_h=headline_zone_h,
+            ))
 
-            # Icon
-            if has_icon:
-                ctx.draw_icon(sx, iy, col_w, icon_sz, icon_str, color=col_icon_color)
-                iy += icon_sz + GAP_S
+        # ── Zone maxima → every column shares the same vertical grid ───────
+        max_icon_h      = max(d["icon_zone_h"]     for d in col_data)
+        max_value_h     = max(d["value_zone_h"]    for d in col_data)
+        max_unit_h      = max(d["unit_zone_h"]     for d in col_data)
+        max_headline_h  = max(d["headline_zone_h"] for d in col_data)
+        fixed_used      = max_icon_h + max_value_h + max_unit_h + max_headline_h
+        body_zone_h     = max(0, col_zone_h - fixed_used - GAP_S * 2)
+        total_aligned_h = fixed_used + (body_zone_h if any(d["body_text"] for d in col_data) else 0)
 
-            # Metric value — number only, bold and prominent
-            if has_value:
-                ctx.text(sx, iy, col_w, int(val_sz * 1.35),
-                         value_str,
-                         size=val_sz, bold=True,
-                         color=col_val_color,
-                         align=text_align, valign="middle",
-                         inner_margin=0)
-                iy += int(val_sz * 1.35) + GAP_XS
+        # Anchor the whole aligned block once (shared by all columns)
+        if col_valign == "top":
+            stack_start_y = content_top
+        elif col_valign == "bottom":
+            stack_start_y = content_top + max(0, col_zone_h - total_aligned_h)
+        else:
+            stack_start_y = content_top + max(0, (col_zone_h - total_aligned_h) // 2)
 
-            # Unit label — smaller caption below the number
-            if has_unit:
-                ctx.text(sx, iy, col_w, int(unit_sz * 1.3),
-                         value_unit,
-                         size=unit_sz, bold=False,
-                         color=col_val_color,
-                         align=text_align, valign="middle",
-                         inner_margin=0)
-                iy += int(unit_sz * 1.3) + GAP_XS
+        # ── Pass 2: render columns using shared zone heights ───────────────
+        for i, d in enumerate(col_data):
+            sx = x + pad + i * (col_w + col_gap)
+            iy = stack_start_y
 
-            # Headline
-            if headline:
-                ctx.text(sx, iy, col_w, headline_zone_h,
-                         headline,
+            # Icon zone (shared height — blank space if this column has no icon)
+            if d["has_icon"]:
+                ctx.draw_icon(sx, iy, col_w, d["icon_sz"], d["icon_str"],
+                              color=d["col_icon_color"])
+            iy += max_icon_h
+
+            # Value zone
+            if d["has_value"]:
+                ctx.text(sx, iy, col_w, d["value_zone_h"],
+                         d["value_str"],
+                         size=d["val_sz"], bold=True,
+                         color=d["col_val_color"],
+                         align=text_align, valign="middle", inner_margin=0)
+            iy += max_value_h
+
+            # Unit zone
+            if d["has_unit"]:
+                ctx.text(sx, iy, col_w, d["unit_zone_h"],
+                         d["value_unit"],
+                         size=d["unit_sz"], bold=False,
+                         color=d["col_val_color"],
+                         align=text_align, valign="middle", inner_margin=0)
+            iy += max_unit_h
+
+            # Headline zone — all headlines start at identical iy
+            if d["headline"]:
+                ctx.text(sx, iy, col_w, max_headline_h,
+                         d["headline"],
                          size=headline_sz, bold=True,
                          color=ctx.color("on-surface"),
                          align=text_align, valign="top",
                          inner_margin=0)
-                iy += headline_zone_h + GAP_XS
+            iy += max_headline_h
 
-            # Body
-            if body_text and body_zone_h > 8:
+            # Body zone — all bodies start at identical iy
+            if d["body_text"] and body_zone_h > 8:
                 ctx.text(sx, iy, col_w, body_zone_h,
-                         body_text,
+                         d["body_text"],
                          size=body_sz, bold=False,
                          color=ctx.color("on-surface-variant"),
                          align=text_align, valign="top",
@@ -310,14 +328,23 @@ class ColumnConclusionCard:
             div_y = col_zone_bottom
             chev_sz = max(14, GAP_M)   # half-width of chevron arms — prominent but proportional
 
-            # Full-width divider
+            chev_cx = x + pad + inner_w // 2
+            # Gap around the arrow so the divider line is cleanly split
+            chev_gap = chev_sz * 3
+
+            # Split divider: left segment + right segment with arrow gap in between
             if show_conc_div:
                 conc_div_color = self._rc(ctx, str(props.get("divider-color", "")), "border-subtle")
-                ctx.divider(x + pad, div_y, inner_w, color=conc_div_color)
+                left_w  = chev_cx - (x + pad) - chev_gap // 2
+                right_x = chev_cx + chev_gap // 2
+                right_w = (x + pad + inner_w) - right_x
+                if left_w > 4:
+                    ctx.divider(x + pad, div_y, left_w, color=conc_div_color)
+                if right_w > 4:
+                    ctx.divider(right_x, div_y, right_w, color=conc_div_color)
 
-            # Chevron centred on divider
+            # Chevron centred in the gap
             if show_chevron:
-                chev_cx = x + pad + inner_w // 2
                 self._draw_chevron(ctx, chev_cx, div_y, chev_sz, chev_color)
 
             # Conclusion text

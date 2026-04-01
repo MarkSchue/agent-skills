@@ -7,7 +7,7 @@ class ContactCard:
 
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
-        pad = max(ctx.PAD, ctx.spacing("m"))
+        pad = ctx.card_pad_px(w, h, props)
         ctx.rect(x, y, w, h,
                  fill=ctx.card_bg_color(props, "bg-card"),
                  stroke=ctx.color("border-default"),
@@ -49,6 +49,12 @@ class ContactCard:
             content_y += section_gap
 
         ry = content_y
+        row_sz    = ctx.font_size("caption")
+        icon_sz   = max(18, int(row_sz * 1.4))
+        row_h     = max(icon_sz, int(row_sz * 1.6))
+        icon_gap  = max(6, ctx.spacing("s"))
+        text_x    = x + pad + icon_sz + icon_gap
+        text_w    = w - pad * 2 - icon_sz - icon_gap
         contact_rows = [
             ("email",   email or detail),
             ("web",     url),
@@ -57,7 +63,9 @@ class ContactCard:
         for icon_name, val in contact_rows:
             if not val:
                 continue
-            ctx.draw_icon(x + pad, ry, 24, 22, icon_name, color=ctx.color("primary"))
-            ctx.text(x + pad + 28, ry, w - pad * 2 - 28, 22, val,
-                     size=ctx.font_size("caption"), color=body_color)
-            ry += 28
+            ctx.draw_icon(x + pad, ry + (row_h - icon_sz) // 2,
+                          icon_sz, icon_sz, icon_name, color=ctx.color("primary"))
+            ctx.text(text_x, ry, text_w, row_h, val,
+                     size=row_sz, color=body_color,
+                     align="left", valign="middle", inner_margin=0)
+            ry += row_h + max(4, ctx.spacing("xs"))

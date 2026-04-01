@@ -21,11 +21,10 @@ preview: previews/atoms/shape-divider.png
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `token` | shape-token | yes | One of: `accent-line`, `background-line`, `thin-line`, `thick-line`, `divider`, `border-subtle`, `border-strong` |
-| `orientation` | enum | no | `horizontal` · `vertical`; defaults to `horizontal` |
-| `length` | token \| percent | no | `full` (100% of parent) or a spacing token; defaults to `full` |
-| `margin-v` | token | no | Vertical margin above/below; defaults to `{{theme.spacing.m}}` |
-
+| `length` | token \ | percent |
+| `margin-v` | token | no |
+| `orientation` | enum | no |
+| `token` | shape-token | yes |
 ## Behavior
 
 - All visual properties (color, stroke width, dash pattern, opacity) are read from the named

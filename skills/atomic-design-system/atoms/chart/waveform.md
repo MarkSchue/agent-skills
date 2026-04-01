@@ -38,11 +38,10 @@ Centre bars taller, edge bars shorter — natural waveform taper if `auto: true`
 ## Parameters
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `values` | list[float 0–1] | no | Normalized amplitude per bar; auto-fills if absent |
-| `bar-count` | integer | no | Number of bars when auto-generating (default 20) |
-| `auto` | boolean | no | Generate sample waveform; ignored if `values` provided |
-| `color-token` | color-token | no | Bar fill token (default `on-primary`) |
-
+| `auto` | boolean | no |
+| `bar-count` | integer | no |
+| `color-token` | color-token | no |
+| `values` | list[float 0–1] | no |
 ## Auto-Generate Algorithm
 When `auto: true` or no `values` provided, generate bars using:
 ```python

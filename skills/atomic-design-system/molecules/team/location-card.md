@@ -55,13 +55,14 @@ max_atoms: 5
 
 | Parameter | Type | Description |
 |---|---|---|
-| `site` | string | City or site name |
-| `address` | string | Full postal address |
-| `headcount` | integer | Number of employees at site |
-| `timezone` | string | e.g. "CET", "EST", "JST" |
-| `contact` | string | Key contact name + title |
-| `icon-name` | string | Icon (e.g. `location`, `building`, `flag`) |
-
+| `address` | string | Value from props. |
+| `city` | string | Value from props. |
+| `contact` | string | Value from props. |
+| `headcount` | string | Value from props. |
+| `name` | string | Text string. |
+| `site-name` | string | Value from props. |
+| `timezone` | string | Value from props. |
+| `title` | string | Text string. |
 ## Example
 
 ```yaml

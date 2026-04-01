@@ -19,6 +19,10 @@ class KpiCard:
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
+        text_align = str(props.get("text-align", props.get("text_align", "left"))).strip().lower()
+        if text_align not in ("left", "center", "right"):
+            text_align = "left"
+
         label = str(props.get("label") or props.get("title") or "")
         unit  = str(props.get("unit",  ""))
         value = str(props.get("value", "—"))
@@ -50,7 +54,7 @@ class KpiCard:
         header_h  = ctx.card_header_h(w, h, props)
         icon_size = min(icon_size, header_h)  # never overflow header zone onto divider
         label_size = ctx.card_header_font_size(label or icon_raw, inner_w, h, props)
-        unit_size = ctx.font_size("caption")
+        unit_size = ctx.font_size("body")
         compact_value = "".join(c for c in value if not c.isspace())
         char_count = max(1, len(compact_value))
         value_cap = 108 if char_count <= 8 else 88 if char_count <= 16 else 72
@@ -91,7 +95,7 @@ class KpiCard:
             ctx.text(x + pad, content_y, inner_w, unit_h, unit.upper(),
                      size=unit_size, bold=True,
                      color=body_text_color,
-                     align="left", valign="middle")
+                     align=text_align, valign="middle")
             content_y += unit_h + max(4, int(h * 0.01))
 
         stack_gap = max(8, int(h * 0.018))
@@ -114,23 +118,25 @@ class KpiCard:
             bold=True,
             safety=0.90,
         )
-        value_h = max(int(value_size * 1.45), min(value_h_max, int(value_size * 2.4)))
+        # Cap value_h strictly to value_h_max so the value text box never
+        # overflows into the delta/trend row below it.
+        value_h = min(value_h_max, int(value_size * 1.45))
         total_stack_h = value_h + stack_gap + trend_h
         stack_start_y = content_y + max(0, (content_bottom - content_y - total_stack_h) // 2)
         trend_y = stack_start_y + value_h + stack_gap
 
         ctx.text(x + pad, stack_start_y, inner_w, value_h, value,
                  size=value_size, bold=True, color=ctx.color("text-highlight"),
-                 align="left", valign="middle", inner_margin=0)
+                 align=text_align, valign="middle", inner_margin=0)
 
         tc = (ctx.color("success") if trend == "up" else
               ctx.color("error")   if trend == "down" else
               ctx.color("text-secondary"))
         ctx.text(x + pad, trend_y,
-                 min(delta_box_w, inner_w), trend_h,
+                 min(delta_box_w, inner_w) if text_align == "left" else inner_w, trend_h,
                  delta_text,
                  size=trend_size, bold=True, color=tc,
-                 align="left", valign="middle", inner_margin=0)
+                 align=text_align, valign="middle", inner_margin=0)
 
         if comp:
             if show_footer_line:
@@ -139,4 +145,4 @@ class KpiCard:
             ctx.text(x + pad, footer_y, inner_w, comp_h, comp,
                      size=footer_size, italic=footer_italic,
                      color=footer_color,
-                     align="left", valign="middle", inner_margin=0)
+                     align=text_align, valign="middle", inner_margin=0)

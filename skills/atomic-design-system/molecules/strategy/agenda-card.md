@@ -52,6 +52,20 @@ Uses the standard card token vocabulary. See `references/token-reference.md §Ca
 
 ---
 
+
+## Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `divider_color/divider-color` | color-token | Color token name (theme color). |
+| `entries` | string | Value from props. |
+| `icon` | string | Value from props. |
+| `icon-name` | string | Value from props. |
+| `items` | list | List of data items. |
+| `label_width/label-width` | int(px)/size token | Size/spacing value (px or token). |
+| `row-height` | int(px)/size token | Size/spacing value (px or token). |
+| `show_dividers/show-dividers` | string | Boolean toggle (true/false). |
+| `title` | string | Text string. |
 ## Props Schema
 
 ```yaml

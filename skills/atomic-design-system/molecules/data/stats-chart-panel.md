@@ -36,21 +36,23 @@ Zone proportions (relative to card height `h` and width `w`):
 - Right chart width: `w - left_w - PAD`
 
 ## Parameters
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `icon` | string | no | Icon name for header tile |
-| `icon-bg-token` | color-token | no | Icon tile background; defaults `primary` |
-| `title` | string | yes | Header title e.g. "Sleep periodic" |
-| `subtitle` | string | no | Header subtitle e.g. "Control your sleep to create great habit" |
-| `period` | string | no | Pill label e.g. "Monthly ▼" |
-| `stats` | `list[dict]` | yes | 2–3 stat entries: `{label, value, unit, dot-color-token?}` |
-| `chart-data` | dict | no | Chart data block compatible with `chart-bar` atom schema |
-| `chart-labels` | `list[str]` | no | X-axis labels for the bar chart |
-| `chart-values` | `list[number]` | no | Bar values (can also come from `chart-data`) |
-| `chart-unit` | string | no | Value unit for bar labels |
-| `highlight-bar` | integer | no | 0-based index of bar to highlight with `primary` color |
-| `ref-lines` | `list[number]` | no | Y-values for dotted reference lines (e.g. `[2,4,6,8,10]`) |
 
+| Parameter | Type | Description |
+|---|---|---|
+| `badge` | string | Value from props. |
+| `chart-labels` | string | Label text content. |
+| `chart-unit` | string | Value from props. |
+| `chart-values` | list | List of data items. |
+| `highlight-bar` | string | Value from props. |
+| `labels` | string | Label text content. |
+| `period` | string | Value from props. |
+| `ref-lines` | string | Value from props. |
+| `stats` | list | List of data items. |
+| `subtitle` | string | Text string. |
+| `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `title` | string | Text string. |
+| `unit` | string | Text string. |
+| `values` | list | Value from props. |
 ## Visual Properties
 - Background: `{{theme.color.on-surface}}` (dark)
 - Icon tile bg: `{{theme.color.primary}}`

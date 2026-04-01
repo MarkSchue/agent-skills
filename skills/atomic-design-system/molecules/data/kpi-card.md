@@ -53,13 +53,18 @@ max_atoms: 4
 
 | Parameter | Type | Description |
 |---|---|---|
-| `label` | string | KPI name / title |
-| `value` | string | Formatted metric value e.g. "€12.4M", "94%" |
-| `change` | string | Trend delta e.g. "+18%" or "-3 pts" |
-| `trend` | enum | `up` · `down` · `neutral` (sets badge variant) |
-| `reference` | string | Comparison period e.g. "vs Q2 2024" |
-| `icon-name` | string | Icon representing the metric |
-
+| `change` | string | Text string. |
+| `comparison` | string | Value from props. |
+| `delta` | string | Value from props. |
+| `icon` | string | Value from props. |
+| `icon-name` | string | Value from props. |
+| `label` | string | Text string. |
+| `reference` | string | Value from props. |
+| `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `title` | string | Text string. |
+| `trend` | string | Trend enum (up/down/neutral). |
+| `unit` | string | Text string. |
+| `value` | string | Text string. |
 ## Example
 
 ```yaml

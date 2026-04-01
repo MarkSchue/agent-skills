@@ -45,43 +45,24 @@ max_atoms: 8
 
 ## Parameters
 
-| Parameter             | Type    | Required | Description                                           |
-|-----------------------|---------|----------|-------------------------------------------------------|
-| `title`               | string  | no       | Optional card header title                           |
-| `orientation`         | enum    | no       | `horizontal` (default) · `vertical`                  |
-| `events`              | list    | yes      | Array of event objects (see below)                   |
-| `axis-position`       | float   | no       | Horizontal only — axis position as 0..1 fraction of content height (default: 0.40) |
-| `dot-radius`          | int     | no       | Dot/badge radius in px (default: auto-scaled; auto-enlarged when badge type is set) |
-| `dot-badge-type`      | enum    | no       | `none` (plain dot, default) · `number` (auto 01,02…) · `text` (reads `badge` per event) · `icon` (reads `badge` as icon name) |
-| `dot-badge-color`     | color   | no       | Badge circle fill color (default: `primary`)         |
-| `dot-badge-text-color`| color   | no       | Text/icon color inside badge (default: `on-primary`) |
-| `result`              | object  | no       | Optional target/result node at the end of the axis — `{label, description, color}`. In horizontal mode, the label is placed above the axis and the description below it. Also accepts a plain string as shorthand for `label`. |
-| `line-color`          | color   | no       | Axis line color (default: `border-subtle`)           |
-| `date-color`          | color   | no       | Date label color (default: `primary`)                |
-| `label-color`         | color   | no       | Event label color (default: `on-surface`)            |
-| `desc-color`          | color   | no       | Description color (default: `on-surface-variant`)    |
-| `show-header`         | bool    | no       | Show/hide card header section (default: true if title set) |
-| `show-header-line`    | bool    | no       | Show/hide divider below header (default: true)       |
-| `bg-color`            | color   | no       | Card background override                             |
-
-### Event object fields
-
-| Field         | Type   | Required | Description                                                     |
-|---------------|--------|----------|-----------------------------------------------------------------|
-| `date`        | string | yes      | Date / period label (e.g. `"Q1 2025"`)                         |
-| `label`       | string | yes      | Short event name                                               |
-| `description` | string | no       | Supporting detail text                                         |
-| `status`      | enum   | no       | `success` · `warning` · `error` · `neutral` · `primary` (default: neutral) — controls plain-dot color |
-| `badge`       | string | no       | Custom text/icon override for the badge circle; takes precedence over auto-number |
-
-### Result object fields
-
-| Field         | Type   | Description                                              |
-|---------------|--------|----------------------------------------------------------|
-| `label`       | string | Bold text shown at the end of the axis; above the axis in horizontal mode |
-| `description` | string | Optional smaller text; below the axis in horizontal mode |
-| `color`       | color  | Text color override (default: `on-surface`)             |
-
+| Parameter | Type | Description |
+|---|---|---|
+| `axis-position` | string | Value from props. |
+| `date-color` | color-token | Color token name (theme color). |
+| `desc-color` | color-token | Color token name (theme color). |
+| `dot-badge-color` | color-token | Color token name (theme color). |
+| `dot-badge-text-color` | color-token | Color token name (theme color). |
+| `dot-badge-type` | string | Value from props. |
+| `dot-radius` | string | Value from props. |
+| `events` | string | Value from props. |
+| `items` | list | List of data items. |
+| `label-color` | color-token | Color token name (theme color). |
+| `line-color` | color-token | Color token name (theme color). |
+| `milestones` | string | Value from props. |
+| `orientation` | string | Value from props. |
+| `result` | string | Value from props. |
+| `steps` | string | List of data items. |
+| `title` | string | Text string. |
 ## CSS Token Map
 
 | Token                      | Role                     | Fallback        |

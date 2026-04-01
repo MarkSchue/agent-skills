@@ -19,7 +19,7 @@ from .strategy.step_card         import StepCard
 from .strategy.table_card        import TableCard
 from .strategy.timeline_card     import TimelineCard
 from .strategy.user_story_card   import UserStoryCard
-from .strategy.topic_card        import TopicCard
+from .strategy.stacked_text        import StackedText
 from .strategy.quarter_grid_card import QuarterGridCard
 from .strategy.agenda_card       import AgendaCard
 
@@ -28,8 +28,6 @@ from .data.trend_card         import TrendCard
 from .data.comparison_card    import ComparisonCard
 from .data.data_insight_panel import DataInsightPanel
 from .data.chart_card         import ChartCard
-from .data.waveform_card      import WaveformCard
-from .data.dot_chart_card     import DotChartCard
 from .data.stats_chart_panel  import StatsChartPanel
 from .data.daily_header_card  import DailyHeaderCard
 
@@ -55,8 +53,7 @@ MOLECULE_REGISTRY: dict = {
     "table-card":          TableCard(),
     "timeline-card":       TimelineCard(),
     "user-story-card":     UserStoryCard(),
-    "topic-card":          TopicCard(),        # legacy alias
-    "stacked-text":        TopicCard(),        # preferred name
+    "stacked-text":        StackedText(),        # stacked rows card (formerly topic-card)
     "4-6-card":            QuarterGridCard(),  # numbered/icon quarter grid (4–6 items)
     "quarter-grid":        QuarterGridCard(),  # alternate slug
     "agenda-card":         AgendaCard(),
@@ -66,8 +63,6 @@ MOLECULE_REGISTRY: dict = {
     "comparison-card":     ComparisonCard(),
     "data-insight-panel":  DataInsightPanel(),
     "chart-card":          ChartCard(),      # special: use chart_type + data
-    "waveform-card":       WaveformCard(),
-    "dot-chart-card":      DotChartCard(),
     "stats-chart-panel":   StatsChartPanel(),
     "daily-header-card":   DailyHeaderCard(),
     # Team

@@ -34,12 +34,19 @@ Proportions:
 - Title font: `max(28, int(h * 0.12))` pt, bold, `surface` color
 
 ## Parameters
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `title` | string | yes | Main title text e.g. "Daily healthy overview" |
-| `date` | string | no | Date string e.g. "Sunday, 10 October 2023" |
-| `time` | string | no | Time string e.g. "11:00 AM" |
 
+| Parameter | Type | Description |
+|---|---|---|
+| `date` | string | Value from props. |
+| `left_label/left-label` | string | Label text content. |
+| `left_value/left-value` | string | Value from props. |
+| `right_label/right-label` | string | Label text content. |
+| `right_value/right-value` | string | Value from props. |
+| `stat_color/stat-color` | color-token | Color token name (theme color). |
+| `subtitle` | string | Text string. |
+| `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `time` | string | Value from props. |
+| `title` | string | Text string. |
 ## Visual Properties
 - Background: `{{theme.color.on-surface}}` (dark)
 - Title color: `{{theme.color.surface}}` (white / near-white)

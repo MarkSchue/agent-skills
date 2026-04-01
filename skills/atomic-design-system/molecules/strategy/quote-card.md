@@ -54,11 +54,16 @@ max_atoms: 4
 
 | Parameter | Type | Description |
 |---|---|---|
-| `quote` | string | The pull-quote text |
-| `name` | string | Attributed person's name |
-| `title` | string | Person's role or organization |
-| `icon-name` | string | Portrait icon or company logo icon |
-
+| `attribution` | string | Value from props. |
+| `author` | string | Value from props. |
+| `heading` | string | Value from props. |
+| `icon_name/icon-name` | string | Value from props. |
+| `name` | string | Text string. |
+| `quote` | string | Text string. |
+| `quote_valign/quote-valign` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `role` | string | Text string. |
+| `subtitle` | string | Text string. |
+| `title` | string | Text string. |
 ## Example
 
 ```yaml

@@ -123,6 +123,27 @@ atomic-design-system/
     └── images/  photos, illustrations, raster assets
 ```
 
+### Canonical venv (shared skill environment)
+
+This project uses one canonical virtual environment for all skill runs:
+
+- `${REPO_ROOT}/.venv` (where `${REPO_ROOT}` is the root of the `agent-skills` repository)
+
+Run scripts from the repo root with relative paths:
+
+- `${REPO_ROOT}/.venv/bin/python skills/atomic-design-system/scripts/pptx_builder.py <deck.md> --stylesheet <theme.css> --output <output.pptx>`
+
+If the canonical venv is not present, create it from repository root:
+
+```bash
+cd ${REPO_ROOT}  # e.g. ~/Workspace/agent-skills
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r skills/atomic-design-system/requirements.txt
+```
+
+Local per-project venvs (like `${PROJECT_ROOT}/.venv`) are optional and may be removed to avoid environment drift.
+
 ---
 
 ## Token Syntax

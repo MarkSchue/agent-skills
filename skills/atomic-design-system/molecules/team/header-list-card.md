@@ -42,14 +42,14 @@ Zone proportions:
 - Footer bar height: `max(40, int(h * 0.09))`
 
 ## Parameters
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `header-name` | string | yes | Primary name shown in the header strip |
-| `header-detail` | string | no | Secondary detail line in the header strip (e.g. role, subtitle) |
-| `section-label` | string | no | Label above the item list; omitted if empty |
-| `items` | list[dict] | no | Up to 2 items: `{item-label, item-title, item-detail}` |
-| `cta-label` | string | no | CTA button text; button is hidden if empty |
 
+| Parameter | Type | Description |
+|---|---|---|
+| `cta-label` | string | Label text content. |
+| `header-detail` | string | Value from props. |
+| `header-name` | string | Value from props. |
+| `items` | list | List of data items. |
+| `section-label` | string | Label text content. |
 ## Visual Properties
 - Background: `{{theme.color.surface-variant}}`
 - Header name: `{{theme.color.on-surface}}` 14pt bold

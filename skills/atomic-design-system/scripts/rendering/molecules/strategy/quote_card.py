@@ -49,6 +49,7 @@ class QuoteCard:
                **_) -> None:
         PAD = ctx.card_pad_px(w, h, props)
         GAP_S = ctx.spacing("s")
+        GAP_M = ctx.spacing("m")
         GAP_XS = ctx.spacing("xs")
         ctx.rect(x, y, w, h,
                  fill=ctx.card_bg_color(props, "bg-card"),
@@ -56,24 +57,57 @@ class QuoteCard:
                  radius=ctx.rad())
 
         quote       = str(props.get("quote", ""))
-        name        = str(props.get("name", "")).strip()
-        title       = str(props.get("title", "")).strip()
+        # Card header — consistent with all other cards: title = top heading
+        card_title  = str(props.get("title", "") or props.get("heading", "")).strip()
+        # Attribution block — author/name = speaker name, role/subtitle = role line
+        attr_name   = str(props.get("author", "") or props.get("name", "")).strip()
+        attr_role   = str(props.get("role", "") or props.get("subtitle", "")).strip()
         attribution = str(props.get("attribution", "")).strip()
         icon_name   = str(props.get("icon-name", props.get("icon_name", ""))).strip()
-        if not attribution:
-            if name and title:
-                attribution = f"{name} — {title}"
+
+        # Flatten to single attribution string if explicit, else build from parts
+        if not attribution and (attr_name or attr_role):
+            if attr_name and attr_role:
+                attribution = f"{attr_name} — {attr_role}"
             else:
-                attribution = name or title
+                attribution = attr_name or attr_role
 
         quote_color = ctx.card_body_color(props, default_token="on-primary-container")
         attr_color  = ctx.card_subtitle_color(props, default_token="on-primary-container")
+        title_color = ctx.card_title_color(props, default_token="text-default")
 
         attr_name_sz = max(ctx.font_size("annotation"), ctx.font_size("caption"))
         attr_meta_sz = ctx.font_size("annotation")
-        attr_text = [part for part in [name, title] if part]
-        has_attr_block = bool(attribution or attr_text)
+        has_attr_block = bool(attribution or attr_name or attr_role)
 
+        # ── Card header (title at top) ─────────────────────────────────────
+        show_header      = bool(card_title) and ctx.card_section_enabled(props, "header", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        div_color        = ctx.card_line_color("header", ctx.color("line-default"), props)
+
+        # Compute title_sz unconditionally — used as the quote font ceiling
+        title_sz = ctx.card_header_font_size(card_title or "X", w - PAD * 2, h, props)
+
+        # Quote vertical alignment within its available zone: top | middle | bottom
+        quote_valign = str(props.get("quote-valign", props.get("quote_valign", "middle"))).strip().lower()
+        if quote_valign not in ("top", "middle", "bottom"):
+            quote_valign = "middle"
+
+        cy = y + PAD
+        if show_header:
+            header_h   = ctx.card_header_h(w, h, props)
+            header_gap = ctx.card_header_gap(h, props)
+            ctx.text(x + PAD, cy, w - PAD * 2, header_h,
+                     card_title, size=title_sz, bold=True,
+                     color=title_color,
+                     align=ctx.card_header_align(props, default="left"), valign="middle")
+            cy += header_h + header_gap
+            if show_header_line:
+                lx, lw = ctx.card_divider_span("header", x + PAD, w - PAD * 2, props)
+                ctx.divider(lx, cy, lw, color=div_color)
+                cy += 1 + GAP_M
+
+        # ── Attribution zone (pinned to bottom) ────────────────────────────
         icon_sz = 0
         attr_h = 0
         attr_text_w = w - PAD * 2
@@ -81,39 +115,60 @@ class QuoteCard:
             icon_sz = min(ctx.icon_size(w, h, props), max(0, h // 6)) if icon_name else 0
             attr_text_w = w - PAD * 2 - (icon_sz + GAP_S if icon_sz else 0)
             attr_lines = 0
-            if name:
-                attr_lines += self._wrap_lines(ctx, name, attr_text_w, attr_name_sz, bold=True)
-            if title:
-                attr_lines += self._wrap_lines(ctx, title, attr_text_w, attr_meta_sz)
-            if not name and not title and attribution:
+            if attr_name:
+                attr_lines += self._wrap_lines(ctx, attr_name, attr_text_w, attr_name_sz, bold=True)
+            if attr_role:
+                attr_lines += self._wrap_lines(ctx, attr_role, attr_text_w, attr_meta_sz)
+            if not attr_name and not attr_role and attribution:
                 attr_lines += self._wrap_lines(ctx, attribution, attr_text_w, attr_name_sz, bold=True)
             attr_line_h = max(attr_name_sz, attr_meta_sz)
             attr_h = max(icon_sz, int(max(1, attr_lines) * attr_line_h * 1.3))
 
+        # ── Quote area ─────────────────────────────────────────────────────
         q_mark_sz = max(ctx.font_size("heading-sub"), min(ctx.font_size("heading-display"), int(min(w, h) * 0.12)))
-        q_mark_h = max(int(q_mark_sz * 0.9), ctx.font_size("heading-sub"))
-        quote_top = y + PAD + q_mark_h
-        quote_h = max(24, h - PAD * 2 - q_mark_h - (attr_h + GAP_S if has_attr_block else 0))
-        quote_max_sz = max(ctx.font_size("body"), min(ctx.font_size("heading-sub"), int(min(w, h) * 0.06)))
+        q_mark_h  = max(int(q_mark_sz * 0.9), ctx.font_size("heading-sub"))
+
+        quote_zone_top    = cy
+        quote_zone_bottom = y + h - PAD - (attr_h + GAP_S if has_attr_block else 0)
+        quote_zone_h      = max(24, quote_zone_bottom - quote_zone_top)
+        # available height for the quote text itself (below the opening mark)
+        quote_available_h = max(24, quote_zone_h - q_mark_h)
+
+        # Ceiling = card title font size (never larger than the heading)
+        quote_max_sz = max(
+            ctx.font_size("body"),
+            min(title_sz, int(min(w - PAD * 2, quote_available_h) * 0.15))
+        )
         quote_min_sz = ctx.font_size("caption")
-        quote_sz = self._fit_block_size(ctx, quote, w - PAD * 2, quote_h,
+        quote_sz = self._fit_block_size(ctx, quote, w - PAD * 2, quote_available_h,
                                         max_size=quote_max_sz,
                                         min_size=quote_min_sz,
                                         leading=1.28)
         quote_lines = self._wrap_lines(ctx, quote, w - PAD * 2, quote_sz)
-        quote_box_h = min(quote_h, max(int(quote_sz * 1.35), int(quote_lines * quote_sz * 1.28)))
+        quote_box_h = min(quote_available_h,
+                          max(int(quote_sz * 1.35), int(quote_lines * quote_sz * 1.28)))
 
-        ctx.text(x + PAD, y + PAD, q_mark_h, q_mark_h, "\u201C",
+        # Vertical placement of the entire block (mark + text) within the zone
+        block_h = q_mark_h + quote_box_h
+        if quote_valign == "middle":
+            block_offset = max(0, (quote_zone_h - block_h) // 2)
+        elif quote_valign == "bottom":
+            block_offset = max(0, quote_zone_h - block_h)
+        else:  # top
+            block_offset = 0
+        block_start = quote_zone_top + block_offset
+
+        ctx.text(x + PAD, block_start, q_mark_h, q_mark_h, "\u201C",
                  size=q_mark_sz, bold=True,
                  color=ctx.color("primary"),
                  align="left", valign="top", inner_margin=0)
 
-        qy = quote_top
-        ctx.text(x + PAD, qy, w - PAD * 2, max(24, quote_box_h), quote,
+        ctx.text(x + PAD, block_start + q_mark_h, w - PAD * 2, max(24, quote_box_h), quote,
                  size=quote_sz,
                  color=quote_color,
                  align="left", valign="top", inner_margin=0)
 
+        # ── Attribution block (bottom) ─────────────────────────────────────
         if has_attr_block:
             attr_y = y + h - PAD - attr_h
             text_x = x + PAD
@@ -122,22 +177,20 @@ class QuoteCard:
                               color=ctx.color("primary"))
                 text_x += icon_sz + GAP_S
 
-            if name or title:
+            if attr_name or attr_role:
                 cursor_y = attr_y
-                if name:
-                    name_lines = self._wrap_lines(ctx, name, attr_text_w, attr_name_sz, bold=True)
+                if attr_name:
+                    name_lines = self._wrap_lines(ctx, attr_name, attr_text_w, attr_name_sz, bold=True)
                     name_h = max(int(attr_name_sz * 1.25), int(name_lines * attr_name_sz * 1.22))
                     ctx.text(text_x, cursor_y, attr_text_w, name_h,
-                             name,
+                             attr_name,
                              size=attr_name_sz, bold=True,
                              color=attr_color,
                              align="left", valign="top", inner_margin=0)
                     cursor_y += name_h + GAP_XS
-                if title:
-                    title_h = max(int(attr_meta_sz * 1.2),
-                                  int(self._wrap_lines(ctx, title, attr_text_w, attr_meta_sz) * attr_meta_sz * 1.2))
+                if attr_role:
                     ctx.text(text_x, cursor_y, attr_text_w, max(1, attr_y + attr_h - cursor_y),
-                             title,
+                             attr_role,
                              size=attr_meta_sz, bold=False, italic=True,
                              color=attr_color,
                              align="left", valign="top", inner_margin=0)

@@ -194,17 +194,9 @@ molecules:
     required_atoms: [text-heading, text-body, badge-status, shape-divider]
 
   - id: stacked-text
-    description: Stacked text card with title, repeated body rows, and optional takeaway line. Supports text_align (left | center | right). Formerly topic-card.
-    file: molecules/strategy/topic-card.md
+    description: Stacked text card with title, repeated body rows, and optional takeaway line. Defaults to centre-aligned, middle-valign, and responsive body font size. Supports text_align, text_valign, body_font_size overrides.
+    file: molecules/strategy/stacked-text.md
     tags: [strategy, topic, overview, grid, column, summary, stacked, text]
-    preview: previews/molecules/topic-card.png
-    domain: strategy
-    required_atoms: [text-heading, text-body, shape-divider]
-
-  - id: topic-card
-    description: Alias for stacked-text (legacy name — prefer stacked-text for new decks).
-    file: molecules/strategy/topic-card.md
-    tags: [strategy, topic, overview, grid, column, summary]
     preview: previews/molecules/topic-card.png
     domain: strategy
     required_atoms: [text-heading, text-body, shape-divider]
@@ -309,24 +301,6 @@ molecules:
     required_atoms: [icon-wrapper, text-heading, text-body, badge-status, shape-divider]
 
   # ── New data visualization molecules ─────────────────────────────
-  - id: waveform-card
-    description: Split-layout card with amplitude waveform visualization on the left and a large stat number on the right.
-    file: molecules/data/waveform-card.md
-    tags: [data, waveform, metric, split-layout, visualization, signal]
-    preview: previews/molecules/waveform-card.png
-    domain: data
-    layout: split-left-right
-    required_atoms: [chart-waveform, stat-display, metric-footer]
-
-  - id: dot-chart-card
-    description: Split-layout card with lollipop dot-line chart on the left and a large stat number on the right.
-    file: molecules/data/dot-chart-card.md
-    tags: [data, dot-line, lollipop, metric, split-layout, visualization]
-    preview: previews/molecules/dot-chart-card.png
-    domain: data
-    layout: split-left-right
-    required_atoms: [chart-dot-line, stat-display, metric-footer]
-
   - id: stats-chart-panel
     description: Wide panel with icon-title header, stacked stat column on left, and bar chart on right.
     file: molecules/data/stats-chart-panel.md
@@ -370,7 +344,7 @@ templates:
     tags: [grid, adaptive, cards, parallel, overview]
     preview: previews/templates/grid-3.png
     max_elements: 4
-    compatible_molecules: [mission-card, topic-card, kpi-card, profile-card, role-card, objective-card, location-card, contact-card, quote-card, waveform-card, dot-chart-card, daily-header-card, header-list-card]
+    compatible_molecules: [mission-card, stacked-text, kpi-card, profile-card, role-card, objective-card, location-card, contact-card, quote-card, daily-header-card, header-list-card]
     compatible_aspect_ratios: ["16:9", "4:3"]
 
   - id: numbered-list
@@ -388,5 +362,5 @@ templates:
     tags: [data, insight, analysis, chart, mixed, performance]
     preview: previews/templates/data-insight.png
     max_elements: 4
-    compatible_molecules: [data-insight-panel, chart-card, kpi-card, trend-card, comparison-card, waveform-card, dot-chart-card, stats-chart-panel]
+    compatible_molecules: [data-insight-panel, chart-card, kpi-card, trend-card, comparison-card, stats-chart-panel]
     compatible_aspect_ratios: ["16:9"]

@@ -50,10 +50,11 @@ max_atoms: 4
 
 | Parameter | Type | Description |
 |---|---|---|
-| `title` | string | Card heading (e.g. "Our Mission") |
-| `statement` | string | Mission/vision text; up to 3 sentences |
-| `icon-name` | string | Optional icon (e.g. `target`, `compass`) |
-
+| `icon` | string | Value from props. |
+| `icon-name` | string | Value from props. |
+| `mission` | string | Text string. |
+| `statement` | string | Text string. |
+| `title` | string | Text string. |
 ## Example
 
 ```yaml

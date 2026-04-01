@@ -54,14 +54,12 @@ max_atoms: 5
 
 | Parameter | Type | Description |
 |---|---|---|
-| `name` | string | Contact's full name |
-| `title` | string | Role / job title |
-| `organization` | string | Company or team name |
-| `email` | string | Email address |
-| `url` | string | Website or LinkedIn URL |
-| `phone` | string | Phone number (optional) |
-| `icon-name` | string | Avatar icon |
-
+| `detail` | string | Value from props. |
+| `email` | string | Value from props. |
+| `name` | string | Text string. |
+| `phone` | string | Value from props. |
+| `role` | string | Text string. |
+| `url` | string | Value from props. |
 ## Example
 
 ```yaml

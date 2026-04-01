@@ -35,42 +35,21 @@ configurable.
 
 ## Parameters
 
-| Parameter            | Type   | Default              | Description |
-|----------------------|--------|----------------------|-------------|
-| `title`              | string | —                    | Optional card header title |
-| `items`              | list   | **required**         | Array of row objects (see below) |
-| `number-type`        | enum   | `number`             | `number` · `badge` · `icon` · `none` |
-| `number-color`       | color  | `primary`            | Plain number text color |
-| `number-size`        | int    | auto                 | Explicit font-size in px for the number |
-| `number-align`       | enum   | `left`               | `left` · `center` — alignment within the number column |
-| `number-col-frac`    | float  | `0.10`               | Fraction of inner width for the number gutter (0–1) |
-| `badge-fill`         | color  | `primary`            | Badge background color |
-| `badge-text-color`   | color  | `on-primary`         | Text color inside the badge |
-| `badge-shape`        | enum   | `rounded`            | `rounded` · `circle` · `square` |
-| `badge-size`         | int    | auto                 | Explicit badge diameter in px |
-| `headline-col-frac`  | float  | `0.30`               | Fraction of inner width for the headline column (0–1) |
-| `headline-size`      | int    | auto                 | Explicit font-size in px for headlines |
-| `headline-color`     | color  | `on-surface`         | Headline text color |
-| `body-size`          | int    | auto                 | Explicit font-size in px for body text |
-| `body-color`         | color  | `on-surface-variant` | Body text color |
-| `show-dividers`      | bool   | `true`               | Draw horizontal dividers between rows |
-| `divider-color`      | color  | `border-subtle`      | Row divider color |
-| `row-valign`         | enum   | `middle`             | `middle` · `top` — vertical alignment of body text within its row |
-| `column-gap`         | int    | spacing m (16)       | Gap in px between the three columns |
-| `show-header`        | bool   | auto                 | Show/hide card title header block |
-| `show-header-line`   | bool   | `true`               | Line below the title header |
-| `bg-color`           | color  | `bg-card`            | Card background color override |
-
-### Item object fields
-
-| Field      | Type   | Required | Description |
-|------------|--------|----------|-------------|
-| `body`     | string | yes      | Main row text (right column) |
-| `headline` | string | no       | Bold centre text; if no item has a headline the column is hidden |
-| `number`   | string | no       | Override the auto-generated label (for `number` and `badge` types) |
-| `icon`     | string | no       | Icon used when `number-type: icon` |
-| `color`    | color  | no       | Per-item accent color (overrides `number-color` / `badge-fill`) |
-
+| Parameter | Type | Description |
+|---|---|---|
+| `badge-fill` | color-token | Value from props. |
+| `badge-shape` | string | Value from props. |
+| `badge-text-color` | color-token | Color token name (theme color). |
+| `body-color` | color-token | Color token name (theme color). |
+| `divider-color` | color-token | Color token name (theme color). |
+| `headline-color` | color-token | Color token name (theme color). |
+| `items` | list | List of data items. |
+| `number-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `number-color` | color-token | Color token name (theme color). |
+| `number-type` | string | Value from props. |
+| `row-valign` | enum | Alignment enum (left/center/right or top/middle/bottom). |
+| `show-dividers` | string | Boolean toggle (true/false). |
+| `title` | string | Text string. |
 ## Examples
 
 ### Plain numbered list (matches screenshot)

@@ -21,13 +21,12 @@ preview: previews/atoms/icon-wrapper.png
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `source` | string | yes | Icon set identifier (e.g. `carbon`, `lucide`, `material`) |
-| `icon-name` | string | yes | Icon name within the set (e.g. `warning`, `checkmark`, `user`) |
-| `download-url` | string | no | Direct SVG URL; overrides set lookup |
-| `size` | token \| px | no | Size override; defaults to `{{theme.spacing.l}}` |
-| `fill-token` | color-token | no | Color token for fill; defaults to `primary` |
-| `role` | string | no | Semantic role: `decorative`, `status`, `action`, `illustration` |
-
+| `download-url` | string | no |
+| `fill-token` | color-token | no |
+| `icon-name` | string | yes |
+| `role` | string | no |
+| `size` | token \ | px |
+| `source` | string | yes |
 ## Behavior
 
 - The SVG fill and stroke attributes are mapped to `fill-token` at assembly time.

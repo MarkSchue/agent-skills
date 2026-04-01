@@ -54,13 +54,11 @@ max_atoms: 4
 
 | Parameter | Type | Description |
 |---|---|---|
-| `name` | string | Person's full name |
-| `title` | string | Job title |
-| `department` | string | Department (badge label) |
-| `contact` | string | Email or social handle |
-| `icon-name` | string | Icon representing person or role |
-| `align` | enum | `center` · `left` |
-
+| `bio` | string | Value from props. |
+| `department` | string | Value from props. |
+| `email` | string | Value from props. |
+| `name` | string | Text string. |
+| `title` | string | Text string. |
 ## Example
 
 ```yaml

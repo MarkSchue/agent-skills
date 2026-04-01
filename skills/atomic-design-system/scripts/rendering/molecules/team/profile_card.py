@@ -7,7 +7,7 @@ class ProfileCard:
 
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
-        PAD = ctx.PAD
+        pad = ctx.card_pad_px(w, h, props)
         ctx.rect(x, y, w, h,
                  fill=ctx.card_bg_color(props, "bg-card"),
                  stroke=ctx.color("border-default"),
@@ -19,19 +19,23 @@ class ProfileCard:
         bio        = str(props.get("bio",        ""))
         email      = str(props.get("email",      ""))
 
+        inner_w = w - pad * 2
         av_r    = min(int(h * 0.13), int(w * 0.22), 52)
         av_d    = av_r * 2
-        name_h  = 30
-        title_h = 24
-        dept_h  = 26 if dept  else 0
-        bio_h   = 56 if bio   else 0
-        email_h = 20 if email else 0
-        gap     = 8
+        gap     = max(ctx.spacing("xs"), int(h * 0.016))
+
+        # Responsive row heights
+        name_h  = max(22, int(h * 0.08))
+        title_h = max(18, int(h * 0.06))
+        dept_h  = max(20, int(h * 0.06)) if dept  else 0
+        bio_h   = max(36, int(h * 0.14)) if bio   else 0
+        email_h = max(16, int(h * 0.05)) if email else 0
+
         block_h = (av_d + gap + name_h + gap // 2 + title_h
                    + (gap + dept_h  if dept  else 0)
                    + (gap + bio_h   if bio   else 0)
                    + (gap + email_h if email else 0))
-        start_y = y + max(PAD, (h - block_h) // 2)
+        start_y = y + max(pad, (h - block_h) // 2)
 
         # Avatar — shape follows design-system language:
         # expressive (radius-large >= 20, e.g. Material) → circular
@@ -47,17 +51,18 @@ class ProfileCard:
                      stroke=ctx.color("surface"), radius=_av_r)
 
         ty = start_y + av_d + gap
-        ctx.text(x + PAD, ty, w - PAD * 2, name_h, name,
+        ctx.text(x + pad, ty, inner_w, name_h, name,
                  size=ctx.font_size("label"), bold=True,
-                 color=ctx.color("text-default"), align="center")
+                 color=ctx.color("text-default"), align="center", valign="middle")
 
         ty += name_h + gap // 2
-        ctx.text(x + PAD, ty, w - PAD * 2, title_h, title_text,
-                 size=ctx.font_size("caption"), color=ctx.color("text-secondary"), align="center")
+        ctx.text(x + pad, ty, inner_w, title_h, title_text,
+                 size=ctx.font_size("caption"), color=ctx.color("text-secondary"),
+                 align="center", valign="middle")
 
         ty += title_h + gap
         if dept:
-            badge_w = min(w - PAD * 2, max(80, len(dept) * 9 + 24))
+            badge_w = min(inner_w, max(80, len(dept) * 9 + 24))
             bx = x + (w - badge_w) // 2
             ctx.badge(bx, ty, badge_w, dept_h, dept,
                       fill=ctx.color("secondary"),
@@ -66,12 +71,12 @@ class ProfileCard:
             ty += dept_h + gap
 
         if bio:
-            ctx.text(x + PAD, ty, w - PAD * 2, bio_h, bio,
+            ctx.text(x + pad, ty, inner_w, bio_h, bio,
                      size=ctx.font_size("annotation"),
-                     color=ctx.color("text-secondary"), align="center")
+                     color=ctx.color("text-secondary"), align="center", valign="top")
             ty += bio_h + gap
 
         if email:
-            ctx.text(x + PAD, ty, w - PAD * 2, email_h, email,
+            ctx.text(x + pad, ty, inner_w, email_h, email,
                      size=ctx.font_size("annotation"), italic=True,
-                     color=ctx.color("text-secondary"), align="center")
+                     color=ctx.color("text-secondary"), align="center", valign="middle")

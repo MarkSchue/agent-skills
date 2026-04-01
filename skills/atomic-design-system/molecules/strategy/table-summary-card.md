@@ -42,62 +42,23 @@ and a slightly highlighted background.
 
 ## Parameters
 
-### Card-level
-
-| Parameter            | Type   | Default             | Description |
-|----------------------|--------|---------------------|-------------|
-| `title`              | string | —                   | Optional card header title |
-| `kpis`               | list   | —                   | KPI metric objects (see below) |
-| `info`               | list   | —                   | Annotation / remark objects (see below) |
-| `layout`             | enum   | `stacked`           | `stacked` · `side-by-side` |
-| `kpi-col-frac`       | float  | `0.40`              | Fraction of width used by KPI column in `side-by-side` mode |
-| `table-mode`         | bool   | `false`             | Enable table-companion styling: accent stripe + highlighted bg |
-| `accent-color`       | color  | `primary`           | Top stripe color and section divider accent in table-mode |
-| `accent-stripe-h`    | int    | `4`                 | Height of the top accent stripe in px (0 to disable) |
-| `kpi-value-color`    | color  | `text-highlight`    | Global KPI value text color |
-| `kpi-value-size`     | int    | auto                | Explicit font-size in px for all KPI values |
-| `kpi-label-color`    | color  | `on-surface-variant`| Metric label and sub-label text color |
-| `kpi-fill`           | color  | `bg-card`           | Background fill for each KPI chip area |
-| `kpi-border`         | bool   | `false`             | Draw a border around individual KPI chips |
-| `kpi-divider`        | bool   | `false`             | Draw vertical dividers between KPI chips |
-| `info-text-color`    | color  | `on-surface-variant`| Body text color for annotation rows |
-| `info-label-color`   | color  | `surface`           | Text color inside annotation type badges |
-| `info-text-size`     | int    | body font           | Explicit font-size in px for annotation body text |
-| `border-color`       | color  | `border-subtle`     | Divider and chip border color |
-| `show-header`        | bool   | auto                | Show/hide card title header |
-| `show-header-line`   | bool   | `true` (`false` in `table-mode` unless explicitly overridden) | Line below card title header |
-| `bg-color`           | color  | `bg-card` / `primary-container` in table-mode | Card background |
-
-### KPI object fields
-
-| Field        | Type   | Required | Description |
-|--------------|--------|----------|-------------|
-| `label`      | string | no       | Small metric name shown above the value |
-| `value`      | string | yes      | Main metric display value (e.g. `"87"`, `"12.4 M"`) |
-| `value-unit` | string | no       | Unit suffix appended to value (e.g. `"%"`, `"M €"`) |
-| `trend`      | enum   | no       | `up` · `down` · `neutral` — adds arrow prefix |
-| `sublabel`   | string | no       | Tiny secondary line below the value (e.g. `"YTD"`) |
-| `color`      | color  | no       | Per-KPI value color override |
-
-### Info object fields
-
-| Field    | Type   | Required | Description |
-|----------|--------|----------|-------------|
-| `type`   | enum   | no       | `assumption` · `remark` · `note` · `warning` · `info` — controls badge color and default label |
-| `label`  | string | no       | Custom badge text (overrides `type` default) |
-| `text`   | string | yes      | Annotation body text |
-| `color`  | color  | no       | Badge fill color override |
-
-### Badge colors by type
-
-| Type         | Default badge fill         | Notes |
-|--------------|----------------------------|-------|
-| `assumption` | `on-surface-variant`       | Grey — factual basis |
-| `remark`     | `primary`                  | Brand color — key observations |
-| `note`       | `secondary`                | Secondary — informational |
-| `warning`    | `warning`                  | Amber — caveats / risks |
-| `info`       | `secondary`                | Alias for `note` |
-
+| Parameter | Type | Description |
+|---|---|---|
+| `accent-color` | color-token | Color token name (theme color). |
+| `border-color` | color-token | Color token name (theme color). |
+| `info` | string | Value from props. |
+| `info-label-color` | color-token | Color token name (theme color). |
+| `info-text-color` | color-token | Color token name (theme color). |
+| `info-text-size` | int(px)/size token | Size/spacing value (px or token). |
+| `kpi-col-frac` | string | Value from props. |
+| `kpi-fill` | color-token | Value from props. |
+| `kpi-label-color` | color-token | Color token name (theme color). |
+| `kpi-value-color` | color-token | Color token name (theme color). |
+| `kpi-value-size` | int(px)/size token | Size/spacing value (px or token). |
+| `kpis` | string | Value from props. |
+| `layout` | string | Value from props. |
+| `show_header_line/show-header-line` | string | Value from props. |
+| `title` | string | Text string. |
 ## Examples
 
 ### Standalone summary (left of table)

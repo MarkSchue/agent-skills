@@ -298,7 +298,26 @@ class TableSummaryCard:
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
 
-        kpis       = list(props.get("kpis")  or [])
+        # ── Normalise alternative data keys into kpis/info ────────────────
+        # Accepts: rows / items / entries as aliases for kpis.
+        # Each row element may use {title|label, value, subtitle|sublabel}.
+        raw_kpis = list(props.get("kpis") or [])
+        if not raw_kpis:
+            for alias in ("rows", "items", "entries"):
+                raw_alias = list(props.get(alias) or [])
+                if raw_alias:
+                    for item in raw_alias:
+                        if isinstance(item, dict):
+                            raw_kpis.append({
+                                "label":    str(item.get("title")  or item.get("label")  or "").strip(),
+                                "value":    str(item.get("value")  or "").strip(),
+                                "sublabel": str(item.get("subtitle") or item.get("sublabel") or "").strip(),
+                            })
+                        elif isinstance(item, str) and item.strip():
+                            raw_kpis.append({"value": item.strip()})
+                    break
+
+        kpis       = raw_kpis
         info_items = list(props.get("info")  or [])
 
         if not kpis and not info_items:

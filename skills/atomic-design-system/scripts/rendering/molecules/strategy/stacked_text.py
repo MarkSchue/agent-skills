@@ -1,9 +1,9 @@
-"""TopicCard — compact title + topic rows with optional takeaway (also registered as stacked-text)"""
+"""StackedText — compact title + body rows with optional takeaway (molecule: stacked-text)"""
 from __future__ import annotations
 
 
-class TopicCard:
-    """Render a compact topic card for adaptive 2/3/4-column grids.
+class StackedText:
+    """Render a compact stacked-text card for adaptive 2/3/4-column grids.
 
     Supports ``text_align: left | center | right`` to align all text elements.
     """
@@ -54,7 +54,7 @@ class TopicCard:
 
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                body: str = "", **_) -> None:
-        pad = ctx.PAD
+        pad = ctx.card_pad_px(w, h, props)
         inner_x = x + pad
         inner_y = y + pad
         inner_w = w - pad * 2
@@ -64,8 +64,10 @@ class TopicCard:
         body_color = ctx.card_body_color(props, default_token="text-default")
 
         # Global text alignment — controls title, body rows, and takeaway.
-        # Per-element overrides (header_align) still take precedence for the title.
-        text_align = str(props.get("text_align") or props.get("text-align") or "left").strip().lower()
+        text_align = str(props.get("text_align") or props.get("text-align") or "center").strip().lower()
+
+        # Vertical alignment for body rows.
+        text_valign = str(props.get("text_valign") or props.get("text-valign") or "middle").strip().lower()
 
         ctx.rect(x, y, w, h,
                  fill=ctx.card_bg_color(props, "bg-card"),
@@ -80,19 +82,17 @@ class TopicCard:
         show_header = bool(title) and ctx.card_section_enabled(props, "header", default=True)
         show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
 
+        header_h   = ctx.card_header_h(w, h, props)
+        header_gap = ctx.card_header_gap(h, props)
+
         if show_header:
-            title_h = max(36, min(56, int(h * 0.10)))
-            title_size = min(ctx.font_size("heading"), 24)
-            explicit_header_align = ctx._prop_value(props, "header_align", "header-align", "title_align", "title-align")
-            if explicit_header_align is not None:
-                title_align = ctx.card_header_align(props, default=text_align)
-            else:
-                title_align = text_align
-            ctx.text(inner_x, current_y, inner_w, title_h, title,
+            title_size = ctx.card_header_font_size(title, inner_w, h, props)
+            title_align = ctx.card_header_align(props, default="center")
+            ctx.text(inner_x, current_y, inner_w, header_h, title,
                      size=title_size, bold=True,
                      color=title_color,
-                     align=title_align, valign="middle")
-            current_y += title_h + ctx.spacing("s")
+                     align=title_align, valign="middle", inner_margin=0)
+            current_y += header_h + header_gap
 
         if show_header_line:
             line_x, line_w = ctx.card_divider_span("header", inner_x, inner_w, props)
@@ -114,6 +114,22 @@ class TopicCard:
             available_h = max(96, content_bottom - current_y - ctx.spacing("m") * max(item_count - 1, 0))
             item_h = max(56, available_h // max(item_count, 1))
 
+            # Responsive body font size: grows when fewer items leave more vertical
+            # space per row. Capped at 2× base to stay readable; never bigger than title.
+            # Fully overridable via ``body_font_size:`` (or ``body-font-size:``).
+            base_body_size = ctx.font_size("body")
+            explicit_body_size = ctx._prop_value(props, "body_font_size", "body-font-size")
+            if explicit_body_size is not None:
+                body_size = int(explicit_body_size)
+            else:
+                # Each item occupies item_h px — allow ~40% of that for text
+                responsive = min(int(item_h * 0.40), base_body_size * 2)
+                body_size = max(base_body_size, min(responsive, 32))
+
+            # don’t allow body rows to exceed title size when title is present
+            if show_header and title_size is not None:
+                body_size = min(body_size, title_size)
+
             for index, item in enumerate(items):
                 item_y = current_y + index * (item_h + ctx.spacing("m"))
                 if item_y >= content_bottom:
@@ -125,9 +141,9 @@ class TopicCard:
 
                 text = str(item.get("text", "") or item.get("body", "") or item.get("value", "")).strip()
                 ctx.text(inner_x, item_y, inner_w, item_h, text,
-                         size=ctx.font_size("body"),
+                         size=body_size,
                          color=body_color,
-                         align=text_align, valign="top")
+                         align=text_align, valign=text_valign)
 
         if takeaway:
             takeaway_y = inner_bottom - takeaway_h

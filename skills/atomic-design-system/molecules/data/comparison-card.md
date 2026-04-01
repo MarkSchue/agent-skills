@@ -55,11 +55,12 @@ max_atoms: 6
 
 | Parameter | Type | Description |
 |---|---|---|
-| `title` | string | Panel heading |
-| `left` | object | `{label, attributes: [string], badge}` |
-| `right` | object | `{label, attributes: [string], badge}` |
-| `recommended` | enum | `left` · `right` · `none` (highlights column) |
-
+| `attributes` | string | Value from props. |
+| `highlight` | string | Value from props. |
+| `left` | string | Value from props. |
+| `left-label` | string | Label text content. |
+| `right` | string | Value from props. |
+| `right-label` | string | Label text content. |
 ## Example
 
 ```yaml

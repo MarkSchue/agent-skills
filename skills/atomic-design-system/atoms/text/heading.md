@@ -22,12 +22,11 @@ preview: previews/atoms/text-heading.png
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `text` | string | yes | Heading content |
-| `level` | enum | no | `h1` · `h2` · `h3`; defaults to `h2` |
-| `color-token` | color-token | no | Override text color; defaults to `on-surface` |
-| `accent-rule` | boolean | no | Show a short accent line below; defaults to `false` |
-| `align` | enum | no | `left` · `center` · `right`; defaults to `left` |
-
+| `accent-rule` | boolean | no |
+| `align` | enum | no |
+| `color-token` | color-token | no |
+| `level` | enum | no |
+| `text` | string | yes |
 ## Behavior
 
 - Font size and weight are resolved from `{{theme.typography.heading}}` (or `heading-sub` for h3).
