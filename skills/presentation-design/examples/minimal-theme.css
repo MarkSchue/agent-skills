@@ -28,8 +28,8 @@
   --card-background: #FFFFFF;
   --card-border-color: #DEE2E6;
   --card-border-radius: 8;
-  --card-header-line-color: #003087;
-  --card-header-line-width: 2;
+  --card-title-line-color: #003087;
+  --card-title-line-width: 2;
   --card-title-font-color: #003087;
 }
 

@@ -57,8 +57,8 @@ FALLBACK_DEFAULTS: dict[str, Any] = {
     "card-title-font-size": 16,
     "card-title-font-color": "#1A1A1A",
     "card-title-font-weight": "bold",
-    "card-header-line-color": "#003087",
-    "card-header-line-width": 2,
+    "card-title-line-color": "#003087",
+    "card-title-line-width": 2,
     # Text styles
     "text-h1-font-size": 36,
     "text-h1-font-color": "#1A1A1A",

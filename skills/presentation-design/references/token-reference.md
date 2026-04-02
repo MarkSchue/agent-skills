@@ -137,10 +137,10 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-title-font-weight` | 600 | |
 | `--card-title-alignment` | left | |
 | `--card-title-visible` | true | |
-| `--card-header-line-color` | #E5E7EB | |
-| `--card-header-line-width` | 1 | px |
-| `--card-header-line-alignment` | left | |
-| `--card-header-line-visible` | true | |
+| `--card-title-line-color` | #E5E7EB | |
+| `--card-title-line-width` | 1 | px |
+| `--card-title-line-alignment` | left | |
+| `--card-title-line-visible` | true | |
 | `--card-footer-line-color` | #E5E7EB | |
 | `--card-footer-line-width` | 1 | px |
 | `--card-footer-line-visible` | false | |

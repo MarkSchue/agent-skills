@@ -370,10 +370,10 @@
   --card-icon-gap:                8;                            /* px — gap between title text and icon */
 
   /* Card header divider line (below title) */
-  --card-header-line-color: var(--color-border);                /* header divider colour */
-  --card-header-line-width: 1;                                  /* px */
-  --card-header-line-alignment: left;                           /* left | center | right | full */
-  --card-header-line-visible: true;
+  --card-title-line-color: var(--color-border);                 /* title divider colour */
+  --card-title-line-width: 1;                                   /* px */
+  --card-title-line-alignment: left;                            /* left | center | right | full */
+  --card-title-line-visible: true;
 
   /* Card subtitle (optional — below header line, above body)
      Activate per card in the MD file via: subtitle: "..."

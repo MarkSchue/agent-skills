@@ -190,7 +190,7 @@ class BaseCardRenderer(ABC):
             y += float(title_size) + 4
 
             # Header line
-            line_width = self.resolve("card-header-line-width")
+            line_width = self.resolve("card-title-line-width")
             if line_width and float(line_width) > 0:
                 box.add(
                     {
@@ -199,7 +199,7 @@ class BaseCardRenderer(ABC):
                         "y1": y,
                         "x2": box.x + box.w - self._pad_right,
                         "y2": y,
-                        "stroke": self.resolve("card-header-line-color"),
+                        "stroke": self.resolve("card-title-line-color"),
                         "stroke_width": line_width,
                     }
                 )

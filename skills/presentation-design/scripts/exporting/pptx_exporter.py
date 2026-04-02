@@ -143,6 +143,7 @@ class PptxExporter:
             shape.line.fill.background()
 
     def _add_text(self, slide, elem: dict[str, Any]) -> None:
+        from pptx.util import Emu
         w = elem.get("w", 200)
         h = elem.get("h", elem.get("font_size", 14) * 2)
         txBox = slide.shapes.add_textbox(
@@ -152,6 +153,11 @@ class PptxExporter:
             _px(h),
         )
         tf = txBox.text_frame
+        # Zero internal margins so element coordinates match visual positions exactly
+        tf.margin_top = 0
+        tf.margin_bottom = 0
+        tf.margin_left = 0
+        tf.margin_right = 0
         tf.word_wrap = elem.get("wrap", False)
         p = tf.paragraphs[0]
         p.text = str(elem.get("text", ""))
