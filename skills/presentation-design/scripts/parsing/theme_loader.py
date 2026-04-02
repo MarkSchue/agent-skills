@@ -30,18 +30,19 @@ _RE_BLOCK_END = re.compile(r"^\s*\}")
 # Base-level selectors whose tokens go into ``ThemeTokens.base_tokens``
 _BASE_SELECTORS = frozenset(
     {
+        "theme-colors",
         "slide-base",
         "card-base",
-        "text-h1",
-        "text-h2",
-        "text-body",
-        "text-caption",
-        "text-label",
-        "text-quote",
-        "text-footnote",
-        "image-fullbleed",
-        "image-framed",
-        "image-circular",
+        "card--text-h1",
+        "card--text-h2",
+        "card--text-body",
+        "card--text-caption",
+        "card--text-label",
+        "card--text-quote",
+        "card--text-footnote",
+        "card--image-fullbleed",
+        "card--image-framed",
+        "card--image-circular",
     }
 )
 
@@ -65,9 +66,30 @@ class ThemeLoader:
         tokens = ThemeTokens()
         for path in paths:
             self._parse_file(Path(path), tokens)
+        self._resolve_vars(tokens)
         return tokens
 
     # ── private ──────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _resolve_vars(tokens: ThemeTokens) -> None:
+        """Resolve ``var(--token-name)`` references within base_tokens.
+
+        CSS ``var()`` references are only meaningful in a browser; when tokens
+        are consumed by Python renderers the referenced value must be substituted
+        so callers receive a concrete value rather than a CSS string.
+
+        Only one level of indirection is resolved (no recursive expansion).
+        Values that cannot be resolved are left as-is.
+        """
+        var_re = re.compile(r"^var\(--(.+)\)$")
+        for key, val in list(tokens.base_tokens.items()):
+            m = var_re.match(str(val))
+            if m:
+                ref = m.group(1)
+                resolved = tokens.base_tokens.get(ref)
+                if resolved is not None:
+                    tokens.base_tokens[key] = resolved
 
     def _parse_file(self, path: Path, tokens: ThemeTokens) -> None:
         """Parse a single CSS file and merge into *tokens*."""

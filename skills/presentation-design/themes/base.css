@@ -1,105 +1,208 @@
 /* =================================================================
    Presentation Design System — Base CSS Token Set
    =================================================================
-   This file defines ALL available design tokens for slides, cards,
-   text styles, and image styles. It is the source-of-truth template.
+   This file defines ALL available design tokens. It is the
+   source-of-truth template copied into each presentation project
+   as `theme.css` so users can customise values.
 
-   When scaffolding a new presentation, this file is copied to the
-   project as `theme.css` so the user can customise values.
+   STRUCTURE:
+     1. .theme-colors   — central semantic colour palette
+     2. .slide-base     — slide-level chrome tokens (uses var(--color-*))
+     3. .card-base      — shared card container tokens
+     4. .card--text-*   — text style families  (7 variants)
+     5. .card--image-*  — image presentation modes (3 variants)
+     6. .card--kpi      — KPI card variant tokens
+     7. .card--chart    — Chart card variant tokens
+     8. .card--quote    — Quote card variant tokens
+     9. .card--agenda   — Agenda card variant tokens
 
    RULES:
    - Every token must have an inline comment explaining its role.
    - New tokens may be appended but never renamed.
-   - Every token must have a safe default value.
-   - Token namespaces: --canvas-*, --slide-*, --card-*, --text-*, --image-*
+   - Every token must supply a safe default value.
+   - All colour values in classes 2-9 must reference var(--color-*)
+     from .theme-colors — never hardcode hex values there.
    ================================================================= */
 
-/* -----------------------------------------------------------------
-   Canvas — global slide dimensions and spacing
-   ----------------------------------------------------------------- */
+
+/* =================================================================
+   1. Colour Palette — define ALL brand colours once here.
+      Every other class references these via var(--color-*).
+
+   NAMING CONVENTIONS (aligned with M3 / shadcn / Atlassian):
+   - --color-<role>              → fill / background colour for that role
+   - --color-on-<role>           → foreground (text/icon) placed ON that fill
+   - --color-<role>-subtle       → tinted, low-emphasis background for that role
+   - --color-<role>-subtle-text  → text used inside a subtle background chip/badge
+   ================================================================= */
+.theme-colors {
+
+  /* -----------------------------------------------------------------
+     Brand colours — primary and secondary are independent roles.
+     Do NOT reuse these for semantic status (use success/warning/error/info).
+     ----------------------------------------------------------------- */
+  --color-primary:           #1A1A2E;   /* primary brand — headlines, key elements */
+  --color-on-primary:        #FFFFFF;   /* text/icon placed ON a primary-coloured surface */
+  --color-secondary:         #6B7280;   /* secondary brand — supporting elements */
+  --color-on-secondary:      #FFFFFF;   /* text/icon placed ON a secondary-coloured surface */
+  --color-accent:            #3B82F6;   /* decorative accent — call-to-action, highlights */
+  --color-on-accent:         #FFFFFF;   /* text/icon placed ON an accent-coloured surface */
+
+  /* -----------------------------------------------------------------
+     Surface / background hierarchy
+     background  → slide canvas
+     surface     → card / panel (one level above background)
+     surface-sunken → inset areas, code blocks (one level below background)
+     surface-raised → elevated cards, tooltips (one level above surface)
+     overlay     → modal, drawer, popover background
+     ----------------------------------------------------------------- */
+  --color-background:        #FFFFFF;   /* slide canvas background */
+  --color-on-background:     #1A1A2E;   /* default text colour on the canvas */
+  --color-surface:           #FFFFFF;   /* card / panel background */
+  --color-on-surface:        #1A1A2E;   /* default text colour on a card */
+  --color-surface-sunken:    #F3F4F6;   /* inset area, slightly darker than background */
+  --color-surface-raised:    #F9FAFB;   /* elevated card, slightly lighter than surface */
+  --color-overlay:           rgba(0,0,0,0.40); /* modal/drawer scrim */
+
+  /* -----------------------------------------------------------------
+     Text hierarchy — use these rather than hardcoding colours in renderers.
+     "default"  → strong, high-contrast body/heading copy
+     "subtle"   → secondary/supporting copy
+     "muted"    → captions, metadata, footnotes
+     "disabled" → placeholder, inactive label
+     "inverse"  → white text for use on dark / colored backgrounds
+     "link"     → hyperlink / interactive text colour
+     ----------------------------------------------------------------- */
+  --color-text-default:      #1A1A2E;   /* primary headings and body copy */
+  --color-text-subtle:       #374151;   /* supporting body copy, paragraphs */
+  --color-text-muted:        #6B7280;   /* captions, labels, footnotes, metadata */
+  --color-text-disabled:     #D1D5DB;   /* disabled / placeholder text */
+  --color-text-inverse:      #FFFFFF;   /* text on dark / brand-coloured backgrounds */
+  --color-text-link:         #3B82F6;   /* hyperlink and interactive text */
+
+  /* -----------------------------------------------------------------
+     Border hierarchy
+     default     → standard card/divider border
+     strong      → focus ring, hover, active state border
+     interactive → border for focused input / interactive element
+     ----------------------------------------------------------------- */
+  --color-border:            #E5E7EB;   /* standard card borders, divider lines */
+  --color-border-strong:     #9CA3AF;   /* stronger borders, hover/active state */
+  --color-border-interactive:#3B82F6;   /* focus ring, selected element border */
+
+  /* -----------------------------------------------------------------
+     Semantic status colours — FOUR roles, each with 3 tokens:
+       solid   → the main status fill (icon, badge background on dark themes)
+       subtle  → light-tint background for chips, callouts, tag backgrounds
+       text    → text/icon colour to use inside a subtle background
+     ----------------------------------------------------------------- */
+  --color-success:           #10B981;   /* positive trend, success state — solid fill */
+  --color-success-subtle:    #D1FAE5;   /* light green background for success chips */
+  --color-success-text:      #065F46;   /* dark green text inside a success-subtle area */
+
+  --color-warning:           #F59E0B;   /* warning state — solid fill */
+  --color-warning-subtle:    #FEF3C7;   /* light amber background for warning chips */
+  --color-warning-text:      #92400E;   /* dark amber text inside a warning-subtle area */
+
+  --color-error:             #EF4444;   /* negative trend, error state — solid fill */
+  --color-error-subtle:      #FEE2E2;   /* light red background for error chips */
+  --color-error-text:        #991B1B;   /* dark red text inside an error-subtle area */
+
+  --color-info:              #3B82F6;   /* informational state — solid fill */
+  --color-info-subtle:       #DBEAFE;   /* light blue background for info chips */
+  --color-info-text:         #1E40AF;   /* dark blue text inside an info-subtle area */
+}
+
+
+/* =================================================================
+   2. Slide Base — global slide chrome tokens.
+      All colour values reference var(--color-*).
+   ================================================================= */
 .slide-base {
 
-  /* Canvas dimensions (16:9 standard) */
-  --canvas-width: 12192000;              /* EMU — 33.867cm / 13.333in */
-  --canvas-height: 6858000;              /* EMU — 19.05cm / 7.5in */
-  --canvas-padding-top: 48;              /* px — top margin for content area */
-  --canvas-padding-right: 48;            /* px — right margin for content area */
-  --canvas-padding-bottom: 48;           /* px — bottom margin for content area */
-  --canvas-padding-left: 48;             /* px — left margin for content area */
-  --canvas-card-gap: 16;                 /* px — spacing between cards */
-  --canvas-background-color: #FFFFFF;    /* slide background color */
-  --canvas-background-image: none;       /* slide background image URL or 'none' */
+  /* Canvas dimensions (16:9 standard, in EMU for PowerPoint) */
+  --canvas-width: 12192000;                          /* EMU — 33.867cm / 13.333in */
+  --canvas-height: 6858000;                          /* EMU — 19.05cm / 7.5in */
+  --canvas-padding-top: 48;                          /* px — top margin for content area */
+  --canvas-padding-right: 48;                        /* px — right margin */
+  --canvas-padding-bottom: 48;                       /* px — bottom margin */
+  --canvas-padding-left: 48;                         /* px — left margin */
+  --canvas-card-gap: 16;                             /* px — spacing between cards */
+  --canvas-background-color: var(--color-background); /* slide background colour */
+  --canvas-background-image: none;                   /* background image URL or 'none' */
 
   /* -----------------------------------------------------------------
      Slide Title
      ----------------------------------------------------------------- */
-  --slide-title-font-size: 28;           /* px — title text size */
-  --slide-title-font-color: #1A1A2E;     /* title text color */
-  --slide-title-font-weight: 700;        /* title text weight (400=normal, 700=bold) */
-  --slide-title-background-color: transparent; /* title region background */
-  --slide-title-border-color: transparent;     /* title region border color */
-  --slide-title-border-width: 0;         /* px — title region border width */
-  --slide-title-border-radius: 0;        /* px — title region border radius */
-  --slide-title-padding: 0 0 8 0;        /* px — title region padding (top right bottom left) */
-  --slide-title-margin: 0;               /* px — title region margin */
-  --slide-title-position: top-left;      /* top-left | top-center | top-right */
-  --slide-title-width: auto;             /* px or 'auto' */
-  --slide-title-height: auto;            /* px or 'auto' */
-  --slide-title-alignment: left;         /* left | center | right */
+  --slide-title-font-size: 28;                               /* px */
+  --slide-title-font-color: var(--color-text-default);       /* title text colour */
+  --slide-title-font-weight: 700;                            /* 400=normal, 700=bold */
+  --slide-title-font-style: normal;                          /* normal | italic | bold | italic bold */
+  --slide-title-background-color: transparent;
+  --slide-title-border-color: transparent;
+  --slide-title-border-width: 0;
+  --slide-title-border-radius: 0;
+  --slide-title-padding: 0 0 8 0;                            /* top right bottom left */
+  --slide-title-margin: 0;
+  --slide-title-position: top-left;                          /* top-left | top-center | top-right */
+  --slide-title-width: auto;
+  --slide-title-height: auto;
+  --slide-title-alignment: left;                             /* left | center | right */
 
   /* -----------------------------------------------------------------
      Slide Subtitle
      ----------------------------------------------------------------- */
-  --slide-subtitle-font-size: 16;        /* px — subtitle text size */
-  --slide-subtitle-font-color: #6B7280;  /* subtitle text color */
-  --slide-subtitle-font-weight: 400;     /* subtitle text weight */
+  --slide-subtitle-font-size: 16;                                /* px */
+  --slide-subtitle-font-color: var(--color-text-muted);          /* subtitle colour */
+  --slide-subtitle-font-weight: 400;
+  --slide-subtitle-font-style: normal;                           /* normal | italic | bold | italic bold */
   --slide-subtitle-background-color: transparent;
   --slide-subtitle-border-color: transparent;
   --slide-subtitle-border-width: 0;
   --slide-subtitle-border-radius: 0;
   --slide-subtitle-padding: 0;
-  --slide-subtitle-margin: 4 0 0 0;      /* px — spacing below title */
+  --slide-subtitle-margin: 4 0 0 0;                              /* spacing below title */
   --slide-subtitle-position: below-title;
   --slide-subtitle-width: auto;
   --slide-subtitle-height: auto;
   --slide-subtitle-alignment: left;
 
   /* -----------------------------------------------------------------
-     Title Line (divider below the title)
+     Title Divider Line
      ----------------------------------------------------------------- */
-  --slide-divider-font-size: 0;          /* n/a for divider — reserved for consistency */
+  --slide-divider-font-size: 0;                                /* n/a — reserved */
   --slide-divider-font-color: transparent;
   --slide-divider-font-weight: 0;
   --slide-divider-background-color: transparent;
-  --slide-divider-border-color: #E5E7EB; /* divider line color */
-  --slide-divider-border-width: 2;       /* px — divider thickness */
+  --slide-divider-border-color: var(--color-border);            /* divider line colour */
+  --slide-divider-border-width: 2;                              /* px — divider thickness */
   --slide-divider-border-radius: 0;
   --slide-divider-padding: 0;
-  --slide-divider-margin: 8 0 16 0;      /* px — space above/below divider */
+  --slide-divider-margin: 8 0 16 0;                             /* space above/below */
   --slide-divider-position: below-title;
-  --slide-divider-width: 100%;           /* percentage or px */
-  --slide-divider-height: 2;             /* px — line height */
-  --slide-divider-alignment: left;       /* left | center | right */
+  --slide-divider-width: 100%;                                  /* % or px */
+  --slide-divider-height: 2;                                    /* px */
+  --slide-divider-alignment: left;
 
   /* -----------------------------------------------------------------
-     Primary Logo (top right by default)
+     Primary Logo (top-right by default)
      ----------------------------------------------------------------- */
-  --slide-logo-primary-font-size: 0;     /* n/a — reserved */
+  --slide-logo-primary-font-size: 0;                           /* n/a — reserved */
   --slide-logo-primary-font-color: transparent;
   --slide-logo-primary-font-weight: 0;
   --slide-logo-primary-background-color: transparent;
   --slide-logo-primary-border-color: transparent;
   --slide-logo-primary-border-width: 0;
   --slide-logo-primary-border-radius: 0;
-  --slide-logo-primary-padding: 12;      /* px — padding around logo */
+  --slide-logo-primary-padding: 12;                            /* px — padding around logo */
   --slide-logo-primary-margin: 0;
-  --slide-logo-primary-position: top-right; /* top-right | top-left | bottom-right | bottom-left */
-  --slide-logo-primary-width: 120;       /* px — logo width */
-  --slide-logo-primary-height: 40;       /* px — logo height */
+  --slide-logo-primary-position: top-right;                    /* top-right | top-left | ... */
+  --slide-logo-primary-width: 120;                             /* px */
+  --slide-logo-primary-height: 40;                             /* px */
   --slide-logo-primary-alignment: right;
 
   /* -----------------------------------------------------------------
-     Secondary Logo (top left by default)
+     Secondary Logo (top-left by default)
      ----------------------------------------------------------------- */
   --slide-logo-secondary-font-size: 0;
   --slide-logo-secondary-font-color: transparent;
@@ -116,13 +219,13 @@
   --slide-logo-secondary-alignment: left;
 
   /* -----------------------------------------------------------------
-     Footer Line (divider above the footer)
+     Footer Line (above footer)
      ----------------------------------------------------------------- */
   --slide-footer-line-font-size: 0;
   --slide-footer-line-font-color: transparent;
   --slide-footer-line-font-weight: 0;
   --slide-footer-line-background-color: transparent;
-  --slide-footer-line-border-color: #E5E7EB;
+  --slide-footer-line-border-color: var(--color-border);        /* footer divider colour */
   --slide-footer-line-border-width: 1;
   --slide-footer-line-border-radius: 0;
   --slide-footer-line-padding: 0;
@@ -133,11 +236,12 @@
   --slide-footer-line-alignment: left;
 
   /* -----------------------------------------------------------------
-     Footer Text (bottom right by default)
+     Footer Text (bottom-right by default)
      ----------------------------------------------------------------- */
-  --slide-footer-font-size: 10;          /* px — footer text size */
-  --slide-footer-font-color: #9CA3AF;    /* footer text color */
+  --slide-footer-font-size: 10;                                  /* px */
+  --slide-footer-font-color: var(--color-text-muted);            /* footer text colour */
   --slide-footer-font-weight: 400;
+  --slide-footer-font-style: normal;                             /* normal | italic | bold | italic bold */
   --slide-footer-background-color: transparent;
   --slide-footer-border-color: transparent;
   --slide-footer-border-width: 0;
@@ -150,11 +254,12 @@
   --slide-footer-alignment: right;
 
   /* -----------------------------------------------------------------
-     Page Number (bottom left by default)
+     Page Number (bottom-left by default)
      ----------------------------------------------------------------- */
   --slide-page-number-font-size: 10;
-  --slide-page-number-font-color: #9CA3AF;
+  --slide-page-number-font-color: var(--color-text-muted);       /* page number colour */
   --slide-page-number-font-weight: 400;
+  --slide-page-number-font-style: normal;                        /* normal | italic | bold | italic bold */
   --slide-page-number-background-color: transparent;
   --slide-page-number-border-color: transparent;
   --slide-page-number-border-width: 0;
@@ -167,192 +272,223 @@
   --slide-page-number-alignment: left;
 }
 
+
 /* =================================================================
-   Card Base — shared properties for all card types
+   3. Card Base — shared tokens for ALL card types.
+      Extend via .card--<variant> classes below.
    ================================================================= */
 .card-base {
 
   /* Card container */
-  --card-background-color: #FFFFFF;      /* card surface color */
-  --card-border-color: #E5E7EB;          /* card border color */
-  --card-border-width: 1;               /* px — card border width */
-  --card-border-radius: 8;              /* px — card corner radius */
-  --card-padding: 16;                   /* px — inner padding */
-  --card-shadow: 0 1 3 rgba(0,0,0,0.1); /* card box shadow */
+  --card-background-color: var(--color-surface);               /* card surface colour */
+  --card-border-color: var(--color-border);                     /* card border colour */
+  --card-border-width: 1;                                       /* px — border width */
+  --card-border-radius: 8;                                      /* px — corner radius */
+  --card-padding: 16;                                           /* px — inner padding */
+  --card-shadow: 0 1 3 rgba(0,0,0,0.1);                        /* box shadow */
 
   /* Card title */
-  --card-title-font-size: 16;           /* px — card title text size */
-  --card-title-font-color: #1A1A2E;     /* card title text color */
-  --card-title-font-weight: 600;        /* card title weight */
-  --card-title-alignment: left;         /* left | center | right */
-  --card-title-visible: true;           /* true | false — show/hide title */
+  --card-title-font-size: 16;                                   /* px */
+  --card-title-font-color: var(--color-text-default);           /* title text colour */
+  --card-title-font-weight: 600;
+  --card-title-font-style: normal;                              /* normal | italic | bold | italic bold */
+  --card-title-alignment: left;                                 /* left | center | right */
+  --card-title-visible: true;                                   /* true | false */
 
-  /* Card header line (divider below title) */
-  --card-header-line-color: #E5E7EB;    /* header divider color */
-  --card-header-line-width: 1;          /* px — header divider thickness */
-  --card-header-line-alignment: left;   /* left | center | right | full */
-  --card-header-line-visible: true;     /* true | false — show/hide divider */
+  /* Card header divider line (below title) */
+  --card-header-line-color: var(--color-border);                /* header divider colour */
+  --card-header-line-width: 1;                                  /* px */
+  --card-header-line-alignment: left;                           /* left | center | right | full */
+  --card-header-line-visible: true;
 
-  /* Card footer line (divider above footer) */
-  --card-footer-line-color: #E5E7EB;
+  /* Card footer divider line (above card footer) */
+  --card-footer-line-color: var(--color-border);
   --card-footer-line-width: 1;
   --card-footer-line-alignment: left;
-  --card-footer-line-visible: false;    /* hidden by default */
+  --card-footer-line-visible: false;                            /* hidden by default */
 
   /* Card body defaults */
-  --card-body-font-size: 14;            /* px — default body text size */
-  --card-body-font-color: #374151;      /* default body text color */
+  --card-body-font-size: 14;                                    /* px — default body text */
+  --card-body-font-color: var(--color-text-subtle);          /* default body text colour */
   --card-body-font-weight: 400;
+  --card-body-font-style: normal;                               /* normal | italic | bold | italic bold */
   --card-body-background-color: transparent;
 }
 
+
 /* =================================================================
-   Text Style Families — 7 predefined body text styles
-   Each covers: font-size, font-color, font-weight,
-   background-color, italic, bold
+   4. Text Style Families — 7 predefined body text variants.
+      Named .card--text-<style> for CSS class consistency.
+      Each covers: font-size, font-color, font-weight,
+      font-style, background-color.
+      font-style values: normal | italic | bold | italic bold | oblique
    ================================================================= */
 
 /* Heading 1 — primary section heading inside card body */
-.text-h1 {
-  --text-h1-font-size: 24;              /* px */
-  --text-h1-font-color: #1A1A2E;        /* dark text */
-  --text-h1-font-weight: 700;           /* bold */
+.card--text-h1 {
+  --text-h1-font-size: 24;                                      /* px */
+  --text-h1-font-color: var(--color-text-default);              /* heading colour */
+  --text-h1-font-weight: 700;
+  --text-h1-font-style: normal;                                 /* normal | italic | bold | italic bold */
   --text-h1-background-color: transparent;
-  --text-h1-italic: false;              /* true | false */
-  --text-h1-bold: true;                 /* true | false */
 }
 
 /* Heading 2 — secondary heading inside card body */
-.text-h2 {
+.card--text-h2 {
   --text-h2-font-size: 20;
-  --text-h2-font-color: #1A1A2E;
+  --text-h2-font-color: var(--color-text-default);
   --text-h2-font-weight: 600;
+  --text-h2-font-style: normal;                                 /* normal | italic | bold | italic bold */
   --text-h2-background-color: transparent;
-  --text-h2-italic: false;
-  --text-h2-bold: true;
 }
 
 /* Body text — primary content paragraphs */
-.text-body {
+.card--text-body {
   --text-body-font-size: 14;
-  --text-body-font-color: #374151;
+  --text-body-font-color: var(--color-text-subtle);          /* body colour */
   --text-body-font-weight: 400;
+  --text-body-font-style: normal;                               /* normal | italic | bold | italic bold */
   --text-body-background-color: transparent;
-  --text-body-italic: false;
-  --text-body-bold: false;
 }
 
-/* Caption text — secondary/metadata text */
-.text-caption {
+/* Caption text — secondary / metadata text */
+.card--text-caption {
   --text-caption-font-size: 12;
-  --text-caption-font-color: #6B7280;
+  --text-caption-font-color: var(--color-text-muted);           /* muted caption */
   --text-caption-font-weight: 400;
+  --text-caption-font-style: normal;                            /* normal | italic | bold | italic bold */
   --text-caption-background-color: transparent;
-  --text-caption-italic: false;
-  --text-caption-bold: false;
 }
 
 /* Label text — card titles, UI labels */
-.text-label {
+.card--text-label {
   --text-label-font-size: 12;
-  --text-label-font-color: #6B7280;
+  --text-label-font-color: var(--color-text-muted);
   --text-label-font-weight: 600;
+  --text-label-font-style: normal;                              /* normal | italic | bold | italic bold */
   --text-label-background-color: transparent;
-  --text-label-italic: false;
-  --text-label-bold: true;
 }
 
 /* Quote text — blockquote / testimonial */
-.text-quote {
+.card--text-quote {
   --text-quote-font-size: 18;
-  --text-quote-font-color: #374151;
+  --text-quote-font-color: var(--color-text-subtle);
   --text-quote-font-weight: 400;
+  --text-quote-font-style: italic;                              /* normal | italic | bold | italic bold */
   --text-quote-background-color: transparent;
-  --text-quote-italic: true;
-  --text-quote-bold: false;
 }
 
 /* Footnote text — small print, references */
-.text-footnote {
+.card--text-footnote {
   --text-footnote-font-size: 10;
-  --text-footnote-font-color: #9CA3AF;
+  --text-footnote-font-color: var(--color-text-disabled);       /* lightest text */
   --text-footnote-font-weight: 400;
+  --text-footnote-font-style: normal;                           /* normal | italic | bold | italic bold */
   --text-footnote-background-color: transparent;
-  --text-footnote-italic: false;
-  --text-footnote-bold: false;
 }
 
+
 /* =================================================================
-   Image Style Families — 3 presentation modes
+   5. Image Style Families — 3 presentation modes.
+      Named .card--image-<mode> for CSS class consistency.
    ================================================================= */
 
 /* Full bleed — image fills entire card body, no border */
-.image-fullbleed {
+.card--image-fullbleed {
   --image-fullbleed-border-color: transparent;
   --image-fullbleed-border-width: 0;
-  --image-fullbleed-border-radius: 0;   /* flush edges */
+  --image-fullbleed-border-radius: 0;                           /* flush edges */
   --image-fullbleed-padding: 0;
-  --image-fullbleed-object-fit: cover;  /* cover | contain | fill */
+  --image-fullbleed-object-fit: cover;                          /* cover | contain | fill */
 }
 
 /* Framed — image with visible border and padding */
-.image-framed {
-  --image-framed-border-color: #E5E7EB;
-  --image-framed-border-width: 1;       /* px */
-  --image-framed-border-radius: 4;      /* px — subtle rounding */
-  --image-framed-padding: 8;            /* px — space between image and border */
+.card--image-framed {
+  --image-framed-border-color: var(--color-border);             /* frame border colour */
+  --image-framed-border-width: 1;                               /* px */
+  --image-framed-border-radius: 4;                              /* px */
+  --image-framed-padding: 8;                                    /* px */
   --image-framed-object-fit: contain;
 }
 
 /* Circular — image cropped to circle */
-.image-circular {
-  --image-circular-border-color: #E5E7EB;
+.card--image-circular {
+  --image-circular-border-color: var(--color-border);           /* circle border colour */
   --image-circular-border-width: 2;
-  --image-circular-border-radius: 50%;  /* circle */
-  --image-circular-size: 120;           /* px — diameter */
+  --image-circular-border-radius: 50%;                          /* full circle */
+  --image-circular-size: 120;                                   /* px — diameter */
   --image-circular-object-fit: cover;
 }
 
+
 /* =================================================================
-   Card Variant Overrides — type-specific token extensions
+   6. Card Variant — KPI Card
    ================================================================= */
-
-/* KPI Card — large metric emphasis */
 .card--kpi {
-  --card-kpi-value-font-size: 48;       /* px — main metric size */
-  --card-kpi-value-font-color: #1A1A2E; /* metric text color */
-  --card-kpi-value-font-weight: 700;    /* bold metric */
-  --card-kpi-trend-color-up: #10B981;   /* green for positive trend */
-  --card-kpi-trend-color-down: #EF4444; /* red for negative trend */
-  --card-kpi-trend-color-neutral: #6B7280; /* gray for flat trend */
-  --card-kpi-label-font-size: 12;       /* px — supporting label size */
-  --card-kpi-label-font-color: #6B7280;
+  --card-kpi-value-font-size: 48;                               /* px — main metric size */
+  --card-kpi-value-font-color: var(--color-primary);            /* metric text colour */
+  --card-kpi-value-font-weight: 700;
+  --card-kpi-value-font-style: normal;                          /* normal | italic | bold | italic bold */
+  --card-kpi-trend-color-up: var(--color-success);              /* positive trend */
+  --card-kpi-trend-color-down: var(--color-error);              /* negative trend */
+  --card-kpi-trend-color-neutral: var(--color-text-muted);      /* flat / neutral */
+  --card-kpi-label-font-size: 12;                               /* px — supporting label */
+  --card-kpi-label-font-color: var(--color-text-muted);
+  --card-kpi-label-font-style: normal;                          /* normal | italic | bold | italic bold */
 }
 
-/* Chart Card — chart-specific tokens */
+
+/* =================================================================
+   7. Card Variant — Chart Card
+   ================================================================= */
 .card--chart {
-  --card-chart-axis-color: #9CA3AF;     /* axis line color */
-  --card-chart-axis-font-size: 10;      /* axis label size */
-  --card-chart-grid-color: #F3F4F6;     /* grid line color */
-  --card-chart-legend-font-size: 11;    /* legend text size */
-  --card-chart-legend-position: bottom; /* bottom | right | top */
+  --card-chart-axis-color: var(--color-text-muted);             /* axis line colour */
+  --card-chart-axis-font-size: 10;                              /* axis label size */
+  --card-chart-axis-font-style: normal;                         /* normal | italic | bold | italic bold */
+  --card-chart-grid-color: var(--color-surface-raised);         /* grid line colour */
+  --card-chart-legend-font-size: 11;                            /* legend text size */
+  --card-chart-legend-font-style: normal;                       /* normal | italic | bold | italic bold */
+  --card-chart-legend-position: bottom;                         /* bottom | right | top */
 }
 
-/* Quote Card — quote-specific tokens */
+
+/* =================================================================
+   8. Card Variant — Quote Card
+   ================================================================= */
 .card--quote {
-  --card-quote-mark-color: #D1D5DB;     /* quotation mark color */
-  --card-quote-mark-size: 48;           /* px — quotation mark size */
+  --card-quote-accent-color: var(--color-accent);              /* left accent bar colour */
+  --card-quote-accent-width: 4;                                 /* px — accent bar width */
+  --card-quote-font-size: 18;                                   /* px — quote text */
+  --card-quote-font-color: var(--color-text-subtle);
+  --card-quote-font-style: italic;                              /* normal | italic | bold | italic bold */
+  --card-quote-mark-color: var(--color-border);                 /* quotation mark colour */
+  --card-quote-mark-size: 48;                                   /* px — decorative mark */
   --card-quote-attribution-font-size: 12;
-  --card-quote-attribution-font-color: #6B7280;
+  --card-quote-attribution-font-color: var(--color-text-muted);
+  --card-quote-attribution-font-style: normal;                  /* normal | italic | bold | italic bold */
 }
 
-/* Agenda Card — agenda-specific tokens */
+
+/* =================================================================
+   9. Card Variant — Agenda Card
+   ================================================================= */
 .card--agenda {
-  --card-agenda-active-color: #1A1A2E;  /* active section text color */
+  --card-agenda-active-color: var(--color-primary);             /* active section text */
   --card-agenda-active-font-weight: 700;
-  --card-agenda-inactive-color: #9CA3AF; /* muted section text color */
+  --card-agenda-active-font-style: normal;                      /* normal | italic | bold | italic bold */
+  --card-agenda-inactive-color: var(--color-text-muted);        /* muted sections */
   --card-agenda-inactive-font-weight: 400;
-  --card-agenda-bullet-color: #3B82F6;  /* active bullet/indicator color */
-  --card-agenda-entry-font-size: 16;    /* section entry text size */
-  --card-agenda-entry-spacing: 12;      /* px — vertical spacing between entries */
+  --card-agenda-inactive-font-style: normal;                    /* normal | italic | bold | italic bold */
+  --card-agenda-highlight-font-color: var(--color-accent);     /* highlighted entry */
+  --card-agenda-highlight-font-weight: 700;
+  --card-agenda-highlight-font-style: normal;                   /* normal | italic | bold | italic bold */
+  --card-agenda-bullet-color: var(--color-accent);              /* active bullet colour */
+  --card-agenda-entry-font-size: 16;                            /* section entry size */
+  --card-agenda-entry-font-style: normal;                       /* normal | italic | bold | italic bold */
+  --card-agenda-entry-spacing: 12;                              /* px — vertical gap */
+  --card-agenda-number-font-color: var(--color-text-muted);     /* numbering colour */
+  --card-agenda-column-gap: 20;                                 /* px — column spacing */
+  --card-agenda-item-font-size: 14;                             /* px — item text */
+  --card-agenda-item-font-color: var(--color-text-subtle);   /* item text colour */
+  --card-agenda-item-font-style: normal;                        /* normal | italic | bold | italic bold */
 }

@@ -21,9 +21,55 @@
   /* --card-border-radius: 12; */
 }
 
+/* Colour palette overrides — change the palette here, the rest follows automatically.
+   Only uncomment tokens you actually want to change. */
+/* .theme-colors {
+  --color-primary:           #1A1A2E;
+  --color-on-primary:        #FFFFFF;
+  --color-secondary:         #6B7280;
+  --color-on-secondary:      #FFFFFF;
+  --color-accent:            #3B82F6;
+  --color-on-accent:         #FFFFFF;
+
+  --color-background:        #FFFFFF;
+  --color-on-background:     #1A1A2E;
+  --color-surface:           #FFFFFF;
+  --color-on-surface:        #1A1A2E;
+  --color-surface-sunken:    #F3F4F6;
+  --color-surface-raised:    #F9FAFB;
+  --color-overlay:           rgba(0,0,0,0.40);
+
+  --color-text-default:      #1A1A2E;
+  --color-text-subtle:       #374151;
+  --color-text-muted:        #6B7280;
+  --color-text-disabled:     #D1D5DB;
+  --color-text-inverse:      #FFFFFF;
+  --color-text-link:         #3B82F6;
+
+  --color-border:            #E5E7EB;
+  --color-border-strong:     #9CA3AF;
+  --color-border-interactive:#3B82F6;
+
+  --color-success:           #10B981;
+  --color-success-subtle:    #D1FAE5;
+  --color-success-text:      #065F46;
+
+  --color-warning:           #F59E0B;
+  --color-warning-subtle:    #FEF3C7;
+  --color-warning-text:      #92400E;
+
+  --color-error:             #EF4444;
+  --color-error-subtle:      #FEE2E2;
+  --color-error-text:        #991B1B;
+
+  --color-info:              #3B82F6;
+  --color-info-subtle:       #DBEAFE;
+  --color-info-text:         #1E40AF;
+} */
+
 /* Text style overrides */
-/* .text-h1 { --text-h1-font-size: 28; } */
-/* .text-body { --text-body-font-color: #1F2937; } */
+/* .card--text-h1 { --text-h1-font-size: 28; } */
+/* .card--text-body { --text-body-font-color: var(--color-text-subtle); } */
 
 /* Card variant overrides */
 /* .card--kpi { --card-kpi-value-font-size: 56; } */
