@@ -10,7 +10,7 @@ GitHub Copilot, Claude Code, Cursor, Cline, and other agents.
 
 | Skill | Description |
 |---|---|
-| [`atomic-design-system`](skills/atomic-design-system/) | Headless presentation design system for building slide decks in draw.io and PowerPoint from a structured library of atoms, molecules, templates, and design tokens. |
+| [`presentation-design`](skills/presentation-design/) | Presentation design system for building slide decks in `.pptx` and `.drawio` from a structured Markdown source file. Uses semantic CSS design tokens and an 8-step build pipeline. |
 
 ## Installation
 
@@ -19,65 +19,63 @@ GitHub Copilot, Claude Code, Cursor, Cline, and other agents.
 npx skills add MarkSchue/agent-skills
 
 # Install a specific skill
-npx skills add MarkSchue/agent-skills --skill atomic-design-system
+npx skills add MarkSchue/agent-skills --skill presentation-design
 
 # Install globally
-npx skills add MarkSchue/agent-skills --skill atomic-design-system -g
+npx skills add MarkSchue/agent-skills --skill presentation-design -g
 ```
 
-## atomic-design-system
+## presentation-design
 
-A deterministic six-phase pipeline for producing `.pptx` and `.drawio` slide decks
-from a structured Markdown source file. All visual values are resolved at build time
-from a project `theme.css` via design tokens — no hardcoded colors, fonts, or spacing
-anywhere in the component library.
+An 8-step build pipeline for producing `.pptx` and `.drawio` slide decks from a
+structured Markdown source file. All visual values are resolved from a project
+`theme.css` via semantic CSS design tokens — no hardcoded colours, fonts, or
+spacing anywhere in the renderer library.
 
 ### Prerequisites
 
 ```bash
-pip install python-pptx pillow beautifulsoup4 cssutils requests pyyaml
+pip install -r skills/presentation-design/requirements.txt
 ```
 
 ### Quick start
 
 ```bash
-# Initialise a new project (creates deck.md + theme.css scaffold)
-python skills/atomic-design-system/scripts/scaffold_project.py MyDeck/
+# Scaffold a new project (creates presentation-definition.md + theme.css)
+python skills/presentation-design/scripts/cli/scaffold_presentation.py MyDeck
 
-# Build PPTX
-python skills/atomic-design-system/scripts/pptx_builder.py MyDeck/deck.md \
-  --output MyDeck/output/deck.pptx
+# Build PPTX + draw.io
+python skills/presentation-design/scripts/cli/build_presentation.py MyDeck/
 
-# Build draw.io
-python skills/atomic-design-system/scripts/drawio_builder.py MyDeck/deck.md \
-  --output MyDeck/output/deck.drawio
+# Build PPTX only
+python skills/presentation-design/scripts/cli/build_presentation.py MyDeck/ --format pptx
 
-# Visual QA — renders every slide to a JPEG for review
-python skills/atomic-design-system/scripts/qa_render.py MyDeck/output/deck.pptx \
-  --output-dir MyDeck/output/qa/ --dpi 150
+# Build draw.io only
+python skills/presentation-design/scripts/cli/build_presentation.py MyDeck/ --format drawio
 ```
 
-### Design themes
+### Theme customisation
 
-Three built-in design systems ship with the skill:
+All colours are defined once in the `.theme-colors` block of your `theme.css`.
+Every other token references them via `var(--color-*)` — changing the palette
+touches a single block and cascades everywhere.
 
-| Theme | Path |
-|---|---|
-| Material Design 3 | `designthemes/materialdesign3/theme.css` |
-| IBM Carbon | `designthemes/carbon/theme.css` |
-| Liquid Glass | `designthemes/liquidglass/theme.css` |
-
-Copy a `theme.css` next to your `deck.md` to activate it. Override only
-`--color-*` and `--font-family` tokens — structural tokens (radius, spacing,
-elevation) are owned by the design system.
+```css
+.theme-colors {
+  --color-primary:   #1A1A2E;
+  --color-secondary: #6B7280;
+  --color-accent:    #3B82F6;
+  /* ... see themes/base.css for the full token reference */
+}
+```
 
 ### Scripts reference
 
 | Script | Purpose |
 |---|---|
-| `pptx_builder.py <md>` | Build PowerPoint output |
-| `drawio_builder.py <md>` | Build draw.io output |
-| `qa_render.py <pptx>` | Convert PPTX → per-slide JPEG for visual QA |
+| `scripts/cli/scaffold_presentation.py <name>` | Create a new project folder with starter files |
+| `scripts/cli/build_presentation.py <dir>` | Run the full 8-step build pipeline |
+| `scripts/cli/extract_theme.py <source>` | Extract tokens from an existing file (planned) |
 | `scaffold_project.py <dir>` | Initialise a new project directory |
 | `visual_extractor.py <source>` | Extract design tokens from image / PPTX / URL |
 | `lint.py` | Lint component files for hardcoded values |
