@@ -109,12 +109,12 @@ class TableCard:
         title   = str(props.get("title", ""))
         subtitle = str(props.get("subtitle", ""))
 
-        show_header      = bool(title or subtitle) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(title or subtitle) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
 
         title_color   = ctx.card_title_color(props, default_token="text-default")
-        header_align  = ctx.card_header_align(props, default="left")
-        divider_color = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_align  = ctx.card_title_align(props, default="left")
+        divider_color = ctx.card_line_color("title", ctx.color("line-default"), props)
         bg_color      = ctx.card_bg_color(props, "bg-card")
 
         # ── Card frame ────────────────────────────────────────────────────
@@ -130,9 +130,9 @@ class TableCard:
 
         # ── Header ────────────────────────────────────────────────────────
         if show_header:
-            header_h   = ctx.card_header_h(w, h, props)
-            header_gap = ctx.card_header_gap(h, props)
-            title_size = ctx.card_header_font_size(title, inner_w, h, props)
+            header_h   = ctx.card_title_h(w, h, props)
+            header_gap = ctx.card_title_gap(h, props)
+            title_size = ctx.card_title_font_size(title, inner_w, h, props)
             ctx.text(x + pad, cy, inner_w, header_h,
                      title,
                      size=title_size, bold=True,
@@ -151,7 +151,7 @@ class TableCard:
                 cy += sub_h + GAP_XS
 
             if show_header_line:
-                lx, lw = ctx.card_divider_span("header", x + pad, inner_w, props)
+                lx, lw = ctx.card_divider_span("title", x + pad, inner_w, props)
                 ctx.divider(lx, cy, lw, color=divider_color)
                 cy += 1 + GAP_S
 

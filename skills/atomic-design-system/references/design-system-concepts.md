@@ -69,12 +69,12 @@ All keys accept both hyphen (`card-padding`) and underscore (`card_padding`) for
 | Key | Type | Effect |
 |-----|------|--------|
 | `card-padding` | int (px) | Inner padding of the card body |
-| `card-header-height` | int (px) | Reserved height for the header zone |
-| `card-header-gap` | int (px) | Gap between header and body |
-| `card-header-font-size` | int (px) | Title font size in the header |
+| `card-title-height` | int (px) | Reserved height for the title zone |
+| `card-title-gap` | int (px) | Gap between title and body |
+| `card-title-font-size` | int (px) | Title font size |
 | `icon-size` | int (px) | Icon bounding-box size |
 | `icon-radius` | int (px) | Icon background corner radius |
-| `header-line-color` | hex | Colour of the header divider line |
+| `title-line-color` | hex | Colour of the title divider line |
 | `footer-line-color` | hex | Colour of the footer divider line |
 | `card_bg` | `filled\|clean\|alt\|featured` | Semantic card background variant |
 | `title-color` | hex | Card title text colour |
@@ -82,13 +82,13 @@ All keys accept both hyphen (`card-padding`) and underscore (`card_padding`) for
 | `icon-bg` | hex | Icon background fill |
 | `icon-fg` | hex | Icon foreground / glyph colour |
 | `icon-stroke` | hex | Icon stroke / outline colour |
-| `show-header` | bool\* | Show or hide the whole header zone |
-| `show-header-line` | bool\* | Show or hide the header divider line |
+| `show-title` | bool\* | Show or hide the whole title zone |
+| `show-title-line` | bool\* | Show or hide the title divider line |
 | `show-footer` | bool\* | Show or hide the footer zone |
 | `show-footer-line` | bool\* | Show or hide the footer divider line |
-| `header-align` | `left\|center\|right` | Title alignment in the header |
-| `header-line-width` | `50%` etc. | Width of the header line as a % of card width |
-| `header-line-align` | `left\|center\|right` | Alignment of the header line |
+| `title-align` | `left\|center\|right` | Title alignment in the header |
+| `title-line-width` | `50%` etc. | Width of the title line as a % of card width |
+| `title-line-align` | `left\|center\|right` | Alignment of the title line |
 
 \* Boolish: `none / false / 0 / off / hide / hidden / suppress` → disabled; `true / 1 / yes / on / show` → enabled.
 

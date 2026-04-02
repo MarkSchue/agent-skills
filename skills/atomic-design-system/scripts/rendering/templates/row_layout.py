@@ -30,7 +30,7 @@ class RowLayout:
     def render(self, ctx, slide: "Slide", blocks: list,
                margin: int, content_y: int, content_h: int,
                width: int, height: int, dispatch_fn) -> None:
-        from slide_helpers import _blocks_from_body  # type: ignore[import]
+        from slide_helpers import _blocks_from_body, _compute_ref_sizes  # type: ignore[import]
 
         if not blocks:
             blocks = _blocks_from_body(slide)
@@ -48,13 +48,6 @@ class RowLayout:
         ch_avail = content_h - 2 * cap_pad
 
         total_weight = sum(self.weights) or rows
-        # unit_h is the height of a weight-1 row, consistent across all row
-        # layouts with the same total_weight so that weight-1 rows (e.g. the
-        # bottom row in row-2-1 and every row in row-3) start at the same
-        # absolute Y and produce identical divider positions cross-slide.
-        #   ch_avail = unit_h * total_weight + (total_weight - 1) * gap
-        #   → unit_h = (ch_avail - (total_weight - 1) * gap) / total_weight
-        # A weight-w row spans w units plus (w-1) gutters that it absorbs.
         unit_h      = (ch_avail - (total_weight - 1) * gap) / total_weight
         row_heights = [
             max(1, int(unit_h * w + (w - 1) * gap))
@@ -72,6 +65,7 @@ class RowLayout:
         # proportional to the compact rows. Tall rows get the same small header,
         # leaving more body space — matching visual rhythm across row layouts.
         min_card_h = min(max(1, rh - 2 * blk_pad) for rh in row_heights)
+        ctx.ref_sizes = _compute_ref_sizes(ctx, blocks[:rows], slide, card_w, min_card_h)
         ctx.ref_h = min_card_h  # harmonise header sizing across all rows in this slide
         for i, row_h in enumerate(row_heights):
             if i >= len(blocks):
@@ -98,3 +92,4 @@ class RowLayout:
             cursor_y += row_h + gap
 
         ctx.ref_h = None  # clear slide reference height
+        ctx.ref_sizes = {}  # clear slide font size harmonization

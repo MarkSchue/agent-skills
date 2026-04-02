@@ -176,17 +176,85 @@ The **priority chain** for every geometry helper is:
 | Key | Type | Geometry Helper | Description |
 |-----|------|-----------------|-------------|
 | `card-padding` | int (px) | `ctx.card_pad_px(w, h, props)` | Inner padding of the card body |
-| `card-header-height` | int (px) | `ctx.card_header_h(w, h, props)` | Reserved height of the header zone |
-| `card-header-gap` | int (px) | `ctx.card_header_gap(h, props)` | Gap between header and body |
-| `card-header-font-size` | int (px) | `ctx.card_header_font_size(title, tw, h, props)` | Title font size in the header |
+| `card-title-height` | int (px) | `ctx.card_title_h(w, h, props)` | Reserved height of the title zone |
+| `card-title-gap` | int (px) | `ctx.card_title_gap(h, props)` | Gap between title and body |
+| `card-title-font-size` | int (px) | `ctx.card_title_font_size(title, tw, h, props)` | Title font size |
 | `icon-size` | int (px) | `ctx.icon_size(w, h, props)` | Icon bounding-box size |
 | `icon-radius` | int (px) | `ctx.icon_radius(size, props)` | Icon background corner radius |
+
+### Body Font Size Harmonization
+
+The body font size is synchronized across all cards on the same slide at render time.
+
+**How it works:**
+
+1. Before rendering any card, the template calls `_compute_ref_sizes()` which
+   collects `preferred_font_sizes(ctx, props, w, h)` from every molecule renderer
+   on the slide that implements it (currently: `stacked-text`, `location-card`,
+   `role-card`, `roadmap-panel`).
+2. Values are **averaged** per role (`body`, `headline`, `label`, `title`).
+3. Per-slide `<!-- font-sizes -->` YAML block overrides the average.
+4. The averaged sizes are stored in `ctx.ref_sizes` for the duration of the slide.
+5. Every molecule calls `ctx.slide_font_size("body", props)` instead of
+   `ctx.font_size("body")` so the harmonized size is used.
+
+**Priority chain for `ctx.slide_font_size(role, props)`:**
+
+| Priority | Source | Example |
+|----------|--------|---------|
+| 1 (highest) | Per-card YAML prop | `card-body-font-size: 18` |
+| 2 | Slide-level average from `ctx.ref_sizes` | set by template pre-pass |
+| 3 | Global CSS token `--card-{role}-font-size` | `--card-body-font-size: 14` |
+| 4 (lowest) | Base type-scale `ctx.font_size(role)` | CSS `--font-body-size` |
+
+**Per-slide override syntax** (in `deck.md` slide section, after other comments):
+
+```markdown
+# My Slide Title
+
+<!-- layout: grid-3 -->
+<!-- font-sizes -->
+body: 14
+headline: 18
+label: 11
+```
+
+**Per-card override syntax** (in the card's YAML props block):
+
+```yaml
+card-body-font-size: 18
+card-label-font-size: 12
+```
+
+**CSS theme-wide token** (in `theme.css`, applies to every card on every slide):
+
+```css
+--card-body-font-size: 14;   /* 0 = auto (slide-harmonized average) */
+--card-label-font-size: 12;
+--card-headline-font-size: 18;
+```
+
+#### CSS Theme Tokens for Body Typography
+
+| Token | Default | Description |
+|-------|---------|-------------|
+| `--card-body-font-size` | `0` | Theme-wide body text size (0 = auto) |
+| `--card-label-font-size` | `0` | Theme-wide label text size (0 = auto) |
+| `--card-headline-font-size` | `0` | Theme-wide headline text size (0 = auto) |
+
+#### Per-Card Body Font-Size Override Keys
+
+| Key | Helper | Description |
+|-----|--------|-------------|
+| `card-body-font-size` | `ctx.slide_font_size("body", props)` | Override body text size for one card |
+| `card-label-font-size` | `ctx.slide_font_size("label", props)` | Override label text size for one card |
+| `card-headline-font-size` | `ctx.slide_font_size("headline", props)` | Override headline text size for one card |
 
 ### Color Overrides
 
 | Key | Type | Helper | Description |
 |-----|------|--------|-------------|
-| `header-line-color` | hex | `ctx.card_line_color("header", default, props)` | Header divider line colour |
+| `title-line-color` | hex | `ctx.card_line_color("title", default, props)` | Title divider line colour |
 | `footer-line-color` | hex | `ctx.card_line_color("footer", default, props)` | Footer divider line colour |
 | `footer-color` | hex | `ctx.card_footer_color(props)` | Footer metadata text colour |
 | `card_bg` | `filled\|clean\|alt\|featured` | `ctx.card_bg_color(props, "bg-card")` | Semantic card background variant |
@@ -203,8 +271,8 @@ Accepted truthy values: `true / 1 / yes / on / show`
 
 | Key | Helper | Description |
 |-----|--------|-------------|
-| `show-header` | `ctx.card_section_enabled("header", props)` | Show or hide the whole header zone |
-| `show-header-line` | `ctx.card_line_enabled("header", props)` | Show or hide the header divider line |
+| `show-title` | `ctx.card_section_enabled("title", props)` | Show or hide the whole title zone |
+| `show-title-line` | `ctx.card_line_enabled("title", props)` | Show or hide the title divider line |
 | `show-footer` | `ctx.card_section_enabled("footer", props)` | Show or hide the footer zone |
 | `show-footer-line` | `ctx.card_line_enabled("footer", props)` | Show or hide the footer divider line |
 
@@ -212,9 +280,9 @@ Accepted truthy values: `true / 1 / yes / on / show`
 
 | Key | Accepted Values | Helper | Description |
 |-----|-----------------|--------|-------------|
-| `header-align` | `left \| center \| right` | `ctx.card_header_align(props)` | Title alignment in the header |
-| `header-line-width` | `50%` etc. | `ctx.card_divider_span(w, props)` | Width of the header line as % of card width |
-| `header-line-align` | `left \| center \| right` | `ctx.card_header_align(props)` | Alignment of the header line |
+| `title-align` | `left \| center \| right` | `ctx.card_title_align(props)` | Title text alignment |
+| `title-line-width` | `50%` etc. | `ctx.card_divider_span(w, props)` | Width of the title divider line |
+| `title-line-align` | `left \| center \| right` | `ctx.card_title_align(props)` | Alignment of the title divider line |
 
 ### Shared Footer Theme Tokens
 
@@ -281,4 +349,55 @@ Priority chain: **per-card prop → `--color-agenda-*` CSS token → semantic fa
 | `highlight-bg` | Override `--color-agenda-highlight-bg` for this card only |
 | `show-dividers` | `true/false` — show or hide the between-entry divider lines |
 | `divider-color` | Colour for between-entry dividers |
-| `show-header` | `true/false` — show or hide the card header zone |
+| `show-title` | `true/false` — show or hide the card title zone |
+
+---
+
+## Canonical YAML Prop Naming Conventions
+
+All molecules follow six cross-cutting naming rules so that elements of the
+same semantic type share the same property name everywhere. Old names are kept
+as backward-compatible aliases — existing decks continue to work unchanged.
+
+### Rule table
+
+| Semantic element | Canonical name | Accepted aliases |
+|---|---|---|
+| Card heading text | `title` | *(none — already universal)* |
+| Card footer / summary text | `takeaway` | `conclusion` |
+| Top-level list container | `items` | `steps`, `columns`, `entries`, `milestones`, `events`, `rows`, `members`, `lanes` |
+| List item primary text | `headline` | `title` (per-item context), `text`, `name` |
+| List item secondary text | `body` | `description`, `detail`, `item-detail` |
+| Person's job title / role | `job-title` | `role`, `title` (per-person context), `item-title` |
+
+### Per-molecule map
+
+| Molecule | Container | Renamed from | Item `headline` alias | Item `body` alias |
+|---|---|---|---|---|
+| `column-conclusion-card` | `items` | `columns` | `headline` ✓ | `body` ✓ |
+| `column-conclusion-card` footer | `takeaway` | `conclusion` | — | — |
+| `step-card` | `items` | `steps` | `headline` ✓ | `body` ✓ |
+| `agenda-card` | `items` | `entries` | `headline` | `body` |
+| `timeline-card` | `items` | `events`, `milestones`, `steps` | `headline` | `body` |
+| `roadmap-panel` | `items` | `lanes` | `headline` | `body` |
+| `kpi-card` heading | `title` | `label` | — | — |
+| `trend-card` heading | `title` | `label` | — | — |
+| `contact-card` person role | `job-title` | `role` | — | — |
+| `profile-card` person role | `job-title` | `title` (per-person) | — | — |
+| `team-grid-panel` container | `items` | `members` | — | — |
+| `team-grid-panel` member role | `job-title` | `title` (per-member) | — | — |
+| `header-list-card` item role | `job-title` | `item-title` | — | — |
+| `header-list-card` item body | `body` | `item-detail` | — | — |
+
+### Priority chain
+
+```
+per-card YAML prop (canonical name)
+  → per-card YAML prop (alias)
+    → CSS theme token
+      → semantic color fallback
+```
+
+Renderers always check canonical name first, then each alias in the order
+listed above. Setting the canonical name and setting an alias produce identical
+output — the choice is purely authoring preference.

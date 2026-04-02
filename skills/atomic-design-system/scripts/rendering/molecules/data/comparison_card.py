@@ -70,23 +70,49 @@ class ComparisonCard:
                **_) -> None:
         attributes = props.get("attributes", []) or []
 
-        # Free-text path: ``left:`` / ``right:`` plain strings
+        # Card frame — drawn once here for all rendering paths
+        ctx.rect(x, y, w, h,
+                 fill=ctx.card_bg_color(props, "bg-card"),
+                 stroke=ctx.color("border-default"),
+                 radius=ctx.rad())
+
+        # ── Standard card title header ─────────────────────────────────────
+        title      = str(props.get("title", "")).strip()
+        show_title = bool(title) and ctx.card_section_enabled(props, "title", default=True)
+        show_tline = show_title and ctx.card_line_enabled(props, "title", default=True)
+        pad        = ctx.card_pad_px(w, h, props)
+        content_y  = y
+        if show_title or show_tline:
+            title_color = ctx.card_title_color(props, default_token="text-default")
+            title_align = ctx.card_title_align(props, default="left")
+            div_color   = ctx.card_line_color("title", ctx.color("line-default"), props)
+            cy = y + pad
+            if show_title:
+                th   = ctx.card_title_h(w, h, props)
+                tgap = ctx.card_title_gap(h, props)
+                tsz  = ctx.card_title_font_size(title, w - pad * 2, h, props)
+                ctx.text(x + pad, cy, w - pad * 2, th, title,
+                         size=tsz, bold=True, color=title_color,
+                         align=title_align, valign="middle")
+                cy += th + tgap
+            if show_tline:
+                lx, lw = ctx.card_divider_span("title", x + pad, w - pad * 2, props)
+                ctx.divider(lx, cy, lw, color=div_color)
+                cy += ctx.spacing("m")
+            content_y = cy
+        content_h = max(20, y + h - content_y)
+
+        # ── Dispatch to column renderers ────────────────────────────────────
         if not attributes:
             left_text  = str(props.get("left",  "") or "")
             right_text = str(props.get("right", "") or "")
             if left_text or right_text:
-                self._render_text_columns(ctx, props, x, y, w, h,
+                self._render_text_columns(ctx, props, x, content_y, w, content_h,
                                           left_text, right_text)
-                return
-            # Nothing to draw — render placeholder outline only
-            ctx.rect(x, y, w, h,
-                     fill=ctx.color("bg-card"),
-                     stroke=ctx.color("border-default"),
-                     radius=ctx.rad())
             return
 
         # Structured attributes path (original)
-        self._render_attributes(ctx, props, x, y, w, h, attributes)
+        self._render_attributes(ctx, props, x, content_y, w, content_h, attributes)
 
     # ── Free-text columns renderer ────────────────────────────────────────────
 
@@ -102,20 +128,14 @@ class ComparisonCard:
         header_max  = max(ctx.font_size("annotation"), min(ctx.font_size("label"), int(h * 0.06)))
         header_min  = ctx.font_size("annotation")
 
-        # Card outline
-        ctx.rect(x, y, w, h,
-             fill=ctx.card_bg_color(props, "bg-card"),
-                 stroke=ctx.color("border-default"),
-                 radius=ctx.rad())
-
-        # Column fills
-        l_fill = (ctx.color("primary")             if highlight == "left"
+        # Column fills — highlighted column uses header_strip palette, other uses muted container
+        l_fill = (ctx.header_strip_bg(props)         if highlight == "left"
                   else ctx.color("surface-variant"))
-        r_fill = (ctx.color("primary")             if highlight == "right"
+        r_fill = (ctx.header_strip_bg(props)         if highlight == "right"
                   else ctx.color("primary-container"))
-        l_tc   = (ctx.color("on-primary")          if highlight == "left"
+        l_tc   = (ctx.header_strip_color(props)      if highlight == "left"
                   else ctx.color("on-surface"))
-        r_tc   = (ctx.color("on-primary")          if highlight == "right"
+        r_tc   = (ctx.header_strip_color(props)      if highlight == "right"
                   else ctx.color("on-primary-container"))
 
         l_header, l_body = _parse_text_column(left_text)
@@ -129,7 +149,7 @@ class ComparisonCard:
                         min_size=header_min,
                         bold=True)
         header_sz   = max(header_min, min(l_header_sz, r_header_sz))
-        header_h    = max(int(header_sz * 2.0), ctx.card_header_h(w, h, props))
+        header_h    = max(int(header_sz * 2.0), ctx.card_title_h(w, h, props))
 
         # Left column header
         ctx.rect(x, y, col_w, header_h,
@@ -188,7 +208,7 @@ class ComparisonCard:
                                         min_size=header_min,
                                         bold=True)
         header_sz   = max(header_min, min(header_l_sz, header_r_sz))
-        header_h    = max(int(header_sz * 2.0), ctx.card_header_h(w, h, props))
+        header_h    = max(int(header_sz * 2.0), ctx.card_title_h(w, h, props))
         row_gap     = ctx.spacing("xs")
         label_pad_x = max(ctx.spacing("xs"), pad // 2)
         value_pad_x = max(ctx.spacing("xs"), pad // 2)

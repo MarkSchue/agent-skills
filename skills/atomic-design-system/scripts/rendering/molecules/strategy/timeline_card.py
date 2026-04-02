@@ -1,6 +1,6 @@
 """TimelineCard — card-framed horizontal or vertical milestone timeline.
 
-Follows the full card contract (ctx.card_pad_px, ctx.card_header_h, etc.)
+Follows the full card contract (ctx.card_pad_px, ctx.card_title_h, etc.)
 so it aligns perfectly with neighbouring cards in any grid template.
 
 Horizontal layout (default)
@@ -30,8 +30,8 @@ Per-card overrides (all optional — priority: prop → CSS token → default)
   dot-badge-type     : "none" | "number" | "text" | "icon"  (default: "none")
   dot-badge-color    : fill color for badge circles    (default: primary)
   dot-badge-text-color: text/icon color inside badge   (default: on-primary)
-  show-header        : bool                            (cards standard)
-  show-header-line   : bool                            (cards standard)
+  show-title         : bool                            (cards standard)
+  show-title-line    : bool                            (cards standard)
   result             : {label, description, color}     optional target node at end
 
 Per-event fields
@@ -138,10 +138,11 @@ class TimelineCard:
 
         # ── Alias normalisation ───────────────────────────────────────────
         # Accept milestones / steps / items in addition to events
-        events = (props.get("events")
+        # items is canonical; events/milestones/steps kept as backward-compat aliases
+        events = (props.get("items")
+                  or props.get("events")
                   or props.get("milestones")
                   or props.get("steps")
-                  or props.get("items")
                   or [])
         # Normalise per-item field aliases:
         #   label  → date  (the year / period shown above/left of axis)
@@ -153,11 +154,17 @@ class TimelineCard:
             ev = dict(ev)  # shallow copy so we don't mutate the original
             if "date" not in ev and "label" in ev:
                 ev["date"] = ev.pop("label")
-            if "label" not in ev and "title" in ev:
+            # headline is canonical for event name; title and name kept as aliases
+            if "label" not in ev and "headline" in ev:
+                ev["label"] = ev.pop("headline")
+            elif "label" not in ev and "title" in ev:
                 ev["label"] = ev.pop("title")
             # also accept "name" as label fallback
             if "label" not in ev and "name" in ev:
                 ev["label"] = ev.pop("name")
+            # body is canonical alias for description
+            if "description" not in ev and "body" in ev:
+                ev["description"] = ev.pop("body")
             normalised.append(ev)
         events = normalised
 
@@ -173,13 +180,13 @@ class TimelineCard:
         inner_w = w - pad * 2
         title   = str(props.get("title", ""))
 
-        show_header      = bool(title) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(title) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
 
         # ── Token resolution ──────────────────────────────────────────────
         title_color   = ctx.card_title_color(props, default_token="text-default")
-        header_align  = ctx.card_header_align(props, default="left")
-        divider_color = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_align  = ctx.card_title_align(props, default="left")
+        divider_color = ctx.card_line_color("title", ctx.color("line-default"), props)
         bg_color      = ctx.card_bg_color(props, "bg-card")
 
         line_color        = self._resolve_color(ctx, str(props.get("line-color",  "")), "border-subtle")
@@ -200,12 +207,12 @@ class TimelineCard:
                  radius=ctx.rad())
 
         # ── Header ────────────────────────────────────────────────────────
-        header_h   = ctx.card_header_h(w, h, props)
-        header_gap = ctx.card_header_gap(h, props)
+        header_h   = ctx.card_title_h(w, h, props)
+        header_gap = ctx.card_title_gap(h, props)
         oy = y + pad
 
         if show_header:
-            title_sz = ctx.card_header_font_size(title, inner_w, h, props)
+            title_sz = ctx.card_title_font_size(title, inner_w, h, props)
             ctx.text(x + pad, oy, inner_w, header_h, title,
                      size=title_sz, bold=True,
                      color=title_color,
@@ -213,7 +220,7 @@ class TimelineCard:
             oy += header_h + header_gap
 
         if show_header_line:
-            lx, lw = ctx.card_divider_span("header", x + pad, inner_w, props)
+            lx, lw = ctx.card_divider_span("title", x + pad, inner_w, props)
             ctx.divider(lx, oy, lw, color=divider_color)
             oy += GAP_M
 
@@ -256,7 +263,7 @@ class TimelineCard:
         result_w = 0
         if result:
             result_label = str(result.get("label", ""))
-            result_sz    = ctx.font_size("body")
+            result_sz    = ctx.slide_font_size("body", props)
             result_w     = max(60, min(int(cw * 0.18), len(result_label) * result_sz // 2 + GAP_M * 2))
 
         usable_w = cw - result_w
@@ -284,7 +291,7 @@ class TimelineCard:
                                    arrow_sz, line_color)
             result_label = str(result.get("label", ""))
             result_desc  = str(result.get("description", ""))
-            result_sz    = ctx.font_size("body")
+            result_sz    = ctx.slide_font_size("body", props)
             desc_sz      = ctx.font_size("annotation")
             rlx          = cx + usable_w + GAP_S
             rlw          = max(20, result_w - GAP_S)

@@ -58,7 +58,7 @@ max_atoms: 5
 | `email` | string | Value from props. |
 | `name` | string | Text string. |
 | `phone` | string | Value from props. |
-| `role` | string | Text string. |
+| `job-title` | string | Person's job title or role. **Canonical.** Alias: `role`. |
 | `url` | string | Value from props. |
 ## Example
 
@@ -66,7 +66,7 @@ max_atoms: 5
 molecule: contact-card
 params:
   name: "Klaus Berger"
-  title: "Account Executive"
+  job-title: "Account Executive"  # canonical (alias: role)
   organization: "Acme Solutions GmbH"
   email: "k.berger@acme.de"
   url: "linkedin.com/in/klausberger"

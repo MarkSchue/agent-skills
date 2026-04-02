@@ -376,12 +376,12 @@ the renderer must not short-circuit it.
 **Canonical call pattern (copy into every new renderer):**
 ```python
 pad         = ctx.card_pad_px(w, h, props)
-header_h    = ctx.card_header_h(w, h, props)
-header_gap  = ctx.card_header_gap(h, props)
-title_size  = ctx.card_header_font_size(title, text_w, h, props)
+title_h     = ctx.card_title_h(w, h, props)
+title_gap   = ctx.card_title_gap(h, props)
+title_size  = ctx.card_title_font_size(title, text_w, h, props)
 icon_sz     = ctx.icon_size(w, h, props)
 icon_r      = ctx.icon_radius(icon_sz, props)
-hdr_color   = ctx.card_line_color("header", ctx.color("line-default"), props)
+hdr_color   = ctx.card_line_color("title", ctx.color("line-default"), props)
 ftr_color   = ctx.card_line_color("footer", ctx.color("line-default"), props)
 ```
 

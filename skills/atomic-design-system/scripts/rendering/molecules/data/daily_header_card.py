@@ -49,13 +49,13 @@ class DailyHeaderCard:
         subtitle_color = ctx.card_subtitle_color(props, default_token="text-secondary")
         stat_color     = ctx.color(stat_color_token)
         label_color    = ctx.card_body_color(props, default_token="text-secondary")
-        divider_color  = ctx.card_line_color("header", ctx.color("line-default"), props)
+        divider_color  = ctx.card_line_color("title", ctx.color("line-default"), props)
 
         GAP_S = ctx.spacing("s")
         GAP_M = max(10, int(h * 0.022))
 
-        show_header      = bool(title) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(title) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
         show_footer      = bool(date or time_str) and ctx.card_section_enabled(props, "footer", default=True)
         show_footer_line = show_footer and ctx.card_line_enabled(props, "footer", default=True)
 
@@ -77,12 +77,12 @@ class DailyHeaderCard:
             stats_gap = GAP_M
 
         # ── Header section ────────────────────────────────────────────────
-        header_h   = ctx.card_header_h(w, h, props)
-        header_gap = ctx.card_header_gap(h, props)
+        header_h   = ctx.card_title_h(w, h, props)
+        header_gap = ctx.card_title_gap(h, props)
         oy = y + pad
 
         if show_header:
-            title_sz = ctx.card_header_font_size(title, inner_w, h, props)
+            title_sz = ctx.card_title_font_size(title, inner_w, h, props)
             ctx.text(x + pad, oy, inner_w, header_h, title,
                      size=title_sz, bold=True,
                      color=title_color,
@@ -90,7 +90,7 @@ class DailyHeaderCard:
             oy += header_h + header_gap
 
         if show_header_line:
-            lx, lw = ctx.card_divider_span("header", x + pad, inner_w, props)
+            lx, lw = ctx.card_divider_span("title", x + pad, inner_w, props)
             ctx.divider(lx, oy, lw, color=divider_color)
             oy += GAP_M
 

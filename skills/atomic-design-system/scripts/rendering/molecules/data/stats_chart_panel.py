@@ -23,13 +23,13 @@ class StatsChartPanel:
         subtitle = str(props.get("subtitle", "") or props.get("badge", ""))
         pill     = str(props.get("period",   ""))
 
-        show_header      = bool(title or subtitle or pill) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(title or subtitle or pill) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
 
         title_color  = ctx.card_title_color(props, default_token="text-default")
         sub_color    = ctx.color("on-surface-variant")
-        div_color    = ctx.card_line_color("header", ctx.color("line-default"), props)
-        header_align = ctx.card_header_align(props, default="left")
+        div_color    = ctx.card_line_color("title", ctx.color("line-default"), props)
+        header_align = ctx.card_title_align(props, default="left")
 
         # Stats / body alignment — default center
         stat_align = str(props.get("text-align") or props.get("text_align") or "center").strip().lower()
@@ -41,9 +41,9 @@ class StatsChartPanel:
         # ── Standard card header (same sizing as all other molecules) ─────────
         if show_header:
             inner_w    = w - PAD * 2
-            header_h   = ctx.card_header_h(w, h, props)
-            header_gap = ctx.card_header_gap(h, props)
-            title_sz   = ctx.card_header_font_size(title or subtitle, inner_w, h, props)
+            header_h   = ctx.card_title_h(w, h, props)
+            header_gap = ctx.card_title_gap(h, props)
+            title_sz   = ctx.card_title_font_size(title or subtitle, inner_w, h, props)
 
             if subtitle:
                 # Title on first line, subtitle beneath — split header_h proportionally
@@ -70,7 +70,7 @@ class StatsChartPanel:
                 pass  # pill already shown as subtitle; skip separate badge
 
             if show_header_line:
-                lx, lw = ctx.card_divider_span("header", x + PAD, inner_w, props)
+                lx, lw = ctx.card_divider_span("title", x + PAD, inner_w, props)
                 ctx.divider(lx, cy, lw, color=div_color)
                 cy += 1 + ctx.spacing("s")
 

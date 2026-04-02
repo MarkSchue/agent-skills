@@ -50,6 +50,7 @@ class Slide:
     front_matter: dict                  # YAML front-matter from deck header (global)
     raw: str                            # raw source text of this slide section
     chrome_overrides: dict = field(default_factory=dict)  # from <!-- chrome --> block
+    font_sizes: dict      = field(default_factory=dict)  # from <!-- font-sizes --> block
 
     # ── Section / hierarchy fields (new hierarchy model) ─────────────────────
     section: str | None   = None   # H1 section title this slide belongs to
@@ -66,9 +67,10 @@ class Slide:
 
 # ── Regex constants ───────────────────────────────────────────────────────────
 
-_LAYOUT_COMMENT  = re.compile(r"<!--\s*layout:\s*([^\s>]+)\s*-->", re.IGNORECASE)
-_CARD_COMMENT    = re.compile(r"<!--\s*card:\s*([^>]+)-->", re.IGNORECASE)
-_CHROME_COMMENT  = re.compile(r"<!--\s*chrome\s*-->", re.IGNORECASE)
+_LAYOUT_COMMENT      = re.compile(r"<!--\s*layout:\s*([^\s>]+)\s*-->", re.IGNORECASE)
+_CARD_COMMENT        = re.compile(r"<!--\s*card:\s*([^>]+)-->", re.IGNORECASE)
+_CHROME_COMMENT      = re.compile(r"<!--\s*chrome\s*-->", re.IGNORECASE)
+_FONT_SIZES_COMMENT  = re.compile(r"<!--\s*font-sizes\s*-->", re.IGNORECASE)
 _CHART_FENCE     = re.compile(r"```chart:(\w+)\s*\n(.*?)```", re.DOTALL)
 _FRONT_MATTER    = re.compile(r"^---\n(.+?)\n---\n", re.DOTALL)
 _NO_AGENDA       = re.compile(r"<!--\s*no-agenda\s*-->", re.IGNORECASE)
@@ -203,6 +205,7 @@ def _make_slide(idx: int, title: str, body: str, global_fm: dict,
         front_matter     = global_fm,
         raw              = body,
         chrome_overrides = _extract_chrome_overrides(body),
+        font_sizes       = _extract_font_sizes(body),
         section          = section,
         section_index    = section_index,
         block_level      = block_level,
@@ -226,6 +229,7 @@ def _parse_legacy(text: str, global_front_matter: dict) -> list[Slide]:
             front_matter     = global_front_matter,
             raw              = body,
             chrome_overrides = _extract_chrome_overrides(body),
+            font_sizes       = _extract_font_sizes(body),
             block_level      = "h2",
         ))
 
@@ -281,6 +285,44 @@ def _extract_chart_blocks(text: str) -> list[ChartBlock]:
             data = {"_raw": match.group(2).strip()}
         blocks.append(ChartBlock(chart_type=chart_type, data=data))
     return blocks
+
+
+def _extract_font_sizes(text: str) -> dict:
+    """Extract per-slide font-size overrides from a <!-- font-sizes --> YAML block.
+
+    Example deck.md usage::
+
+        <!-- font-sizes -->
+        body: 13
+        headline: 18
+        label: 11
+    """
+    m = _FONT_SIZES_COMMENT.search(text)
+    if not m:
+        return {}
+    yaml_lines: list[str] = []
+    for line in text[m.end():].splitlines():
+        stripped = line.strip()
+        if not stripped:
+            if yaml_lines:
+                break
+            continue
+        if stripped.startswith("<!--") or stripped.startswith("#"):
+            if yaml_lines:
+                break
+            continue
+        if re.match(r"^[\w_-]+\s*:", stripped):
+            yaml_lines.append(stripped)
+        else:
+            if yaml_lines:
+                break
+    if not yaml_lines:
+        return {}
+    try:
+        result = yaml.safe_load("\n".join(yaml_lines)) or {}
+        return {str(k): int(v) for k, v in result.items() if v}
+    except (yaml.YAMLError, (TypeError, ValueError)):
+        return {}
 
 
 def _extract_chrome_overrides(text: str) -> dict:

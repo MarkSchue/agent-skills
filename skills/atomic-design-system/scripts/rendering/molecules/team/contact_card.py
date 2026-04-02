@@ -14,38 +14,41 @@ class ContactCard:
                  radius=ctx.rad())
 
         name  = str(props.get("name",  ""))
-        role  = str(props.get("role",  ""))
+        # job-title is canonical; role kept as backward-compat alias
+        role  = str(props.get("job-title") or props.get("role") or "")
         detail = str(props.get("detail", ""))
         email = str(props.get("email", ""))
         url   = str(props.get("url",   ""))
         phone = str(props.get("phone", ""))
-        header_align = ctx.card_header_align(props, default="left")
+        header_align = ctx.card_title_align(props, default="left")
         title_color = ctx.card_title_color(props, default_token="text-on-muted")
         subtitle_color = ctx.card_subtitle_color(props, default_token="text-secondary")
         body_color = ctx.card_body_color(props, default_token="text-secondary")
-        show_header = bool(name or role) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header = bool(name or role) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
 
-        title_h = max(28, int(h * 0.09))
-        subtitle_h = max(20, int(h * 0.06)) if role else 0
-        section_gap = max(ctx.spacing("s"), int(h * 0.016))
+        title_h     = ctx.card_title_h(w, h, props)
+        title_size  = ctx.card_title_font_size(name or role, w - pad * 2, h, props)
+        sub_sz      = max(ctx.font_size("annotation"), ctx.font_size("caption"))
+        subtitle_h  = max(int(title_h * 0.70), int(sub_sz * 1.4)) if role else 0
+        section_gap = max(ctx.spacing("s"), ctx.card_title_gap(h, props))
         content_y = y + pad
         if show_header:
             ctx.text(x + pad, content_y, w - pad * 2, title_h, name,
-                     size=ctx.font_size("heading-sub"), bold=True,
+                     size=title_size, bold=True,
                      color=title_color, align=header_align, valign="middle")
             content_y += title_h
             if role:
                 ctx.text(x + pad, content_y, w - pad * 2, subtitle_h, role,
-                         size=ctx.font_size("caption"), color=subtitle_color,
+                         size=sub_sz, color=subtitle_color,
                          align=header_align, valign="middle")
                 content_y += subtitle_h
             content_y += section_gap
 
         if show_header_line:
-            line_x, line_w = ctx.card_divider_span("header", x + pad, w - pad * 2, props)
+            line_x, line_w = ctx.card_divider_span("title", x + pad, w - pad * 2, props)
             ctx.divider(line_x, content_y, line_w,
-                        color=ctx.card_line_color("header", ctx.color("line-default"), props))
+                        color=ctx.card_line_color("title", ctx.color("line-default"), props))
             content_y += section_gap
 
         ry = content_y

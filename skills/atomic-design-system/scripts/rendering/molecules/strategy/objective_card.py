@@ -92,8 +92,8 @@ class ObjectiveCard:
         # ── Token resolution ──────────────────────────────────────────────
         title_color   = ctx.card_title_color(props, default_token="text-default")
         body_color    = ctx.card_body_color(props, default_token="text-secondary")
-        header_align  = ctx.card_header_align(props, default="left")
-        divider_color = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_align  = ctx.card_title_align(props, default="left")
+        divider_color = ctx.card_line_color("title", ctx.color("line-default"), props)
         badge_bg      = ctx.theme_var("--color-objective-badge-bg", ctx.color("primary"))
         badge_fg      = ctx.theme_var("--color-objective-badge-fg", ctx.color("on-primary"))
         bar_track     = ctx.theme_var("--color-progress-bar-track",  ctx.color("surface-variant"))
@@ -114,10 +114,10 @@ class ObjectiveCard:
         GAP_M  = max(10, int(h * 0.022))
 
         # ── Standard header ───────────────────────────────────────────────
-        show_header      = bool(title or quarter) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
-        header_h         = ctx.card_header_h(w, h, props)
-        header_gap       = ctx.card_header_gap(h, props)
+        show_header      = bool(title or quarter) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
+        header_h         = ctx.card_title_h(w, h, props)
+        header_gap       = ctx.card_title_gap(h, props)
 
         oy = y + card_pad
 
@@ -138,7 +138,7 @@ class ObjectiveCard:
             title_x = x + card_pad + badge_w + badge_gap
             title_w = max(40, inner_w - badge_w - badge_gap)
             if title:
-                title_sz = ctx.card_header_font_size(title, title_w, h, props)
+                title_sz = ctx.card_title_font_size(title, title_w, h, props)
                 ctx.text(title_x, oy, title_w, header_h, title,
                          size=title_sz, bold=True,
                          color=title_color,
@@ -146,7 +146,7 @@ class ObjectiveCard:
             oy += header_h + header_gap
 
         if show_header_line:
-            line_x, line_w = ctx.card_divider_span("header", x + card_pad, inner_w, props)
+            line_x, line_w = ctx.card_divider_span("title", x + card_pad, inner_w, props)
             ctx.divider(line_x, oy, line_w, color=divider_color)
             oy += GAP_M
 

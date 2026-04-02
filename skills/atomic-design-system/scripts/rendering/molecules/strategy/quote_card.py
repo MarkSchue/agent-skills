@@ -45,6 +45,10 @@ class QuoteCard:
             size -= 1
         return max(floor, size)
 
+    def preferred_font_sizes(self, ctx, props: dict, w: int, h: int) -> dict:
+        """Return the natural quote body size for the template pre-pass averaging."""
+        return {"body": ctx.slide_font_size("body", props)}
+
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
         PAD = ctx.card_pad_px(w, h, props)
@@ -56,7 +60,8 @@ class QuoteCard:
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
-        quote       = str(props.get("quote", ""))
+        # body: is the canonical alias; quote: kept for backward compatibility
+        quote       = str(props.get("body", "") or props.get("quote", ""))
         # Card header — consistent with all other cards: title = top heading
         card_title  = str(props.get("title", "") or props.get("heading", "")).strip()
         # Attribution block — author/name = speaker name, role/subtitle = role line
@@ -81,12 +86,12 @@ class QuoteCard:
         has_attr_block = bool(attribution or attr_name or attr_role)
 
         # ── Card header (title at top) ─────────────────────────────────────
-        show_header      = bool(card_title) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
-        div_color        = ctx.card_line_color("header", ctx.color("line-default"), props)
+        show_header      = bool(card_title) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
+        div_color        = ctx.card_line_color("title", ctx.color("line-default"), props)
 
         # Compute title_sz unconditionally — used as the quote font ceiling
-        title_sz = ctx.card_header_font_size(card_title or "X", w - PAD * 2, h, props)
+        title_sz = ctx.card_title_font_size(card_title or "X", w - PAD * 2, h, props)
 
         # Quote vertical alignment within its available zone: top | middle | bottom
         quote_valign = str(props.get("quote-valign", props.get("quote_valign", "middle"))).strip().lower()
@@ -95,15 +100,15 @@ class QuoteCard:
 
         cy = y + PAD
         if show_header:
-            header_h   = ctx.card_header_h(w, h, props)
-            header_gap = ctx.card_header_gap(h, props)
+            header_h   = ctx.card_title_h(w, h, props)
+            header_gap = ctx.card_title_gap(h, props)
             ctx.text(x + PAD, cy, w - PAD * 2, header_h,
                      card_title, size=title_sz, bold=True,
                      color=title_color,
-                     align=ctx.card_header_align(props, default="left"), valign="middle")
+                     align=ctx.card_title_align(props, default="left"), valign="middle")
             cy += header_h + header_gap
             if show_header_line:
-                lx, lw = ctx.card_divider_span("header", x + PAD, w - PAD * 2, props)
+                lx, lw = ctx.card_divider_span("title", x + PAD, w - PAD * 2, props)
                 ctx.divider(lx, cy, lw, color=div_color)
                 cy += 1 + GAP_M
 
@@ -135,15 +140,11 @@ class QuoteCard:
         quote_available_h = max(24, quote_zone_h - q_mark_h)
 
         # Ceiling = card title font size (never larger than the heading)
-        quote_max_sz = max(
-            ctx.font_size("body"),
-            min(title_sz, int(min(w - PAD * 2, quote_available_h) * 0.15))
-        )
-        quote_min_sz = ctx.font_size("caption")
-        quote_sz = self._fit_block_size(ctx, quote, w - PAD * 2, quote_available_h,
-                                        max_size=quote_max_sz,
-                                        min_size=quote_min_sz,
-                                        leading=1.28)
+        # Use the harmonized slide body font size for quote text, to avoid
+        # disjoint styling versus other cards in the same layout row.
+        slide_body_sz = ctx.slide_font_size("body", props)
+        quote_sz = slide_body_sz
+
         quote_lines = self._wrap_lines(ctx, quote, w - PAD * 2, quote_sz)
         quote_box_h = min(quote_available_h,
                           max(int(quote_sz * 1.35), int(quote_lines * quote_sz * 1.28)))
@@ -160,7 +161,7 @@ class QuoteCard:
 
         ctx.text(x + PAD, block_start, q_mark_h, q_mark_h, "\u201C",
                  size=q_mark_sz, bold=True,
-                 color=ctx.color("primary"),
+                 color=ctx.quote_mark_color(props),
                  align="left", valign="top", inner_margin=0)
 
         ctx.text(x + PAD, block_start + q_mark_h, w - PAD * 2, max(24, quote_box_h), quote,

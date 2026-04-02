@@ -23,7 +23,8 @@ class KpiCard:
         if text_align not in ("left", "center", "right"):
             text_align = "left"
 
-        label = str(props.get("label") or props.get("title") or "")
+        # title is canonical; label kept as backward-compat alias
+        label = str(props.get("title") or props.get("label") or "")
         unit  = str(props.get("unit",  ""))
         value = str(props.get("value", "—"))
         trend = resolve_trend(props.get("trend", "neutral"))
@@ -33,14 +34,14 @@ class KpiCard:
         comp  = str(props.get("comparison", "") or props.get("reference", ""))
 
         has_header = bool(label or icon_raw)
-        show_header = has_header and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header = has_header and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
         show_footer = bool(comp) and ctx.card_section_enabled(props, "footer", default=True)
         show_footer_line = show_footer and ctx.card_line_enabled(props, "footer", default=True)
         if not show_footer:
             comp = ""
 
-        header_line_color = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_line_color = ctx.card_line_color("title", ctx.color("line-default"), props)
         footer_line_color = ctx.card_line_color("footer", ctx.color("line-default"), props)
         icon_bg = ctx.icon_bg(props)
         icon_fg = ctx.icon_fg(props)
@@ -49,11 +50,11 @@ class KpiCard:
 
         pad      = ctx.card_pad_px(w, h, props)
         inner_w  = w - pad * 2
-        header_gap = ctx.card_header_gap(h, props)
+        header_gap = ctx.card_title_gap(h, props)
         icon_size = ctx.icon_size(w, h, props) if icon_raw else 0
-        header_h  = ctx.card_header_h(w, h, props)
+        header_h  = ctx.card_title_h(w, h, props)
         icon_size = min(icon_size, header_h)  # never overflow header zone onto divider
-        label_size = ctx.card_header_font_size(label or icon_raw, inner_w, h, props)
+        label_size = ctx.card_title_font_size(label or icon_raw, inner_w, h, props)
         unit_size = ctx.font_size("body")
         compact_value = "".join(c for c in value if not c.isspace())
         char_count = max(1, len(compact_value))
@@ -74,7 +75,7 @@ class KpiCard:
                 ctx.text(x + pad, header_y, max(40, text_w), header_h, label,
                          size=label_size, bold=True,
                          color=header_text_color,
-                         align=ctx.card_header_align(props, default="left"), valign="middle")
+                         align=ctx.card_title_align(props, default="left"), valign="middle")
 
             if icon_raw:
                 icon_x = x + w - pad - icon_size
@@ -87,7 +88,7 @@ class KpiCard:
             content_y = header_y + header_h + header_gap
 
         if show_header_line:
-            line_x, line_w = ctx.card_divider_span("header", x + pad, inner_w, props)
+            line_x, line_w = ctx.card_divider_span("title", x + pad, inner_w, props)
             ctx.divider(line_x, content_y, line_w, color=header_line_color)
             content_y += max(12, int(h * 0.026))
 

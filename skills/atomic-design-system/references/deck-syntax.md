@@ -134,10 +134,10 @@ takeaway: "Short bold conclusion line"
 | `takeaway` | string | — | Bold bottom line; aliases: `takeaway-line` |
 | `text_align` | enum | `left` | `left` · `center` · `right`. Center suppresses chevrons (»»). |
 | `card_bg` | enum | — | See §8 Card Background Overrides |
-| `show_header_line` | bool | `true` | Divider below title |
-| `header_line_width` | string/number | `100%` | e.g. `0.7` or `"70%"` |
-| `header_line_align` | enum | `left` | `left` · `center` · `right` |
-| `header_align` | enum | `left` | Title text alignment |
+| `show_title_line` | bool | `true` | Divider below title |
+| `title_line_width` | string/number | `100%` | e.g. `0.7` or `"70%"` |
+| `title_line_align` | enum | `left` | `left` · `center` · `right` |
+| `title_align` | enum | `left` | Title text alignment |
 
 ---
 
@@ -232,7 +232,7 @@ entries:
 | `entries[].title` | string | — | Bold entry heading |
 | `entries[].description` | string | — | 0–2 lines of body text |
 | `entries[].highlight` | bool | `false` | Marks active row (primary-container tint) |
-| `show-header` | bool | `true` | Show card header section |
+| `show-title` | bool | `true` | Show card title section |
 | `show-dividers` | bool | `true` | Separator lines between entries |
 
 ---
@@ -760,10 +760,10 @@ These keys apply to most card molecules (check individual molecule docs for supp
 |-----|------|--------|
 | `card_bg` | enum | Card surface color (see §8) |
 | `text_align` | enum | `left` · `center` · `right` — global text alignment |
-| `header_align` | enum | Title alignment only |
-| `show_header_line` | bool | Show/hide divider below card title |
-| `header_line_width` | string/number | Width of header divider (`"70%"` or `0.7`) |
-| `header_line_align` | enum | `left` · `center` · `right` |
+| `title_align` | enum | Title alignment only |
+| `show_title_line` | bool | Show/hide divider below card title |
+| `title_line_width` | string/number | Width of title divider (`"70%"` or `0.7`) |
+| `title_line_align` | enum | `left` · `center` · `right` |
 
 ---
 

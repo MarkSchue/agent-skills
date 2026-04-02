@@ -31,8 +31,8 @@ class ChartCard:
         icon_raw = str(chart_data.get("icon-name") or chart_data.get("icon") or title or chart_type)
 
         explicit_header = bool(title_raw or chart_data.get("icon-name") or chart_data.get("icon"))
-        show_header = explicit_header and ctx.card_section_enabled(chart_data, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(chart_data, "header", default=True)
+        show_header = explicit_header and ctx.card_section_enabled(chart_data, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(chart_data, "title", default=True)
         footer_text = str(chart_data.get("source") or chart_data.get("note") or "")
         show_footer = bool(footer_text) and ctx.card_section_enabled(chart_data, "footer", default=True)
         show_footer_line = show_footer and ctx.card_line_enabled(chart_data, "footer", default=True)
@@ -41,19 +41,19 @@ class ChartCard:
         icon_fg = ctx.icon_fg(chart_data)
         title_color = ctx.card_title_color(chart_data, default_token="text-on-muted")
         body_color = ctx.card_body_color(chart_data, default_token="text-secondary")
-        header_h  = ctx.card_header_h(w, h, chart_data)
-        header_gap = ctx.card_header_gap(h, chart_data)
+        header_h  = ctx.card_title_h(w, h, chart_data)
+        header_gap = ctx.card_title_gap(h, chart_data)
         content_y = y + card_pad
 
         if show_header:
             icon_size = ctx.icon_size(w, h, chart_data) if icon_raw else 0
             icon_size = min(icon_size, header_h)  # never overflow header zone onto divider
             text_w = w - card_pad * 2 - (icon_size + header_gap if icon_raw else 0)
-            title_size = ctx.card_header_font_size(title, max(40, text_w), h, chart_data)
+            title_size = ctx.card_title_font_size(title, max(40, text_w), h, chart_data)
 
             ctx.text(x + card_pad, content_y, max(40, text_w), header_h, title,
                      size=title_size, bold=True,
-                     color=title_color, align=ctx.card_header_align(chart_data, default="left"), valign="middle")
+                     color=title_color, align=ctx.card_title_align(chart_data, default="left"), valign="middle")
 
             if icon_raw:
                 icon_x = x + w - card_pad - icon_size
@@ -66,9 +66,9 @@ class ChartCard:
             content_y += header_h + header_gap
 
         if show_header_line:
-            line_x, line_w = ctx.card_divider_span("header", x + card_pad, w - card_pad * 2, chart_data)
+            line_x, line_w = ctx.card_divider_span("title", x + card_pad, w - card_pad * 2, chart_data)
             ctx.divider(line_x, content_y, line_w,
-                        color=ctx.card_line_color("header", ctx.color("line-default"), chart_data))
+                        color=ctx.card_line_color("title", ctx.color("line-default"), chart_data))
             content_y += max(12, int(h * 0.024))
 
         footer_h = ctx.card_footer_h(h, chart_data) if show_footer else 0

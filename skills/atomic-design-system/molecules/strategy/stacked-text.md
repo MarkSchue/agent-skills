@@ -91,10 +91,10 @@ params:
 | Element | CSS Class / Utility Combo | Applied Properties |
 |---------|--------------------------|-------------------|
 | Card container | `.card` | `background`, `border-color`, `border-radius` |
-| Title text | shared `--card-title-color` + `--card-header-title-align` | `color`, `alignment` |
+| Title text | shared `--card-title-color` + `--card-title-align` | `color`, `alignment` |
 | Row body | shared `--card-body-color` | `color` |
-| Divider | shared `--card-header-line-*` tokens | `display`, `color`, `alignment`, `width` |
-| Takeaway chevrons | shared `--card-header-line-color` | `color` |
+| Divider | shared `--card-title-line-*` tokens | `display`, `color`, `alignment`, `width` |
+| Takeaway chevrons | shared `--card-title-line-color` | `color` |
 | Takeaway text | shared `--card-title-color` | `color` |
 
 ````

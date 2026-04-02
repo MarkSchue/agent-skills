@@ -38,31 +38,31 @@ class DataInsightPanel:
         text_align   = str(props.get("text-align") or props.get("text_align") or "left").strip().lower()
         if text_align not in ("left", "center", "right"):
             text_align = "left"
-        header_align = ctx.card_header_align(props, default=text_align)
+        header_align = ctx.card_title_align(props, default=text_align)
 
         title_color  = ctx.card_title_color(props, default_token="text-default")
         body_color   = ctx.card_body_color(props, default_token="text-secondary")
         bullet_color = ctx.color("primary")
-        show_header = bool(title) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header = bool(title) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
         show_footer = bool(timeframe) and ctx.card_section_enabled(props, "footer", default=True)
         show_footer_line = show_footer and ctx.card_line_enabled(props, "footer", default=True)
 
-        title_h = ctx.card_header_h(w, h, props)
-        section_gap = ctx.card_header_gap(h, props)
+        title_h = ctx.card_title_h(w, h, props)
+        section_gap = ctx.card_title_gap(h, props)
 
         content_top = y + pad
         if show_header:
-            title_sz = ctx.card_header_font_size(title, w - pad * 2, h, props)
+            title_sz = ctx.card_title_font_size(title, w - pad * 2, h, props)
             ctx.text(x + pad, content_top, w - pad * 2, title_h, title,
                      size=title_sz, bold=True,
                      color=title_color, align=header_align, valign="middle")
             content_top += title_h + section_gap
 
         if show_header_line:
-            line_x, line_w = ctx.card_divider_span("header", x + pad, w - pad * 2, props)
+            line_x, line_w = ctx.card_divider_span("title", x + pad, w - pad * 2, props)
             ctx.divider(line_x, content_top, line_w,
-                        color=ctx.card_line_color("header", ctx.color("line-default"), props))
+                        color=ctx.card_line_color("title", ctx.color("line-default"), props))
             content_top += section_gap
 
         footer_h      = ctx.card_footer_h(h, props) if show_footer else 0

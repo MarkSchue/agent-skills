@@ -85,12 +85,12 @@ class ColumnConclusionCard:
         inner_w    = w - pad * 2
         title      = str(props.get("title", ""))
 
-        show_header      = bool(title) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(title) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
 
         title_color   = ctx.card_title_color(props, default_token="text-default")
-        header_align  = ctx.card_header_align(props, default="left")
-        div_color     = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_align  = ctx.card_title_align(props, default="left")
+        div_color     = ctx.card_line_color("title", ctx.color("line-default"), props)
         bg_color      = ctx.card_bg_color(props, "bg-card")
 
         # ── Card frame ────────────────────────────────────────────────────
@@ -107,15 +107,15 @@ class ColumnConclusionCard:
 
         # ── Optional title header ─────────────────────────────────────────
         if show_header:
-            header_h   = ctx.card_header_h(w, h, props)
-            header_gap = ctx.card_header_gap(h, props)
-            title_size = ctx.card_header_font_size(title, inner_w, h, props)
+            header_h   = ctx.card_title_h(w, h, props)
+            header_gap = ctx.card_title_gap(h, props)
+            title_size = ctx.card_title_font_size(title, inner_w, h, props)
             ctx.text(x + pad, cy, inner_w, header_h,
                      title, size=title_size, bold=True,
                      color=title_color, align=header_align, valign="middle")
             cy += header_h + header_gap
             if show_header_line:
-                lx, lw = ctx.card_divider_span("header", x + pad, inner_w, props)
+                lx, lw = ctx.card_divider_span("title", x + pad, inner_w, props)
                 ctx.divider(lx, cy, lw, color=div_color)
                 cy += 1 + GAP_S
 
@@ -125,14 +125,15 @@ class ColumnConclusionCard:
         content_h      = max(20, content_bottom - content_top)
 
         # ── Conclusion zone allocation ────────────────────────────────────
-        conclusion     = str(props.get("conclusion", "")).strip()
+        # takeaway is canonical; conclusion is kept as backward-compat alias
+        conclusion     = str(props.get("takeaway") or props.get("conclusion") or "").strip()
         show_conc_div  = str(props.get("show-divider", "true")).lower() != "false"
         show_chevron   = (str(props.get("show-chevron", "true")).lower() != "false"
                           and bool(conclusion))
 
         conc_zone_h = 0
         if conclusion:
-            conc_sz    = ctx.font_size("body")
+            conc_sz    = ctx.slide_font_size("body", props)
             raw_csz    = props.get("conclusion-size", "")
             if raw_csz:
                 try:
@@ -191,7 +192,7 @@ class ColumnConclusionCard:
         global_icon_color = self._rc(ctx, str(props.get("icon-color",   "")), "on-surface-variant")
 
         headline_sz = max(10, min(22, int(col_w * 0.10 + 4)))
-        body_sz     = ctx.font_size("body")
+        body_sz     = ctx.slide_font_size("body", props)
 
         # Auto value size: number only — unit is rendered as a separate smaller label below
         auto_val_sz = max(16, min(28, int(min(col_w * 0.24, col_zone_h * 0.18))))
@@ -318,7 +319,7 @@ class ColumnConclusionCard:
                 conc_align = "center"
 
             raw_csz = props.get("conclusion-size", "")
-            conc_sz = ctx.font_size("body")
+            conc_sz = ctx.slide_font_size("body", props)
             if raw_csz:
                 try:
                     conc_sz = max(8, int(raw_csz))

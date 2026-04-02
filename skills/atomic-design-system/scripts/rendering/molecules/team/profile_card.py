@@ -14,7 +14,8 @@ class ProfileCard:
                  radius=ctx.rad())
 
         name       = str(props.get("name",       ""))
-        title_text = str(props.get("title",      ""))
+        # job-title is canonical; title kept as backward-compat alias
+        title_text = str(props.get("job-title") or props.get("title") or "")
         dept       = str(props.get("department", ""))
         bio        = str(props.get("bio",        ""))
         email      = str(props.get("email",      ""))
@@ -41,13 +42,14 @@ class ProfileCard:
         # expressive (radius-large >= 20, e.g. Material) → circular
         # geometric  (radius-large <  20, e.g. Carbon)   → rounded-square photo frame
         _av_r = ctx.rad("radius-large")
+        av_bg = ctx.avatar_bg(props)
         if _av_r >= 20:
             ctx.ellipse(x + w // 2 - av_r, start_y, av_d, av_d,
-                        fill=ctx.color("primary"),
+                        fill=av_bg,
                         stroke=ctx.color("surface"))
         else:
             ctx.rect(x + w // 2 - av_r, start_y, av_d, av_d,
-                     fill=ctx.color("primary"),
+                     fill=av_bg,
                      stroke=ctx.color("surface"), radius=_av_r)
 
         ty = start_y + av_d + gap

@@ -17,8 +17,9 @@ class TrendCard:
                  stroke=ctx.color("border-default"),
                  radius=ctx.rad())
 
-        label_text = str(props.get("label") or "")
-        title_text = str(label_text or props.get("title") or props.get("unit") or "")
+        # title is canonical; label kept as backward-compat alias
+        label_text = str(props.get("title") or props.get("label") or "")
+        title_text = str(label_text or props.get("unit") or "")
         unit       = str(props.get("unit",   ""))
         value      = str(props.get("value",  "—"))
         change     = str(props.get("change", ""))
@@ -32,31 +33,31 @@ class TrendCard:
         card_pad = ctx.card_pad_px(w, h, props)
 
         # ── Card header (matches ChartCard pattern) ──────────────────────────
-        show_header      = bool(title_text) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(title_text) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
         title_color      = ctx.card_title_color(props, default_token="text-default")
         body_color       = ctx.card_body_color(props, default_token="text-secondary")
 
         # Centralized header helpers — consistent with all other card molecules.
-        header_h   = ctx.card_header_h(w, h, props)
-        header_gap = ctx.card_header_gap(h, props)
+        header_h   = ctx.card_title_h(w, h, props)
+        header_gap = ctx.card_title_gap(h, props)
         content_y  = y + card_pad
 
         if show_header:
-            title_size = ctx.card_header_font_size(title_text, w - card_pad * 2, h, props)
+            title_size = ctx.card_title_font_size(title_text, w - card_pad * 2, h, props)
             ctx.text(x + card_pad, content_y, w - card_pad * 2, header_h,
                      title_text,
                      size=title_size, bold=True,
                      color=title_color,
-                     align=ctx.card_header_align(props, default="left"),
+                     align=ctx.card_title_align(props, default="left"),
                      valign="middle", inner_margin=0)
             content_y += header_h + header_gap
 
         if show_header_line:
-            line_x, line_w = ctx.card_divider_span("header", x + card_pad,
+            line_x, line_w = ctx.card_divider_span("title", x + card_pad,
                                                     w - card_pad * 2, props)
             ctx.divider(line_x, content_y,
-                        line_w, color=ctx.card_line_color("header",
+                        line_w, color=ctx.card_line_color("title",
                                                           ctx.color("line-default"), props))
             content_y += max(12, int(h * 0.024))
 

@@ -56,7 +56,7 @@ max_atoms: 9
 | Parameter | Type | Description |
 |---|---|---|
 | `columns` | list | List of data items. |
-| `members` | string | Value from props. |
+| `items` | list | List of member objects. **Canonical.** Alias: `members`. |
 | `title` | string | Text string. |
 ## Example
 
@@ -64,11 +64,11 @@ max_atoms: 9
 molecule: team-grid-panel
 params:
   title: "Leadership Team"
-  members:
-    - name: "Anna Müller"; title: "CTO"; department: "Engineering"
-    - name: "Jonas Weber"; title: "CFO"; department: "Finance"
-    - name: "Lena Braun"; title: "CMO"; department: "Marketing"
-    - name: "Felix Koch";  title: "COO"; department: "Operations"
+  items:                            # canonical (alias: members)
+    - name: "Anna Müller"; job-title: "CTO"; department: "Engineering"  # job-title canonical (alias: title)
+    - name: "Jonas Weber"; job-title: "CFO"; department: "Finance"
+    - name: "Lena Braun"; job-title: "CMO"; department: "Marketing"
+    - name: "Felix Koch";  job-title: "COO"; department: "Operations"
 ```
 
 ## CSS Class Map

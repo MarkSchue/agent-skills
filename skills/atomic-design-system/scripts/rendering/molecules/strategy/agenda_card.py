@@ -50,7 +50,8 @@ _ICON_TILE_RATIO = 0.65
 
 def _parse_entries(props: dict) -> list[dict]:
     """Extract and normalise the ``entries`` list from props."""
-    raw = props.get("entries") or props.get("items") or []
+    # items is canonical; entries kept as backward-compat alias
+    raw = props.get("items") or props.get("entries") or []
     result: list[dict] = []
     if isinstance(raw, list):
         for item in raw:
@@ -97,23 +98,23 @@ class AgendaCard:
         # ── 3. Standard card geometry helpers (with props override chain) ─────
         pad        = ctx.card_pad_px(w, h, props)
         inner_w    = w - pad * 2
-        header_gap = ctx.card_header_gap(h, props)
+        header_gap = ctx.card_title_gap(h, props)
 
         # ── 4. Header section ─────────────────────────────────────────────────
         card_title  = str(props.get("title",  "") or "").strip()
         icon_raw    = str(props.get("icon",   "") or
                           props.get("icon-name", "") or "").strip()
         show_header = bool(card_title or icon_raw) and \
-                      ctx.card_section_enabled(props, "header", default=True)
+                      ctx.card_section_enabled(props, "title", default=True)
         show_hline  = show_header and \
-                      ctx.card_line_enabled(props, "header", default=True)
+                      ctx.card_line_enabled(props, "title", default=True)
 
         title_color = ctx.card_title_color(props, default_token="text-default")
-        hline_color = ctx.card_line_color("header", ctx.color("line-default"), props)
+        hline_color = ctx.card_line_color("title", ctx.color("line-default"), props)
         icon_bg     = ctx.icon_bg(props)
         icon_fg     = ctx.icon_fg(props)
 
-        header_h  = ctx.card_header_h(w, h, props)
+        header_h  = ctx.card_title_h(w, h, props)
         icon_sz   = ctx.icon_size(w, h, props) if icon_raw else 0
         icon_sz   = min(icon_sz, header_h)
         icon_r    = ctx.icon_radius(icon_sz, props) if icon_raw else 0
@@ -122,14 +123,14 @@ class AgendaCard:
 
         if show_header:
             text_w     = inner_w - (icon_sz + header_gap if icon_raw else 0)
-            title_sz   = ctx.card_header_font_size(card_title, max(40, text_w), h, props)
+            title_sz   = ctx.card_title_font_size(card_title, max(40, text_w), h, props)
             if card_title:
                 ctx.text(
                     x + pad, current_y, max(40, text_w), header_h,
                     card_title,
                     size=title_sz, bold=True,
                     color=title_color,
-                    align=ctx.card_header_align(props, default="left"),
+                    align=ctx.card_title_align(props, default="left"),
                     valign="middle",
                 )
             if icon_raw:
@@ -141,7 +142,7 @@ class AgendaCard:
             current_y += header_h + header_gap
 
         if show_hline:
-            hline_x, hline_w = ctx.card_divider_span("header", x + pad, inner_w, props)
+            hline_x, hline_w = ctx.card_divider_span("title", x + pad, inner_w, props)
             ctx.divider(hline_x, current_y, hline_w, color=hline_color)
             current_y += max(8, int(h * 0.018))
 
@@ -182,7 +183,7 @@ class AgendaCard:
                                              props.get("show_dividers", True)), True)
         _div_color  = (str(props.get("divider-color") or
                            props.get("divider_color") or "").strip()
-                       or ctx.card_line_color("header", ctx.color("line-default"), props))
+                       or ctx.card_line_color("title", ctx.color("line-default"), props))
         # ── Agenda color resolution (props → CSS token → semantic fallback) ─
         def _agenda_color(prop_keys: list, css_token: str, fallback: str) -> str:
             for k in prop_keys:
@@ -221,9 +222,10 @@ class AgendaCard:
                     entry.get("label_type") or entry.get("label-type") or "number"
                 ).strip().lower(),
                 label=str(entry.get("label", "") or ""),
-                title=str(entry.get("title", "") or ""),
-                description=str(entry.get("description", "") or
-                                entry.get("body", "") or ""),
+                # headline is canonical; title kept as alias
+                # body is canonical; description kept as alias
+                title=str(entry.get("headline") or entry.get("title") or ""),
+                description=str(entry.get("body") or entry.get("description") or ""),
                 highlight=bool(entry.get("highlight", False)),
                 show_divider=show_divs and not first_entry,
                 # Pass resolved colour defaults — atom uses them when no override

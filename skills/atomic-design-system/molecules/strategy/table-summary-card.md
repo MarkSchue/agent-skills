@@ -57,7 +57,7 @@ and a slightly highlighted background.
 | `kpi-value-size` | int(px)/size token | Size/spacing value (px or token). |
 | `kpis` | string | Value from props. |
 | `layout` | string | Value from props. |
-| `show_header_line/show-header-line` | string | Value from props. |
+| `show_title_line/show-title-line` | string | Value from props. |
 | `title` | string | Text string. |
 ## Examples
 

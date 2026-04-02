@@ -19,8 +19,8 @@ class HeaderListCard:
         av_cy   = y + strip_h // 2
         header_name   = str(props.get("header-name",   ""))
         header_detail = str(props.get("header-detail", ""))
-        show_header = bool(header_name or header_detail) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header = bool(header_name or header_detail) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
 
         txt_x = av_cx + av_r + pad
         txt_w = w - (txt_x - x) - pad
@@ -29,7 +29,7 @@ class HeaderListCard:
         if show_header:
             ctx.ellipse(av_cx - av_r, av_cy - av_r,
                         av_r * 2, av_r * 2,
-                        fill=ctx.color("primary"),
+                        fill=ctx.avatar_bg(props),
                         stroke=ctx.color("surface"))
 
             name_sz   = ctx.font_size("label")
@@ -49,7 +49,7 @@ class HeaderListCard:
 
         if show_header_line:
             ctx.divider(x + pad, y + strip_h, w - pad * 2,
-                        color=ctx.card_line_color("header", ctx.color("line-default"), props))
+                        color=ctx.card_line_color("title", ctx.color("line-default"), props))
 
         sec_lbl   = str(props.get("section-label", ""))
         sec_lbl_y = content_top
@@ -88,9 +88,11 @@ class HeaderListCard:
                      stroke=ctx.color("border-subtle"),
                      radius=ctx.rad())
 
-            item_label  = str(appt.get("item-label",  ""))
-            item_title  = str(appt.get("item-title",  ""))
-            item_detail = str(appt.get("item-detail", ""))
+            item_label  = str(appt.get("item-label",  "") or appt.get("label", ""))
+            # job-title is canonical; item-title kept as backward-compat alias
+            item_title  = str(appt.get("job-title") or appt.get("item-title") or appt.get("headline") or "")
+            # body is canonical; item-detail kept as backward-compat alias
+            item_detail = str(appt.get("body") or appt.get("item-detail") or "")
 
             # row 1 — label
             ctx.text(pcx + IPAD, pc_y + IPAD, pc_w - IPAD * 2, lbl_h, item_label,

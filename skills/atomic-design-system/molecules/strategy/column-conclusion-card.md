@@ -35,7 +35,7 @@ Use it for key-number summaries, section recaps, or before/after comparisons.
 | `col_valign/col-valign` | enum | Alignment enum (left/center/right or top/middle/bottom). |
 | `column-gap` | int(px)/size token | Size/spacing value (px or token). |
 | `columns` | list | List of data items. |
-| `conclusion` | string | Text string. |
+| `takeaway` | string | Full-width summary text below the columns. **Canonical.** Alias: `conclusion`. |
 | `conclusion-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
 | `conclusion-bold` | string | Value from props. |
 | `conclusion-color` | color-token | Color token name (theme color). |
@@ -56,7 +56,7 @@ molecule: column-conclusion-card
 title: Results at a Glance
 text-align: center
 value-color: primary
-conclusion: Together these improvements deliver a step-change in customer satisfaction and operational efficiency.
+takeaway: Together these improvements deliver a step-change in customer satisfaction and operational efficiency.
 show-chevron: true
 columns:
   - icon: star
@@ -83,7 +83,7 @@ columns:
 molecule: column-conclusion-card
 text-align: left
 show-chevron: false
-conclusion: Addressing the gap in SMB onboarding unlocks the largest near-term growth lever.
+takeaway: Addressing the gap in SMB onboarding unlocks the largest near-term growth lever.
 conclusion-align: center
 columns:
   - value: "62"

@@ -243,20 +243,20 @@ class UserStoryCard:
         status_text  = str(props.get("status", "")).strip()
 
         show_header  = bool(story_id or title)
-        show_header  = show_header and ctx.card_section_enabled(props, "header", default=True)
-        show_hdr_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header  = show_header and ctx.card_section_enabled(props, "title", default=True)
+        show_hdr_line = show_header and ctx.card_line_enabled(props, "title", default=True)
 
         id_fill      = self._rc(ctx, str(props.get("id-fill",       "")), "primary")
         id_tc        = self._rc(ctx, str(props.get("id-text-color",  "")), "on-primary")
         st_fill      = self._rc(ctx, str(props.get("status-fill",    "")), "secondary")
         st_tc        = self._rc(ctx, str(props.get("status-text-color", "")), "on-secondary")
-        hdr_div_c    = ctx.card_line_color("header", ctx.color("line-default"), props)
+        hdr_div_c    = ctx.card_line_color("title", ctx.color("line-default"), props)
 
         cy = y + pad
 
         if show_header:
-            header_h   = ctx.card_header_h(w, h, props)
-            header_gap = ctx.card_header_gap(h, props)
+            header_h   = ctx.card_title_h(w, h, props)
+            header_gap = ctx.card_title_gap(h, props)
 
             id_badge_h = max(20, int(header_h * 0.80))
             id_sz      = max(9,  min(13, int(id_badge_h * 0.52)))
@@ -291,7 +291,7 @@ class UserStoryCard:
                 title_w = max(20, inner_w
                                - (id_badge_w + GAP_S if story_id else 0)
                                - (st_badge_w + GAP_S if status_text else 0))
-                title_sz = ctx.card_header_font_size(title, title_w, h, props)
+                title_sz = ctx.card_title_font_size(title, title_w, h, props)
                 title_color = ctx.card_title_color(props, default_token="text-default")
                 ctx.text(title_x, cy, title_w, header_h,
                          title,
@@ -304,7 +304,7 @@ class UserStoryCard:
 
             cy += header_h + header_gap
             if show_hdr_line:
-                lx, lw = ctx.card_divider_span("header", x + pad, inner_w, props)
+                lx, lw = ctx.card_divider_span("title", x + pad, inner_w, props)
                 ctx.divider(lx, cy, lw, color=hdr_div_c)
                 cy += 1 + GAP_S
 

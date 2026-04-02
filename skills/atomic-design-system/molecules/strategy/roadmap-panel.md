@@ -59,7 +59,7 @@ max_atoms: 12
 | `item-color` | color-token | Color token name (theme color). |
 | `label-color` | color-token | Color token name (theme color). |
 | `lane-gap` | int(px)/size token | Size/spacing value (px or token). |
-| `lanes` | list | List of data items. |
+| `items` | list | List of lane objects. **Canonical.** Alias: `lanes`. Each lane has `label` (header) and `items[]` (inner items). |
 | `line-color` | color-token | Color token name (theme color). |
 | `text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
 | `title` | string | Text string. |
@@ -69,24 +69,24 @@ max_atoms: 12
 molecule: roadmap-panel
 params:
   title: "Product Roadmap 2025"
-  lanes:
+  items:                            # canonical (alias: lanes)
     - label: "Now"
       items:
-        - text: "Mobile App v2.0"
-          description: "iOS + Android release"
+        - headline: "Mobile App v2.0"  # item text — alias: text
+          body: "iOS + Android release"  # alias: description
           status: primary
     - label: "Next"
       items:
-        - text: "API v3"
-          description: "GraphQL support"
+        - headline: "API v3"
+          body: "GraphQL support"
           status: neutral
-        - text: "SSO Integration"
-          description: "SAML 2.0"
+        - headline: "SSO Integration"
+          body: "SAML 2.0"
           status: neutral
     - label: "Later"
       items:
-        - text: "AI Insights"
-          description: "Predictive analytics"
+        - headline: "AI Insights"
+          body: "Predictive analytics"
           status: neutral
 ```
 

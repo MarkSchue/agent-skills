@@ -153,6 +153,12 @@
   --color-line-strong:          var(--color-on-surface-variant);   /* stronger rules                */
   --color-line-accent:          var(--color-primary);              /* accent bars / lines           */
 
+  /* Generic card section tokens */
+  --card-title-color:           var(--color-text-default);         /* shared card title color       */
+  --card-body-color:            var(--color-text-secondary);       /* shared card body color        */
+  --card-subtitle-color:        var(--color-text-secondary);       /* shared card subtitle/meta     */
+  --card-footer-color:          var(--color-text-secondary);       /* shared footer text color      */
+
   /* ── Icon badges ─────────────────────────────────────────────────────── */
   /* Canonical icon-badge tokens used across chart-card, kpi-card,         */
   /* mission-card, stats-chart-panel and icon-title-header.                */
@@ -162,13 +168,13 @@
   --color-icon-stroke:   var(--color-border-default);     /* badge border/outline color                */
   --icon-size:           48;   /* default badge size in px (unitless; Python clamps to card dims)      */
   --icon-radius:         8;    /* badge corner radius in px (unitless; 0 = square)                     */
-  --card-header-icon-align:     right;                    /* icon position in card header — left|right */
-  --color-card-header-icon-bg:  var(--color-icon-bg);     /* ← alias → --color-icon-bg                 */
-  --color-card-header-icon-fg:  var(--color-icon-fg);     /* ← alias → --color-icon-fg                 */
+  --card-title-icon-align:     right;                    /* icon position in card header — left|right */
+  --color-card-title-icon-bg:  var(--color-icon-bg);     /* ← alias → --color-icon-bg                 */
+  --color-card-title-icon-fg:  var(--color-icon-fg);     /* ← alias → --color-icon-fg                 */
 
   /* KPI card component tokens */
-  --kpi-card-header-line-display: 0;                               /* Liquid Glass keeps the header clean */
-  --kpi-card-header-line-color:   var(--color-line-default);       /* title divider color                */
+  --kpi-card-title-line-display: 0;                               /* Liquid Glass keeps the header clean */
+  --kpi-card-title-line-color:   var(--color-line-default);       /* title divider color                */
   --color-kpi-icon-bg:            var(--color-icon-bg);   /* ← alias → --color-icon-bg                 */
   --color-kpi-icon-fg:            var(--color-icon-fg);   /* ← alias → --color-icon-fg                 */
   /* Objective card component tokens */
@@ -395,11 +401,22 @@
 
 .card__avatar      { background: var(--color-primary); border-radius: var(--radius-large); }
 .card__header-strip { background: var(--color-primary); color: var(--color-on-primary); font-size: var(--font-label-size); }
-.card__icon-badge  { background: var(--color-primary); color: var(--color-on-primary); border-radius: var(--radius-sharp); }
+.card__icon-badge  { background: var(--color-icon-bg); color: var(--color-icon-fg); border-radius: var(--icon-radius); }
 .card__quote-mark  { color: var(--color-primary); font-size: 28; }
 
+/* ─── Common card sub-element classes — semantic color + typography ─────────
+   These parallel ctx.card_title_color() / ctx.card_body_color() / … helpers.
+   A theme designer can override any sub-element here without touching :root. */
 
-/* ─── Molecule sub-element reference (u-* composition) — see materialdesign3/theme.css ─────── */
+.card__title   { color: var(--card-title-color); font-weight: var(--font-label-weight); }
+.card__body    { color: var(--card-body-color); }
+.card__label   { color: var(--color-text-secondary); font-size: var(--font-label-size); font-weight: var(--font-label-weight); }
+.card__value   { color: var(--color-text-highlight); font-weight: bold; }
+.card__footer  { color: var(--card-footer-color); font-size: var(--font-caption-size); }
+.card__divider { border-color: var(--color-line-default); }
+
+
+/* ─── Molecule sub-element reference (u-* composition) — see materialdesign3/theme.css ─────── */ */
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -414,5 +431,10 @@
    dot-line            __dot → u-radius-full                 │ __line → u-border-subtle
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* waveform__bar — non-standard micro radius (1px) kept as component rule */
-.waveform__bar { border-radius: 1; }
+/* ── Component utility rules (non-token) ────────────────────────────────── */
+/* waveform__bar: only needed by waveform-card atom (see atoms/chart/waveform.md) */
+.waveform__bar { border-radius: 1px; }
+
+/* waveform-card mapping:
+   __title → u-text-on-primary-container u-type-annotation
+   __bar   → u-bg-primary-container */

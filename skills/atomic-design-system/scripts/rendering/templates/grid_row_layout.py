@@ -24,7 +24,7 @@ class GridRowLayout:
     def render(self, ctx, slide: "Slide", blocks: list,
                margin: int, content_y: int, content_h: int,
                width: int, height: int, dispatch_fn) -> None:
-        from slide_helpers import _blocks_from_body  # type: ignore[import]
+        from slide_helpers import _blocks_from_body, _compute_ref_sizes  # type: ignore[import]
 
         if not blocks:
             blocks = _blocks_from_body(slide)
@@ -44,7 +44,10 @@ class GridRowLayout:
 
         cell_w = (cw - gap * (cols - 1)) // cols
         cell_h = (ch_avail - gap * (rows - 1)) // rows
+        card_rw = max(1, cell_w - 2 * blk_pad)
+        card_rh = max(1, cell_h - 2 * blk_pad)
 
+        ctx.ref_sizes = _compute_ref_sizes(ctx, blocks[:cols * rows], slide, card_rw, card_rh)
         ctx.ref_h = cell_h  # harmonise sizing — all cells equal height, scale to cell
         for idx, block in enumerate(blocks[:cols * rows]):
             row_i = idx // cols
@@ -73,3 +76,4 @@ class GridRowLayout:
                         rx, ry, rw, rh, slide, idx)
 
         ctx.ref_h = None  # clear slide reference height
+        ctx.ref_sizes = {}  # clear slide font size harmonization

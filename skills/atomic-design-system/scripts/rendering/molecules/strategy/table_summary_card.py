@@ -331,14 +331,14 @@ class TableSummaryCard:
         # ── Table-companion mode ──────────────────────────────────────────
         table_mode = self._bool_prop(props, "table-mode", False)
 
-        show_header      = bool(title) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
-        explicit_header_line = ctx._prop_value(props, "show_header_line", "show-header-line")
+        show_header      = bool(title) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
+        explicit_header_line = ctx._prop_value(props, "show_title_line", "show-title-line")
         if table_mode and explicit_header_line is None:
             show_header_line = False
         title_color      = ctx.card_title_color(props, default_token="text-default")
-        header_align     = ctx.card_header_align(props, default="left")
-        hdr_div_c        = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_align     = ctx.card_title_align(props, default="left")
+        hdr_div_c        = ctx.card_line_color("title", ctx.color("line-default"), props)
 
         accent_color_raw = str(props.get("accent-color", "")).strip()
         accent_color     = self._rc(ctx, accent_color_raw, "primary")
@@ -381,15 +381,15 @@ class TableSummaryCard:
 
         # ── Optional title header ─────────────────────────────────────────
         if show_header:
-            hh   = ctx.card_header_h(w, h, props)
-            hgap = ctx.card_header_gap(h, props)
-            tsz  = ctx.card_header_font_size(title, inner_w, h, props)
+            hh   = ctx.card_title_h(w, h, props)
+            hgap = ctx.card_title_gap(h, props)
+            tsz  = ctx.card_title_font_size(title, inner_w, h, props)
             ctx.text(x + pad, cy, inner_w, hh,
                      title, size=tsz, bold=True,
                      color=title_color, align=header_align, valign="middle")
             cy += hh + hgap
             if show_header_line:
-                lx, lw = ctx.card_divider_span("header", x + pad, inner_w, props)
+                lx, lw = ctx.card_divider_span("title", x + pad, inner_w, props)
                 ctx.divider(lx, cy, lw, color=hdr_div_c)
                 cy += 1 + GAP_S
 
@@ -415,9 +415,9 @@ class TableSummaryCard:
 
         info_text_sz_raw = props.get("info-text-size", "")
         try:
-            info_text_sz = max(8, int(info_text_sz_raw)) if str(info_text_sz_raw).strip() else ctx.font_size("body")
+            info_text_sz = max(8, int(info_text_sz_raw)) if str(info_text_sz_raw).strip() else ctx.slide_font_size("body", props)
         except (ValueError, TypeError):
-            info_text_sz = ctx.font_size("body")
+            info_text_sz = ctx.slide_font_size("body", props)
 
         cell_pad = GAP_S
 
@@ -485,7 +485,7 @@ class TableSummaryCard:
 
             if has_kpis and has_info:
                 div_y = content_top + kpi_zone_h + GAP_XS
-                lx, lw = ctx.card_divider_span("header", x + pad, inner_w, props)
+                lx, lw = ctx.card_divider_span("title", x + pad, inner_w, props)
                 ctx.divider(lx, div_y, lw,
                             color=accent_color if table_mode else hdr_div_c)
 

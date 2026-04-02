@@ -57,7 +57,7 @@ sections, or phase overviews.
 | `number-size` | int(px)/size token | Size/spacing value (px or token). |
 | `number-type` | string | Value from props. |
 | `show-accent-line` | string | Value from props. |
-| `steps` | string | List of data items. |
+| `items` | list | List of step objects. **Canonical.** Alias: `steps`. |
 | `text_align/text-align` | enum | Alignment enum (left/center/right or top/middle/bottom). |
 | `text_valign/text-valign` | enum | Alignment enum (left/center/right or top/middle/bottom). |
 | `title` | string | Text string. |
@@ -75,7 +75,7 @@ sections, or phase overviews.
 molecule: step-card
 number-type: number
 active-step: 3
-steps:
+items:
   - headline: "Headline\nzwei Zeilen"
     body: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt sadipscing elitr"
   - headline: "Headline\nzwei Zeilen"
@@ -89,7 +89,7 @@ steps:
 ```yaml
 molecule: step-card
 number-type: text
-steps:
+items:
   - number: "A"
     headline: "Discover"
     body: "Identify requirements and stakeholders."
@@ -114,7 +114,7 @@ steps:
 molecule: step-card
 number-type: icon
 active-step: 2
-steps:
+items:
   - icon: "🔍"
     headline: "Assess"
     body: "Current state analysis"

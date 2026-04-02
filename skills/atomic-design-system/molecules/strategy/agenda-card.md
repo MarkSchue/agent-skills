@@ -58,10 +58,10 @@ Uses the standard card token vocabulary. See `references/token-reference.md §Ca
 | Parameter | Type | Description |
 |---|---|---|
 | `divider_color/divider-color` | color-token | Color token name (theme color). |
-| `entries` | string | Value from props. |
+| `entries` | list | Alias for `items`. |
 | `icon` | string | Value from props. |
 | `icon-name` | string | Value from props. |
-| `items` | list | List of data items. |
+| `items` | list | List of agenda entry objects. **Canonical.** Alias: `entries`. |
 | `label_width/label-width` | int(px)/size token | Size/spacing value (px or token). |
 | `row-height` | int(px)/size token | Size/spacing value (px or token). |
 | `show_dividers/show-dividers` | string | Boolean toggle (true/false). |
@@ -96,9 +96,9 @@ row-height: 0                      # px override for each row height (0 = auto)
 
 # ── Standard card overrides (see token-reference.md) ──
 card-padding: 0                    # 0 = auto
-card-header-height: 0
-show-header: true
-show-header-line: true
+card-title-height: 0
+show-title: true
+show-title-line: true
 header-line-color: ""
 card_bg: ""                        # filled | clean | alt | featured
 title-color: ""

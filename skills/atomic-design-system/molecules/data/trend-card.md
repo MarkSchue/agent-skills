@@ -67,7 +67,7 @@ max_atoms: 4
 ```yaml
 molecule: trend-card
 params:
-  label: "Weekly Active Users"
+  title: "Weekly Active Users"  # canonical (alias: label)
   value: "142K"
   change: "+7%"
   trend: up

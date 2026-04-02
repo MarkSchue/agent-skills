@@ -70,7 +70,7 @@ max_atoms: 4
 ```yaml
 molecule: kpi-card
 params:
-  label: "Annual Recurring Revenue"
+  title: "Annual Recurring Revenue"  # canonical (alias: label)
   value: "€12.4M"
   change: "+18%"
   trend: up

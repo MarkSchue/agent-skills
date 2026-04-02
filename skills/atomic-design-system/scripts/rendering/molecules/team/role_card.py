@@ -21,6 +21,26 @@ class RoleCard:
                 items.append(text)
         return items
 
+    def preferred_font_sizes(self, ctx, props: dict, w: int, h: int) -> dict:
+        """Return the natural bullet size for the template pre-pass averaging."""
+        resps = self._normalize_items(props.get("responsibilities", []) or [])
+        if not resps:
+            return {}
+        pad = ctx.card_pad_px(w, h, props)
+        title = str(props.get("title", "")).strip()
+        level = str(props.get("level", "")).strip()
+        has_header = bool(title or level)
+        header_h = ctx.card_title_h(w, h, props) if has_header else 0
+        header_gap = ctx.card_title_gap(h, props) if has_header else 0
+        list_h = max(0, h - pad * 2 - header_h - header_gap)
+        item_count = max(1, len(resps))
+        target_item_h = max(24, list_h // item_count)
+        bullet_size = max(
+            ctx.font_size("body"),
+            min(ctx.font_size("heading-sub"), int(target_item_h * 0.65))
+        )
+        return {"body": bullet_size}
+
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
         pad = ctx.card_pad_px(w, h, props)
@@ -45,22 +65,22 @@ class RoleCard:
         subtitle_color = ctx.card_subtitle_color(props, default_token="text-secondary")
         body_color    = ctx.card_body_color(props, default_token="text-secondary")
 
-        show_header      = bool(title or level) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(title or level) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
 
-        header_h   = ctx.card_header_h(w, h, props)
-        header_gap = ctx.card_header_gap(h, props)
+        header_h   = ctx.card_title_h(w, h, props)
+        header_gap = ctx.card_title_gap(h, props)
         content_y  = y + pad
 
         # ── Header: title row + level badge on its own row ───────────────────
         if show_header:
             # Title row
-            title_size = ctx.card_header_font_size(title, inner_w, h, props)
+            title_size = ctx.card_title_font_size(title, inner_w, h, props)
             if title:
                 ctx.text(x + pad, content_y, inner_w, header_h, title,
                          size=title_size, bold=True,
                          color=title_color,
-                         align=ctx.card_header_align(props, default="left"),
+                         align=ctx.card_title_align(props, default="left"),
                          valign="middle", inner_margin=0)
             content_y += header_h
 
@@ -90,9 +110,9 @@ class RoleCard:
             content_y += header_gap
 
         if show_header_line:
-            line_x, line_w = ctx.card_divider_span("header", x + pad, inner_w, props)
+            line_x, line_w = ctx.card_divider_span("title", x + pad, inner_w, props)
             ctx.divider(line_x, content_y, line_w,
-                        color=ctx.card_line_color("header", ctx.color("line-default"), props))
+                        color=ctx.card_line_color("title", ctx.color("line-default"), props))
             content_y += max(ctx.spacing("s"), int(h * 0.02))
 
         # ── Reports-to row (optional) ────────────────────────────────────────
@@ -120,11 +140,8 @@ class RoleCard:
         if resps and list_h > 16:
             item_count    = max(1, len(resps))
             target_item_h = max(24, list_h // item_count)
-            # Responsive ceiling: heading-sub keeps bullets large enough to fill space
-            bullet_size = max(
-                ctx.font_size("body"),
-                min(ctx.font_size("heading-sub"), int(target_item_h * 0.65))
-            )
+            # Bullet size: harmonized with other cards on the slide via slide_font_size.
+            bullet_size = ctx.slide_font_size("body", props)
             BulletListAtom().render(
                 ctx,
                 x + pad,

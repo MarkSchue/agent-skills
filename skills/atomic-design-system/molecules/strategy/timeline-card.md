@@ -54,14 +54,14 @@ max_atoms: 8
 | `dot-badge-text-color` | color-token | Color token name (theme color). |
 | `dot-badge-type` | string | Value from props. |
 | `dot-radius` | string | Value from props. |
-| `events` | string | Value from props. |
-| `items` | list | List of data items. |
+| `events` | list | Alias for `items`. |
+| `items` | list | List of event objects. **Canonical.** Aliases: `events`, `milestones`, `steps`. |
 | `label-color` | color-token | Color token name (theme color). |
 | `line-color` | color-token | Color token name (theme color). |
-| `milestones` | string | Value from props. |
+| `milestones` | list | Alias for `items`. |
 | `orientation` | string | Value from props. |
 | `result` | string | Value from props. |
-| `steps` | string | List of data items. |
+| `steps` | list | Alias for `items`. |
 | `title` | string | Text string. |
 ## CSS Token Map
 

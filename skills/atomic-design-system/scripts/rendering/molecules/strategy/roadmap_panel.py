@@ -17,14 +17,28 @@ class RoadmapPanel:
       desc-color         : token for description text                      default: on-surface-variant
       dot-color          : token for item dot fill                         default: primary
       line-color         : token for connector line                        default: border-subtle
-      show-header        : bool — show card title header                   default: true (if title set)
-      show-header-line   : bool — divider below card title                 default: true
+      show-title         : bool — show card title header                   default: true (if title set)
+      show-title-line    : bool — divider below card title                 default: true
       lane-gap           : px gap between lane cards                       default: spacing("m")
     """
 
+    def preferred_font_sizes(self, ctx, props: dict, w: int, h: int) -> dict:
+        """Return the natural item-title size for the template pre-pass averaging."""
+        lanes = list(props.get("items") or props.get("lanes") or [])
+        if not lanes:
+            return {}
+        n = max(1, len(lanes))
+        pad = ctx.card_pad_px(w, h, props)
+        inner_w = w - pad * 2
+        lane_gap = ctx.spacing("m")
+        lane_w = max(20, (inner_w - lane_gap * (n - 1)) // n)
+        title_sz = max(ctx.font_size("caption"), min(ctx.font_size("body"), int(lane_w * 0.08)))
+        return {"body": title_sz}
+
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
-        lanes = list(props.get("lanes") or [])
+        # items is canonical for the lanes list; lanes kept as backward-compat alias
+        lanes = list(props.get("items") or props.get("lanes") or [])
 
         # ── Normalise now/next/later shorthand into lanes list ─────────────
         if not lanes:
@@ -48,11 +62,11 @@ class RoadmapPanel:
         pad        = ctx.card_pad_px(w, h, props)
         inner_w    = w - pad * 2
         card_title = str(props.get("title", "")).strip()
-        show_header      = bool(card_title) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(card_title) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
         title_color  = ctx.card_title_color(props, default_token="text-default")
-        header_align = ctx.card_header_align(props, default="left")
-        div_color    = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_align = ctx.card_title_align(props, default="left")
+        div_color    = ctx.card_line_color("title", ctx.color("line-default"), props)
         text_align   = str(props.get("text-align", "left")).strip().lower()
         if text_align not in ("left", "center", "right"):
             text_align = "left"
@@ -78,16 +92,16 @@ class RoadmapPanel:
 
         # ── Standard card header ──────────────────────────────────────────
         if show_header:
-            header_h   = ctx.card_header_h(w, h, props)
-            header_gap = ctx.card_header_gap(h, props)
-            title_sz   = ctx.card_header_font_size(card_title, inner_w, h, props)
+            header_h   = ctx.card_title_h(w, h, props)
+            header_gap = ctx.card_title_gap(h, props)
+            title_sz   = ctx.card_title_font_size(card_title, inner_w, h, props)
             ctx.text(x + pad, cy, inner_w, header_h,
                      card_title, size=title_sz, bold=True,
                      color=title_color, align=header_align, valign="middle",
                      inner_margin=0)
             cy += header_h + header_gap
             if show_header_line:
-                lx, lw = ctx.card_divider_span("header", x + pad, inner_w, props)
+                lx, lw = ctx.card_divider_span("title", x + pad, inner_w, props)
                 ctx.divider(lx, cy, lw, color=div_color)
                 cy += 1 + GAP_M
 
@@ -105,9 +119,9 @@ class RoadmapPanel:
         # Lane label font = same scale as card header for visual consistency
         # Use "heading-sub" as category title tone, capped to title_sz
         label_ref     = card_title if card_title else "Now"
-        label_sz_full = ctx.card_header_font_size(label_ref, lane_w - pad * 2, h, props)
+        label_sz_full = ctx.card_title_font_size(label_ref, lane_w - pad * 2, h, props)
         label_sz      = label_sz_full  # same size as card title
-        label_h       = max(int(label_sz * 1.4), ctx.card_header_h(lane_w, lanes_h, props))
+        label_h       = max(int(label_sz * 1.4), ctx.card_title_h(lane_w, lanes_h, props))
         label_gap     = GAP_M          # breathing room between lane label divider and first item
 
         # ── Max items across all lanes → shared vertical grid ─────────────
@@ -122,11 +136,12 @@ class RoadmapPanel:
         content_top = lanes_top + label_h + GAP_S + 1 + label_gap   # below label divider
         content_h   = max(20, y + h - pad - content_top)
 
-        # dot / text sizing
+        # dot / text sizing — cap harmonized body size so it fits in the lane width
         dot_d  = max(12, min(18, int(lane_w * 0.06)))
         dot_r  = dot_d // 2
         line_w_px = 2
-        title_sz  = max(ctx.font_size("caption"), min(ctx.font_size("body"), int(lane_w * 0.08)))
+        title_sz  = min(ctx.slide_font_size("body", props),
+                        max(ctx.font_size("caption"), int(lane_w * 0.08)))
         desc_sz   = ctx.font_size("annotation")
 
         # Slot height: divide content_h equally by max_items so columns align
@@ -205,12 +220,14 @@ class RoadmapPanel:
                 d_h = max(int(desc_sz * 1.4), 0)
 
                 ctx.text(text_x, item_top, text_w, t_h,
-                         str(item.get("text", "")),
+                         # headline is canonical; text kept as backward-compat alias
+                         str(item.get("headline") or item.get("text") or ""),
                          size=title_sz, bold=True,
                          color=ctx.color(item_color_token),
                          align=text_align, valign="middle", inner_margin=0)
 
-                desc = str(item.get("description", ""))
+                # body is canonical; description kept as backward-compat alias
+                desc = str(item.get("body") or item.get("description") or "")
                 if desc and item_avail > d_h:
                     ctx.text(text_x, item_top + t_h, text_w, d_h, desc,
                              size=desc_sz, bold=False,

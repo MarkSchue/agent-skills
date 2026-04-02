@@ -138,6 +138,54 @@ def _merge_block_props(blocks: list) -> dict:
     return merged
 
 
+def _compute_ref_sizes(ctx, blocks: list, slide, card_w: int, card_h: int) -> dict:
+    """Compute harmonized font sizes for the current slide.
+
+    Called by template renderers *before* their dispatch loop.  Collects
+    ``preferred_font_sizes(ctx, props, w, h)`` from each molecule that
+    defines it, averages the values per role, then applies any per-slide
+    ``<!-- font-sizes -->`` overrides stored in ``slide.font_sizes``.
+
+    Returns a ``dict[role, size]`` to assign to ``ctx.ref_sizes`` so that
+    ``ctx.slide_font_size(role, props)`` returns the harmonized value.
+    """
+    preferred_list: list[dict] = []
+
+    for i, block in enumerate(blocks):
+        mol_name = (block.get("molecule") or
+                    (slide.molecule_hints[i] if i < len(slide.molecule_hints) else ""))
+        mol_name = mol_name.lower().replace("_", "-")
+        renderer = MOLECULE_REGISTRY.get(mol_name)
+        if renderer and hasattr(renderer, "preferred_font_sizes"):
+            block_props = dict(block.get("props", {}))
+            if "title" not in block_props and block.get("title"):
+                block_props["title"] = block["title"]
+            try:
+                sizes = renderer.preferred_font_sizes(ctx, block_props, card_w, card_h)
+            except Exception:
+                sizes = {}
+            if sizes:
+                preferred_list.append(sizes)
+
+    # Average per role (skip zeros / missing)
+    ref_sizes: dict = {}
+    for role in ("body", "headline", "label", "title"):
+        vals = [s[role] for s in preferred_list if s.get(role, 0) > 0]
+        if vals:
+            ref_sizes[role] = max(1, int(sum(vals) / len(vals)))
+
+    # Per-slide overrides from <!-- font-sizes --> YAML block in deck.md
+    for role, size in (getattr(slide, "font_sizes", None) or {}).items():
+        try:
+            v = int(size)
+            if v > 0:
+                ref_sizes[str(role)] = v
+        except (ValueError, TypeError):
+            pass
+
+    return ref_sizes
+
+
 # ── Molecule dispatch ─────────────────────────────────────────────────────────
 
 def dispatch(ctx, molecule: str, props: dict, body: str,

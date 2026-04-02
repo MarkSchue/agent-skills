@@ -149,7 +149,7 @@ def _make_agenda_slide(sections: list[dict], highlight_index: int,
         "molecule": "agenda-card",
         "props": {
             "entries": entries,
-            "show-header": False,
+            "show-title": False,
         },
         "body": "",
     }
@@ -237,7 +237,7 @@ def materialize_agenda_to_deck(md_path: Path, slides_after_injection: list[Slide
         buf.write(f"title: {left_title}\n\n")
         buf.write("### Agenda Topics\n")
         buf.write("molecule: agenda-card\n")
-        buf.write("show-header: false\n")
+        buf.write("show-title: false\n")
         # Dump entries inline as readable YAML
         if entries:
             buf.write("entries:\n")

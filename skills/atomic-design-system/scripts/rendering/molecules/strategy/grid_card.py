@@ -266,11 +266,11 @@ class GridCard:
         inner_w = w - pad * 2
         title   = str(props.get("title", ""))
 
-        show_header      = bool(title) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(title) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
         title_color      = ctx.card_title_color(props, default_token="text-default")
-        header_align     = ctx.card_header_align(props, default="left")
-        hdr_div_c        = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_align     = ctx.card_title_align(props, default="left")
+        hdr_div_c        = ctx.card_line_color("title", ctx.color("line-default"), props)
         bg_color         = ctx.card_bg_color(props, "bg-card")
 
         ctx.rect(x, y, w, h,
@@ -283,15 +283,15 @@ class GridCard:
         cy = y + pad
 
         if show_header:
-            hh   = ctx.card_header_h(w, h, props)
-            hgap = ctx.card_header_gap(h, props)
-            tsz  = ctx.card_header_font_size(title, inner_w, h, props)
+            hh   = ctx.card_title_h(w, h, props)
+            hgap = ctx.card_title_gap(h, props)
+            tsz  = ctx.card_title_font_size(title, inner_w, h, props)
             ctx.text(x + pad, cy, inner_w, hh,
                      title, size=tsz, bold=True,
                      color=title_color, align=header_align, valign="middle")
             cy += hh + hgap
             if show_header_line:
-                lx, lw = ctx.card_divider_span("header", x + pad, inner_w, props)
+                lx, lw = ctx.card_divider_span("title", x + pad, inner_w, props)
                 ctx.divider(lx, cy, lw, color=hdr_div_c)
                 cy += 1 + GAP_S
 

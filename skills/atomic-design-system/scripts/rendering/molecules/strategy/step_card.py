@@ -48,7 +48,7 @@ class StepCard:
 
     def layout_requirements(self, ds, props: dict, body: str = "") -> dict:
         """Return a conservative minimum width/height for safe layout planning."""
-        steps = list(props.get("steps") or [])[:5]
+        steps = list(props.get("items") or props.get("steps") or [])[:5]
         count = max(1, len(steps))
         title = str(props.get("title", "")).strip()
         col_min_w = max(ds.font_size("body") * 9, ds.font_size("heading-sub") * 6)
@@ -91,7 +91,8 @@ class StepCard:
     def render(self, ctx, props: dict, x: int, y: int, w: int, h: int,
                **_) -> None:
 
-        steps = list(props.get("steps") or [])[:5]
+        # items is canonical; steps kept as backward-compat alias
+        steps = list(props.get("items") or props.get("steps") or [])[:5]
         if not steps:
             return
 
@@ -104,12 +105,12 @@ class StepCard:
         inner_w = w - pad * 2
         title   = str(props.get("title", ""))
 
-        show_header      = bool(title) and ctx.card_section_enabled(props, "header", default=True)
-        show_header_line = show_header and ctx.card_line_enabled(props, "header", default=True)
+        show_header      = bool(title) and ctx.card_section_enabled(props, "title", default=True)
+        show_header_line = show_header and ctx.card_line_enabled(props, "title", default=True)
 
         title_color   = ctx.card_title_color(props, default_token="text-default")
-        header_align  = ctx.card_header_align(props, default="left")
-        divider_color = ctx.card_line_color("header", ctx.color("line-default"), props)
+        header_align  = ctx.card_title_align(props, default="left")
+        divider_color = ctx.card_line_color("title", ctx.color("line-default"), props)
         bg_color      = ctx.card_bg_color(props, "bg-card")
 
         # ── Card frame ────────────────────────────────────────────────────
@@ -126,9 +127,9 @@ class StepCard:
         cy = y + pad
 
         if show_header:
-            header_h   = ctx.card_header_h(w, h, props)
-            header_gap = ctx.card_header_gap(h, props)
-            title_size = ctx.card_header_font_size(title, inner_w, h, props)
+            header_h   = ctx.card_title_h(w, h, props)
+            header_gap = ctx.card_title_gap(h, props)
+            title_size = ctx.card_title_font_size(title, inner_w, h, props)
             ctx.text(x + pad, cy, inner_w, header_h,
                      title,
                      size=title_size, bold=True,
@@ -175,7 +176,7 @@ class StepCard:
 
         # --- Headline and body font sizes ---
         headline_font_sz = max(10, min(20, int(col_w * 0.095 + 4)))
-        body_font_sz     = ctx.font_size("body")
+        body_font_sz     = ctx.slide_font_size("body", props)
 
         # --- Accent line config ---
         show_accent       = str(props.get("show-accent-line", "true")).lower() != "false"

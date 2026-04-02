@@ -31,26 +31,26 @@ the theme.  The priority chain is: per-card prop → CSS token → computed defa
 
     # Canonical pattern — copy into every new molecule renderer
     pad         = ctx.card_pad_px(w, h, props)
-    header_h    = ctx.card_header_h(w, h, props)
-    header_gap  = ctx.card_header_gap(h, props)
-    title_size  = ctx.card_header_font_size(title, text_w, h, props)
+    title_h     = ctx.card_title_h(w, h, props)
+    title_gap   = ctx.card_title_gap(h, props)
+    title_size  = ctx.card_title_font_size(title, text_w, h, props)
     icon_sz     = ctx.icon_size(w, h, props)
     icon_r      = ctx.icon_radius(icon_sz, props)
-    hdr_color   = ctx.card_line_color("header", ctx.color("line-default"), props)
+    title_line  = ctx.card_line_color("title", ctx.color("line-default"), props)
     ftr_color   = ctx.card_line_color("footer", ctx.color("line-default"), props)
 
 Overridable props accepted in deck.md YAML front-matter (hyphen or underscore forms):
 
     # Geometry
     card-padding: 24
-    card-header-height: 50
-    card-header-gap: 12
-    card-header-font-size: 14
+    card-title-height: 50
+    card-title-gap: 12
+    card-title-font-size: 14
     icon-size: 36
     icon-radius: 0
 
     # Colors
-    header-line-color: "#E53935"
+    title-line-color: "#E53935"
     footer-line-color: "#E53935"
     footer-color: "#616161"
     card_bg: filled | clean | alt | featured
@@ -61,15 +61,15 @@ Overridable props accepted in deck.md YAML front-matter (hyphen or underscore fo
     icon-stroke: "#hex"
 
     # Visibility  (none/false/0/off/hide → disabled; true/1/yes/on/show → enabled)
-    show-header: none
-    show-header-line: none
+    show-title: none
+    show-title-line: none
     show-footer: none
     show-footer-line: none
 
     # Alignment
-    header-align: left | center | right
-    header-line-width: 50%
-    header-line-align: center
+    title-align: left | center | right
+    title-line-width: 50%
+    title-line-align: center
     footer-font-size: 12
     card-footer-height: 28
     card-footer-gap: 8
@@ -266,6 +266,28 @@ class RenderContext:
         """Read a theme CSS custom property as a boolean-like flag."""
         return self._boolish(self.theme_var(name, "1" if default else "0"), default)
 
+    def class_var(self, selector: str, prop: str, default: str = "") -> str:
+        """Read a resolved CSS property from a BEM class rule.
+
+        Lets renderers read values from explicit class declarations in the
+        theme stylesheet, so theme designers can override sub-element visuals
+        without touching :root tokens.
+
+        Example::
+
+            ctx.class_var(".card__icon-badge", "background")
+            ctx.class_var(".card__title",      "color")
+            ctx.class_var(".card__icon-badge", "border-radius")
+
+        Falls back to *default* when the stylesheet or class rule is absent.
+        Priority in helper methods: per-card prop → CSS class rule → :root token → computed default.
+        """
+        ds = getattr(self, "ds", None)
+        sheet = getattr(ds, "stylesheet", None)
+        if sheet is None:
+            return default
+        return sheet.class_style(selector, prop, default)
+
     @staticmethod
     def _prop_value(props: dict | None, *keys: str):
         if not isinstance(props, dict):
@@ -307,7 +329,7 @@ class RenderContext:
                         props: dict | None = None) -> str:
         """Return the shared divider color for a semantic card section.
 
-        Per-card override: set ``header-line-color: #hex`` or
+        Per-card override: set ``title-line-color: #hex`` or
         ``footer-line-color: #hex`` in the card's deck.md props block.
         Theme-wide: ``--card-{section}-line-color`` CSS token.
         """
@@ -335,33 +357,54 @@ class RenderContext:
 
     def card_title_color(self, props: dict | None = None,
                          default_token: str = "text-on-muted") -> str:
+        """Card title text color.
+
+        Priority: per-card prop → ``.card__title { color }`` → ``--card-title-color`` token → fallback.
+        """
         raw = self._prop_value(props, "card_title_color", "card-title-color", "title_color", "title-color")
         if raw:
             return str(raw)
+        cls_color = self.class_var(".card__title", "color", "")
+        if cls_color:
+            return cls_color
         return self.theme_var("--card-title-color", self.color(default_token))
 
     def card_body_color(self, props: dict | None = None,
                         default_token: str = "text-secondary") -> str:
+        """Card body text color.
+
+        Priority: per-card prop → ``.card__body { color }`` → ``--card-body-color`` token → fallback.
+        """
         raw = self._prop_value(props, "card_body_color", "card-body-color", "body_color", "body-color")
         if raw:
             return str(raw)
+        cls_color = self.class_var(".card__body", "color", "")
+        if cls_color:
+            return cls_color
         return self.theme_var("--card-body-color", self.color(default_token))
 
     def card_subtitle_color(self, props: dict | None = None,
                             default_token: str = "text-secondary") -> str:
+        """Card subtitle / metadata text color.
+
+        Priority: per-card prop → ``.card__label { color }`` → ``--card-subtitle-color`` token → fallback.
+        """
         raw = self._prop_value(props, "card_subtitle_color", "card-subtitle-color", "subtitle_color", "subtitle-color")
         if raw:
             return str(raw)
+        cls_color = self.class_var(".card__label", "color", "")
+        if cls_color:
+            return cls_color
         return self.theme_var("--card-subtitle-color", self.color(default_token))
 
-    def card_header_align(self, props: dict | None = None, default: str = "left") -> str:
+    def card_title_align(self, props: dict | None = None, default: str = "left") -> str:
         raw = self._prop_value(props, "header_align", "header-align", "title_align", "title-align")
-        align = str(raw if raw is not None else self.theme_var("--card-header-title-align", default)).strip().lower()
+        align = str(raw if raw is not None else self.theme_var("--card-title-align", default)).strip().lower()
         return align if align in {"left", "center", "right"} else default
 
     def card_icon_align(self, props: dict | None = None, default: str = "right") -> str:
         raw = self._prop_value(props, "icon_align", "icon-align", "header_icon_align", "header-icon-align")
-        align = str(raw if raw is not None else self.theme_var("--card-header-icon-align", default)).strip().lower()
+        align = str(raw if raw is not None else self.theme_var("--card-title-icon-align", default)).strip().lower()
         return align if align in {"left", "right"} else default
 
     # ── Card geometry helpers ─────────────────────────────────────────────
@@ -378,6 +421,50 @@ class RenderContext:
         """Return the slide reference height when set, else the card's own h."""
         ref = getattr(self, "ref_h", None)
         return ref if (ref and ref > 0) else h
+
+    def slide_font_size(self, role: str, props: dict | None = None) -> int:
+        """Return the harmonized font size for *role* on the current slide.
+
+        Priority chain (highest → lowest):
+        1. **Per-card prop** ``card-{role}-font-size`` in the card's YAML block.
+        2. **Slide-level average** stored in ``ctx.ref_sizes[role]`` (computed by
+           the template pre-pass over all molecules on the current slide).
+        3. **CSS token** ``--card-{role}-font-size`` (non-zero overrides the
+           computed average; use to pin a site-wide body size for all slides).
+        4. **Global default** ``ctx.font_size(role)``.
+
+        Templates call ``preferred_font_sizes()`` on each molecule, average the
+        results per role, apply any ``slide.font_sizes`` overrides from a
+        ``<!-- font-sizes -->`` YAML block, then set ``ctx.ref_sizes`` before their
+        dispatch loop.  Templates clear ``ctx.ref_sizes = {}`` after the loop.
+        """
+        # 1. Per-card prop
+        for key in (f"card-{role}-font-size", f"card_{role}_font_size"):
+            raw = self._prop_value(props, key, key)
+            if raw is not None:
+                try:
+                    v = int(float(str(raw)))
+                    if v > 0:
+                        return v
+                except (ValueError, TypeError):
+                    pass
+
+        # 2. Slide-average (set by template pre-pass)
+        ref_sizes = getattr(self, "ref_sizes", {})
+        if role in ref_sizes and ref_sizes[role] > 0:
+            return int(ref_sizes[role])
+
+        # 3. CSS token (non-zero = explicit theme override)
+        raw_css = self.theme_var(f"--card-{role}-font-size", "").strip()
+        try:
+            v = int(float(raw_css)) if raw_css else 0
+            if v > 0:
+                return v
+        except (ValueError, TypeError):
+            pass
+
+        # 4. Global default
+        return self.font_size(role)
 
     def card_pad_px(self, w: int, h: int, props: dict | None = None) -> int:
         """Inner card padding in px.
@@ -404,18 +491,18 @@ class RenderContext:
             pass
         return max(self.PAD, int(h * 0.055))
 
-    def card_header_h(self, w: int, h: int, props: dict | None = None) -> int:
-        """Standard card header height in px.
+    def card_title_h(self, w: int, h: int, props: dict | None = None) -> int:
+        """Standard card title zone height in px.
 
         Shared by all molecule renderers so the divider line sits at the
         same Y position across every card in a grid row.  The icon badge
         fits inside this height; it does **not** inflate it.
         Uses ``ctx.ref_h`` (slide content height) when available so that
-        cards of different heights on the same slide get identical header zones.
-        Per-card override: ``card-header-height: <px>`` in the card's deck.md props block.
-        Theme-wide: ``--card-header-height`` CSS token.
+        cards of different heights on the same slide get identical title zones.
+        Per-card override: ``card-title-height: <px>`` in the card's deck.md props block.
+        Theme-wide: ``--card-title-height`` CSS token.
         """
-        raw_prop = self._prop_value(props, "card-header-height", "card_header_height")
+        raw_prop = self._prop_value(props, "card-title-height", "card_title_height")
         if raw_prop is not None:
             try:
                 v = int(float(str(raw_prop)))
@@ -423,7 +510,7 @@ class RenderContext:
                     return v
             except (ValueError, TypeError):
                 pass
-        raw = self.theme_var("--card-header-height", "").strip()
+        raw = self.theme_var("--card-title-height", "").strip()
         try:
             v = int(float(raw)) if raw else 0
             if v > 0:
@@ -432,15 +519,15 @@ class RenderContext:
             pass
         return max(34, int(self._ref(h) * 0.12))
 
-    def card_header_gap(self, h: int, props: dict | None = None) -> int:
-        """Gap between the header row and the divider line in px.
+    def card_title_gap(self, h: int, props: dict | None = None) -> int:
+        """Gap between the title row and the divider line in px.
 
         Uses ``ctx.ref_h`` (slide content height) when available so that
         cards of different heights on the same slide get the identical gap.
-        Per-card override: ``card-header-gap: <px>`` in the card's deck.md props block.
-        Theme-wide: ``--card-header-gap`` CSS token.
+        Per-card override: ``card-title-gap: <px>`` in the card's deck.md props block.
+        Theme-wide: ``--card-title-gap`` CSS token.
         """
-        raw_prop = self._prop_value(props, "card-header-gap", "card_header_gap")
+        raw_prop = self._prop_value(props, "card-title-gap", "card_title_gap")
         if raw_prop is not None:
             try:
                 v = int(float(str(raw_prop)))
@@ -448,7 +535,7 @@ class RenderContext:
                     return v
             except (ValueError, TypeError):
                 pass
-        raw = self.theme_var("--card-header-gap", "").strip()
+        raw = self.theme_var("--card-title-gap", "").strip()
         try:
             v = int(float(raw)) if raw else 0
             if v > 0:
@@ -457,16 +544,16 @@ class RenderContext:
             pass
         return max(self.spacing("s"), int(self._ref(h) * 0.018))
 
-    def card_header_font_size(self, title: str = "", text_w: int = 200,
+    def card_title_font_size(self, title: str = "", text_w: int = 200,
                                h: int = 300,
                                props: dict | None = None) -> int:
-        """Header / title font size in pt.
+        """Card title font size in pt.
 
         Uses ``ctx.ref_h`` (slide content height) when available.
-        Per-card override: ``card-header-font-size: <pt>`` in the card's deck.md props block.
-        Theme-wide: ``--card-header-font-size`` CSS token.
+        Per-card override: ``card-title-font-size: <pt>`` in the card's deck.md props block.
+        Theme-wide: ``--card-title-font-size`` CSS token.
         """
-        raw_prop = self._prop_value(props, "card-header-font-size", "card_header_font_size")
+        raw_prop = self._prop_value(props, "card-title-font-size", "card_title_font_size")
         if raw_prop is not None:
             try:
                 v = int(float(str(raw_prop)))
@@ -474,7 +561,7 @@ class RenderContext:
                     return v
             except (ValueError, TypeError):
                 pass
-        raw = self.theme_var("--card-header-font-size", "").strip()
+        raw = self.theme_var("--card-title-font-size", "").strip()
         try:
             v = int(float(raw)) if raw else 0
             if v > 0:
@@ -566,12 +653,14 @@ class RenderContext:
                           default_token: str = "text-secondary") -> str:
         """Footer metadata text color.
 
-        Per-card override: ``footer-color`` / ``footer-text-color``.
-        Theme-wide: ``--card-footer-color`` CSS token.
+        Priority: per-card prop → ``.card__footer { color }`` → ``--card-footer-color`` token → fallback.
         """
         raw = self._prop_value(props, "footer-color", "footer_color", "footer-text-color", "footer_text_color")
         if raw:
             return str(raw)
+        cls_color = self.class_var(".card__footer", "color", "")
+        if cls_color:
+            return cls_color
         return self.theme_var("--card-footer-color", self.color(default_token))
 
     def card_footer_italic(self, props: dict | None = None,
@@ -589,18 +678,30 @@ class RenderContext:
 
     def icon_bg(self, props: dict | None = None,
                 default_token: str = "primary-container") -> str:
-        """Badge fill color — reads ``--color-icon-bg`` CSS token."""
+        """Badge fill color.
+
+        Priority: per-card prop → ``.card__icon-badge { background }`` → ``--color-icon-bg`` token → fallback.
+        """
         raw = self._prop_value(props, "icon_bg", "icon-bg")
         if raw:
             return str(raw)
+        cls_bg = self.class_var(".card__icon-badge", "background", "")
+        if cls_bg:
+            return cls_bg
         return self.theme_var("--color-icon-bg", self.color(default_token))
 
     def icon_fg(self, props: dict | None = None,
                 default_token: str = "primary") -> str:
-        """Badge glyph/icon color — reads ``--color-icon-fg`` CSS token."""
+        """Badge glyph/icon color.
+
+        Priority: per-card prop → ``.card__icon-badge { color }`` → ``--color-icon-fg`` token → fallback.
+        """
         raw = self._prop_value(props, "icon_fg", "icon-fg")
         if raw:
             return str(raw)
+        cls_color = self.class_var(".card__icon-badge", "color", "")
+        if cls_color:
+            return cls_color
         return self.theme_var("--color-icon-fg", self.color(default_token))
 
     def icon_stroke(self, props: dict | None = None,
@@ -642,16 +743,21 @@ class RenderContext:
     def icon_radius(self, size: int, props: dict | None = None) -> int:
         """Compute icon-badge corner radius in px.
 
-        Uses ``--icon-radius`` CSS token when set; otherwise derives the radius
-        from the badge size and the ``radius-sharp`` / ``radius-large`` design
-        tokens.
-        Per-card override: ``icon-radius: <px>`` in the card's deck.md props block.
+        Priority: per-card prop → ``.card__icon-badge { border-radius }``
+        → ``--icon-radius`` token → computed default.
         """
         raw_prop = self._prop_value(props, "icon-radius", "icon_radius")
         if raw_prop is not None:
             try:
                 r = int(float(str(raw_prop)))
                 return max(0, r)
+            except (ValueError, TypeError):
+                pass
+        # CSS class rule (resolves via icon-radius token in the rule)
+        cls_raw = self.class_var(".card__icon-badge", "border-radius", "").replace("px", "").strip()
+        if cls_raw:
+            try:
+                return max(0, int(float(cls_raw)))
             except (ValueError, TypeError):
                 pass
         raw = self.theme_var("--icon-radius", "").strip()
@@ -662,6 +768,66 @@ class RenderContext:
         if r is not None:
             return max(0, r)
         return max(self.rad("radius-sharp"), min(size // 3, self.rad("radius-large")))
+
+    # ── Shared sub-element helpers — .card__* BEM class rule lookups ─────────
+    # These provide the new class-rule priority chain in a single convenience
+    # call, usable in any molecule renderer.
+
+    def avatar_bg(self, props: dict | None = None,
+                  default_token: str = "primary") -> str:
+        """Avatar placeholder fill color.
+
+        Priority: per-card prop → ``.card__avatar { background }`` → ``--color-primary`` fallback.
+        """
+        raw = self._prop_value(props, "avatar_bg", "avatar-bg")
+        if raw:
+            return str(raw)
+        cls_bg = self.class_var(".card__avatar", "background", "")
+        if cls_bg:
+            return cls_bg
+        return self.color(default_token)
+
+    def header_strip_bg(self, props: dict | None = None,
+                        default_token: str = "primary") -> str:
+        """Header strip / column highlight background color.
+
+        Priority: per-card prop → ``.card__header-strip { background }`` → fallback.
+        """
+        raw = self._prop_value(props, "header_strip_bg", "header-strip-bg")
+        if raw:
+            return str(raw)
+        cls_bg = self.class_var(".card__header-strip", "background", "")
+        if cls_bg:
+            return cls_bg
+        return self.color(default_token)
+
+    def header_strip_color(self, props: dict | None = None,
+                           default_token: str = "on-primary") -> str:
+        """Header strip / column highlight foreground (text) color.
+
+        Priority: per-card prop → ``.card__header-strip { color }`` → fallback.
+        """
+        raw = self._prop_value(props, "header_strip_color", "header-strip-color")
+        if raw:
+            return str(raw)
+        cls_color = self.class_var(".card__header-strip", "color", "")
+        if cls_color:
+            return cls_color
+        return self.color(default_token)
+
+    def quote_mark_color(self, props: dict | None = None,
+                         default_token: str = "primary") -> str:
+        """Oversized quotation-mark glyph color.
+
+        Priority: per-card prop → ``.card__quote-mark { color }`` → fallback.
+        """
+        raw = self._prop_value(props, "quote_mark_color", "quote-mark-color")
+        if raw:
+            return str(raw)
+        cls_color = self.class_var(".card__quote-mark", "color", "")
+        if cls_color:
+            return cls_color
+        return self.color(default_token)
 
     def card_divider_span(self, section: str, x: int, w: int,
                           props: dict | None = None) -> tuple[int, int]:
@@ -730,6 +896,50 @@ class RenderContext:
     def font_bold(self, role: str = "body") -> bool:
         """Return True when the typography *role* weight is >= 600 (Semibold+)."""
         raise NotImplementedError
+
+    def slide_font_size(self, role: str = "body", props: dict | None = None) -> int:
+        """Return the harmonized font size for *role* on the current slide.
+
+        Priority chain (highest wins):
+        1. Per-card YAML prop ``card-{role}-font-size`` (or ``card_{role}_font_size``).
+        2. Slide-level harmonization value from ``ctx.ref_sizes`` (computed by the
+           template pre-pass as a weighted average of ``preferred_font_sizes()``
+           from all molecules on the slide, then overridden by any
+           ``<!-- font-sizes -->`` YAML block on the slide).
+        3. Global CSS token ``--card-{role}-font-size`` (non-zero value).
+        4. Base CSS type-scale via ``ctx.font_size(role)``.
+
+        This method is the correct replacement for any direct ``ctx.font_size(role)``
+        call in a molecule renderer that produces "body-level" content text.
+        """
+        # 1. Per-card override via props
+        if props:
+            raw = self._prop_value(props, f"card-{role}-font-size",
+                                   f"card_{role}_font_size")
+            if raw is not None:
+                try:
+                    v = int(float(str(raw)))
+                    if v > 0:
+                        return v
+                except (ValueError, TypeError):
+                    pass
+
+        # 2. Slide-level averaged value (set by template pre-pass)
+        ref_sizes = getattr(self, "ref_sizes", None) or {}
+        if ref_sizes.get(role, 0) > 0:
+            return int(ref_sizes[role])
+
+        # 3. Global CSS token (theme-wide override that bypasses the average)
+        css_raw = self.theme_var(f"--card-{role}-font-size", "").strip()
+        try:
+            v = int(float(css_raw)) if css_raw else 0
+            if v > 0:
+                return v
+        except (ValueError, TypeError):
+            pass
+
+        # 4. Base CSS type-scale
+        return self.font_size(role)
 
     # -- Icon-set helpers -------------------------------------------------------
 
