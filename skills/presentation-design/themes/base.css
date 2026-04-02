@@ -3,10 +3,10 @@
    =================================================================
    This file defines ALL available design tokens for slides, cards,
    text styles, and image styles. It is the source-of-truth template.
-   
+
    When scaffolding a new presentation, this file is copied to the
    project as `theme.css` so the user can customise values.
-   
+
    RULES:
    - Every token must have an inline comment explaining its role.
    - New tokens may be appended but never renamed.
