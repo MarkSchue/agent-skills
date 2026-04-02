@@ -15,11 +15,15 @@ class AgendaEntry:
         index: 0-based position in the section list.
         title: Section title text.
         is_active: Whether this entry is the current/active section.
+        number: Optional display number (e.g. ``"01"``). Auto-assigned if absent.
+        info: Optional col-3 text (e.g. ``"30 min | Jane Doe"``).
     """
 
     index: int = 0
     title: str = ""
     is_active: bool = False
+    number: str = ""
+    info: str = ""
 
 
 @dataclass
@@ -51,7 +55,7 @@ class AgendaModel:
             return 2
         return 3
 
-    def with_active(self, active_index: int) -> AgendaModel:
+    def with_active(self, active_index: int) -> "AgendaModel":
         """Return a copy with ``is_active`` set for the given section index."""
         new_entries = []
         for entry in self.entries:
@@ -60,6 +64,8 @@ class AgendaModel:
                     index=entry.index,
                     title=entry.title,
                     is_active=(entry.index == active_index),
+                    number=entry.number,
+                    info=entry.info,
                 )
             )
         return AgendaModel(entries=new_entries, column_count=self.column_count)
@@ -71,4 +77,29 @@ class AgendaModel:
             AgendaEntry(index=i, title=t)
             for i, t in enumerate(titles)
         ]
+        return cls(entries=entries)
+
+    @classmethod
+    def from_agenda_config(
+        cls,
+        titles: list[str],
+        config: dict,
+    ) -> "AgendaModel":
+        """Build an AgendaModel merging section titles with agenda_config metadata.
+
+        ``config`` may contain a ``sections`` list of dicts (``title``, ``number``,
+        ``info``); entries are matched to *titles* by index.
+        """
+        section_overrides: list[dict] = config.get("sections") or []
+        entries: list[AgendaEntry] = []
+        for i, title in enumerate(titles):
+            ov = section_overrides[i] if i < len(section_overrides) else {}
+            entries.append(
+                AgendaEntry(
+                    index=i,
+                    title=title,
+                    number=str(ov.get("number") or ""),
+                    info=str(ov.get("info") or ""),
+                )
+            )
         return cls(entries=entries)

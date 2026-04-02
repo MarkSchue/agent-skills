@@ -83,11 +83,15 @@ class DeckModel:
         title: Deck title (first ``#`` heading or metadata).
         sections: Ordered list of sections.
         metadata: Top-level YAML metadata from the deck header (if any).
+        agenda_config: Parsed ``<!-- agenda ... -->`` block from the MD file.
+            Contains optional ``icon`` dict and ``sections`` list with per-entry
+            ``number`` and ``info`` overrides. ``None`` means the block is absent.
     """
 
     title: str = ""
     sections: list[SectionModel] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    agenda_config: dict[str, Any] | None = None
 
     @property
     def all_slides(self) -> list[SlideModel]:

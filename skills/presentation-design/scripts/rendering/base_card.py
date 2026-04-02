@@ -330,19 +330,17 @@ class BaseCardRenderer(ABC):
                         "rx": icon_bg_radius,
                     })
 
-                # Icon glyph — rendered as a text element using the icon font family
+                # Icon glyph — emitted as a dedicated "icon" element so exporters
+                # can render it as an actual SVG image rather than a ligature text.
                 box.add({
-                    "type": "text",
+                    "type": "icon",
                     "x": icon_x,
                     "y": y,
                     "w": icon_size,
                     "h": icon_size,
-                    "text": icon_name,
-                    "font_size": icon_size,
-                    "font_color": icon_color,
-                    "font_weight": str(self.resolve("icon-font-weight") or "400"),
+                    "name": icon_name,
+                    "color": icon_color,
                     "font_family": icon_font_family,
-                    "alignment": "center",
                 })
 
                 # Title text — narrowed by the icon slot

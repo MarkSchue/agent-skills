@@ -40,7 +40,7 @@ class AgendaCardRenderer(BaseCardRenderer):
         # ── Highlight bar tokens ──────────────────────────────────────────
         bar_visible_raw = self.resolve("card-agenda-highlight-bar-visible")
         bar_visible = bar_visible_raw in (True, "true", "True")
-        bar_color = self.resolve("card-agenda-highlight-bar-color") or self.resolve("card-agenda-bullet-color") or "#003087"
+        bar_color = self.resolve("card-agenda-highlight-bar-color") or "#003087"
         bar_width = float(self.resolve("card-agenda-highlight-bar-width") or 3)
         bar_gap = float(self.resolve("card-agenda-highlight-bar-gap") or 8)
 
@@ -54,10 +54,22 @@ class AgendaCardRenderer(BaseCardRenderer):
         col2_align = self.resolve("card-agenda-col2-alignment") or "left"
         col3_align = self.resolve("card-agenda-col3-alignment") or "left"
 
-        # ── Row geometry ──────────────────────────────────────────────────
+        # ── Row geometry (fixed row height token override plus legacy spacing) ───
         entry_size = float(self.resolve("card-agenda-entry-font-size") or 16)
         entry_spacing = float(self.resolve("card-agenda-entry-spacing") or 12)
-        row_h = entry_size + entry_spacing
+        row_height_token = self.resolve("card-agenda-row-height")
+        row_h = None
+
+        if isinstance(row_height_token, (int, float)) and row_height_token > 0:
+            row_h = float(row_height_token)
+            # Ensure row_h is at least entry_size + a minimal gap.
+            if row_h < entry_size + 4:
+                row_h = entry_size + 4
+
+        if row_h is None:
+            row_h = entry_size + entry_spacing
+        else:
+            entry_spacing = max(0.0, row_h - entry_size)
 
         # Left indentation = bar_width + gap (kept constant for all rows so columns align)
         bar_reserved = bar_width + bar_gap
@@ -92,7 +104,9 @@ class AgendaCardRenderer(BaseCardRenderer):
         )
         entry_style_inactive = self.resolve("card-agenda-entry-font-style") or "normal"
 
-        active_color = self.resolve("card-agenda-active-color") or "#003087"
+        active_number_color = self.resolve("card-agenda-active-number-color") or "#003087"
+        active_title_color = self.resolve("card-agenda-active-title-color") or "#003087"
+        active_info_color = self.resolve("card-agenda-active-info-color") or "#374151"
         active_weight = str(self.resolve("card-agenda-active-font-weight") or "700")
         active_style = self.resolve("card-agenda-active-font-style") or "normal"
 
@@ -125,6 +139,8 @@ class AgendaCardRenderer(BaseCardRenderer):
             y = box.y + i * row_h
 
             # Active accent bar — vertical rectangle on the left edge
+            # Height spans the full row slot (entry_size + entry_spacing) so
+            # the bar always matches row height regardless of spacing token value.
             if is_active and bar_visible:
                 box.add(
                     {
@@ -132,7 +148,7 @@ class AgendaCardRenderer(BaseCardRenderer):
                         "x": box.x,
                         "y": y,
                         "w": bar_width,
-                        "h": entry_size,
+                        "h": row_h,
                         "fill": bar_color,
                         "stroke": bar_color,
                         "stroke_width": 0,
@@ -140,8 +156,8 @@ class AgendaCardRenderer(BaseCardRenderer):
                     }
                 )
 
-            # Col 1 — number / indicator
-            n_color = active_color if is_active else number_color_inactive
+            # Col 1 — number / indicator (text box spans full row height, content vertically centred)
+            n_color = active_number_color if is_active else number_color_inactive
             n_weight = active_weight if is_active else number_weight_inactive
             n_style = active_style if is_active else number_style_inactive
             box.add(
@@ -150,18 +166,20 @@ class AgendaCardRenderer(BaseCardRenderer):
                     "x": col1_x,
                     "y": y,
                     "w": col1_w,
-                    "h": entry_size,
+                    "h": row_h,
                     "text": number_text,
                     "font_size": number_size,
                     "font_color": n_color,
                     "font_weight": n_weight,
                     "font_style": n_style,
                     "alignment": col1_align,
+                    "vertical_align": "middle",
+                    "wrap": True,
                 }
             )
 
-            # Col 2 — section title (h2-style)
-            t_color = active_color if is_active else entry_color_inactive
+            # Col 2 — section title (h2-style, full row height so text wraps inside)
+            t_color = active_title_color if is_active else entry_color_inactive
             t_weight = active_weight if is_active else entry_weight_inactive
             t_style = active_style if is_active else entry_style_inactive
             box.add(
@@ -170,19 +188,21 @@ class AgendaCardRenderer(BaseCardRenderer):
                     "x": col2_x,
                     "y": y,
                     "w": col2_w,
-                    "h": entry_size,
+                    "h": row_h,
                     "text": title_text,
                     "font_size": entry_size,
                     "font_color": t_color,
                     "font_weight": t_weight,
                     "font_style": t_style,
                     "alignment": col2_align,
+                    "vertical_align": "middle",
+                    "wrap": True,
                 }
             )
 
-            # Row separator — drawn after each row except the last, centred in the spacing gap
+            # Row separator — drawn exactly at the row boundary (y + row_h)
             if sep_visible and i < len(sections) - 1:
-                sep_y = y + entry_size + entry_spacing / 2
+                sep_y = y + row_h
                 box.add(
                     {
                         "type": "line",
@@ -201,14 +221,16 @@ class AgendaCardRenderer(BaseCardRenderer):
                     {
                         "type": "text",
                         "x": col3_x,
-                        "y": y,
+                        "y": row_y_text,
                         "w": col3_w,
                         "h": entry_size * 2,  # allow two lines
                         "text": info_text,
                         "font_size": info_size,
-                        "font_color": info_color,
+                        "font_color": active_info_color if is_active else info_color,
                         "font_weight": info_weight,
                         "font_style": info_style,
                         "alignment": col3_align,
+                        "vertical_align": "middle",
+                        "wrap": True,
                     }
                 )

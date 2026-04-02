@@ -74,7 +74,7 @@ class ThemeLoader:
 
     @staticmethod
     def _resolve_vars(tokens: ThemeTokens) -> None:
-        """Resolve ``var(--token-name)`` references within base_tokens.
+        """Resolve ``var(--token-name)`` references in base_tokens and variant_tokens.
 
         CSS ``var()`` references are only meaningful in a browser; when tokens
         are consumed by Python renderers the referenced value must be substituted
@@ -84,6 +84,8 @@ class ThemeLoader:
         Values that cannot be resolved are left as-is.
         """
         var_re = re.compile(r"^var\(--(.+)\)$")
+
+        # Resolve in base_tokens first (colour palette variables live here)
         for key, val in list(tokens.base_tokens.items()):
             m = var_re.match(str(val))
             if m:
@@ -92,9 +94,25 @@ class ThemeLoader:
                 if resolved is not None:
                     tokens.base_tokens[key] = resolved
 
+        # Resolve in every variant class using the (now-resolved) base_tokens as source
+        for variant_name, vt in tokens.variant_tokens.items():
+            for key, val in list(vt.items()):
+                m = var_re.match(str(val))
+                if m:
+                    ref = m.group(1)
+                    resolved = tokens.base_tokens.get(ref)
+                    if resolved is not None:
+                        vt[key] = resolved
+
     def _parse_file(self, path: Path, tokens: ThemeTokens) -> None:
         """Parse a single CSS file and merge into *tokens*."""
         text = path.read_text(encoding="utf-8")
+
+        # Strip all /* ... */ block comments BEFORE line-level parsing so that
+        # commented-out selector blocks (e.g. alternative .icon-set entries) are
+        # not accidentally processed.  DOTALL so comments can span multiple lines.
+        text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+
         current_selector: str | None = None
 
         for line in text.splitlines():

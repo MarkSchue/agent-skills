@@ -7,3 +7,4 @@
 
 python-pptx>=0.6.23
 PyYAML>=6.0
+cairosvg>=2.7.0          # SVG→PNG conversion for icon rendering in PPTX export

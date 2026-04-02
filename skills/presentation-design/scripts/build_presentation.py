@@ -106,6 +106,53 @@ def _layout_renderer_for(
     return create_grid_renderer(resolved, theme)
 
 
+# ── Agenda block helpers ────────────────────────────────────────────────────
+
+def _build_default_agenda_config(section_titles: list[str]) -> dict:
+    """Return a default agenda config dict for *section_titles*."""
+    return {
+        "icon": {
+            "name": "",
+            "visible": False,
+            "position": "right",
+            "color": "",
+        },
+        "sections": [
+            {
+                "title": title,
+                "number": f"{i + 1:02d}",
+                "info": "",
+            }
+            for i, title in enumerate(section_titles)
+        ],
+    }
+
+
+def _write_agenda_block(deck_path: "Path", section_titles: list[str]) -> None:
+    """Prepend a ``<!-- agenda ... -->`` block to the presentation MD file.
+
+    The block is written exactly once (only when absent) so the user can
+    edit it freely on all subsequent builds without it being overwritten.
+    """
+    lines: list[str] = ["<!-- agenda"]
+    lines.append("icon:")
+    lines.append('  name: ""                 # icon ligature, e.g. "format_list_bulleted"')
+    lines.append("  visible: false            # set to true to show icon beside 'Agenda' title")
+    lines.append('  position: right           # left | right')
+    lines.append('  color: ""                 # hex colour; empty = theme accent default')
+    lines.append("sections:")
+    for i, title in enumerate(section_titles):
+        lines.append(f"  - title: \"{title}\"")
+        lines.append(f"    number: \"{i + 1:02d}\"       # display number in column 1")
+        lines.append( "    info: \"\"               # e.g. \"30 min | Jane Doe\" — shown in column 3")
+    lines.append("-->")
+    lines.append("")
+
+    block = "\n".join(lines) + "\n"
+    original = deck_path.read_text(encoding="utf-8")
+    deck_path.write_text(block + original, encoding="utf-8")
+
+
 # ── Build pipeline ──────────────────────────────────────────────────────────
 
 def build(project_dir: Path, output_format: str = "both") -> None:
@@ -131,6 +178,17 @@ def build(project_dir: Path, output_format: str = "both") -> None:
     parser = DeckParser()
     deck = parser.parse(deck_path.read_text(encoding="utf-8"))
     logger.info("Parsed %d sections, %d total slides", len(deck.sections), len(deck.all_slides))
+
+    # 2b. First-time agenda block: if absent, write it into the MD file once
+    #     so the user can customise icons, times, etc. on subsequent builds.
+    if deck.agenda_config is None and len(deck.sections) >= 2:
+        _write_agenda_block(deck_path, deck.section_titles)
+        # Re-read agenda_config from the freshly written block
+        deck.agenda_config = _build_default_agenda_config(deck.section_titles)
+        logger.info(
+            "Agenda definition block written to %s — edit it to add icons and info.",
+            deck_path,
+        )
 
     # 3. Load theme tokens (base → project theme)
     loader = ThemeLoader()
@@ -193,13 +251,25 @@ def build(project_dir: Path, output_format: str = "both") -> None:
         rendered_slides.append(canvas)
         page_num += 1
 
-    # 9. Export
+    # 9. Compute slide metadata for exporters
+    all_slides_flat = deck.all_slides
+    slide_titles: list[str] = [s.title or f"Slide {i+1}" for i, s in enumerate(all_slides_flat)]
+
+    # section_breaks maps slide-index → section name for every slide that is
+    # the first slide *within* a section (agenda slide counts as slide 0 of it).
+    section_breaks: dict[int, str] = {}
+    slide_cursor = 0
+    for section in deck.sections:
+        if section.slides:
+            section_breaks[slide_cursor] = section.title
+        slide_cursor += len(section.slides)
+
+    # 10. Export
     output_dir = project_dir / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     canvas_w = int(theme.resolve("canvas-width") or 1280)
     canvas_h = int(theme.resolve("canvas-height") or 720)
-
     if output_format in ("pptx", "both"):
         pptx_exp = PptxExporter(project_root=project_dir)
         pptx_exp.export(
@@ -207,6 +277,8 @@ def build(project_dir: Path, output_format: str = "both") -> None:
             output_dir / "presentation.pptx",
             canvas_width=canvas_w,
             canvas_height=canvas_h,
+            slide_titles=slide_titles,
+            section_breaks=section_breaks,
         )
 
     if output_format in ("drawio", "both"):
@@ -216,6 +288,7 @@ def build(project_dir: Path, output_format: str = "both") -> None:
             output_dir / "presentation.drawio",
             canvas_width=canvas_w,
             canvas_height=canvas_h,
+            slide_titles=slide_titles,
         )
 
     logger.info("Build complete — %d slides exported to %s", len(rendered_slides), output_dir)

@@ -29,6 +29,7 @@ _RE_CARD = re.compile(r"^###\s+(.+)$")
 _RE_DONE = re.compile(r"^\s*<!--\s*DONE\s*-->\s*$", re.IGNORECASE)
 _RE_SLIDE_OVERRIDE_START = re.compile(r"^\s*<!--\s*slide\s*$")
 _RE_SLIDE_OVERRIDE_END = re.compile(r"^\s*-->\s*$")
+_RE_AGENDA_START = re.compile(r"^\s*<!--\s*agenda\s*$")
 _RE_FENCE_START = re.compile(r"^```(yaml|yml)\s*$", re.IGNORECASE)
 _RE_FENCE_END = re.compile(r"^```\s*$")
 
@@ -47,6 +48,10 @@ class DeckParser:
         """
         lines = text.splitlines()
         deck = DeckModel()
+
+        # ── Pre-pass: extract <!-- agenda ... --> block ───────────────────
+        deck.agenda_config = self._extract_agenda_config(lines)
+
         current_section: SectionModel | None = None
         current_slide: SlideModel | None = None
         current_card: CardModel | None = None
@@ -176,3 +181,27 @@ class DeckParser:
                 if key in content and isinstance(content[key], str):
                     refs.append(content[key])
         card.asset_refs = refs
+
+    @staticmethod
+    def _extract_agenda_config(lines: list[str]) -> dict | None:
+        """Scan all lines for a ``<!-- agenda\n...\n-->`` block and parse it.
+
+        Returns the parsed YAML dict, or ``None`` if the block is absent.
+        """
+        i = 0
+        while i < len(lines):
+            if _RE_AGENDA_START.match(lines[i]):
+                yaml_lines: list[str] = []
+                i += 1
+                while i < len(lines) and not _RE_SLIDE_OVERRIDE_END.match(lines[i]):
+                    yaml_lines.append(lines[i])
+                    i += 1
+                try:
+                    data = yaml.safe_load("\n".join(yaml_lines))
+                    if isinstance(data, dict):
+                        return data
+                except yaml.YAMLError:
+                    pass
+                return {}  # block present but empty / malformed
+            i += 1
+        return None  # block absent

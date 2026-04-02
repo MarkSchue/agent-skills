@@ -11,8 +11,10 @@ import logging
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
+import base64
 
 from scripts.rendering.base_card import RenderBox
+from scripts.exporting.icon_resolver import IconResolver
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +28,8 @@ class DrawioExporter:
 
     def __init__(self, project_root: str | Path | None = None) -> None:
         self.project_root = Path(project_root) if project_root else None
+        _cache = (self.project_root / "assets" / "icons") if self.project_root else Path("/tmp/drawio_icon_cache")
+        self._icon_resolver = IconResolver(_cache)
 
     def export(
         self,
@@ -34,6 +38,7 @@ class DrawioExporter:
         *,
         canvas_width: int = 1280,
         canvas_height: int = 720,
+        slide_titles: list[str] | None = None,
     ) -> Path:
         """Write the rendered slide boxes to a ``.drawio`` file.
 
@@ -42,6 +47,7 @@ class DrawioExporter:
             output_path: Destination file path.
             canvas_width: Slide width in px.
             canvas_height: Slide height in px.
+            slide_titles: Optional list of slide titles used as diagram tab names.
 
         Returns:
             The resolved output ``Path``.
@@ -50,8 +56,13 @@ class DrawioExporter:
         root.set("host", "presentation-design")
 
         for page_idx, slide_box in enumerate(slides):
+            # Tab name: slide title when available, else generic fallback
+            tab_name = (
+                (slide_titles[page_idx] if slide_titles and page_idx < len(slide_titles) else None)
+                or f"Slide {page_idx + 1}"
+            )
             diagram = ET.SubElement(root, "diagram")
-            diagram.set("name", f"Slide {page_idx + 1}")
+            diagram.set("name", tab_name)
             diagram.set("id", f"slide-{page_idx}")
 
             mx_model = ET.SubElement(diagram, "mxGraphModel")
@@ -104,6 +115,8 @@ class DrawioExporter:
             return self._add_line(mx_root, elem, cell_id)
         elif etype == "image":
             return self._add_image(mx_root, elem, cell_id)
+        elif etype == "icon":
+            return self._add_icon(mx_root, elem, cell_id)
         elif etype == "placeholder":
             return cell_id  # skip placeholders
         return cell_id
@@ -149,17 +162,20 @@ class DrawioExporter:
         font_size_pt = round(float(font_size) * 72 / 96, 1)
         font_color = elem.get("font_color", "#000000")
         weight = elem.get("font_weight", "normal")
-        bold = "1" if weight == "bold" else "0"
-        italic = "1" if elem.get("font_style") == "italic" else "0"
+        style = str(elem.get("font_style") or "").lower()
+        bold = "1" if (str(weight).lower() in ("bold", "700") or "bold" in style) else "0"
+        italic = "1" if "italic" in style else "0"
         align = elem.get("alignment", "left")
         font_family = elem.get("font_family", "")
         font_family_attr = f"fontFamily={font_family};" if font_family else ""
 
+        v_align = elem.get("vertical_align", "top")
+        drawio_valign = {"top": "top", "middle": "middle", "bottom": "bottom"}.get(v_align, "top")
         style = (
             f"text;html=1;fontSize={font_size_pt};fontColor={font_color};"
             f"fontStyle={(int(bold) * 1) + (int(italic) * 2)};"
             f"{font_family_attr}"
-            f"align={align};verticalAlign=top;whiteSpace=wrap;overflow=hidden;"
+            f"align={align};verticalAlign={drawio_valign};whiteSpace=wrap;overflow=hidden;"
             f"fillColor=none;strokeColor=none;"
         )
         cell.set("style", style)
@@ -210,6 +226,45 @@ class DrawioExporter:
         tgt_pt.set("as", "targetPoint")
 
         return cell_id + 1
+
+    def _add_icon(
+        self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
+    ) -> int:
+        """Render an icon as an embedded base64 SVG image in draw.io."""
+        name = str(elem.get("name", ""))
+        color = str(elem.get("color") or "#000000")
+        font_family = str(elem.get("font_family") or "")
+
+        svg_path = self._icon_resolver.resolve(name, font_family, color)
+        if svg_path is not None:
+            try:
+                svg_b64 = base64.b64encode(svg_path.read_bytes()).decode("ascii")
+                data_uri = f"data:image/svg+xml;base64,{svg_b64}"
+
+                cell = ET.SubElement(mx_root, "mxCell")
+                cell.set("id", str(cell_id))
+                cell.set("parent", "1")
+                cell.set("vertex", "1")
+                style = (
+                    f"shape=image;image={data_uri};"
+                    "imageAspect=1;aspect=fixed;"
+                    "fillColor=none;strokeColor=none;"
+                )
+                cell.set("style", style)
+                cell.set("value", "")
+
+                geo = ET.SubElement(cell, "mxGeometry")
+                geo.set("x", str(elem["x"]))
+                geo.set("y", str(elem["y"]))
+                geo.set("width", str(elem.get("w", 20)))
+                geo.set("height", str(elem.get("h", 20)))
+                geo.set("as", "geometry")
+                return cell_id + 1
+            except Exception as exc:
+                logger.warning("draw.io SVG icon failed for %s: %s — skipping", name, exc)
+
+        # Fallback: skip (icon invisible but at least no crash)
+        return cell_id
 
     def _add_image(
         self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int

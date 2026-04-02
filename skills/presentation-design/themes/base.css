@@ -857,8 +857,9 @@
     /* px — space between bar and col 1 */
 
     /* ── Active entry text style ──────────────────────────────────────────── */
-    --card-agenda-active-color: var(--color-primary);
-    /* active number + title colour */
+    --card-agenda-active-number-color: var(--color-primary);   /* highlighted col 1 — number / indicator */
+    --card-agenda-active-title-color: var(--color-primary);    /* highlighted col 2 — section title */
+    --card-agenda-active-info-color: var(--color-text-subtle); /* highlighted col 3 — info text */
     --card-agenda-active-font-weight: 700;
     /* bold weight for active row */
     --card-agenda-active-font-style: normal;
@@ -873,8 +874,9 @@
     /* normal | italic */
 
     /* ── Row geometry ─────────────────────────────────────────────────────── */
-    --card-agenda-entry-spacing: 12;
-    /* px — vertical gap between rows */
+    --card-agenda-entry-font-size: 16;                            /* px — text height for each row */
+    --card-agenda-row-height: 36;                                 /* px — full row height (controls highlight bar height) */
+    /* --card-agenda-entry-spacing: 12; */                        /* legacy token; row-height overrides it */
 
     /* ── Row separator line (horizontal rule between entries) ──────────────── */
     --card-agenda-separator-visible: false;
@@ -923,16 +925,6 @@
     --card-agenda-info-font-weight: 400;
     --card-agenda-info-font-style: normal;
     /* normal | italic */
-
-    /* ── Legacy tokens (kept for backward compatibility) ───────────────────── */
-    --card-agenda-bullet-color: var(--color-accent);
-    /* fallback for highlight-bar-color */
-    --card-agenda-highlight-font-color: var(--color-accent);
-    --card-agenda-highlight-font-weight: 700;
-    --card-agenda-item-font-size: 14;
-    --card-agenda-item-font-color: var(--color-text-subtle);
-    --card-agenda-item-alignment: left;
-    --card-agenda-column-gap: 20;
 
     /* ── Body icon placeholder — future use ────────────────────────────────── */
     --card-agenda-icon-visible: false;

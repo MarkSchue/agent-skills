@@ -301,10 +301,11 @@ presentation design system. It is auto-generated from `themes/base.css`.
 ### Agenda — `.card--agenda`
 | Token | Default |
 |-------|---------|
-| `--card-agenda-active-color` | #1A1A2E |
+| `--card-agenda-active-number-color` | var(--color-primary) | highlighted col 1 — number |
+| `--card-agenda-active-title-color` | var(--color-primary) | highlighted col 2 — section title |
+| `--card-agenda-active-info-color` | var(--color-text-subtle) | highlighted col 3 — info text |
 | `--card-agenda-active-font-weight` | 700 |
 | `--card-agenda-inactive-color` | #9CA3AF |
 | `--card-agenda-inactive-font-weight` | 400 |
-| `--card-agenda-bullet-color` | #3B82F6 |
 | `--card-agenda-entry-font-size` | 16 |
-| `--card-agenda-entry-spacing` | 12 |
+| `--card-agenda-row-height` | 36 |
