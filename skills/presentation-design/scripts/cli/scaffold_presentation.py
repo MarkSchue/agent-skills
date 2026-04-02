@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent.parent.parent
-THEME_TEMPLATE = SKILL_DIR / "themes" / "default-theme.css"
+THEME_TEMPLATE = SKILL_DIR / "themes" / "base.css"
 
 STARTER_DECK = """\
 # My Presentation

@@ -152,7 +152,7 @@ presentation-design/
 │   ├── grid-1x1.md … grid-3x4.md
 ├── themes/
 │   ├── base.css          full token set — source-of-truth template
-│   └── default-theme.css neutral theme with safe defaults
+│   └── default-theme.css reference-only sparse override example
 ├── scripts/
 │   ├── models/           domain classes
 │   ├── parsing/          Markdown + YAML parser
