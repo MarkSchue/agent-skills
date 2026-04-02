@@ -515,108 +515,148 @@
    6. Card Variant — KPI Card
    ================================================================= */
 .card--kpi {
+
+  /* Metric value */
   --card-kpi-value-font-size: 48;                               /* px — main metric size */
   --card-kpi-value-font-color: var(--color-primary);            /* metric text colour */
   --card-kpi-value-font-weight: 700;
   --card-kpi-value-font-style: normal;                          /* normal | italic | bold | italic bold */
+  --card-kpi-value-alignment: center;                           /* left | center | right */
+  --card-kpi-value-vertical-align: middle;                      /* top | middle | bottom */
+
+  /* Trend indicator */
   --card-kpi-trend-color-up: var(--color-success);              /* positive trend */
   --card-kpi-trend-color-down: var(--color-error);              /* negative trend */
   --card-kpi-trend-color-neutral: var(--color-text-muted);      /* flat / neutral */
-  --card-kpi-label-font-size: 12;                               /* px — supporting label */
+  --card-kpi-trend-font-size: 14;                               /* px */
+  --card-kpi-trend-alignment: center;                           /* left | center | right */
+
+  /* Comparison value */
+  --card-kpi-comparison-font-size: 12;                          /* px */
+
+  /* Supporting label */
+  --card-kpi-label-font-size: 12;                               /* px */
   --card-kpi-label-font-color: var(--color-text-muted);
   --card-kpi-label-font-style: normal;                          /* normal | italic | bold | italic bold */
+  --card-kpi-label-alignment: center;                           /* left | center | right */
 
-  /* KPI body icon placeholder — for future use (e.g. trend arrow, metric category icon) */
-  --card-kpi-icon-visible:   false;                             /* true | false */
-  --card-kpi-icon-name:      "";                                /* icon ligature / codepoint */
-  --card-kpi-icon-size:      32;                                /* px — body icons are larger in KPI cards */
-  --card-kpi-icon-color:     var(--color-accent);
-  --card-kpi-icon-position:  above-value;                       /* above-value | left-of-value | decorative */
-  /* KPI element alignment */
-  --card-kpi-value-alignment: center;                           /* left | center | right */
-  --card-kpi-value-vertical-align: middle;                      /* top | middle | bottom */
-  --card-kpi-trend-alignment: center;                           /* left | center | right */
-  --card-kpi-trend-font-size: 14;                               /* px */
-  --card-kpi-comparison-font-size: 12;                          /* px */
-  --card-kpi-label-alignment: center;                           /* left | center | right */}
+  /* Body icon placeholder — for future use (e.g. trend arrow, metric category icon) */
+  --card-kpi-icon-visible:      false;                          /* true | false */
+  --card-kpi-icon-name:         "";                             /* icon ligature / codepoint */
+  --card-kpi-icon-size:         32;                             /* px — body icons are larger in KPI cards */
+  --card-kpi-icon-color:        var(--color-accent);
+  --card-kpi-icon-position:     above-value;                    /* above-value | left-of-value | decorative */
+}
 
 
 /* =================================================================
    7. Card Variant — Chart Card
    ================================================================= */
 .card--chart {
+
+  /* Axis */
   --card-chart-axis-color: var(--color-text-muted);             /* axis line colour */
   --card-chart-axis-font-size: 10;                              /* axis label size */
   --card-chart-axis-font-style: normal;                         /* normal | italic | bold | italic bold */
+
+  /* Grid */
   --card-chart-grid-color: var(--color-surface-raised);         /* grid line colour */
+
+  /* Legend */
   --card-chart-legend-font-size: 11;                            /* legend text size */
   --card-chart-legend-font-style: normal;                       /* normal | italic | bold | italic bold */
   --card-chart-legend-position: bottom;                         /* bottom | right | top */
 
-  /* Chart body icon placeholder — for future use (e.g. legend icons, header badge) */
-  --card-chart-icon-visible:   false;                           /* true | false */
-  --card-chart-icon-name:      "";                              /* icon ligature / codepoint */
-  --card-chart-icon-size:      20;                              /* px */
-  --card-chart-icon-color:     var(--color-text-muted);
-  --card-chart-icon-position:  legend;                          /* legend | header | decorative */
-  /* Chart element alignment */
-  --card-chart-caption-alignment: center;                       /* left | center | right */}
+  /* Caption */
+  --card-chart-caption-font-size: 11;                           /* px */
+  --card-chart-caption-font-color: var(--color-text-muted);     /* caption text colour */
+  --card-chart-caption-alignment: center;                       /* left | center | right */
+
+  /* Body icon placeholder — for future use (e.g. legend icons, header badge) */
+  --card-chart-icon-visible:    false;                          /* true | false */
+  --card-chart-icon-name:       "";                             /* icon ligature / codepoint */
+  --card-chart-icon-size:       20;                             /* px */
+  --card-chart-icon-color:      var(--color-text-muted);
+  --card-chart-icon-position:   legend;                         /* legend | header | decorative */
+}
 
 
 /* =================================================================
    8. Card Variant — Quote Card
    ================================================================= */
 .card--quote {
-  --card-quote-accent-color: var(--color-accent);              /* left accent bar colour */
+
+  /* Accent bar */
+  --card-quote-accent-color: var(--color-accent);               /* left accent bar colour */
   --card-quote-accent-width: 4;                                 /* px — accent bar width */
+
+  /* Quote text */
   --card-quote-font-size: 18;                                   /* px — quote text */
   --card-quote-font-color: var(--color-text-subtle);
   --card-quote-font-style: italic;                              /* normal | italic | bold | italic bold */
   --card-quote-mark-color: var(--color-border);                 /* quotation mark colour */
   --card-quote-mark-size: 48;                                   /* px — decorative mark */
+  --card-quote-text-alignment: left;                            /* left | center | right */
+
+  /* Attribution */
   --card-quote-attribution-font-size: 12;
   --card-quote-attribution-font-color: var(--color-text-muted);
   --card-quote-attribution-font-style: normal;                  /* normal | italic | bold | italic bold */
+  --card-quote-attribution-alignment: left;                     /* left | center | right */
 
-  /* Quote body icon placeholder — for future use (decorative quotation-mark or attribution icon) */
-  --card-quote-icon-visible:   false;                           /* true | false */
-  --card-quote-icon-name:      "";                              /* e.g. "format_quote" for Material Symbols */
-  --card-quote-icon-size:      40;                              /* px — typically used as large decorative mark */
-  --card-quote-icon-color:     var(--color-border);
-  --card-quote-icon-position:  decorative;                      /* decorative | attribution */
-  /* Quote element alignment */
-  --card-quote-text-alignment: left;                            /* left | center | right */
-  --card-quote-attribution-alignment: left;                     /* left | center | right */}
+  /* Body icon placeholder — for future use (decorative quotation-mark or attribution icon) */
+  --card-quote-icon-visible:    false;                          /* true | false */
+  --card-quote-icon-name:       "";                             /* e.g. "format_quote" for Material Symbols */
+  --card-quote-icon-size:       40;                             /* px — typically used as large decorative mark */
+  --card-quote-icon-color:      var(--color-border);
+  --card-quote-icon-position:   decorative;                     /* decorative | attribution */
+}
 
 
 /* =================================================================
    9. Card Variant — Agenda Card
    ================================================================= */
 .card--agenda {
+
+  /* Active section entry */
   --card-agenda-active-color: var(--color-primary);             /* active section text */
   --card-agenda-active-font-weight: 700;
   --card-agenda-active-font-style: normal;                      /* normal | italic | bold | italic bold */
+
+  /* Inactive section entry */
   --card-agenda-inactive-color: var(--color-text-muted);        /* muted sections */
   --card-agenda-inactive-font-weight: 400;
   --card-agenda-inactive-font-style: normal;                    /* normal | italic | bold | italic bold */
-  --card-agenda-highlight-font-color: var(--color-accent);     /* highlighted entry */
+
+  /* Highlighted entry */
+  --card-agenda-highlight-font-color: var(--color-accent);      /* highlighted entry */
   --card-agenda-highlight-font-weight: 700;
   --card-agenda-highlight-font-style: normal;                   /* normal | italic | bold | italic bold */
+
+  /* Bullet marker */
   --card-agenda-bullet-color: var(--color-accent);              /* active bullet colour */
+
+  /* Section entry row */
   --card-agenda-entry-font-size: 16;                            /* section entry size */
   --card-agenda-entry-font-style: normal;                       /* normal | italic | bold | italic bold */
-  --card-agenda-entry-spacing: 12;                              /* px — vertical gap */
-  --card-agenda-number-font-color: var(--color-text-muted);     /* numbering colour */
-  --card-agenda-column-gap: 20;                                 /* px — column spacing */
-  --card-agenda-item-font-size: 14;                             /* px — item text */
-  --card-agenda-item-font-color: var(--color-text-subtle);   /* item text colour */
-  --card-agenda-item-font-style: normal;                        /* normal | italic | bold | italic bold */
+  --card-agenda-entry-spacing: 12;                              /* px — vertical gap between entries */
 
-  /* Agenda body icon placeholder — for future use (entry-prefix marker, section indicator) */
+  /* Section number */
+  --card-agenda-number-font-color: var(--color-text-muted);     /* numbering colour */
+
+  /* Section item text */
+  --card-agenda-item-font-size: 14;                             /* px — item text */
+  --card-agenda-item-font-color: var(--color-text-subtle);      /* item text colour */
+  --card-agenda-item-font-style: normal;                        /* normal | italic | bold | italic bold */
+  --card-agenda-item-alignment: left;                           /* left | center | right */
+
+  /* Column layout */
+  --card-agenda-column-gap: 20;                                 /* px — column spacing */
+
+  /* Body icon placeholder — for future use (entry-prefix marker, section indicator) */
   --card-agenda-icon-visible:   false;                          /* true | false */
   --card-agenda-icon-name:      "";                             /* shown next to active / highlighted entry */
   --card-agenda-icon-size:      16;                             /* px */
   --card-agenda-icon-color:     var(--color-accent);
   --card-agenda-icon-position:  entry-prefix;                   /* entry-prefix | section-prefix */
-  /* Agenda element alignment */
-  --card-agenda-item-alignment: left;                           /* left | center | right */}
+}
