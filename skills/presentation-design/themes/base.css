@@ -163,13 +163,13 @@
   --icon-font-cdn:      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css";
   --icon-render-mode:   font;
   --icon-font-size:     20;
-  --icon-font-weight:   900;                                     /* FA solid requires weight 900 */
+  --icon-font-weight:   900;                                     -- FA solid requires weight 900
 } */
 
 /* --- Emoji (no CDN — built-in OS Unicode, zero-dependency) ---
 .icon-set {
   --icon-font-family:   "Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji";
-  --icon-font-cdn:      none;                                    /* no import needed */
+  --icon-font-cdn:      none;                                    -- no CDN import needed
   --icon-render-mode:   emoji;
   --icon-font-size:     20;
   --icon-font-weight:   400;
