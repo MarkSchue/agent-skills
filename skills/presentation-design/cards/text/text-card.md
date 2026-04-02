@@ -44,6 +44,7 @@ General-purpose text card with heading, body text, and typography variants.
 | `content.footnote` | string | — | Footnote text at bottom |
 | `subtitle` | string | — | Subtitle text below the header line |
 | `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle (auto-`true` when `subtitle` text is set) |
+| `subtitle_alignment` | string | `left` | `left` \| `center` \| `right` |
 | `icon.name` | string | `""` | Icon ligature or codepoint (e.g. `"article"` for Material Symbols Outlined) |
 | `icon.visible` | bool | `false` | Show/hide the title icon |
 | `icon.position` | string | `right` | `left` \| `right` — which side of the title row |
@@ -56,6 +57,7 @@ All `.card-base` overrides plus subtitle and icon tokens:
 - `card_subtitle_font_size` — subtitle text size (px)
 - `card_subtitle_font_color` — subtitle text color
 - `card_subtitle_font_style` — `normal` or `italic`
+- `card_subtitle_alignment` — `left` | `center` | `right`
 - `card_icon_name` — icon ligature / codepoint
 - `card_icon_position` — `left` or `right`
 - `card_icon_color` — icon foreground color

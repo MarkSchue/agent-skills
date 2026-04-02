@@ -142,6 +142,7 @@ Every card YAML block normalizes to this schema:
 | `subtitle_font_color` | string | Subtitle text color |
 | `subtitle_font_size` | int | Subtitle font size (px) |
 | `subtitle_font_style` | string | `normal` \| `italic` |
+| `subtitle_alignment` | string | `left` \| `center` \| `right` |
 | `icon_visible` | bool | Show/hide icon next to card title |
 | `icon_name` | string | Icon ligature or Unicode codepoint (e.g. `"bar_chart"`) |
 | `icon_position` | string | `left` \| `right` |

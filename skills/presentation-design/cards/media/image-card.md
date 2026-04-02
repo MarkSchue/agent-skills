@@ -42,6 +42,7 @@ Card displaying an image in full-bleed, framed, or circular presentation mode.
 | `content.image_style` | string | `framed` | `fullbleed` \| `framed` \| `circular` |
 | `subtitle` | string | — | Subtitle text below the header line |
 | `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle (auto-`true` when `subtitle` text is set) |
+| `subtitle_alignment` | string | `left` | `left` \| `center` \| `right` |
 | `icon.name` | string | `""` | Icon ligature or codepoint (e.g. `"photo_camera"` for Material Symbols Outlined) |
 | `icon.visible` | bool | `false` | Show/hide the title icon |
 | `icon.position` | string | `right` | `left` \| `right` — which side of the title row |
@@ -55,6 +56,7 @@ All `.card-base` overrides plus:
 
 Subtitle and icon tokens (shared with all card types):
 - `card_subtitle_font_size` / `card_subtitle_font_color` / `card_subtitle_font_style`
+- `card_subtitle_alignment` — `left` | `center` | `right`
 - `card_icon_name` / `card_icon_position` / `card_icon_color` / `card_icon_size`
 
 ## Design Tokens Used

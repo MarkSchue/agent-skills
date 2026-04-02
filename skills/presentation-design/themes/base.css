@@ -383,6 +383,7 @@
   --card-subtitle-font-color:     var(--color-text-muted);      /* subtitle text colour */
   --card-subtitle-font-weight:    400;
   --card-subtitle-font-style:     normal;                       /* normal | italic */
+  --card-subtitle-alignment:      left;                         /* left | center | right */
   --card-subtitle-margin-top:     6;                            /* px — gap below header line */
   --card-subtitle-margin-bottom:  8;                            /* px — gap above body */
 
@@ -527,6 +528,61 @@
   --card-kpi-icon-size:      32;                                /* px — body icons are larger in KPI cards */
   --card-kpi-icon-color:     var(--color-accent);
   --card-kpi-icon-position:  above-value;                       /* above-value | left-of-value | decorative */
+
+  /* ---------------------------------------------------------------
+     Base token overrides — uncomment any line to change the default
+     .card-base value specifically for ALL KPI cards in this deck.
+     --------------------------------------------------------------- */
+  /*
+  --card-background-color:       var(--color-surface);
+  --card-border-color:           var(--color-border);
+  --card-border-width:           1;
+  --card-border-radius:          8;
+  --card-padding:                16;
+  --card-shadow:                 0 1 3 rgba(0,0,0,0.1);
+
+  --card-title-font-size:        16;
+  --card-title-font-color:       var(--color-text-default);
+  --card-title-font-weight:      600;
+  --card-title-font-style:       normal;
+  --card-title-alignment:        left;
+  --card-title-visible:          true;
+
+  --card-icon-visible:           false;
+  --card-icon-name:              "";
+  --card-icon-position:          right;
+  --card-icon-size:              20;
+  --card-icon-color:             var(--color-accent);
+  --card-icon-background-color:  transparent;
+  --card-icon-background-radius: 4;
+  --card-icon-padding:           4;
+  --card-icon-gap:               8;
+
+  --card-header-line-color:      var(--color-border);
+  --card-header-line-width:      1;
+  --card-header-line-alignment:  left;
+  --card-header-line-visible:    true;
+
+  --card-subtitle-visible:       false;
+  --card-subtitle-font-size:     12;
+  --card-subtitle-font-color:    var(--color-text-muted);
+  --card-subtitle-font-weight:   400;
+  --card-subtitle-font-style:    normal;
+  --card-subtitle-alignment:     left;
+  --card-subtitle-margin-top:    6;
+  --card-subtitle-margin-bottom: 8;
+
+  --card-footer-line-color:      var(--color-border);
+  --card-footer-line-width:      1;
+  --card-footer-line-alignment:  left;
+  --card-footer-line-visible:    false;
+
+  --card-body-font-size:         14;
+  --card-body-font-color:        var(--color-text-subtle);
+  --card-body-font-weight:       400;
+  --card-body-font-style:        normal;
+  --card-body-background-color:  transparent;
+  */
 }
 
 
@@ -548,6 +604,61 @@
   --card-chart-icon-size:      20;                              /* px */
   --card-chart-icon-color:     var(--color-text-muted);
   --card-chart-icon-position:  legend;                          /* legend | header | decorative */
+
+  /* ---------------------------------------------------------------
+     Base token overrides — uncomment any line to change the default
+     .card-base value specifically for ALL Chart cards in this deck.
+     --------------------------------------------------------------- */
+  /*
+  --card-background-color:       var(--color-surface);
+  --card-border-color:           var(--color-border);
+  --card-border-width:           1;
+  --card-border-radius:          8;
+  --card-padding:                16;
+  --card-shadow:                 0 1 3 rgba(0,0,0,0.1);
+
+  --card-title-font-size:        16;
+  --card-title-font-color:       var(--color-text-default);
+  --card-title-font-weight:      600;
+  --card-title-font-style:       normal;
+  --card-title-alignment:        left;
+  --card-title-visible:          true;
+
+  --card-icon-visible:           false;
+  --card-icon-name:              "";
+  --card-icon-position:          right;
+  --card-icon-size:              20;
+  --card-icon-color:             var(--color-accent);
+  --card-icon-background-color:  transparent;
+  --card-icon-background-radius: 4;
+  --card-icon-padding:           4;
+  --card-icon-gap:               8;
+
+  --card-header-line-color:      var(--color-border);
+  --card-header-line-width:      1;
+  --card-header-line-alignment:  left;
+  --card-header-line-visible:    true;
+
+  --card-subtitle-visible:       false;
+  --card-subtitle-font-size:     12;
+  --card-subtitle-font-color:    var(--color-text-muted);
+  --card-subtitle-font-weight:   400;
+  --card-subtitle-font-style:    normal;
+  --card-subtitle-alignment:     left;
+  --card-subtitle-margin-top:    6;
+  --card-subtitle-margin-bottom: 8;
+
+  --card-footer-line-color:      var(--color-border);
+  --card-footer-line-width:      1;
+  --card-footer-line-alignment:  left;
+  --card-footer-line-visible:    false;
+
+  --card-body-font-size:         14;
+  --card-body-font-color:        var(--color-text-subtle);
+  --card-body-font-weight:       400;
+  --card-body-font-style:        normal;
+  --card-body-background-color:  transparent;
+  */
 }
 
 
@@ -572,6 +683,61 @@
   --card-quote-icon-size:      40;                              /* px — typically used as large decorative mark */
   --card-quote-icon-color:     var(--color-border);
   --card-quote-icon-position:  decorative;                      /* decorative | attribution */
+
+  /* ---------------------------------------------------------------
+     Base token overrides — uncomment any line to change the default
+     .card-base value specifically for ALL Quote cards in this deck.
+     --------------------------------------------------------------- */
+  /*
+  --card-background-color:       var(--color-surface);
+  --card-border-color:           var(--color-border);
+  --card-border-width:           1;
+  --card-border-radius:          8;
+  --card-padding:                16;
+  --card-shadow:                 0 1 3 rgba(0,0,0,0.1);
+
+  --card-title-font-size:        16;
+  --card-title-font-color:       var(--color-text-default);
+  --card-title-font-weight:      600;
+  --card-title-font-style:       normal;
+  --card-title-alignment:        left;
+  --card-title-visible:          true;
+
+  --card-icon-visible:           false;
+  --card-icon-name:              "";
+  --card-icon-position:          right;
+  --card-icon-size:              20;
+  --card-icon-color:             var(--color-accent);
+  --card-icon-background-color:  transparent;
+  --card-icon-background-radius: 4;
+  --card-icon-padding:           4;
+  --card-icon-gap:               8;
+
+  --card-header-line-color:      var(--color-border);
+  --card-header-line-width:      1;
+  --card-header-line-alignment:  left;
+  --card-header-line-visible:    true;
+
+  --card-subtitle-visible:       false;
+  --card-subtitle-font-size:     12;
+  --card-subtitle-font-color:    var(--color-text-muted);
+  --card-subtitle-font-weight:   400;
+  --card-subtitle-font-style:    normal;
+  --card-subtitle-alignment:     left;
+  --card-subtitle-margin-top:    6;
+  --card-subtitle-margin-bottom: 8;
+
+  --card-footer-line-color:      var(--color-border);
+  --card-footer-line-width:      1;
+  --card-footer-line-alignment:  left;
+  --card-footer-line-visible:    false;
+
+  --card-body-font-size:         14;
+  --card-body-font-color:        var(--color-text-subtle);
+  --card-body-font-weight:       400;
+  --card-body-font-style:        normal;
+  --card-body-background-color:  transparent;
+  */
 }
 
 
@@ -604,4 +770,59 @@
   --card-agenda-icon-size:      16;                             /* px */
   --card-agenda-icon-color:     var(--color-accent);
   --card-agenda-icon-position:  entry-prefix;                   /* entry-prefix | section-prefix */
+
+  /* ---------------------------------------------------------------
+     Base token overrides — uncomment any line to change the default
+     .card-base value specifically for ALL Agenda cards in this deck.
+     --------------------------------------------------------------- */
+  /*
+  --card-background-color:       var(--color-surface);
+  --card-border-color:           var(--color-border);
+  --card-border-width:           1;
+  --card-border-radius:          8;
+  --card-padding:                16;
+  --card-shadow:                 0 1 3 rgba(0,0,0,0.1);
+
+  --card-title-font-size:        16;
+  --card-title-font-color:       var(--color-text-default);
+  --card-title-font-weight:      600;
+  --card-title-font-style:       normal;
+  --card-title-alignment:        left;
+  --card-title-visible:          true;
+
+  --card-icon-visible:           false;
+  --card-icon-name:              "";
+  --card-icon-position:          right;
+  --card-icon-size:              20;
+  --card-icon-color:             var(--color-accent);
+  --card-icon-background-color:  transparent;
+  --card-icon-background-radius: 4;
+  --card-icon-padding:           4;
+  --card-icon-gap:               8;
+
+  --card-header-line-color:      var(--color-border);
+  --card-header-line-width:      1;
+  --card-header-line-alignment:  left;
+  --card-header-line-visible:    true;
+
+  --card-subtitle-visible:       false;
+  --card-subtitle-font-size:     12;
+  --card-subtitle-font-color:    var(--color-text-muted);
+  --card-subtitle-font-weight:   400;
+  --card-subtitle-font-style:    normal;
+  --card-subtitle-alignment:     left;
+  --card-subtitle-margin-top:    6;
+  --card-subtitle-margin-bottom: 8;
+
+  --card-footer-line-color:      var(--color-border);
+  --card-footer-line-width:      1;
+  --card-footer-line-alignment:  left;
+  --card-footer-line-visible:    false;
+
+  --card-body-font-size:         14;
+  --card-body-font-color:        var(--color-text-subtle);
+  --card-body-font-weight:       400;
+  --card-body-font-style:        normal;
+  --card-body-background-color:  transparent;
+  */
 }
