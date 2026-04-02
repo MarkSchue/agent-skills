@@ -145,6 +145,8 @@ class DrawioExporter:
         cell.set("vertex", "1")
 
         font_size = elem.get("font_size", 14)
+        # Convert px → pt to match draw.io's internal unit (same as pptx exporter)
+        font_size_pt = round(float(font_size) * 72 / 96, 1)
         font_color = elem.get("font_color", "#000000")
         weight = elem.get("font_weight", "normal")
         bold = "1" if weight == "bold" else "0"
@@ -152,7 +154,7 @@ class DrawioExporter:
         align = elem.get("alignment", "left")
 
         style = (
-            f"text;html=1;fontSize={font_size};fontColor={font_color};"
+            f"text;html=1;fontSize={font_size_pt};fontColor={font_color};"
             f"fontStyle={(int(bold) * 1) + (int(italic) * 2)};"
             f"align={align};verticalAlign=top;whiteSpace=wrap;overflow=hidden;"
             f"fillColor=none;strokeColor=none;"
@@ -161,7 +163,7 @@ class DrawioExporter:
         cell.set("value", str(elem.get("text", "")))
 
         w = elem.get("w", 200)
-        h = elem.get("h", float(font_size) * 2)
+        h = elem.get("h", float(font_size) + 8)
         geo = ET.SubElement(cell, "mxGeometry")
         geo.set("x", str(elem["x"]))
         geo.set("y", str(elem["y"]))

@@ -26,3 +26,10 @@ by full instructions for the agent.
   of the relevant block instead.
 - CLI entry points live in `scripts/cli/`; importable library code lives in
   `scripts/` sub-packages (`models/`, `parsing/`, `rendering/`, `exporting/`).
+- **Keep exporters in sync:** `scripts/exporting/pptx_exporter.py` and
+  `scripts/exporting/drawio_exporter.py` must always be kept in sync. Any new
+  element type, coordinate formula, font-size unit conversion, or spacing
+  calculation added to one exporter **must be immediately reflected in the other**.
+  Both exporters share the same intermediate element dicts produced by the
+  renderers; their visual output should match as closely as each target format
+  allows.

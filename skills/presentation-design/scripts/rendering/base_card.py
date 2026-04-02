@@ -174,20 +174,21 @@ class BaseCardRenderer(ABC):
 
         if card.title:
             title_size = self.resolve("card-title-font-size") or 16
+            line_gap = float(self.resolve("card-title-line-gap") or 8)
             box.add(
                 {
                     "type": "text",
                     "x": box.x + self._pad_left,
                     "y": y,
                     "w": box.w - self._pad_left - self._pad_right,
-                    "h": float(title_size) + 4,
+                    "h": float(title_size) + line_gap,
                     "text": card.title,
                     "font_size": title_size,
                     "font_color": self.resolve("card-title-font-color"),
                     "font_weight": self.resolve("card-title-font-weight"),
                 }
             )
-            y += float(title_size) + 4
+            y += float(title_size) + line_gap
 
             # Header line
             line_width = self.resolve("card-title-line-width")

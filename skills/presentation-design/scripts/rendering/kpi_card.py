@@ -23,8 +23,20 @@ class KpiCardRenderer(BaseCardRenderer):
 
         value_size = float(self.resolve("card-kpi-value-font-size") or 48)
         value_color = self.resolve("card-kpi-value-font-color") or "#1A1A1A"
+        value_align = self.resolve("card-kpi-value-alignment") or "center"
+        value_valign = self.resolve("card-kpi-value-vertical-align") or "middle"
+        trend_font_size = float(self.resolve("card-kpi-trend-font-size") or 14)
+        comparison_font_size = float(self.resolve("card-kpi-comparison-font-size") or 12)
+        trend_align = self.resolve("card-kpi-trend-alignment") or "center"
+        label_align = self.resolve("card-kpi-label-alignment") or "center"
 
-        y = box.y + (box.h - value_size) * 0.35  # vertically center-ish
+        # Compute vertical start position based on value-vertical-align token
+        if value_valign == "top":
+            y = box.y
+        elif value_valign == "bottom":
+            y = box.y + box.h - value_size - 8
+        else:  # middle (default)
+            y = box.y + (box.h - value_size) * 0.35
 
         # Large metric value
         box.add(
@@ -37,7 +49,7 @@ class KpiCardRenderer(BaseCardRenderer):
                 "font_size": value_size,
                 "font_color": value_color,
                 "font_weight": "bold",
-                "alignment": "center",
+                "alignment": value_align,
             }
         )
         y += value_size + 8
@@ -58,12 +70,12 @@ class KpiCardRenderer(BaseCardRenderer):
                     "y": y,
                     "w": box.w,
                     "text": trend_text,
-                    "font_size": 14,
+                    "font_size": trend_font_size,
                     "font_color": trend_color,
-                    "alignment": "center",
+                    "alignment": trend_align,
                 }
             )
-            y += 22
+            y += trend_font_size + 8
         elif comparison:
             box.add(
                 {
@@ -72,16 +84,16 @@ class KpiCardRenderer(BaseCardRenderer):
                     "y": y,
                     "w": box.w,
                     "text": comparison,
-                    "font_size": 12,
-                    "font_color": "#888888",
-                    "alignment": "center",
+                    "font_size": comparison_font_size,
+                    "font_color": self.resolve("card-kpi-trend-color-neutral") or "#888888",
+                    "alignment": trend_align,
                 }
             )
-            y += 20
+            y += comparison_font_size + 8
 
         # Supporting label
         if label:
-            label_size = float(self.resolve("text-caption-font-size") or 11)
+            label_size = float(self.resolve("card-kpi-label-font-size") or self.resolve("text-caption-font-size") or 11)
             box.add(
                 {
                     "type": "text",
@@ -90,7 +102,7 @@ class KpiCardRenderer(BaseCardRenderer):
                     "w": box.w,
                     "text": label,
                     "font_size": label_size,
-                    "font_color": self.resolve("text-caption-font-color") or "#888888",
-                    "alignment": "center",
+                    "font_color": self.resolve("card-kpi-label-font-color") or self.resolve("text-caption-font-color") or "#888888",
+                    "alignment": label_align,
                 }
             )

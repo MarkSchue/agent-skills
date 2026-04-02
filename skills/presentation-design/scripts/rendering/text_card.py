@@ -23,6 +23,8 @@ class TextCardRenderer(BaseCardRenderer):
         font_size = float(self.resolve("text-body-font-size") or 14)
         font_color = self.resolve("text-body-font-color") or "#333333"
         line_height = font_size * 1.5
+        body_align = self.resolve("card-body-alignment") or "left"
+        bullet_indent = float(self.resolve("card-body-bullet-indent") or 12)
 
         # Body paragraph
         if body_text:
@@ -36,6 +38,7 @@ class TextCardRenderer(BaseCardRenderer):
                     "font_size": font_size,
                     "font_color": font_color,
                     "font_weight": self.resolve("text-body-font-weight") or "normal",
+                    "alignment": body_align,
                     "wrap": True,
                 }
             )
@@ -50,12 +53,13 @@ class TextCardRenderer(BaseCardRenderer):
             box.add(
                 {
                     "type": "text",
-                    "x": box.x + 12,
+                    "x": box.x + bullet_indent,
                     "y": y,
-                    "w": box.w - 12,
+                    "w": box.w - bullet_indent,
                     "text": bullet_text,
                     "font_size": font_size,
                     "font_color": font_color,
+                    "alignment": body_align,
                     "wrap": True,
                 }
             )

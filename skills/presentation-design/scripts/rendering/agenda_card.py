@@ -48,6 +48,7 @@ class AgendaCardRenderer(BaseCardRenderer):
         hl_weight = self.resolve("card-agenda-highlight-font-weight") or "bold"
         number_color = self.resolve("card-agenda-number-font-color") or "#888888"
         col_gap = float(self.resolve("card-agenda-column-gap") or 20)
+        item_align = self.resolve("card-agenda-item-alignment") or "left"
 
         col_width = (box.w - (cols - 1) * col_gap) / cols
         line_height = item_size * 1.8
@@ -76,6 +77,7 @@ class AgendaCardRenderer(BaseCardRenderer):
                     "font_size": item_size,
                     "font_color": number_color,
                     "font_weight": weight,
+                    "alignment": item_align,
                 }
             )
 
@@ -90,5 +92,6 @@ class AgendaCardRenderer(BaseCardRenderer):
                     "font_size": item_size,
                     "font_color": color,
                     "font_weight": weight,
+                    "alignment": item_align,
                 }
             )

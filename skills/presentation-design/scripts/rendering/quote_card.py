@@ -45,6 +45,8 @@ class QuoteCardRenderer(BaseCardRenderer):
         # Quote text (indented past the accent bar)
         text_x = bar_x + accent_width + 12
         text_w = box.w - accent_width - 12
+        quote_text_align = self.resolve("card-quote-text-alignment") or "left"
+        attribution_align = self.resolve("card-quote-attribution-alignment") or "left"
         box.add(
             {
                 "type": "text",
@@ -55,6 +57,7 @@ class QuoteCardRenderer(BaseCardRenderer):
                 "font_size": quote_size,
                 "font_color": quote_color,
                 "font_style": quote_style,
+                "alignment": quote_text_align,
                 "wrap": True,
             }
         )
@@ -77,6 +80,7 @@ class QuoteCardRenderer(BaseCardRenderer):
                     "font_size": body_size,
                     "font_color": self.resolve("text-body-font-color") or "#333333",
                     "font_weight": "bold",
+                    "alignment": attribution_align,
                 }
             )
             y += body_size + 4
@@ -93,5 +97,6 @@ class QuoteCardRenderer(BaseCardRenderer):
                     "text": role,
                     "font_size": caption_size,
                     "font_color": self.resolve("text-caption-font-color") or "#888888",
+                    "alignment": attribution_align,
                 }
             )

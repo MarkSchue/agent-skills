@@ -374,6 +374,7 @@
   --card-title-line-width: 1;                                   /* px */
   --card-title-line-alignment: left;                            /* left | center | right | full */
   --card-title-line-visible: true;
+  --card-title-line-gap: 8;                                     /* px — breathing room between title baseline and divider */
 
   /* Card subtitle (optional — below header line, above body)
      Activate per card in the MD file via: subtitle: "..."
@@ -399,6 +400,9 @@
   --card-body-font-weight: 400;
   --card-body-font-style: normal;                               /* normal | italic | bold | italic bold */
   --card-body-background-color: transparent;
+  --card-body-alignment: left;                                  /* left | center | right — paragraph alignment */
+  --card-body-heading-alignment: left;                          /* left | center | right — heading alignment */
+  --card-body-bullet-indent: 12;                                /* px — bullet list left indent */
 }
 
 
@@ -528,7 +532,13 @@
   --card-kpi-icon-size:      32;                                /* px — body icons are larger in KPI cards */
   --card-kpi-icon-color:     var(--color-accent);
   --card-kpi-icon-position:  above-value;                       /* above-value | left-of-value | decorative */
-}
+  /* KPI element alignment */
+  --card-kpi-value-alignment: center;                           /* left | center | right */
+  --card-kpi-value-vertical-align: middle;                      /* top | middle | bottom */
+  --card-kpi-trend-alignment: center;                           /* left | center | right */
+  --card-kpi-trend-font-size: 14;                               /* px */
+  --card-kpi-comparison-font-size: 12;                          /* px */
+  --card-kpi-label-alignment: center;                           /* left | center | right */}
 
 
 /* =================================================================
@@ -549,7 +559,8 @@
   --card-chart-icon-size:      20;                              /* px */
   --card-chart-icon-color:     var(--color-text-muted);
   --card-chart-icon-position:  legend;                          /* legend | header | decorative */
-}
+  /* Chart element alignment */
+  --card-chart-caption-alignment: center;                       /* left | center | right */}
 
 
 /* =================================================================
@@ -573,7 +584,9 @@
   --card-quote-icon-size:      40;                              /* px — typically used as large decorative mark */
   --card-quote-icon-color:     var(--color-border);
   --card-quote-icon-position:  decorative;                      /* decorative | attribution */
-}
+  /* Quote element alignment */
+  --card-quote-text-alignment: left;                            /* left | center | right */
+  --card-quote-attribution-alignment: left;                     /* left | center | right */}
 
 
 /* =================================================================
@@ -605,4 +618,5 @@
   --card-agenda-icon-size:      16;                             /* px */
   --card-agenda-icon-color:     var(--color-accent);
   --card-agenda-icon-position:  entry-prefix;                   /* entry-prefix | section-prefix */
-}
+  /* Agenda element alignment */
+  --card-agenda-item-alignment: left;                           /* left | center | right */}

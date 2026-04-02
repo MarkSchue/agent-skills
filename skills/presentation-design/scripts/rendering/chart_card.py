@@ -95,6 +95,7 @@ class ChartCardRenderer(BaseCardRenderer):
             caption_color = (
                 self.resolve("card-chart-caption-font-color") or "#888888"
             )
+            caption_align = self.resolve("card-chart-caption-alignment") or "center"
             box.add(
                 {
                     "type": "text",
@@ -104,6 +105,6 @@ class ChartCardRenderer(BaseCardRenderer):
                     "text": caption,
                     "font_size": caption_size,
                     "font_color": caption_color,
-                    "alignment": "center",
+                    "alignment": caption_align,
                 }
             )

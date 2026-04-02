@@ -102,7 +102,7 @@ class BaseLayoutRenderer(ABC):
                     "x": ml,
                     "y": y_cursor,
                     "w": canvas_w - ml - mr,
-                    "h": title_size + 4,
+                    "h": title_size + 8,
                     "text": slide.title,
                     "font_size": title_size,
                     "font_color": self._resolve("slide-title-font-color", overrides)
@@ -117,7 +117,7 @@ class BaseLayoutRenderer(ABC):
                     or "left",
                 }
             )
-            y_cursor += title_size + 4
+            y_cursor += title_size + 8
 
         # Subtitle
         if slide.subtitle:
@@ -130,7 +130,7 @@ class BaseLayoutRenderer(ABC):
                     "x": ml,
                     "y": y_cursor,
                     "w": canvas_w - ml - mr,
-                    "h": sub_size + 4,
+                    "h": sub_size + 8,
                     "text": slide.subtitle,
                     "font_size": sub_size,
                     "font_color": self._resolve(
@@ -139,7 +139,7 @@ class BaseLayoutRenderer(ABC):
                     or "#555555",
                 }
             )
-            y_cursor += sub_size + 4
+            y_cursor += sub_size + 8
 
         # Divider line
         div_width = float(
