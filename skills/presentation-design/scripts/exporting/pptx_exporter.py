@@ -138,7 +138,7 @@ class PptxExporter:
         stroke_color = _rgb(str(elem.get("stroke", "")))
         if stroke_color:
             shape.line.color.rgb = stroke_color
-            shape.line.width = Pt(float(elem.get("stroke_width", 1)))
+            shape.line.width = Pt(float(elem.get("stroke_width", 1)) * 72 / 96)
         else:
             shape.line.fill.background()
 
@@ -164,7 +164,8 @@ class PptxExporter:
         p.alignment = _ALIGN_MAP.get(elem.get("alignment", "left"), PP_ALIGN.LEFT)
 
         run = p.runs[0] if p.runs else p.add_run()
-        run.font.size = Pt(float(elem.get("font_size", 14)))
+        # font_size tokens are in px; convert to pt (1pt = 96/72 px at 96 DPI)
+        run.font.size = Pt(float(elem.get("font_size", 14)) * 72 / 96)
         color = _rgb(str(elem.get("font_color", "#000000")))
         if color:
             run.font.color.rgb = color
@@ -183,7 +184,7 @@ class PptxExporter:
         stroke_color = _rgb(str(elem.get("stroke", "#CCCCCC")))
         if stroke_color:
             connector.line.color.rgb = stroke_color
-        connector.line.width = Pt(float(elem.get("stroke_width", 1)))
+        connector.line.width = Pt(float(elem.get("stroke_width", 1)) * 72 / 96)
 
     def _add_image(self, slide, elem: dict[str, Any]) -> None:
         src = elem.get("src", "")
