@@ -137,7 +137,15 @@ Every card YAML block normalizes to this schema:
 | `header_line_visible` | bool | Show/hide header divider |
 | `header_line_color` | string | Header divider color |
 | `header_line_width` | int | Header divider thickness (px) |
-| `footer_line_visible` | bool | Show/hide footer divider |
+| `footer_line_visible` | bool | Show/hide footer divider line |
+| `footer_font_size` | int | Footer font size (px) |
+| `footer_font_color` | string | Footer text color |
+| `footer_font_weight` | string | `normal` \| `bold` |
+| `footer_font_style` | string | `normal` \| `italic` |
+| `footer_alignment` | string | `left` \| `center` \| `right` |
+| `footer_margin_top` | int | Space above footer text (px) |
+| `footer_line_color` | string | Footer divider color |
+| `footer_line_width` | int | Footer divider thickness (px) |
 | `subtitle_visible` | bool | Show/hide subtitle below header line |
 | `subtitle_font_color` | string | Subtitle text color |
 | `subtitle_font_size` | int | Subtitle font size (px) |

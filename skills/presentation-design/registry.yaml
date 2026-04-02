@@ -38,6 +38,11 @@ cards:
     file: cards/structural/agenda-card.md
     tags: [agenda, navigation, sections, overview, contents, schedule]
 
+  - id: stacked-text-card
+    description: 2–4 equal-height text blocks with h2 heading and body text; dividers align across cards.
+    file: cards/text/stacked-text-card.md
+    tags: [text, stacked, blocks, heading, body, list, steps, comparison, process]
+
 layouts:
   - id: title-slide
     description: Full-width title slide with centered heading, subtitle, and optional background.

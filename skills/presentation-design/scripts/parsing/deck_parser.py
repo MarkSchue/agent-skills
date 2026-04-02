@@ -159,6 +159,10 @@ class DeckParser:
         card.content = data.get("content", card.content)
         card.style_overrides = data.get("style_overrides", card.style_overrides)
         card.props = data.get("props", card.props)
+        card.subtitle = str(data.get("subtitle", card.subtitle) or "")
+        raw_icon = data.get("icon")
+        if isinstance(raw_icon, dict):
+            card.icon = raw_icon
 
         # Collect asset references from content
         self._extract_asset_refs(card)

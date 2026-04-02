@@ -1,5 +1,15 @@
 """
-AgendaCardRenderer — Renders agenda-card with dynamic column layout and active highlight.
+AgendaCardRenderer — Renders agenda-card with three-column row layout and active highlight.
+
+Each section entry is rendered as a single row with up to three columns:
+  Col 1 — number / icon / time indicator (configurable width, default ~15 %)
+  Col 2 — section title  (h2-style font,  configurable width, default ~50 %)
+  Col 3 — optional extra info such as duration or presenter (remaining width)
+
+The active section is marked with a vertical accent bar on the left edge
+and its number + title are rendered in the active font colour / weight.
+All visual properties are controlled exclusively through CSS tokens on
+the ``.card--agenda`` variant class.
 """
 
 from __future__ import annotations
@@ -11,87 +21,194 @@ from scripts.rendering.base_card import BaseCardRenderer, RenderBox
 class AgendaCardRenderer(BaseCardRenderer):
     """Renderer for ``agenda-card`` type.
 
-    Supports dynamic column layout:
-    - 1–4 sections → 1 column
-    - 5–8 sections → 2 columns
-    - 9+  sections → 3 columns
-
-    The column count can be overridden via ``content.columns``.
+    Sections are always rendered in a single vertical column.
+    Each row has three logical sub-columns: number, title, info.
+    The active section is highlighted with a left accent bar and bold text.
     """
 
     variant = "card--agenda"
 
     def render_body(self, card: CardModel, box: RenderBox) -> None:
-        """Render section list with optional highlight."""
+        """Render section list as a three-column single-column layout."""
         content = card.content if isinstance(card.content, dict) else {}
-        sections: list[str] = content.get("sections", [])
+        sections: list = content.get("sections", [])
         highlight: int | None = content.get("highlight")
-        forced_columns: int | None = content.get("columns")
 
         if not sections:
             return
 
-        # Determine column count
-        n = len(sections)
-        if forced_columns:
-            cols = int(forced_columns)
-        elif n <= 4:
-            cols = 1
-        elif n <= 8:
-            cols = 2
-        else:
-            cols = 3
+        # ── Highlight bar tokens ──────────────────────────────────────────
+        bar_visible_raw = self.resolve("card-agenda-highlight-bar-visible")
+        bar_visible = bar_visible_raw in (True, "true", "True")
+        bar_color = self.resolve("card-agenda-highlight-bar-color") or self.resolve("card-agenda-bullet-color") or "#003087"
+        bar_width = float(self.resolve("card-agenda-highlight-bar-width") or 3)
+        bar_gap = float(self.resolve("card-agenda-highlight-bar-gap") or 8)
 
-        item_size = float(self.resolve("card-agenda-item-font-size") or 14)
-        item_color = self.resolve("card-agenda-item-font-color") or "#333333"
-        hl_color = self.resolve("card-agenda-highlight-font-color") or "#003087"
-        hl_weight = self.resolve("card-agenda-highlight-font-weight") or "bold"
-        number_color = self.resolve("card-agenda-number-font-color") or "#888888"
-        col_gap = float(self.resolve("card-agenda-column-gap") or 20)
-        item_align = self.resolve("card-agenda-item-alignment") or "left"
+        # ── Column proportions (percent of usable row width) ─────────────
+        col1_pct = float(self.resolve("card-agenda-col1-width-pct") or 15) / 100
+        col2_pct = float(self.resolve("card-agenda-col2-width-pct") or 50) / 100
+        # col3 receives the remainder
 
-        col_width = (box.w - (cols - 1) * col_gap) / cols
-        line_height = item_size * 1.8
+        # ── Per-column text alignment ─────────────────────────────────────
+        col1_align = self.resolve("card-agenda-col1-alignment") or "center"
+        col2_align = self.resolve("card-agenda-col2-alignment") or "left"
+        col3_align = self.resolve("card-agenda-col3-alignment") or "left"
 
-        # Distribute items across columns (fill column-first)
-        rows_per_col = (n + cols - 1) // cols
+        # ── Row geometry ──────────────────────────────────────────────────
+        entry_size = float(self.resolve("card-agenda-entry-font-size") or 16)
+        entry_spacing = float(self.resolve("card-agenda-entry-spacing") or 12)
+        row_h = entry_size + entry_spacing
 
-        for i, section_title in enumerate(sections):
-            col_idx = i // rows_per_col
-            row_idx = i % rows_per_col
+        # Left indentation = bar_width + gap (kept constant for all rows so columns align)
+        bar_reserved = bar_width + bar_gap
 
-            x = box.x + col_idx * (col_width + col_gap)
-            y = box.y + row_idx * line_height
+        usable_w = box.w - bar_reserved
+        col1_w = usable_w * col1_pct
+        col2_w = usable_w * col2_pct
+        col3_w = usable_w - col1_w - col2_w
+
+        col1_x = box.x + bar_reserved
+        col2_x = col1_x + col1_w
+        col3_x = col2_x + col2_w
+
+        # ── Number / indicator column tokens ─────────────────────────────
+        number_size = float(self.resolve("card-agenda-number-font-size") or entry_size)
+        number_color_inactive = self.resolve("card-agenda-number-font-color") or "#888888"
+        number_weight_inactive = str(self.resolve("card-agenda-number-font-weight") or "400")
+        number_style_inactive = self.resolve("card-agenda-number-font-style") or "normal"
+
+        # ── Title column tokens (inactive / active) ───────────────────────
+        # col2 uses entry-specific tokens (h2-style); inactive-color is a
+        # secondary fallback so both naming conventions work.
+        entry_color_inactive = (
+            self.resolve("card-agenda-entry-font-color")
+            or self.resolve("card-agenda-inactive-color")
+            or "#888888"
+        )
+        entry_weight_inactive = str(
+            self.resolve("card-agenda-entry-font-weight")
+            or self.resolve("card-agenda-inactive-font-weight")
+            or "600"
+        )
+        entry_style_inactive = self.resolve("card-agenda-entry-font-style") or "normal"
+
+        active_color = self.resolve("card-agenda-active-color") or "#003087"
+        active_weight = str(self.resolve("card-agenda-active-font-weight") or "700")
+        active_style = self.resolve("card-agenda-active-font-style") or "normal"
+
+        # ── Info column tokens ────────────────────────────────────────────
+        info_size = float(self.resolve("card-agenda-info-font-size") or 12)
+        info_color = self.resolve("card-agenda-info-font-color") or "#888888"
+        info_weight = str(self.resolve("card-agenda-info-font-weight") or "400")
+        info_style = self.resolve("card-agenda-info-font-style") or "normal"
+
+        # ── Row separator tokens ──────────────────────────────────────────
+        sep_visible_raw = self.resolve("card-agenda-separator-visible")
+        sep_visible = sep_visible_raw in (True, "true", "True")
+        sep_color = self.resolve("card-agenda-separator-color") or "#E0E0E0"
+        sep_width = float(self.resolve("card-agenda-separator-width") or 1)
+        sep_inset = float(self.resolve("card-agenda-separator-inset") or 0)
+
+        # ── Render each row ───────────────────────────────────────────────
+        for i, section in enumerate(sections):
+            # Normalize: sections may be plain strings or dicts
+            if isinstance(section, dict):
+                number_text = str(section.get("number", i + 1))
+                title_text = str(section.get("title", ""))
+                info_text = str(section.get("info", ""))
+            else:
+                number_text = str(i + 1)
+                title_text = str(section)
+                info_text = ""
 
             is_active = (highlight is not None and i == highlight)
-            color = hl_color if is_active else item_color
-            weight = hl_weight if is_active else "normal"
+            y = box.y + i * row_h
 
-            # Number
+            # Active accent bar — vertical rectangle on the left edge
+            if is_active and bar_visible:
+                box.add(
+                    {
+                        "type": "rect",
+                        "x": box.x,
+                        "y": y,
+                        "w": bar_width,
+                        "h": entry_size,
+                        "fill": bar_color,
+                        "stroke": bar_color,
+                        "stroke_width": 0,
+                        "rx": 0,
+                    }
+                )
+
+            # Col 1 — number / indicator
+            n_color = active_color if is_active else number_color_inactive
+            n_weight = active_weight if is_active else number_weight_inactive
+            n_style = active_style if is_active else number_style_inactive
             box.add(
                 {
                     "type": "text",
-                    "x": x,
+                    "x": col1_x,
                     "y": y,
-                    "text": f"{i + 1}.",
-                    "font_size": item_size,
-                    "font_color": number_color,
-                    "font_weight": weight,
-                    "alignment": item_align,
+                    "w": col1_w,
+                    "h": entry_size,
+                    "text": number_text,
+                    "font_size": number_size,
+                    "font_color": n_color,
+                    "font_weight": n_weight,
+                    "font_style": n_style,
+                    "alignment": col1_align,
                 }
             )
 
-            # Section title
+            # Col 2 — section title (h2-style)
+            t_color = active_color if is_active else entry_color_inactive
+            t_weight = active_weight if is_active else entry_weight_inactive
+            t_style = active_style if is_active else entry_style_inactive
             box.add(
                 {
                     "type": "text",
-                    "x": x + item_size * 2,
+                    "x": col2_x,
                     "y": y,
-                    "w": col_width - item_size * 2,
-                    "text": section_title,
-                    "font_size": item_size,
-                    "font_color": color,
-                    "font_weight": weight,
-                    "alignment": item_align,
+                    "w": col2_w,
+                    "h": entry_size,
+                    "text": title_text,
+                    "font_size": entry_size,
+                    "font_color": t_color,
+                    "font_weight": t_weight,
+                    "font_style": t_style,
+                    "alignment": col2_align,
                 }
             )
+
+            # Row separator — drawn after each row except the last, centred in the spacing gap
+            if sep_visible and i < len(sections) - 1:
+                sep_y = y + entry_size + entry_spacing / 2
+                box.add(
+                    {
+                        "type": "line",
+                        "x1": box.x + sep_inset,
+                        "y1": sep_y,
+                        "x2": box.x + box.w - sep_inset,
+                        "y2": sep_y,
+                        "stroke": sep_color,
+                        "stroke_width": sep_width,
+                    }
+                )
+
+            # Col 3 — optional info (text-body style, allows 2 lines)
+            if info_text and col3_w > 0:
+                box.add(
+                    {
+                        "type": "text",
+                        "x": col3_x,
+                        "y": y,
+                        "w": col3_w,
+                        "h": entry_size * 2,  # allow two lines
+                        "text": info_text,
+                        "font_size": info_size,
+                        "font_color": info_color,
+                        "font_weight": info_weight,
+                        "font_style": info_style,
+                        "alignment": col3_align,
+                    }
+                )

@@ -14,6 +14,9 @@ Key performance indicator card with large metric value, trend indicator, and lab
 │              ↑ [trend: direction]                   │
 │                                                     │
 │              [text-caption: label]                  │
+│                                                     │
+│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  (footer line, opt.)      │
+│  [text-caption: footer]      (optional, base class)  │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -37,6 +40,7 @@ Key performance indicator card with large metric value, trend indicator, and lab
 | `content.trend` | string | `neutral` | `up` \| `down` \| `neutral` |
 | `content.label` | string | — | Supporting label text |
 | `content.comparison` | string | — | Comparison text (e.g. "vs Q2") |
+| `content.footer` | string | — | Source attribution or footnote text rendered at the card bottom |
 | `subtitle` | string | — | Subtitle text below the header line |
 | `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle (auto-`true` when `subtitle` text is set) |
 | `subtitle_alignment` | string | `left` | `left` \| `center` \| `right` |
@@ -54,6 +58,17 @@ All `.card-base` overrides plus `.card--kpi` tokens:
 - `card_kpi_trend_color_up` — positive trend color
 - `card_kpi_trend_color_down` — negative trend color
 
+Footer tokens (shared with all card types):
+- `card_footer_font_size` — footer font size (px)
+- `card_footer_font_color` — footer text color
+- `card_footer_font_weight` — `normal` | `bold`
+- `card_footer_font_style` — `normal` | `italic`
+- `card_footer_alignment` — `left` | `center` | `right`
+- `card_footer_margin_top` — space above footer text (px)
+- `card_footer_line_visible` — `true` | `false` — show/hide divider above footer
+- `card_footer_line_color` — divider color
+- `card_footer_line_width` — divider thickness (px)
+
 Subtitle and icon tokens (shared with all card types):
 - `card_subtitle_font_size` / `card_subtitle_font_color` / `card_subtitle_font_style`
 - `card_subtitle_alignment` — `left` | `center` | `right`
@@ -61,7 +76,7 @@ Subtitle and icon tokens (shared with all card types):
 
 ## Design Tokens Used
 
-- `.card-base` — container, title, header line, subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
+- `.card-base` — container, title, header line, footer + footer line (`--card-footer-*`), subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
 - `.card--kpi` — value size/color, trend colors, label
 - `.text-caption` — label text
 

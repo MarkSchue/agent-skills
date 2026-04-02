@@ -17,6 +17,9 @@ Card that embeds a chart visual from a referenced image or generated chart data.
 │  └───────────────────────────────────────────────┘  │
 │                                                     │
 │  [text-caption: source attribution]                 │
+│                                                     │
+│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  (footer line, opt.)      │
+│  [text-caption: footer]      (optional, base class)  │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -38,6 +41,7 @@ Card that embeds a chart visual from a referenced image or generated chart data.
 |-------|------|---------|-------------|
 | `content.alt` | string | — | Alt text for the chart |
 | `content.caption` | string | — | Source attribution or description |
+| `content.footer` | string | — | Source attribution or footnote text rendered at the card bottom |
 | `subtitle` | string | — | Subtitle text below the header line |
 | `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle (auto-`true` when `subtitle` text is set) |
 | `subtitle_alignment` | string | `left` | `left` \| `center` \| `right` |
@@ -55,6 +59,17 @@ All `.card-base` overrides plus `.card--chart` tokens:
 - `card_chart_caption_font_size` — caption size
 - `card_chart_caption_font_color` — caption color
 
+Footer tokens (shared with all card types):
+- `card_footer_font_size` — footer font size (px)
+- `card_footer_font_color` — footer text color
+- `card_footer_font_weight` — `normal` | `bold`
+- `card_footer_font_style` — `normal` | `italic`
+- `card_footer_alignment` — `left` | `center` | `right`
+- `card_footer_margin_top` — space above footer text (px)
+- `card_footer_line_visible` — `true` | `false` — show/hide divider above footer
+- `card_footer_line_color` — divider color
+- `card_footer_line_width` — divider thickness (px)
+
 Subtitle and icon tokens (shared with all card types):
 - `card_subtitle_font_size` / `card_subtitle_font_color` / `card_subtitle_font_style`
 - `card_subtitle_alignment` — `left` | `center` | `right`
@@ -62,7 +77,7 @@ Subtitle and icon tokens (shared with all card types):
 
 ## Design Tokens Used
 
-- `.card-base` — container, title, header line, subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
+- `.card-base` — container, title, header line, footer + footer line (`--card-footer-*`), subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
 - `.card--chart` — image fit, border radius, caption
 - `.image-framed` — chart image rendering
 - `.text-caption` — source/caption text

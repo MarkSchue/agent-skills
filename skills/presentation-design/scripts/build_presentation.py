@@ -42,6 +42,7 @@ from scripts.rendering.kpi_card import KpiCardRenderer
 from scripts.rendering.chart_card import ChartCardRenderer
 from scripts.rendering.quote_card import QuoteCardRenderer
 from scripts.rendering.agenda_card import AgendaCardRenderer
+from scripts.rendering.stacked_text_card import StackedTextCardRenderer
 from scripts.exporting.pptx_exporter import PptxExporter
 from scripts.exporting.drawio_exporter import DrawioExporter
 
@@ -66,6 +67,8 @@ def _card_renderer_for(
         return QuoteCardRenderer(theme)
     if card_type == "agenda-card":
         return AgendaCardRenderer(theme)
+    if card_type == "stacked-text-card":
+        return StackedTextCardRenderer(theme)
     logger.warning("Unknown card type '%s' — falling back to text-card", card_type)
     return TextCardRenderer(theme)
 

@@ -141,9 +141,15 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-title-line-width` | 1 | px |
 | `--card-title-line-alignment` | left | |
 | `--card-title-line-visible` | true | |
-| `--card-footer-line-color` | #E5E7EB | |
-| `--card-footer-line-width` | 1 | px |
-| `--card-footer-line-visible` | false | |
+| `--card-footer-line-color` | #E5E7EB | footer divider line colour |
+| `--card-footer-line-width` | 1 | px — footer divider thickness |
+| `--card-footer-line-visible` | false | show/hide footer line (independent of footer text) |
+| `--card-footer-font-size` | 10 | px — footer text size |
+| `--card-footer-font-color` | #9CA3AF | footer text colour |
+| `--card-footer-font-weight` | 400 | footer text weight |
+| `--card-footer-font-style` | normal | normal \| italic |
+| `--card-footer-alignment` | left | left \| center \| right |
+| `--card-footer-margin-top` | 8 | px — gap between body / line and footer |
 | `--card-body-font-size` | 14 | px |
 | `--card-body-font-color` | #374151 | |
 | `--card-body-font-weight` | 400 | |
@@ -268,6 +274,29 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-quote-mark-size` | 48 |
 | `--card-quote-attribution-font-size` | 12 |
 | `--card-quote-attribution-font-color` | #6B7280 |
+
+### Stacked Text — `.card--stacked-text`
+| Token | Default | Description |
+|-------|---------|-------------|
+| `--card-stacked-text-heading-font-size` | 14 | px — heading font size |
+| `--card-stacked-text-heading-font-color` | var(--color-text-default) | heading text colour |
+| `--card-stacked-text-heading-font-weight` | 700 | heading weight |
+| `--card-stacked-text-heading-font-style` | normal | `normal` \| `italic` |
+| `--card-stacked-text-heading-alignment` | left | `left` \| `center` \| `right` |
+| `--card-stacked-text-body-font-size` | 12 | px — body font size |
+| `--card-stacked-text-body-font-color` | var(--color-text-subtle) | body text colour |
+| `--card-stacked-text-body-font-weight` | 400 | body weight |
+| `--card-stacked-text-body-font-style` | normal | `normal` \| `italic` |
+| `--card-stacked-text-body-alignment` | left | `left` \| `center` \| `right` |
+| `--card-stacked-text-divider-visible` | true | show/hide inter-block lines |
+| `--card-stacked-text-divider-color` | var(--color-border) | divider line colour |
+| `--card-stacked-text-divider-width` | 1 | px — divider thickness |
+| `--card-stacked-text-divider-length-pct` | 50 | 0–100 — length as % of card body width |
+| `--card-stacked-text-divider-alignment` | left | `left` \| `center` \| `right` |
+| `--card-stacked-text-gap-top` | 0 | px — space above first block |
+| `--card-stacked-text-gap-bottom` | 0 | px — space below last block |
+| `--card-stacked-text-gap-between` | 8 | px — visual padding on each side of a divider |
+| `--card-stacked-text-heading-gap` | 4 | px — gap between heading and body within a block |
 
 ### Agenda — `.card--agenda`
 | Token | Default |

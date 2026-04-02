@@ -22,6 +22,9 @@ class CardModel:
         style_overrides: Per-card CSS token overrides from ``style_overrides:`` key.
         props: Raw props dict from the YAML block (passed to geometry helpers).
         asset_refs: Resolved asset paths referenced by this card.
+        subtitle: Optional subtitle text shown below the header line (muted caption).
+        icon: Optional icon dict with keys: ``name``, ``visible``, ``position``,
+              ``color``, ``size``.  Rendered beside the card title by the base class.
     """
 
     title: str = ""
@@ -30,6 +33,8 @@ class CardModel:
     style_overrides: dict[str, Any] = field(default_factory=dict)
     props: dict[str, Any] = field(default_factory=dict)
     asset_refs: list[str] = field(default_factory=list)
+    subtitle: str = ""
+    icon: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

@@ -222,4 +222,9 @@ be modified during rendering.
 
 ### 6 — Shared Card Contract
 All cards share one base card system: common title, header line, body region,
-and container styling. Specialized cards extend — never replace — the base.
+container styling, **and footer**. The footer area (optional text + optional
+divider line above it) is implemented entirely in `BaseCardRenderer` and
+activates automatically for every card type. No subclass code is needed:
+- Enable the footer line: set `--card-footer-line-visible: true` in CSS or `style_overrides`
+- Supply footer text: add `content.footer: "…"` to the card YAML
+Specialized cards extend — never replace — the base.

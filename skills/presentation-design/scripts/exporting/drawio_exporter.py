@@ -152,10 +152,13 @@ class DrawioExporter:
         bold = "1" if weight == "bold" else "0"
         italic = "1" if elem.get("font_style") == "italic" else "0"
         align = elem.get("alignment", "left")
+        font_family = elem.get("font_family", "")
+        font_family_attr = f"fontFamily={font_family};" if font_family else ""
 
         style = (
             f"text;html=1;fontSize={font_size_pt};fontColor={font_color};"
             f"fontStyle={(int(bold) * 1) + (int(italic) * 2)};"
+            f"{font_family_attr}"
             f"align={align};verticalAlign=top;whiteSpace=wrap;overflow=hidden;"
             f"fillColor=none;strokeColor=none;"
         )

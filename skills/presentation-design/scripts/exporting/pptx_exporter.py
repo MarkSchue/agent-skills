@@ -172,6 +172,9 @@ class PptxExporter:
         weight = elem.get("font_weight", "normal")
         run.font.bold = weight == "bold"
         run.font.italic = elem.get("font_style") == "italic"
+        font_family = elem.get("font_family")
+        if font_family:
+            run.font.name = str(font_family)
 
     def _add_line(self, slide, elem: dict[str, Any]) -> None:
         connector = slide.shapes.add_connector(

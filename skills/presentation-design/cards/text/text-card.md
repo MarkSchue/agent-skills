@@ -17,6 +17,9 @@ General-purpose text card with heading, body text, and typography variants.
 │                                                     │
 │  [text-caption: caption]                            │
 │  [text-footnote: footnote]                          │
+│                                                     │
+│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  (footer line, opt.)      │
+│  [text-caption: footer]      (optional, base class)  │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -42,6 +45,7 @@ General-purpose text card with heading, body text, and typography variants.
 | `content.bullets` | list | — | Bullet list items |
 | `content.caption` | string | — | Caption text below body |
 | `content.footnote` | string | — | Footnote text at bottom |
+| `content.footer` | string | — | Source attribution or footnote text rendered at the card bottom |
 | `subtitle` | string | — | Subtitle text below the header line |
 | `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle (auto-`true` when `subtitle` text is set) |
 | `subtitle_alignment` | string | `left` | `left` \| `center` \| `right` |
@@ -64,9 +68,20 @@ All `.card-base` overrides plus subtitle and icon tokens:
 - `card_icon_size` — icon size in px
 - `card_icon_background_color` — icon badge background
 
+Footer tokens (shared with all card types):
+- `card_footer_font_size` — footer font size (px)
+- `card_footer_font_color` — footer text color
+- `card_footer_font_weight` — `normal` | `bold`
+- `card_footer_font_style` — `normal` | `italic`
+- `card_footer_alignment` — `left` | `center` | `right`
+- `card_footer_margin_top` — space above footer text (px)
+- `card_footer_line_visible` — `true` | `false` — show/hide divider above footer
+- `card_footer_line_color` — divider color
+- `card_footer_line_width` — divider thickness (px)
+
 ## Design Tokens Used
 
-- `.card-base` — container, title, header line, subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
+- `.card-base` — container, title, header line, footer + footer line (`--card-footer-*`), subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
 - `.text-h1` — heading
 - `.text-h2` — subheading
 - `.text-body` — body paragraph

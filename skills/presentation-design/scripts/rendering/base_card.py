@@ -2,12 +2,32 @@
 BaseCardRenderer — Abstract base for all card renderers.
 
 Every card renderer subclass must implement :meth:`render_body`. The base class
-handles:
+handles **all** chrome that is universal to every card type:
 
 - card container geometry (background, border, radius, padding)
-- card title rendering
-- header line rendering
-- token resolution through the standard 4-level priority chain
+- card title rendering (full-width or narrowed when icon is present)
+- **icon rendering** — optional icon glyph beside the title, left or right; drawn
+  using the icon font family from ``.icon-set`` (``--icon-font-family``); controlled
+  by the ``icon`` dict on the ``CardModel`` (keys: ``name``, ``visible``,
+  ``position``, ``color``, ``size``) and/or ``--card-icon-*`` CSS tokens
+- header line rendering (below title, gated on ``--card-title-line-visible: true``)
+- **subtitle rendering** — optional muted caption below the header line;
+  set via ``card.subtitle`` text (parser reads the top-level ``subtitle:`` YAML key);
+  styled via ``--card-subtitle-*`` CSS tokens
+- **footer area** — optional text and/or divider line at the bottom of every card,
+  controlled entirely by CSS tokens on ``.card-base`` (and overridable per variant
+  class or per card instance via ``style_overrides``):
+
+    ``content.footer``            text string in card YAML   → supplies footer text
+    ``--card-footer-line-visible``  CSS token / style_override → shows line even without text
+    ``--card-footer-font-*``        typography tokens
+    ``--card-footer-line-color/width`` line appearance tokens
+    ``--card-footer-margin-top``    gap between body/line and footer
+
+  The footer text and footer line are **independent**: the line renders whenever
+  ``card-footer-line-visible`` is ``true``, regardless of whether any text is set.
+  Vertical space is reserved from the body before ``render_body`` is called, so
+  no subclass needs special-casing.
 
 Subclasses should call ``self.resolve(token_name)`` to look up any token
 value — this method transparently applies the override chain using the current
@@ -55,6 +75,17 @@ class RenderBox:
 class BaseCardRenderer(ABC):
     """Abstract base for all card renderers.
 
+    Provides the full shared card chrome: container, title, header line, footer area
+    (footer line and/or footer text), and body region geometry. Subclasses override
+    only :meth:`render_body` to render card-type-specific content.
+
+    The footer is fully operational for every card type without any subclass code:
+    - Set ``content.footer`` text in the card YAML to show footer text.
+    - Set ``--card-footer-line-visible: true`` via CSS or ``style_overrides`` to show
+      the footer line separator even without text.
+    - Both can be combined; they are styled independently through ``--card-footer-*``
+      tokens on ``.card-base`` (overridable per variant class or per card instance).
+
     Args:
         theme: The loaded ``ThemeTokens`` for the current deck.
         variant: CSS variant class name (e.g. ``card--kpi``), or ``None``.
@@ -96,15 +127,82 @@ class BaseCardRenderer(ABC):
         # Title + header line
         body_y = self._render_header(card, box)
 
-        # Delegate body to subclass
+        # ── Footer setup (must happen before body box so height is reserved) ──
+        footer_text = ""
+        if isinstance(card.content, dict):
+            footer_text = card.content.get("footer", "") or ""
+
+        # Resolve footer tokens once — used for sizing and later rendering
+        footer_font_size   = float(self.resolve("card-footer-font-size")   or 10)
+        footer_margin_top  = float(self.resolve("card-footer-margin-top")  or 8)
+        footer_line_width  = float(self.resolve("card-footer-line-width")  or 1)
+        footer_line_vis_raw = self.resolve("card-footer-line-visible")
+        footer_line_visible = footer_line_vis_raw in (True, "true", "True")
+
+        has_footer_text = bool(footer_text)
+        has_footer      = has_footer_text or footer_line_visible
+
+        # Reserve vertical space: text needs font-size + margin; line-only needs line-width + margin
+        if has_footer_text:
+            footer_height = footer_font_size + footer_margin_top
+        elif footer_line_visible:
+            footer_height = footer_line_width + footer_margin_top
+        else:
+            footer_height = 0
+
+        # Body occupies the space between header and footer
         body_box = RenderBox(
             x=box.x + self._pad_left,
             y=body_y,
             w=box.w - self._pad_left - self._pad_right,
-            h=box.y + box.h - body_y - self._pad_bottom,
+            h=box.y + box.h - body_y - self._pad_bottom - footer_height,
         )
         self.render_body(card, body_box)
         box.elements.extend(body_box.elements)
+
+        # ── Render footer area ─────────────────────────────────────────────
+        if has_footer:
+            # Line y: sits margin_top above the text baseline (or above pad_bottom if no text)
+            footer_line_y = (
+                box.y + box.h
+                - self._pad_bottom
+                - (footer_font_size if has_footer_text else 0)
+                - footer_margin_top
+            )
+
+            if footer_line_visible:
+                box.add(
+                    {
+                        "type": "line",
+                        "x1": box.x + self._pad_left,
+                        "y1": footer_line_y,
+                        "x2": box.x + box.w - self._pad_right,
+                        "y2": footer_line_y,
+                        "stroke": self.resolve("card-footer-line-color"),
+                        "stroke_width": footer_line_width,
+                    }
+                )
+
+            if has_footer_text:
+                footer_text_y = box.y + box.h - self._pad_bottom - footer_font_size
+                box.add(
+                    {
+                        "type": "text",
+                        "x": box.x + self._pad_left,
+                        "y": footer_text_y,
+                        "w": box.w - self._pad_left - self._pad_right,
+                        "h": footer_font_size,
+                        "text": footer_text,
+                        "font_size": footer_font_size,
+                        "font_color": (
+                            self.resolve("card-footer-font-color")
+                            or self.resolve("card-body-font-color")
+                        ),
+                        "font_weight": self.resolve("card-footer-font-weight") or "normal",
+                        "font_style":  self.resolve("card-footer-font-style")  or "normal",
+                        "alignment":   self.resolve("card-footer-alignment")   or "left",
+                    }
+                )
 
         self._card = None
         self._slide_overrides = {}
@@ -169,41 +267,148 @@ class BaseCardRenderer(ABC):
         )
 
     def _render_header(self, card: CardModel, box: RenderBox) -> float:
-        """Render title + header line. Return the Y-coordinate for body start."""
+        """Render title (+ optional icon), header line, and optional subtitle.
+
+        Title line is controlled independently by ``--card-title-line-visible``
+        (must be ``true``) *and* ``--card-title-line-width`` (must be > 0).
+        Icon is drawn beside the title when ``card.icon.visible`` is truthy or
+        ``--card-icon-visible`` CSS token is ``true``.
+        Subtitle appears after the header line when ``card.subtitle`` text is set
+        or ``--card-subtitle-visible`` is ``true``.
+
+        Returns:
+            The Y-coordinate at which body content should start.
+        """
         y = box.y + self._pad_top
 
         if card.title:
-            title_size = self.resolve("card-title-font-size") or 16
-            line_gap = float(self.resolve("card-title-line-gap") or 8)
-            box.add(
-                {
+            title_size = float(self.resolve("card-title-font-size") or 16)
+            title_line_gap = float(self.resolve("card-title-line-gap") or 8)
+            content_w = box.w - self._pad_left - self._pad_right
+
+            # ── Icon resolution (card.icon dict takes priority over CSS tokens) ──
+            icon_dict = card.icon if isinstance(card.icon, dict) else {}
+            _icon_vis_raw = (
+                icon_dict.get("visible")
+                if icon_dict.get("visible") is not None
+                else self.resolve("card-icon-visible")
+            )
+            icon_visible = _icon_vis_raw in (True, "true", "True")
+            icon_name    = str(icon_dict.get("name") or self.resolve("card-icon-name") or "")
+            icon_position = str(icon_dict.get("position") or self.resolve("card-icon-position") or "right")
+            icon_size    = float(icon_dict.get("size") or self.resolve("card-icon-size") or 20)
+            icon_color   = str(icon_dict.get("color") or self.resolve("card-icon-color") or "#000000")
+            icon_gap     = float(self.resolve("card-icon-gap") or 8)
+            icon_padding = float(self.resolve("card-icon-padding") or 0)
+            icon_bg_color   = str(self.resolve("card-icon-background-color") or "transparent")
+            icon_bg_radius  = float(self.resolve("card-icon-background-radius") or 0)
+            icon_font_family = str(self.resolve("icon-font-family") or "Material Symbols Outlined")
+
+            if icon_visible and icon_name:
+                # Icon slot width: icon + padding on each side + gap to title
+                icon_slot_w = icon_size + icon_padding * 2 + icon_gap
+                text_w = max(content_w - icon_slot_w, 0)
+
+                if icon_position == "left":
+                    icon_x  = box.x + self._pad_left + icon_padding
+                    title_x = box.x + self._pad_left + icon_slot_w
+                else:  # right (default)
+                    title_x = box.x + self._pad_left
+                    icon_x  = box.x + self._pad_left + text_w + icon_gap + icon_padding
+
+                # Optional icon background badge
+                if icon_bg_color and icon_bg_color.lower() not in ("transparent", "none", ""):
+                    box.add({
+                        "type": "rect",
+                        "x": icon_x - icon_padding,
+                        "y": y - icon_padding,
+                        "w": icon_size + icon_padding * 2,
+                        "h": icon_size + icon_padding * 2,
+                        "fill": icon_bg_color,
+                        "stroke": "transparent",
+                        "stroke_width": 0,
+                        "rx": icon_bg_radius,
+                    })
+
+                # Icon glyph — rendered as a text element using the icon font family
+                box.add({
                     "type": "text",
-                    "x": box.x + self._pad_left,
+                    "x": icon_x,
                     "y": y,
-                    "w": box.w - self._pad_left - self._pad_right,
-                    "h": float(title_size) + line_gap,
+                    "w": icon_size,
+                    "h": icon_size,
+                    "text": icon_name,
+                    "font_size": icon_size,
+                    "font_color": icon_color,
+                    "font_weight": str(self.resolve("icon-font-weight") or "400"),
+                    "font_family": icon_font_family,
+                    "alignment": "center",
+                })
+
+                # Title text — narrowed by the icon slot
+                box.add({
+                    "type": "text",
+                    "x": title_x,
+                    "y": y,
+                    "w": text_w,
+                    "h": title_size + title_line_gap,
                     "text": card.title,
                     "font_size": title_size,
                     "font_color": self.resolve("card-title-font-color"),
                     "font_weight": self.resolve("card-title-font-weight"),
-                }
-            )
-            y += float(title_size) + line_gap
+                })
+            else:
+                # No icon — full-width title
+                box.add({
+                    "type": "text",
+                    "x": box.x + self._pad_left,
+                    "y": y,
+                    "w": content_w,
+                    "h": title_size + title_line_gap,
+                    "text": card.title,
+                    "font_size": title_size,
+                    "font_color": self.resolve("card-title-font-color"),
+                    "font_weight": self.resolve("card-title-font-weight"),
+                })
 
-            # Header line
+            y += title_size + title_line_gap
+
+            # ── Header line (gated on --card-title-line-visible AND line-width > 0) ──
+            line_vis_raw = self.resolve("card-title-line-visible")
+            line_visible = line_vis_raw in (True, "true", "True")
             line_width = self.resolve("card-title-line-width")
-            if line_width and float(line_width) > 0:
-                box.add(
-                    {
-                        "type": "line",
-                        "x1": box.x + self._pad_left,
-                        "y1": y,
-                        "x2": box.x + box.w - self._pad_right,
-                        "y2": y,
-                        "stroke": self.resolve("card-title-line-color"),
-                        "stroke_width": line_width,
-                    }
-                )
+            if line_visible and line_width and float(line_width) > 0:
+                box.add({
+                    "type": "line",
+                    "x1": box.x + self._pad_left,
+                    "y1": y,
+                    "x2": box.x + box.w - self._pad_right,
+                    "y2": y,
+                    "stroke": self.resolve("card-title-line-color"),
+                    "stroke_width": line_width,
+                })
                 y += float(line_width) + 8
+
+        # ── Subtitle (independent of title — renders even when title is absent) ──
+        sub_text = str(getattr(card, "subtitle", "") or "").strip()
+        sub_vis_raw = self.resolve("card-subtitle-visible")
+        sub_visible = bool(sub_text) or (sub_vis_raw in (True, "true", "True"))
+        if sub_visible and sub_text:
+            sub_size = float(self.resolve("card-subtitle-font-size") or 12)
+            sub_gap  = 6  # breathing room between subtitle and body
+            box.add({
+                "type": "text",
+                "x": box.x + self._pad_left,
+                "y": y,
+                "w": box.w - self._pad_left - self._pad_right,
+                "h": sub_size + sub_gap,
+                "text": sub_text,
+                "font_size": sub_size,
+                "font_color": str(self.resolve("card-subtitle-font-color") or "#888888"),
+                "font_weight": str(self.resolve("card-subtitle-font-weight") or "400"),
+                "font_style":  str(self.resolve("card-subtitle-font-style")  or "normal"),
+                "alignment":   str(self.resolve("card-subtitle-alignment")   or "left"),
+            })
+            y += sub_size + sub_gap
 
         return y

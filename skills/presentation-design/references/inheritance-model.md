@@ -16,15 +16,18 @@ BaseCardRenderer
 ├── KpiCardRenderer
 ├── ChartCardRenderer
 ├── QuoteCardRenderer
-└── AgendaCardRenderer
+├── AgendaCardRenderer
+└── StackedTextCardRenderer
 ```
 
 **BaseCardRenderer** provides:
 - Card container rendering (background, border, radius, shadow)
 - Title rendering (text, font, alignment, visibility)
 - Header line rendering (color, width, alignment, visibility)
-- Footer line rendering
-- Body region geometry calculation
+- **Footer area** — both independent components, active for every card type:
+  - Footer line (`--card-footer-line-visible/color/width`) — renders whenever `true`, no text required
+  - Footer text (`content.footer` in card YAML + `--card-footer-font-*` tokens)
+- Body region geometry calculation (reserves space for footer before calling `render_body`)
 - Token resolution through override chain
 
 **Subclasses** override only:
@@ -64,12 +67,13 @@ inline `<!-- slide ... -->` blocks in the Markdown.
 ### Card Level
 
 ```
-.card-base           ← shared card tokens (background, border, title,
-│                      header line, footer line, body)
-├── .card--kpi       ← KPI-specific tokens (value size, trend colors)
-├── .card--chart     ← chart-specific tokens (axis, grid, legend)
-├── .card--quote     ← quote-specific tokens (mark, attribution)
-└── .card--agenda    ← agenda-specific tokens (active/inactive, bullet)
+.card-base              ← shared card tokens (background, border, title,
+│                          header line, footer line, body)
+├── .card--kpi          ← KPI-specific tokens (value size, trend colors)
+├── .card--chart        ← chart-specific tokens (axis, grid, legend)
+├── .card--quote        ← quote-specific tokens (mark, attribution)
+├── .card--agenda       ← agenda-specific tokens (active/inactive, bullet)
+└── .card--stacked-text ← stacked-text-specific tokens (heading, body, divider, gaps)
 ```
 
 ### Text Styles
@@ -114,8 +118,12 @@ method checks per-card → per-slide → merged CSS → fallback in that order.
 ## Adding a New Card Type
 
 1. Create `scripts/rendering/<name>_card.py` with a class extending `BaseCardRenderer`
-2. Override `render_body()` with type-specific content rendering
-3. Add variant CSS class `.card--<name>` in `themes/base.css` with type-specific tokens
+2. Override `render_body()` with type-specific content rendering — the base handles title, header line, and **footer** automatically
+3. Add variant CSS class `.card--<name>` in `themes/base.css` with type-specific tokens; include a commented-out `/* Footer overrides */` block (copy from another variant)
 4. Register the card in `registry.yaml`
-5. Create card spec at `cards/<category>/<name>-card.md`
+5. Create card spec at `cards/<category>/<name>-card.md`:
+   - Include `content.footer` in the Optional Fields table
+   - Include the "Footer tokens (shared with all card types)" sub-section in Supported Overrides
+   - Show the footer zone in the `## Layout` pictogram
+   - List `.card-base` footer in the `## Design Tokens Used` section
 6. Add all new tokens to `references/token-reference.md`

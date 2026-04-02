@@ -17,6 +17,9 @@ Card displaying an image in full-bleed, framed, or circular presentation mode.
 │  └───────────────────────────────────────────────┘  │
 │                                                     │
 │  [text-caption: caption]                            │
+│                                                     │
+│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  (footer line, opt.)      │
+│  [text-caption: footer]      (optional, base class)  │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -40,6 +43,7 @@ Card displaying an image in full-bleed, framed, or circular presentation mode.
 | `content.caption` | string | — | Caption below image |
 | `content.alt` | string | — | Alt text for accessibility |
 | `content.image_style` | string | `framed` | `fullbleed` \| `framed` \| `circular` |
+| `content.footer` | string | — | Source attribution or footnote text rendered at the card bottom |
 | `subtitle` | string | — | Subtitle text below the header line |
 | `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle (auto-`true` when `subtitle` text is set) |
 | `subtitle_alignment` | string | `left` | `left` \| `center` \| `right` |
@@ -54,6 +58,17 @@ Card displaying an image in full-bleed, framed, or circular presentation mode.
 All `.card-base` overrides plus:
 - Image style tokens from `.image-fullbleed`, `.image-framed`, or `.image-circular`
 
+Footer tokens (shared with all card types):
+- `card_footer_font_size` — footer font size (px)
+- `card_footer_font_color` — footer text color
+- `card_footer_font_weight` — `normal` | `bold`
+- `card_footer_font_style` — `normal` | `italic`
+- `card_footer_alignment` — `left` | `center` | `right`
+- `card_footer_margin_top` — space above footer text (px)
+- `card_footer_line_visible` — `true` | `false` — show/hide divider above footer
+- `card_footer_line_color` — divider color
+- `card_footer_line_width` — divider thickness (px)
+
 Subtitle and icon tokens (shared with all card types):
 - `card_subtitle_font_size` / `card_subtitle_font_color` / `card_subtitle_font_style`
 - `card_subtitle_alignment` — `left` | `center` | `right`
@@ -61,7 +76,7 @@ Subtitle and icon tokens (shared with all card types):
 
 ## Design Tokens Used
 
-- `.card-base` — container, title, header line, subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
+- `.card-base` — container, title, header line, footer + footer line (`--card-footer-*`), subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
 - `.image-framed` / `.image-fullbleed` / `.image-circular` — image presentation
 - `.text-caption` — caption
 
