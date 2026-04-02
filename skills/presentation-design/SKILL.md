@@ -1,10 +1,10 @@
 ---
 name: presentation-design
 description: "Card-based presentation design system. Build slide decks from a structured Markdown definition file and a CSS token theme. Cards and layouts are documented, registered, and rendered deterministically by Python scripts into PowerPoint (.pptx) and draw.io (.drawio) output. Use this skill whenever a user asks to create, build, design, or scaffold a presentation, slide deck, or visual document."
+argument-hint: "<presentation-definition.md> [--stylesheet <theme.css>] [--output <file.pptx|file.drawio>]"
 metadata:
   author: MarkSchue
   version: "0.1.0"
-  argument-hint: <presentation-definition.md> [--stylesheet <theme.css>] [--output <file.pptx|file.drawio>]
 ---
 
 # Presentation Design Skill
