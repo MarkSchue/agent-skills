@@ -34,6 +34,10 @@ Dynamic column layout based on section count:
 Current-section highlighting: the section matching the current position
 is rendered in a distinct color or bold weight.
 
+All column layouts support an optional title icon and subtitle, identical
+to other card types: set `icon.name` to show an icon beside the agenda title,
+and `subtitle` to add a muted line directly below the header divider.
+
 ## Required Fields
 
 | Field | Type | Description |
@@ -47,6 +51,13 @@ is rendered in a distinct color or bold weight.
 |-------|------|---------|-------------|
 | `content.highlight` | int | — | Index of current section to highlight (0-based) |
 | `content.columns` | int | auto | Force column count (1, 2, or 3) |
+| `subtitle` | string | — | Subtitle text below the header line |
+| `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle (auto-`true` when `subtitle` text is set) |
+| `icon.name` | string | `""` | Icon ligature or codepoint (e.g. `"list"` for Material Symbols Outlined) |
+| `icon.visible` | bool | `false` | Show/hide the title icon |
+| `icon.position` | string | `right` | `left` \| `right` — which side of the title row |
+| `icon.color` | string | accent | Icon foreground color (hex or token) |
+| `icon.size` | int | `20` | Icon size in px |
 
 ## Supported Overrides
 
@@ -58,9 +69,13 @@ All `.card-base` overrides plus `.card--agenda` tokens:
 - `card_agenda_column_gap` — gap between columns in px
 - `card_agenda_number_font_color` — numbering color
 
+Subtitle and icon tokens (shared with all card types):
+- `card_subtitle_font_size` / `card_subtitle_font_color` / `card_subtitle_font_style`
+- `card_icon_name` / `card_icon_position` / `card_icon_color` / `card_icon_size`
+
 ## Design Tokens Used
 
-- `.card-base` — container, title, header line
+- `.card-base` — container, title, header line, subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
 - `.card--agenda` — item styling, highlight, column layout
 - `.text-body` — section item text
 
@@ -68,6 +83,10 @@ All `.card-base` overrides plus `.card--agenda` tokens:
 
 ```yaml
 type: agenda-card
+subtitle: "Session overview"
+icon:
+  name: "list"
+  position: right
 content:
   sections:
     - "Introduction"

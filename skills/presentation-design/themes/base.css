@@ -375,6 +375,17 @@
   --card-header-line-alignment: left;                           /* left | center | right | full */
   --card-header-line-visible: true;
 
+  /* Card subtitle (optional — below header line, above body)
+     Activate per card in the MD file via: subtitle: "..."
+     Subtitle auto-shows when subtitle text is present; set false to suppress. */
+  --card-subtitle-visible:        false;                        /* true | false — auto-true when subtitle text is set */
+  --card-subtitle-font-size:      12;                           /* px */
+  --card-subtitle-font-color:     var(--color-text-muted);      /* subtitle text colour */
+  --card-subtitle-font-weight:    400;
+  --card-subtitle-font-style:     normal;                       /* normal | italic */
+  --card-subtitle-margin-top:     6;                            /* px — gap below header line */
+  --card-subtitle-margin-bottom:  8;                            /* px — gap above body */
+
   /* Card footer divider line (above card footer) */
   --card-footer-line-color: var(--color-border);
   --card-footer-line-width: 1;

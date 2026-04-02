@@ -119,6 +119,8 @@ Every card YAML block normalizes to this schema:
 |-------|----------|------|-------------|
 | `type` | yes | string | Card type identifier (e.g. `text-card`) |
 | `content` | yes | object | Card-specific content fields |
+| `subtitle` | no | string | Subtitle text displayed below the header line |
+| `icon` | no | object | Title icon config: `{ name, position, color, size, visible }` |
 | `style_overrides` | no | object | Per-card CSS token overrides |
 | `asset_refs` | no | list | Relative paths to assets used by this card |
 
@@ -136,6 +138,16 @@ Every card YAML block normalizes to this schema:
 | `header_line_color` | string | Header divider color |
 | `header_line_width` | int | Header divider thickness (px) |
 | `footer_line_visible` | bool | Show/hide footer divider |
+| `subtitle_visible` | bool | Show/hide subtitle below header line |
+| `subtitle_font_color` | string | Subtitle text color |
+| `subtitle_font_size` | int | Subtitle font size (px) |
+| `subtitle_font_style` | string | `normal` \| `italic` |
+| `icon_visible` | bool | Show/hide icon next to card title |
+| `icon_name` | string | Icon ligature or Unicode codepoint (e.g. `"bar_chart"`) |
+| `icon_position` | string | `left` \| `right` |
+| `icon_color` | string | Icon foreground color |
+| `icon_size` | int | Icon size in px |
+| `icon_background_color` | string | Icon badge background color |
 
 ---
 

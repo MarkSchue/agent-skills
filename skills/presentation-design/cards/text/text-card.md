@@ -6,8 +6,9 @@ General-purpose text card with heading, body text, and typography variants.
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  [text-label: card title]                           │
+│  [text-label: card title]          [icon: ●]        │
 │  ─────────────────────────────── (header line)      │
+│  [text-caption: subtitle]                           │
 │                                                     │
 │  [text-h1: heading]                                 │
 │  [text-h2: subheading]                              │
@@ -20,6 +21,8 @@ General-purpose text card with heading, body text, and typography variants.
 ```
 
 - Title sits at the top with an optional header line below it.
+- Icon is optional and appears on the right by default; set `icon.position: left` to flip it.
+- Subtitle is optional; displayed directly below the header line using muted caption styling.
 - Body area supports heading, subheading, body text, bullets, caption, and footnote.
 - All text styles resolve from the `.text-*` token families.
 
@@ -39,15 +42,29 @@ General-purpose text card with heading, body text, and typography variants.
 | `content.bullets` | list | — | Bullet list items |
 | `content.caption` | string | — | Caption text below body |
 | `content.footnote` | string | — | Footnote text at bottom |
+| `subtitle` | string | — | Subtitle text below the header line |
+| `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle (auto-`true` when `subtitle` text is set) |
+| `icon.name` | string | `""` | Icon ligature or codepoint (e.g. `"article"` for Material Symbols Outlined) |
+| `icon.visible` | bool | `false` | Show/hide the title icon |
+| `icon.position` | string | `right` | `left` \| `right` — which side of the title row |
+| `icon.color` | string | accent | Icon foreground color (hex or token) |
+| `icon.size` | int | `20` | Icon size in px |
 
 ## Supported Overrides
 
-All `.card-base` overrides plus:
-- No card-variant-specific overrides (text-card uses only base card tokens).
+All `.card-base` overrides plus subtitle and icon tokens:
+- `card_subtitle_font_size` — subtitle text size (px)
+- `card_subtitle_font_color` — subtitle text color
+- `card_subtitle_font_style` — `normal` or `italic`
+- `card_icon_name` — icon ligature / codepoint
+- `card_icon_position` — `left` or `right`
+- `card_icon_color` — icon foreground color
+- `card_icon_size` — icon size in px
+- `card_icon_background_color` — icon badge background
 
 ## Design Tokens Used
 
-- `.card-base` — container, title, header line
+- `.card-base` — container, title, header line, subtitle (`--card-subtitle-*`), icon (`--card-icon-*`)
 - `.text-h1` — heading
 - `.text-h2` — subheading
 - `.text-body` — body paragraph
@@ -58,6 +75,10 @@ All `.card-base` overrides plus:
 
 ```yaml
 type: text-card
+subtitle: "Strategic priorities for FY2026"
+icon:
+  name: "lightbulb"
+  position: right
 content:
   heading: "Our Vision"
   body: "We believe in building products that matter."
