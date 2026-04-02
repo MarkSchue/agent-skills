@@ -183,8 +183,8 @@
 .slide-base {
 
   /* Canvas dimensions (16:9 standard, in EMU for PowerPoint) */
-  --canvas-width: 12192000;                          /* EMU — 33.867cm / 13.333in */
-  --canvas-height: 6858000;                          /* EMU — 19.05cm / 7.5in */
+  --canvas-width: 1280;                             /* px — slide width (16:9 @ 96 DPI; exporter converts to EMU) */
+  --canvas-height: 720;                              /* px — slide height */
   --canvas-padding-top: 48;                          /* px — top margin for content area */
   --canvas-padding-right: 48;                        /* px — right margin */
   --canvas-padding-bottom: 48;                       /* px — bottom margin */

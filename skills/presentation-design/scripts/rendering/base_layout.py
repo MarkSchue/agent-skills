@@ -81,10 +81,10 @@ class BaseLayoutRenderer(ABC):
         )
 
         # Margins
-        ml = float(self._resolve("canvas-margin-left", overrides) or 20)
-        mr = float(self._resolve("canvas-margin-right", overrides) or 20)
-        mt = float(self._resolve("canvas-margin-top", overrides) or 20)
-        mb = float(self._resolve("canvas-margin-bottom", overrides) or 20)
+        ml = float(self._resolve("canvas-padding-left", overrides) or 48)
+        mr = float(self._resolve("canvas-padding-right", overrides) or 48)
+        mt = float(self._resolve("canvas-padding-top", overrides) or 48)
+        mb = float(self._resolve("canvas-padding-bottom", overrides) or 48)
 
         y_cursor = mt
 
