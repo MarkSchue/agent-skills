@@ -179,6 +179,8 @@ class BaseCardRenderer(ABC):
                     "type": "text",
                     "x": box.x + self._pad_left,
                     "y": y,
+                    "w": box.w - self._pad_left - self._pad_right,
+                    "h": float(title_size) + 4,
                     "text": card.title,
                     "font_size": title_size,
                     "font_color": self.resolve("card-title-font-color"),

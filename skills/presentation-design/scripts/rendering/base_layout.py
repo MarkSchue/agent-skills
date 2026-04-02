@@ -102,6 +102,7 @@ class BaseLayoutRenderer(ABC):
                     "x": ml,
                     "y": y_cursor,
                     "w": canvas_w - ml - mr,
+                    "h": title_size + 4,
                     "text": slide.title,
                     "font_size": title_size,
                     "font_color": self._resolve("slide-title-font-color", overrides)
@@ -129,6 +130,7 @@ class BaseLayoutRenderer(ABC):
                     "x": ml,
                     "y": y_cursor,
                     "w": canvas_w - ml - mr,
+                    "h": sub_size + 4,
                     "text": slide.subtitle,
                     "font_size": sub_size,
                     "font_color": self._resolve(

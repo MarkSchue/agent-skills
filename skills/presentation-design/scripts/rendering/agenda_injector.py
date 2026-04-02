@@ -57,22 +57,28 @@ class AgendaInjector:
         """
         active_agenda = agenda.with_active(active_index)
 
+        # Left spacer — empty area giving the agenda card a right-aligned feel
+        spacer = CardModel(
+            title="",
+            card_type="text-card",
+            content={},
+        )
+
+        # Agenda card on the right; always single vertical column
         card = CardModel(
             title="Agenda",
             card_type="agenda-card",
             content={
                 "sections": [e.title for e in active_agenda.entries],
                 "highlight": active_index,
-                "columns": active_agenda.auto_columns
-                if active_agenda.column_count is not None
-                else None,
+                "columns": 1,
             },
         )
 
         slide = SlideModel(
             title="Agenda",
-            cards=[card],
-            layout="grid-1x1",
+            cards=[spacer, card],
+            layout="grid-1x2",
             is_generated=True,
         )
 
