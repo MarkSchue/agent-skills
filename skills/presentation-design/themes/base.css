@@ -7,6 +7,7 @@
 
    STRUCTURE:
      1. .theme-colors   — central semantic colour palette
+     1b. .icon-set      — global icon system selector (activate one, comment others)
      2. .slide-base     — slide-level chrome tokens (uses var(--color-*))
      3. .card-base      — shared card container tokens
      4. .card--text-*   — text style families  (7 variants)
@@ -112,6 +113,67 @@
   --color-info-subtle:       #DBEAFE;   /* light blue background for info chips */
   --color-info-text:         #1E40AF;   /* dark blue text inside an info-subtle area */
 }
+
+
+/* =================================================================
+   1b. Icon Set — choose ONE icon system by uncommenting its block.
+       All others must remain commented out. The active block sets
+       the three tokens consumed by the rendering pipeline.
+   ================================================================= */
+
+/* --- ACTIVE: Material Symbols Outlined (Google variable font — recommended) --- */
+.icon-set {
+  --icon-font-family:   "Material Symbols Outlined";             /* CSS font-family name */
+  --icon-font-cdn:      "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"; /* CDN import URL */
+  --icon-render-mode:   font;                                    /* font | emoji — controls rendering path */
+  --icon-font-size:     20;                                      /* px — default icon size */
+  --icon-font-weight:   400;                                     /* variable-font weight axis */
+}
+
+/* --- Material Icons Outlined (Google, classic outlined style) ---
+.icon-set {
+  --icon-font-family:   "Material Icons Outlined";
+  --icon-font-cdn:      "https://fonts.googleapis.com/icon?family=Material+Icons+Outlined";
+  --icon-render-mode:   font;
+  --icon-font-size:     20;
+  --icon-font-weight:   400;
+} */
+
+/* --- Material Icons (Google, classic filled style) ---
+.icon-set {
+  --icon-font-family:   "Material Icons";
+  --icon-font-cdn:      "https://fonts.googleapis.com/icon?family=Material+Icons";
+  --icon-render-mode:   font;
+  --icon-font-size:     20;
+  --icon-font-weight:   400;
+} */
+
+/* --- Phosphor Icons (elegant dual-tone, MIT license) ---
+.icon-set {
+  --icon-font-family:   "Phosphor";
+  --icon-font-cdn:      "https://unpkg.com/phosphor-icons@latest/src/css/phosphor.css";
+  --icon-render-mode:   font;
+  --icon-font-size:     20;
+  --icon-font-weight:   400;
+} */
+
+/* --- Font Awesome Free (ubiquitous, solid / regular / brands) ---
+.icon-set {
+  --icon-font-family:   "Font Awesome 6 Free";
+  --icon-font-cdn:      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css";
+  --icon-render-mode:   font;
+  --icon-font-size:     20;
+  --icon-font-weight:   900;                                     /* FA solid requires weight 900 */
+} */
+
+/* --- Emoji (no CDN — built-in OS Unicode, zero-dependency) ---
+.icon-set {
+  --icon-font-family:   "Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji";
+  --icon-font-cdn:      none;                                    /* no import needed */
+  --icon-render-mode:   emoji;
+  --icon-font-size:     20;
+  --icon-font-weight:   400;
+} */
 
 
 /* =================================================================
@@ -295,6 +357,18 @@
   --card-title-alignment: left;                                 /* left | center | right */
   --card-title-visible: true;                                   /* true | false */
 
+  /* Card title icon (opt-in — requires --card-icon-visible: true)
+     Override per card in the presentation MD file via YAML: icon: { name: "star", position: left } */
+  --card-icon-visible:            false;                        /* true | false — show icon beside card title */
+  --card-icon-name:               "";                           /* icon ligature name or Unicode codepoint */
+  --card-icon-position:           right;                        /* left | right — side of the title row */
+  --card-icon-size:               20;                           /* px */
+  --card-icon-color:              var(--color-accent);          /* icon foreground colour */
+  --card-icon-background-color:   transparent;                  /* pill/badge background; transparent = none */
+  --card-icon-background-radius:  4;                            /* px — rounded background behind icon */
+  --card-icon-padding:            4;                            /* px — padding inside icon background */
+  --card-icon-gap:                8;                            /* px — gap between title text and icon */
+
   /* Card header divider line (below title) */
   --card-header-line-color: var(--color-border);                /* header divider colour */
   --card-header-line-width: 1;                                  /* px */
@@ -435,6 +509,13 @@
   --card-kpi-label-font-size: 12;                               /* px — supporting label */
   --card-kpi-label-font-color: var(--color-text-muted);
   --card-kpi-label-font-style: normal;                          /* normal | italic | bold | italic bold */
+
+  /* KPI body icon placeholder — for future use (e.g. trend arrow, metric category icon) */
+  --card-kpi-icon-visible:   false;                             /* true | false */
+  --card-kpi-icon-name:      "";                                /* icon ligature / codepoint */
+  --card-kpi-icon-size:      32;                                /* px — body icons are larger in KPI cards */
+  --card-kpi-icon-color:     var(--color-accent);
+  --card-kpi-icon-position:  above-value;                       /* above-value | left-of-value | decorative */
 }
 
 
@@ -449,6 +530,13 @@
   --card-chart-legend-font-size: 11;                            /* legend text size */
   --card-chart-legend-font-style: normal;                       /* normal | italic | bold | italic bold */
   --card-chart-legend-position: bottom;                         /* bottom | right | top */
+
+  /* Chart body icon placeholder — for future use (e.g. legend icons, header badge) */
+  --card-chart-icon-visible:   false;                           /* true | false */
+  --card-chart-icon-name:      "";                              /* icon ligature / codepoint */
+  --card-chart-icon-size:      20;                              /* px */
+  --card-chart-icon-color:     var(--color-text-muted);
+  --card-chart-icon-position:  legend;                          /* legend | header | decorative */
 }
 
 
@@ -466,6 +554,13 @@
   --card-quote-attribution-font-size: 12;
   --card-quote-attribution-font-color: var(--color-text-muted);
   --card-quote-attribution-font-style: normal;                  /* normal | italic | bold | italic bold */
+
+  /* Quote body icon placeholder — for future use (decorative quotation-mark or attribution icon) */
+  --card-quote-icon-visible:   false;                           /* true | false */
+  --card-quote-icon-name:      "";                              /* e.g. "format_quote" for Material Symbols */
+  --card-quote-icon-size:      40;                              /* px — typically used as large decorative mark */
+  --card-quote-icon-color:     var(--color-border);
+  --card-quote-icon-position:  decorative;                      /* decorative | attribution */
 }
 
 
@@ -491,4 +586,11 @@
   --card-agenda-item-font-size: 14;                             /* px — item text */
   --card-agenda-item-font-color: var(--color-text-subtle);   /* item text colour */
   --card-agenda-item-font-style: normal;                        /* normal | italic | bold | italic bold */
+
+  /* Agenda body icon placeholder — for future use (entry-prefix marker, section indicator) */
+  --card-agenda-icon-visible:   false;                          /* true | false */
+  --card-agenda-icon-name:      "";                             /* shown next to active / highlighted entry */
+  --card-agenda-icon-size:      16;                             /* px */
+  --card-agenda-icon-color:     var(--color-accent);
+  --card-agenda-icon-position:  entry-prefix;                   /* entry-prefix | section-prefix */
 }

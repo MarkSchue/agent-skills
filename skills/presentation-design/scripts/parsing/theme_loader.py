@@ -31,6 +31,7 @@ _RE_BLOCK_END = re.compile(r"^\s*\}")
 _BASE_SELECTORS = frozenset(
     {
         "theme-colors",
+        "icon-set",
         "slide-base",
         "card-base",
         "card--text-h1",
