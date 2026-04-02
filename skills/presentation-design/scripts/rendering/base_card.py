@@ -37,7 +37,7 @@ class RenderBox:
         elements: Child rendered elements (exporter-agnostic dicts).
     """
 
-    __slots__ = ("x", "y", "w", "h", "elements")
+    __slots__ = ("x", "y", "w", "h", "elements", "chrome", "card_slots")
 
     def __init__(self, x: float, y: float, w: float, h: float) -> None:
         self.x = x
@@ -45,6 +45,8 @@ class RenderBox:
         self.w = w
         self.h = h
         self.elements: list[dict[str, Any]] = []
+        self.chrome: Any = None
+        self.card_slots: Any = None
 
     def add(self, element: dict[str, Any]) -> None:
         self.elements.append(element)

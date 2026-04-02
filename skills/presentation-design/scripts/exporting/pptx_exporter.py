@@ -20,13 +20,9 @@ from scripts.rendering.base_card import RenderBox
 
 logger = logging.getLogger(__name__)
 
-# EMU per pixel at 96 DPI (PowerPoint native)
-_EMU_PER_PX = 914400 / 96  # = 9525
-
-
 def _px(val: float) -> int:
-    """Convert pixel value to EMU."""
-    return int(val * _EMU_PER_PX)
+    """Return EMU value as int (CSS tokens are already expressed in EMU)."""
+    return int(val)
 
 
 def _rgb(hex_color: str) -> RGBColor | None:
