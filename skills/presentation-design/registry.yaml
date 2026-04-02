@@ -1,0 +1,139 @@
+# Presentation Design Skill — Registry
+# -----------------------------------------------------------------
+# ALWAYS load this file first — before any card or layout spec file.
+# Keep descriptions ≤ 20 words. Add new entries when introducing
+# new cards, layouts, or scripts.
+# -----------------------------------------------------------------
+
+version: 1
+
+cards:
+  - id: text-card
+    description: General-purpose text card with heading, body text, and typography variants.
+    file: cards/text/text-card.md
+    tags: [text, content, heading, body, paragraph, bullets, typography]
+
+  - id: image-card
+    description: Card displaying an image in full-bleed, framed, or circular presentation mode.
+    file: cards/media/image-card.md
+    tags: [image, photo, media, illustration, visual, picture]
+
+  - id: kpi-card
+    description: Key performance indicator card with large metric value, trend, and label.
+    file: cards/data/kpi-card.md
+    tags: [kpi, metric, number, value, trend, data, performance]
+
+  - id: chart-card
+    description: Chart card supporting bar, pie, and line chart types from structured data.
+    file: cards/data/chart-card.md
+    tags: [chart, data, bar, pie, line, visualization, analytics]
+
+  - id: quote-card
+    description: Styled quotation card with quote text, attribution, and optional image.
+    file: cards/structural/quote-card.md
+    tags: [quote, testimonial, citation, attribution, text]
+
+  - id: agenda-card
+    description: Auto-generated agenda entry list with active-section highlighting.
+    file: cards/structural/agenda-card.md
+    tags: [agenda, navigation, sections, overview, contents, schedule]
+
+layouts:
+  - id: title-slide
+    description: Full-width title slide with centered heading, subtitle, and optional background.
+    file: layouts/title-slide.md
+    tags: [title, cover, hero, opening, intro]
+
+  - id: grid-1x1
+    description: Single card centered in the body area below the title bar.
+    file: layouts/grid-1x1.md
+    tags: [single, focus, centered, one-card]
+
+  - id: grid-1x2
+    description: Two cards side by side in a single row.
+    file: layouts/grid-1x2.md
+    tags: [two, comparison, side-by-side, dual]
+
+  - id: grid-1x3
+    description: Three cards in a single row.
+    file: layouts/grid-1x3.md
+    tags: [three, trio, row, horizontal]
+
+  - id: grid-1x4
+    description: Four cards in a single row.
+    file: layouts/grid-1x4.md
+    tags: [four, quad, row, compact]
+
+  - id: grid-2x1
+    description: Two cards stacked vertically in a single column.
+    file: layouts/grid-2x1.md
+    tags: [two, stacked, vertical, column]
+
+  - id: grid-2x2
+    description: Four cards in a 2×2 grid.
+    file: layouts/grid-2x2.md
+    tags: [four, grid, quadrant, balanced]
+
+  - id: grid-2x3
+    description: Six cards in a 2×3 grid (two rows, three columns).
+    file: layouts/grid-2x3.md
+    tags: [six, grid, matrix, dense]
+
+  - id: grid-2x4
+    description: Eight cards in a 2×4 grid (two rows, four columns).
+    file: layouts/grid-2x4.md
+    tags: [eight, grid, compact, dense]
+
+  - id: grid-3x1
+    description: Three cards stacked vertically in a single column.
+    file: layouts/grid-3x1.md
+    tags: [three, stacked, vertical, column]
+
+  - id: grid-3x2
+    description: Six cards in a 3×2 grid (three rows, two columns).
+    file: layouts/grid-3x2.md
+    tags: [six, grid, tall, vertical-heavy]
+
+  - id: grid-3x3
+    description: Nine cards in a 3×3 grid.
+    file: layouts/grid-3x3.md
+    tags: [nine, grid, dense, matrix]
+
+  - id: grid-3x4
+    description: Twelve cards in a 3×4 grid — maximum density layout.
+    file: layouts/grid-3x4.md
+    tags: [twelve, grid, maximum, dense, compact]
+
+scripts:
+  - id: build_presentation
+    description: Main build script — parses deck, applies theme, renders slides.
+    file: scripts/build_presentation.py
+
+  - id: scaffold_presentation
+    description: Scaffolds a new presentation project folder with all required files.
+    file: scripts/scaffold_presentation.py
+
+  - id: extract_theme
+    description: (Future) Extracts design tokens from an existing PPTX or website.
+    file: scripts/extract_theme.py
+
+references:
+  - id: deck-syntax
+    description: Structured Markdown syntax for presentation definitions.
+    file: references/deck-syntax.md
+
+  - id: token-reference
+    description: Complete CSS token catalogue with namespaces and defaults.
+    file: references/token-reference.md
+
+  - id: setup
+    description: Environment setup guide — venv, dependencies, first run.
+    file: references/setup.md
+
+  - id: architecture
+    description: System architecture — pipeline, modules, data flow.
+    file: references/architecture.md
+
+  - id: inheritance-model
+    description: Python class and CSS class inheritance model.
+    file: references/inheritance-model.md

@@ -1,0 +1,29 @@
+/* =================================================================
+   Default Theme — Neutral safe defaults
+   =================================================================
+   This theme imports all tokens from base.css with neutral values.
+   Copy this file to your project as `theme.css` and customise.
+   Every token has the same default as base.css — override only
+   the ones you want to change.
+   ================================================================= */
+
+/* Slide-level overrides — uncomment and change as needed */
+.slide-base {
+  /* --canvas-background-color: #F9FAFB; */
+  /* --slide-title-font-color: #111827; */
+  /* --slide-title-font-size: 32; */
+}
+
+/* Card-level overrides */
+.card-base {
+  /* --card-background-color: #FFFFFF; */
+  /* --card-border-color: #D1D5DB; */
+  /* --card-border-radius: 12; */
+}
+
+/* Text style overrides */
+/* .text-h1 { --text-h1-font-size: 28; } */
+/* .text-body { --text-body-font-color: #1F2937; } */
+
+/* Card variant overrides */
+/* .card--kpi { --card-kpi-value-font-size: 56; } */

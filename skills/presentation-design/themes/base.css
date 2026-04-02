@@ -1,0 +1,358 @@
+/* =================================================================
+   Presentation Design System — Base CSS Token Set
+   =================================================================
+   This file defines ALL available design tokens for slides, cards,
+   text styles, and image styles. It is the source-of-truth template.
+   
+   When scaffolding a new presentation, this file is copied to the
+   project as `theme.css` so the user can customise values.
+   
+   RULES:
+   - Every token must have an inline comment explaining its role.
+   - New tokens may be appended but never renamed.
+   - Every token must have a safe default value.
+   - Token namespaces: --canvas-*, --slide-*, --card-*, --text-*, --image-*
+   ================================================================= */
+
+/* -----------------------------------------------------------------
+   Canvas — global slide dimensions and spacing
+   ----------------------------------------------------------------- */
+.slide-base {
+
+  /* Canvas dimensions (16:9 standard) */
+  --canvas-width: 12192000;              /* EMU — 33.867cm / 13.333in */
+  --canvas-height: 6858000;              /* EMU — 19.05cm / 7.5in */
+  --canvas-padding-top: 48;              /* px — top margin for content area */
+  --canvas-padding-right: 48;            /* px — right margin for content area */
+  --canvas-padding-bottom: 48;           /* px — bottom margin for content area */
+  --canvas-padding-left: 48;             /* px — left margin for content area */
+  --canvas-card-gap: 16;                 /* px — spacing between cards */
+  --canvas-background-color: #FFFFFF;    /* slide background color */
+  --canvas-background-image: none;       /* slide background image URL or 'none' */
+
+  /* -----------------------------------------------------------------
+     Slide Title
+     ----------------------------------------------------------------- */
+  --slide-title-font-size: 28;           /* px — title text size */
+  --slide-title-font-color: #1A1A2E;     /* title text color */
+  --slide-title-font-weight: 700;        /* title text weight (400=normal, 700=bold) */
+  --slide-title-background-color: transparent; /* title region background */
+  --slide-title-border-color: transparent;     /* title region border color */
+  --slide-title-border-width: 0;         /* px — title region border width */
+  --slide-title-border-radius: 0;        /* px — title region border radius */
+  --slide-title-padding: 0 0 8 0;        /* px — title region padding (top right bottom left) */
+  --slide-title-margin: 0;               /* px — title region margin */
+  --slide-title-position: top-left;      /* top-left | top-center | top-right */
+  --slide-title-width: auto;             /* px or 'auto' */
+  --slide-title-height: auto;            /* px or 'auto' */
+  --slide-title-alignment: left;         /* left | center | right */
+
+  /* -----------------------------------------------------------------
+     Slide Subtitle
+     ----------------------------------------------------------------- */
+  --slide-subtitle-font-size: 16;        /* px — subtitle text size */
+  --slide-subtitle-font-color: #6B7280;  /* subtitle text color */
+  --slide-subtitle-font-weight: 400;     /* subtitle text weight */
+  --slide-subtitle-background-color: transparent;
+  --slide-subtitle-border-color: transparent;
+  --slide-subtitle-border-width: 0;
+  --slide-subtitle-border-radius: 0;
+  --slide-subtitle-padding: 0;
+  --slide-subtitle-margin: 4 0 0 0;      /* px — spacing below title */
+  --slide-subtitle-position: below-title;
+  --slide-subtitle-width: auto;
+  --slide-subtitle-height: auto;
+  --slide-subtitle-alignment: left;
+
+  /* -----------------------------------------------------------------
+     Title Line (divider below the title)
+     ----------------------------------------------------------------- */
+  --slide-divider-font-size: 0;          /* n/a for divider — reserved for consistency */
+  --slide-divider-font-color: transparent;
+  --slide-divider-font-weight: 0;
+  --slide-divider-background-color: transparent;
+  --slide-divider-border-color: #E5E7EB; /* divider line color */
+  --slide-divider-border-width: 2;       /* px — divider thickness */
+  --slide-divider-border-radius: 0;
+  --slide-divider-padding: 0;
+  --slide-divider-margin: 8 0 16 0;      /* px — space above/below divider */
+  --slide-divider-position: below-title;
+  --slide-divider-width: 100%;           /* percentage or px */
+  --slide-divider-height: 2;             /* px — line height */
+  --slide-divider-alignment: left;       /* left | center | right */
+
+  /* -----------------------------------------------------------------
+     Primary Logo (top right by default)
+     ----------------------------------------------------------------- */
+  --slide-logo-primary-font-size: 0;     /* n/a — reserved */
+  --slide-logo-primary-font-color: transparent;
+  --slide-logo-primary-font-weight: 0;
+  --slide-logo-primary-background-color: transparent;
+  --slide-logo-primary-border-color: transparent;
+  --slide-logo-primary-border-width: 0;
+  --slide-logo-primary-border-radius: 0;
+  --slide-logo-primary-padding: 12;      /* px — padding around logo */
+  --slide-logo-primary-margin: 0;
+  --slide-logo-primary-position: top-right; /* top-right | top-left | bottom-right | bottom-left */
+  --slide-logo-primary-width: 120;       /* px — logo width */
+  --slide-logo-primary-height: 40;       /* px — logo height */
+  --slide-logo-primary-alignment: right;
+
+  /* -----------------------------------------------------------------
+     Secondary Logo (top left by default)
+     ----------------------------------------------------------------- */
+  --slide-logo-secondary-font-size: 0;
+  --slide-logo-secondary-font-color: transparent;
+  --slide-logo-secondary-font-weight: 0;
+  --slide-logo-secondary-background-color: transparent;
+  --slide-logo-secondary-border-color: transparent;
+  --slide-logo-secondary-border-width: 0;
+  --slide-logo-secondary-border-radius: 0;
+  --slide-logo-secondary-padding: 12;
+  --slide-logo-secondary-margin: 0;
+  --slide-logo-secondary-position: top-left;
+  --slide-logo-secondary-width: 120;
+  --slide-logo-secondary-height: 40;
+  --slide-logo-secondary-alignment: left;
+
+  /* -----------------------------------------------------------------
+     Footer Line (divider above the footer)
+     ----------------------------------------------------------------- */
+  --slide-footer-line-font-size: 0;
+  --slide-footer-line-font-color: transparent;
+  --slide-footer-line-font-weight: 0;
+  --slide-footer-line-background-color: transparent;
+  --slide-footer-line-border-color: #E5E7EB;
+  --slide-footer-line-border-width: 1;
+  --slide-footer-line-border-radius: 0;
+  --slide-footer-line-padding: 0;
+  --slide-footer-line-margin: 0;
+  --slide-footer-line-position: above-footer;
+  --slide-footer-line-width: 100%;
+  --slide-footer-line-height: 1;
+  --slide-footer-line-alignment: left;
+
+  /* -----------------------------------------------------------------
+     Footer Text (bottom right by default)
+     ----------------------------------------------------------------- */
+  --slide-footer-font-size: 10;          /* px — footer text size */
+  --slide-footer-font-color: #9CA3AF;    /* footer text color */
+  --slide-footer-font-weight: 400;
+  --slide-footer-background-color: transparent;
+  --slide-footer-border-color: transparent;
+  --slide-footer-border-width: 0;
+  --slide-footer-border-radius: 0;
+  --slide-footer-padding: 4 12 4 12;
+  --slide-footer-margin: 0;
+  --slide-footer-position: bottom-right;
+  --slide-footer-width: auto;
+  --slide-footer-height: auto;
+  --slide-footer-alignment: right;
+
+  /* -----------------------------------------------------------------
+     Page Number (bottom left by default)
+     ----------------------------------------------------------------- */
+  --slide-page-number-font-size: 10;
+  --slide-page-number-font-color: #9CA3AF;
+  --slide-page-number-font-weight: 400;
+  --slide-page-number-background-color: transparent;
+  --slide-page-number-border-color: transparent;
+  --slide-page-number-border-width: 0;
+  --slide-page-number-border-radius: 0;
+  --slide-page-number-padding: 4 12 4 12;
+  --slide-page-number-margin: 0;
+  --slide-page-number-position: bottom-left;
+  --slide-page-number-width: auto;
+  --slide-page-number-height: auto;
+  --slide-page-number-alignment: left;
+}
+
+/* =================================================================
+   Card Base — shared properties for all card types
+   ================================================================= */
+.card-base {
+
+  /* Card container */
+  --card-background-color: #FFFFFF;      /* card surface color */
+  --card-border-color: #E5E7EB;          /* card border color */
+  --card-border-width: 1;               /* px — card border width */
+  --card-border-radius: 8;              /* px — card corner radius */
+  --card-padding: 16;                   /* px — inner padding */
+  --card-shadow: 0 1 3 rgba(0,0,0,0.1); /* card box shadow */
+
+  /* Card title */
+  --card-title-font-size: 16;           /* px — card title text size */
+  --card-title-font-color: #1A1A2E;     /* card title text color */
+  --card-title-font-weight: 600;        /* card title weight */
+  --card-title-alignment: left;         /* left | center | right */
+  --card-title-visible: true;           /* true | false — show/hide title */
+
+  /* Card header line (divider below title) */
+  --card-header-line-color: #E5E7EB;    /* header divider color */
+  --card-header-line-width: 1;          /* px — header divider thickness */
+  --card-header-line-alignment: left;   /* left | center | right | full */
+  --card-header-line-visible: true;     /* true | false — show/hide divider */
+
+  /* Card footer line (divider above footer) */
+  --card-footer-line-color: #E5E7EB;
+  --card-footer-line-width: 1;
+  --card-footer-line-alignment: left;
+  --card-footer-line-visible: false;    /* hidden by default */
+
+  /* Card body defaults */
+  --card-body-font-size: 14;            /* px — default body text size */
+  --card-body-font-color: #374151;      /* default body text color */
+  --card-body-font-weight: 400;
+  --card-body-background-color: transparent;
+}
+
+/* =================================================================
+   Text Style Families — 7 predefined body text styles
+   Each covers: font-size, font-color, font-weight,
+   background-color, italic, bold
+   ================================================================= */
+
+/* Heading 1 — primary section heading inside card body */
+.text-h1 {
+  --text-h1-font-size: 24;              /* px */
+  --text-h1-font-color: #1A1A2E;        /* dark text */
+  --text-h1-font-weight: 700;           /* bold */
+  --text-h1-background-color: transparent;
+  --text-h1-italic: false;              /* true | false */
+  --text-h1-bold: true;                 /* true | false */
+}
+
+/* Heading 2 — secondary heading inside card body */
+.text-h2 {
+  --text-h2-font-size: 20;
+  --text-h2-font-color: #1A1A2E;
+  --text-h2-font-weight: 600;
+  --text-h2-background-color: transparent;
+  --text-h2-italic: false;
+  --text-h2-bold: true;
+}
+
+/* Body text — primary content paragraphs */
+.text-body {
+  --text-body-font-size: 14;
+  --text-body-font-color: #374151;
+  --text-body-font-weight: 400;
+  --text-body-background-color: transparent;
+  --text-body-italic: false;
+  --text-body-bold: false;
+}
+
+/* Caption text — secondary/metadata text */
+.text-caption {
+  --text-caption-font-size: 12;
+  --text-caption-font-color: #6B7280;
+  --text-caption-font-weight: 400;
+  --text-caption-background-color: transparent;
+  --text-caption-italic: false;
+  --text-caption-bold: false;
+}
+
+/* Label text — card titles, UI labels */
+.text-label {
+  --text-label-font-size: 12;
+  --text-label-font-color: #6B7280;
+  --text-label-font-weight: 600;
+  --text-label-background-color: transparent;
+  --text-label-italic: false;
+  --text-label-bold: true;
+}
+
+/* Quote text — blockquote / testimonial */
+.text-quote {
+  --text-quote-font-size: 18;
+  --text-quote-font-color: #374151;
+  --text-quote-font-weight: 400;
+  --text-quote-background-color: transparent;
+  --text-quote-italic: true;
+  --text-quote-bold: false;
+}
+
+/* Footnote text — small print, references */
+.text-footnote {
+  --text-footnote-font-size: 10;
+  --text-footnote-font-color: #9CA3AF;
+  --text-footnote-font-weight: 400;
+  --text-footnote-background-color: transparent;
+  --text-footnote-italic: false;
+  --text-footnote-bold: false;
+}
+
+/* =================================================================
+   Image Style Families — 3 presentation modes
+   ================================================================= */
+
+/* Full bleed — image fills entire card body, no border */
+.image-fullbleed {
+  --image-fullbleed-border-color: transparent;
+  --image-fullbleed-border-width: 0;
+  --image-fullbleed-border-radius: 0;   /* flush edges */
+  --image-fullbleed-padding: 0;
+  --image-fullbleed-object-fit: cover;  /* cover | contain | fill */
+}
+
+/* Framed — image with visible border and padding */
+.image-framed {
+  --image-framed-border-color: #E5E7EB;
+  --image-framed-border-width: 1;       /* px */
+  --image-framed-border-radius: 4;      /* px — subtle rounding */
+  --image-framed-padding: 8;            /* px — space between image and border */
+  --image-framed-object-fit: contain;
+}
+
+/* Circular — image cropped to circle */
+.image-circular {
+  --image-circular-border-color: #E5E7EB;
+  --image-circular-border-width: 2;
+  --image-circular-border-radius: 50%;  /* circle */
+  --image-circular-size: 120;           /* px — diameter */
+  --image-circular-object-fit: cover;
+}
+
+/* =================================================================
+   Card Variant Overrides — type-specific token extensions
+   ================================================================= */
+
+/* KPI Card — large metric emphasis */
+.card--kpi {
+  --card-kpi-value-font-size: 48;       /* px — main metric size */
+  --card-kpi-value-font-color: #1A1A2E; /* metric text color */
+  --card-kpi-value-font-weight: 700;    /* bold metric */
+  --card-kpi-trend-color-up: #10B981;   /* green for positive trend */
+  --card-kpi-trend-color-down: #EF4444; /* red for negative trend */
+  --card-kpi-trend-color-neutral: #6B7280; /* gray for flat trend */
+  --card-kpi-label-font-size: 12;       /* px — supporting label size */
+  --card-kpi-label-font-color: #6B7280;
+}
+
+/* Chart Card — chart-specific tokens */
+.card--chart {
+  --card-chart-axis-color: #9CA3AF;     /* axis line color */
+  --card-chart-axis-font-size: 10;      /* axis label size */
+  --card-chart-grid-color: #F3F4F6;     /* grid line color */
+  --card-chart-legend-font-size: 11;    /* legend text size */
+  --card-chart-legend-position: bottom; /* bottom | right | top */
+}
+
+/* Quote Card — quote-specific tokens */
+.card--quote {
+  --card-quote-mark-color: #D1D5DB;     /* quotation mark color */
+  --card-quote-mark-size: 48;           /* px — quotation mark size */
+  --card-quote-attribution-font-size: 12;
+  --card-quote-attribution-font-color: #6B7280;
+}
+
+/* Agenda Card — agenda-specific tokens */
+.card--agenda {
+  --card-agenda-active-color: #1A1A2E;  /* active section text color */
+  --card-agenda-active-font-weight: 700;
+  --card-agenda-inactive-color: #9CA3AF; /* muted section text color */
+  --card-agenda-inactive-font-weight: 400;
+  --card-agenda-bullet-color: #3B82F6;  /* active bullet/indicator color */
+  --card-agenda-entry-font-size: 16;    /* section entry text size */
+  --card-agenda-entry-spacing: 12;      /* px — vertical spacing between entries */
+}

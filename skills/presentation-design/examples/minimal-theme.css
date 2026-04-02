@@ -1,0 +1,44 @@
+/*
+ * Example Theme — Minimal overrides
+ *
+ * This file overrides selected tokens from base.css.
+ * Only tokens you want to change need to be listed here.
+ * All unlisted tokens inherit from base.css defaults.
+ *
+ * Usage: place this file as theme.css in your presentation project folder.
+ */
+
+.slide-base {
+  --canvas-background-color: #F8F9FA;
+
+  --slide-title-font-size: 30;
+  --slide-title-font-color: #003087;
+  --slide-title-font-weight: bold;
+
+  --slide-subtitle-font-color: #336699;
+
+  --slide-divider-border-color: #003087;
+  --slide-divider-border-width: 2;
+
+  --slide-footer-font-color: #666666;
+  --slide-page-number-font-color: #666666;
+}
+
+.card-base {
+  --card-background: #FFFFFF;
+  --card-border-color: #DEE2E6;
+  --card-border-radius: 8;
+  --card-header-line-color: #003087;
+  --card-header-line-width: 2;
+  --card-title-font-color: #003087;
+}
+
+.card--kpi {
+  --card-kpi-value-font-color: #003087;
+  --card-kpi-trend-color-up: #2E7D32;
+  --card-kpi-trend-color-down: #C62828;
+}
+
+.card--quote {
+  --card-quote-accent-color: #003087;
+}
