@@ -29,10 +29,14 @@ class ImageCardRenderer(BaseCardRenderer):
     def render_body(self, card: CardModel, box: RenderBox) -> None:
         """Render the image element with the selected display style."""
         content = card.content if isinstance(card.content, dict) else {}
-        image_path = content.get("image", "")
+        image_path = content.get("image", "") or content.get("source", "")
         alt_text = content.get("alt", "")
         caption = content.get("caption", "")
-        image_style = card.props.get("image_style", "framed")
+        image_style = (
+            card.props.get("image_style")
+            or content.get("image_style")
+            or "framed"
+        )
 
         # Resolve full asset path
         resolved_path = self._resolve_asset(image_path)

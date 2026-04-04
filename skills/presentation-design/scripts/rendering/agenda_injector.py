@@ -40,8 +40,14 @@ class AgendaInjector:
             # Don't inject agenda for single-section decks
             return deck
 
-        section_titles = deck.section_titles
         config = deck.agenda_config or {}
+
+        # Honour the auto_agenda: false flag in the <!-- agenda --> block.
+        # Defaults to True so existing decks without the key are unaffected.
+        if not config.get("auto_agenda", True):
+            return deck
+
+        section_titles = deck.section_titles
 
         if config:
             agenda = AgendaModel.from_agenda_config(section_titles, config)

@@ -38,9 +38,12 @@ logger = logging.getLogger(__name__)
 try:
     import cairosvg as _cairosvg  # type: ignore[import-untyped]
     _CAIROSVG_AVAILABLE = True
-except ImportError:
+except Exception as exc:
     _CAIROSVG_AVAILABLE = False
-    logger.debug("cairosvg not installed — SVG→PNG conversion unavailable (PPTX icons will use Unicode fallback)")
+    logger.debug(
+        "cairosvg unavailable — SVG→PNG conversion disabled (%s); PPTX icons will use Unicode fallback",
+        exc,
+    )
 
 # ── URL templates ────────────────────────────────────────────────────────────
 # Key: substring of --icon-font-family value (lower-cased)

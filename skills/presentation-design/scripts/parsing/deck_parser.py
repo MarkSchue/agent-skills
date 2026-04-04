@@ -146,6 +146,9 @@ class DeckParser:
                 data = yaml.safe_load("\n".join(yaml_lines))
                 if isinstance(data, dict):
                     slide.slide_overrides = data
+                    layout = data.get("layout")
+                    if isinstance(layout, str) and layout.strip():
+                        slide.layout = layout.strip()
             except yaml.YAMLError:
                 pass  # malformed YAML; skip silently
 
@@ -177,7 +180,7 @@ class DeckParser:
         refs: list[str] = []
         content = card.content
         if isinstance(content, dict):
-            for key in ("image", "logo", "chart", "diagram", "background"):
+            for key in ("image", "source", "logo", "chart", "diagram", "background"):
                 if key in content and isinstance(content[key], str):
                     refs.append(content[key])
         card.asset_refs = refs

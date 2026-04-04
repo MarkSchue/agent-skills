@@ -123,6 +123,26 @@ class AgendaCardRenderer(BaseCardRenderer):
         sep_width = float(self.resolve("card-agenda-separator-width") or 1)
         sep_inset = float(self.resolve("card-agenda-separator-inset") or 0)
 
+        # ── Overflow guard — scale row geometry to fit box.h ─────────────
+        # When the agenda-card is placed in a small grid cell the token-based
+        # row_h can exceed the available body area.  Compress proportionally;
+        # if even the minimum readable size won't fit, clip the section list.
+        if len(sections) > 0 and box.h > 0:
+            total_rows_h = len(sections) * row_h
+            if total_rows_h > box.h:
+                _min_font = 8.0
+                scaled_row_h = box.h / len(sections)
+                if scaled_row_h >= _min_font + 2:
+                    _scale = scaled_row_h / row_h
+                    entry_size = max(_min_font, entry_size * _scale)
+                    number_size = max(_min_font, number_size * _scale)
+                    info_size = max(6.0, info_size * _scale)
+                    row_h = scaled_row_h
+                else:
+                    # Minimum font floor hit — show only as many rows as fit
+                    row_h = _min_font + 2
+                    sections = sections[: max(1, int(box.h / row_h))]
+
         # ── Render each row ───────────────────────────────────────────────
         for i, section in enumerate(sections):
             # Normalize: sections may be plain strings or dicts
@@ -221,7 +241,7 @@ class AgendaCardRenderer(BaseCardRenderer):
                     {
                         "type": "text",
                         "x": col3_x,
-                        "y": row_y_text,
+                        "y": y,
                         "w": col3_w,
                         "h": entry_size * 2,  # allow two lines
                         "text": info_text,

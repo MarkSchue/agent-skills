@@ -175,7 +175,7 @@ class DrawioExporter:
             f"text;html=1;fontSize={font_size_pt};fontColor={font_color};"
             f"fontStyle={(int(bold) * 1) + (int(italic) * 2)};"
             f"{font_family_attr}"
-            f"align={align};verticalAlign={drawio_valign};whiteSpace=wrap;overflow=hidden;"
+            f"align={align};verticalAlign={drawio_valign};whiteSpace=wrap;"
             f"fillColor=none;strokeColor=none;"
         )
         cell.set("style", style)
@@ -230,7 +230,16 @@ class DrawioExporter:
     def _add_icon(
         self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
     ) -> int:
-        """Render an icon as an embedded base64 SVG image in draw.io."""
+        """Render an icon as an embedded URL-encoded SVG image in draw.io.
+
+        draw.io's style-string parser splits on ``;`` which breaks
+        ``data:image/svg+xml;base64,...`` URIs (the ``;base64`` separator is
+        treated as the start of a new token).  Using
+        ``data:image/svg+xml,<url-encoded-svg>`` avoids any semicolon inside
+        the URI, so the complete image value is preserved.
+        """
+        from urllib.parse import quote as _url_quote  # noqa: PLC0415
+
         name = str(elem.get("name", ""))
         color = str(elem.get("color") or "#000000")
         font_family = str(elem.get("font_family") or "")
@@ -238,17 +247,20 @@ class DrawioExporter:
         svg_path = self._icon_resolver.resolve(name, font_family, color)
         if svg_path is not None:
             try:
-                svg_b64 = base64.b64encode(svg_path.read_bytes()).decode("ascii")
-                data_uri = f"data:image/svg+xml;base64,{svg_b64}"
+                svg_text = svg_path.read_text(encoding="utf-8")
+                # URL-encode everything including ";" so no raw semicolons remain.
+                encoded = _url_quote(svg_text, safe="")
+                data_uri = f"data:image/svg+xml,{encoded}"
 
                 cell = ET.SubElement(mx_root, "mxCell")
                 cell.set("id", str(cell_id))
                 cell.set("parent", "1")
                 cell.set("vertex", "1")
+                # Place image= LAST so other tokens come before it and the
+                # encoded value (which contains no raw ";") ends cleanly.
                 style = (
-                    f"shape=image;image={data_uri};"
-                    "imageAspect=1;aspect=fixed;"
-                    "fillColor=none;strokeColor=none;"
+                    "shape=image;imageAspect=1;aspect=fixed;"
+                    f"fillColor=none;strokeColor=none;image={data_uri};"
                 )
                 cell.set("style", style)
                 cell.set("value", "")
@@ -261,21 +273,51 @@ class DrawioExporter:
                 geo.set("as", "geometry")
                 return cell_id + 1
             except Exception as exc:
-                logger.warning("draw.io SVG icon failed for %s: %s — skipping", name, exc)
+                logger.warning("draw.io SVG icon failed for %s: %s \u2014 falling back to Unicode", name, exc)
 
-        # Fallback: skip (icon invisible but at least no crash)
-        return cell_id
+        # Fallback: Unicode symbol text cell (reuses the same map as the PPTX exporter)
+        from scripts.exporting.pptx_exporter import _ICON_UNICODE_MAP, _ICON_FALLBACK_GLYPH  # noqa: PLC0415
+        fallback_char = _ICON_UNICODE_MAP.get(name, _ICON_FALLBACK_GLYPH)
+        icon_size = elem.get("w") or elem.get("h") or 20
+        return self._add_text(mx_root, {
+            "x": elem["x"],
+            "y": elem["y"],
+            "w": icon_size,
+            "h": icon_size,
+            "text": fallback_char,
+            "font_size": int(icon_size),
+            "font_color": color,
+            "font_weight": "bold",
+            "alignment": "center",
+            "vertical_align": "middle",
+        }, cell_id)
 
     def _add_image(
         self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
     ) -> int:
+        import mimetypes
         src = elem.get("src", "")
+
+        # Embed the image as a base64 data URI so draw.io can display it
+        # without needing local file access (file paths are opaque to draw.io).
+        data_uri = None
+        if src and self.project_root:
+            img_path = self.project_root / "assets" / src
+            if img_path.exists():
+                mime = mimetypes.guess_type(str(img_path))[0] or "image/png"
+                img_b64 = base64.b64encode(img_path.read_bytes()).decode("ascii")
+                data_uri = f"data:{mime};base64,{img_b64}"
+            else:
+                logger.warning("Image not found: %s \u2014 rendering placeholder", src)
+
         cell = ET.SubElement(mx_root, "mxCell")
         cell.set("id", str(cell_id))
         cell.set("parent", "1")
         cell.set("vertex", "1")
 
-        if src:
+        if data_uri:
+            style = f"shape=image;image={data_uri};imageAspect=0;aspect=fixed;"
+        elif src:
             style = f"shape=image;image={src};imageAspect=0;"
         else:
             style = "rounded=1;fillColor=#F5F5F5;strokeColor=#CCCCCC;"

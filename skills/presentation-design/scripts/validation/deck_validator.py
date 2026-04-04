@@ -30,6 +30,7 @@ VALID_CARD_TYPES = {
     "chart-card",
     "quote-card",
     "agenda-card",
+    "stacked-text-card",
 }
 
 VALID_LAYOUTS = {
