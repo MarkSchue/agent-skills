@@ -18,10 +18,11 @@ class GridLayoutRenderer(BaseLayoutRenderer):
         theme: The loaded ``ThemeTokens``.
         rows: Number of grid rows (1–3).
         cols: Number of grid columns (1–4).
+        project_root: Optional path for logo resolution.
     """
 
-    def __init__(self, theme, *, rows: int = 1, cols: int = 1) -> None:
-        super().__init__(theme)
+    def __init__(self, theme, *, rows: int = 1, cols: int = 1, project_root=None) -> None:
+        super().__init__(theme, project_root=project_root)
         self.rows = rows
         self.cols = cols
 
@@ -68,12 +69,13 @@ _GRID_SPECS: dict[str, tuple[int, int]] = {
 }
 
 
-def create_grid_renderer(layout_id: str, theme) -> GridLayoutRenderer:
+def create_grid_renderer(layout_id: str, theme, project_root=None) -> GridLayoutRenderer:
     """Create a ``GridLayoutRenderer`` for the given *layout_id*.
 
     Args:
         layout_id: One of ``grid-1x1`` through ``grid-3x4``.
         theme: The loaded ``ThemeTokens``.
+        project_root: Optional path for logo resolution.
 
     Raises:
         ValueError: If *layout_id* is not a recognized grid layout.
@@ -82,4 +84,4 @@ def create_grid_renderer(layout_id: str, theme) -> GridLayoutRenderer:
     if spec is None:
         raise ValueError(f"Unknown grid layout: {layout_id}")
     rows, cols = spec
-    return GridLayoutRenderer(theme, rows=rows, cols=cols)
+    return GridLayoutRenderer(theme, rows=rows, cols=cols, project_root=project_root)

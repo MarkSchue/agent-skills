@@ -47,9 +47,10 @@ class StackedTextCardRenderer(BaseCardRenderer):
     # ── render_body ───────────────────────────────────────────────────────
 
     def render_body(self, card: CardModel, box: RenderBox) -> None:
-        """Render equal-height block slots with heading, body, and dividers."""
+        """Render equal-height block slots with heading, body, dividers, and optional key takeaway."""
         content = card.content if isinstance(card.content, dict) else {}
         raw_blocks = content.get("blocks", [])
+        kt_text = content.get("key_takeaway", "") or ""
 
         if not raw_blocks:
             return
@@ -100,9 +101,20 @@ class StackedTextCardRenderer(BaseCardRenderer):
         gap_between   = float(self.resolve("card-stacked-text-gap-between")     or 8)
         heading_gap   = float(self.resolve("card-stacked-text-heading-gap")     or 4)
 
+        # Key takeaway
+        kt_size       = float(self.resolve("card-stacked-text-key-takeaway-font-size")   or b_size)
+        kt_color      = self.resolve("card-stacked-text-key-takeaway-font-color")         or h_color
+        kt_weight     = str(self.resolve("card-stacked-text-key-takeaway-font-weight")   or "700")
+        kt_style      = self.resolve("card-stacked-text-key-takeaway-font-style")         or "normal"
+        kt_align      = self.resolve("card-stacked-text-key-takeaway-alignment")          or b_align
+        kt_margin_top = float(self.resolve("card-stacked-text-key-takeaway-margin-top")  or 8)
+
+        # Reserve vertical space at the bottom of the body box for key takeaway
+        kt_height = (kt_size * 2 + kt_margin_top) if kt_text else 0
+
         # ── Geometry ──────────────────────────────────────────────────────
 
-        avail_h = box.h - gap_top - gap_bottom
+        avail_h = box.h - gap_top - gap_bottom - kt_height
         slot_h  = avail_h / n
         div_length = box.w * div_length_pct
 
@@ -178,3 +190,23 @@ class StackedTextCardRenderer(BaseCardRenderer):
                         "stroke_width": div_width,
                     }
                 )
+
+        # ── Key takeaway (optional, below all blocks) ──────────────────────
+        if kt_text:
+            kt_y = box.y + gap_top + avail_h + kt_margin_top
+            box.add(
+                {
+                    "type":        "text",
+                    "x":           box.x,
+                    "y":           kt_y,
+                    "w":           box.w,
+                    "h":           kt_height - kt_margin_top,
+                    "text":        ">> " + kt_text,
+                    "font_size":   kt_size,
+                    "font_color":  kt_color,
+                    "font_weight": kt_weight,
+                    "font_style":  kt_style,
+                    "alignment":   kt_align,
+                    "wrap":        True,
+                }
+            )

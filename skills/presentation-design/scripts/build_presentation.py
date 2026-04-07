@@ -76,13 +76,14 @@ def _card_renderer_for(
 # ── Layout renderer registry ────────────────────────────────────────────────
 
 def _layout_renderer_for(
-    layout_id: str | None, card_count: int, theme: ThemeTokens
+    layout_id: str | None, card_count: int, theme: ThemeTokens,
+    project_root: Path | None = None,
 ) -> BaseLayoutRenderer:
     """Return the correct layout renderer for *layout_id* or auto-select."""
     if layout_id == "title-slide":
-        return TitleSlideLayoutRenderer(theme)
+        return TitleSlideLayoutRenderer(theme, project_root=project_root)
     if layout_id and layout_id.startswith("grid-"):
-        return create_grid_renderer(layout_id, theme)
+        return create_grid_renderer(layout_id, theme, project_root=project_root)
 
     # Auto-select based on card count
     auto_map = {
@@ -102,10 +103,8 @@ def _layout_renderer_for(
     }
     resolved = auto_map.get(card_count, "grid-3x4")
     if resolved == "title-slide":
-        return TitleSlideLayoutRenderer(theme)
-    return create_grid_renderer(resolved, theme)
-
-
+        return TitleSlideLayoutRenderer(theme, project_root=project_root)
+    return create_grid_renderer(resolved, theme, project_root=project_root)
 # ── Agenda block helpers ────────────────────────────────────────────────────
 
 def _build_default_agenda_config(section_titles: list[str]) -> dict:
@@ -230,7 +229,7 @@ def build(project_dir: Path, output_format: str = "both") -> None:
 
         # Resolve layout
         layout_renderer = _layout_renderer_for(
-            slide.layout, len(slide.cards), theme
+            slide.layout, len(slide.cards), theme, project_root=project_dir
         )
         canvas = layout_renderer.render(slide, page_number=page_num)
 

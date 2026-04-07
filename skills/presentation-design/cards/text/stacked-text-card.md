@@ -13,18 +13,20 @@ always align their dividers — even when one card has much shorter text.
 │  ─────────────────────────────── (header line)      │
 │  [text-caption: subtitle]                           │
 │                                                     │
-│  [text-h2: block 1 heading]                         │
+│  [text-h2: block 1 heading]    (optional)           │
 │  [text-body: block 1 body text]                     │
 │                                                     │
 │  ─ ─ ─ ─ ─ ─ ─ ─ ─  (inter-block divider, opt.)    │
 │                                                     │
-│  [text-h2: block 2 heading]                         │
+│  [text-h2: block 2 heading]    (optional)           │
 │  [text-body: block 2 body text]                     │
 │                                                     │
 │  ─ ─ ─ ─ ─ ─ ─ ─ ─  (inter-block divider, opt.)    │
 │                                                     │
-│  [text-h2: block 3 heading]   (up to 4 blocks)      │
+│  [text-h2: block 3 heading]   (up to 4, optional)   │
 │  [text-body: block 3 body text]                     │
+│                                                     │
+│  >> [text-bold: key takeaway]  (optional)           │
 │                                                     │
 │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  (footer line, opt.)      │
 │  [text-caption: footer]      (optional, base class)  │
@@ -53,6 +55,7 @@ the body area into `n` exactly equal slots. Divider lines appear at
 |-------|------|---------|-------------|
 | `content.blocks[].heading` | string | — | Block heading (h2-style); omit for body-only blocks |
 | `content.blocks[].body` | string | — | Block body text (text-body style) |
+| `content.key_takeaway` | string | — | Highlighted summary rendered below the last block, prefixed with `>>` in bold |
 | `content.footer` | string | — | Source attribution or footnote text rendered at the card bottom |
 | `subtitle` | string | — | Subtitle text below the header line |
 | `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle (auto-`true` when `subtitle` text is set) |
@@ -93,6 +96,14 @@ All `.card-base` overrides plus `.card--stacked-text` tokens:
 - `card_stacked_text_gap_bottom` — extra space below the last block (px); `0` by default
 - `card_stacked_text_gap_between` — visual space around each inter-block divider (px); default `8`
 - `card_stacked_text_heading_gap` — gap between heading and body text within one block (px); default `4`
+
+**Key takeaway:**
+- `card_stacked_text_key_takeaway_font_size` — font size (px); defaults to body font size
+- `card_stacked_text_key_takeaway_font_color` — text color; defaults to `--color-text-default`
+- `card_stacked_text_key_takeaway_font_weight` — `400` | `600` | `700`; default `700` (bold)
+- `card_stacked_text_key_takeaway_font_style` — `normal` | `italic`
+- `card_stacked_text_key_takeaway_alignment` — `left` | `center` | `right`
+- `card_stacked_text_key_takeaway_margin_top` — space between the last block and the key takeaway (px); default `8`
 
 Footer tokens (shared with all card types):
 - `card_footer_font_size` — footer font size (px)
@@ -148,4 +159,18 @@ content:
       body: "Cloud-native architecture with horizontal scaling and 99.9 % SLA."
     - heading: "Cost Efficiency"
       body: "Shared services model reduces per-tenant overhead by up to 40 %."
+```
+
+```yaml
+# Three-block variant with key takeaway and body-only block (no heading)
+type: stacked-text-card
+title: "Our Approach"
+content:
+  blocks:
+    - heading: "Discovery"
+      body: "Two weeks of stakeholder interviews and data review."
+    - heading: "Design"
+      body: "Rapid prototyping with weekly feedback loops."
+    - body: "Phased rollout with embedded support for the first 90 days."
+  key_takeaway: "Continuous alignment between business and technology is the single biggest success factor."
 ```

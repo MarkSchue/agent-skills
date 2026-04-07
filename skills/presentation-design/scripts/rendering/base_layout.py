@@ -9,11 +9,14 @@ their specific grid geometry.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any
 
 from scripts.models.deck import SlideModel
 from scripts.models.theme import ThemeTokens
 from scripts.rendering.base_card import RenderBox
+
+_LOGO_EXTENSIONS = (".svg", ".png", ".jpg", ".jpeg")
 
 
 class SlideChrome:
@@ -40,10 +43,13 @@ class BaseLayoutRenderer(ABC):
 
     Args:
         theme: The loaded ``ThemeTokens`` for the current deck.
+        project_root: Optional path to the presentation project folder
+            (used to locate logo files in ``assets/logos/``).
     """
 
-    def __init__(self, theme: ThemeTokens) -> None:
+    def __init__(self, theme: ThemeTokens, project_root: Path | None = None) -> None:
         self.theme = theme
+        self.project_root = project_root
 
     # ── public API ────────────────────────────────────────────────────────
 
@@ -202,6 +208,19 @@ class BaseLayoutRenderer(ABC):
 
     # ── chrome rendering helpers ─────────────────────────────────────────
 
+    def _find_logo_src(self) -> str | None:
+        """Return the relative src for the first logo file in assets/logos/, or None."""
+        if not self.project_root:
+            return None
+        logos_dir = self.project_root / "assets" / "logos"
+        if not logos_dir.is_dir():
+            return None
+        for ext in _LOGO_EXTENSIONS:
+            for candidate in sorted(logos_dir.glob(f"*{ext}")):
+                if candidate.stat().st_size > 0:
+                    return f"logos/{candidate.name}"
+        return None
+
     def _render_logos(
         self,
         canvas: RenderBox,
@@ -210,31 +229,37 @@ class BaseLayoutRenderer(ABC):
         y: float,
         overrides: dict[str, Any] | None,
     ) -> float:
-        """Render primary and secondary logo placeholders. Return updated Y."""
-        logo_h = 30  # placeholder height
-        # Primary logo top-left
-        canvas.add(
-            {
-                "type": "placeholder",
-                "role": "logo-primary",
-                "x": ml,
-                "y": y,
-                "w": 120,
-                "h": logo_h,
-            }
-        )
-        # Secondary logo top-right
-        canvas.add(
-            {
-                "type": "placeholder",
-                "role": "logo-secondary",
-                "x": canvas.w - mr - 120,
-                "y": y,
-                "w": 120,
-                "h": logo_h,
-            }
-        )
-        return y + logo_h + 4
+        """Render the primary logo top-right. Return updated Y cursor."""
+        logo_w = float(self._resolve("slide-logo-primary-width", overrides) or 100)
+        logo_h = float(self._resolve("slide-logo-primary-height", overrides) or 36)
+        logo_padding = float(self._resolve("slide-logo-primary-padding", overrides) or 12)
+
+        logo_x = canvas.w - mr - logo_w
+        logo_src = self._find_logo_src()
+
+        if logo_src:
+            canvas.add(
+                {
+                    "type": "image",
+                    "src": logo_src,
+                    "x": logo_x,
+                    "y": y + logo_padding,
+                    "w": logo_w,
+                    "h": logo_h,
+                }
+            )
+        else:
+            canvas.add(
+                {
+                    "type": "placeholder",
+                    "role": "logo-primary",
+                    "x": logo_x,
+                    "y": y + logo_padding,
+                    "w": logo_w,
+                    "h": logo_h,
+                }
+            )
+        return y + logo_h + logo_padding * 2
 
     def _render_footer(
         self,

@@ -1025,6 +1025,20 @@
     --card-stacked-text-heading-gap: 4;
     /* px — gap between heading and body text within a block */
 
+    /* ── Key takeaway ─────────────────────────────────────────────────────────── */
+    --card-stacked-text-key-takeaway-font-size: 12;
+    /* px — key takeaway font size; inherits body font size by default */
+    --card-stacked-text-key-takeaway-font-color: var(--color-text-default);
+    /* key takeaway text colour */
+    --card-stacked-text-key-takeaway-font-weight: 700;
+    /* bold by default so it stands out from body text */
+    --card-stacked-text-key-takeaway-font-style: normal;
+    /* normal | italic */
+    --card-stacked-text-key-takeaway-alignment: left;
+    /* left | center | right */
+    --card-stacked-text-key-takeaway-margin-top: 8;
+    /* px — space between the last block and the key takeaway */
+
     /* ── Title line overrides — uncomment to customize header line ────────────── */
     /* --card-title-line-visible: true; */
     /* --card-title-line-color: var(--color-accent); */

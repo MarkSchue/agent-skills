@@ -297,6 +297,12 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-stacked-text-gap-bottom` | 0 | px — space below last block |
 | `--card-stacked-text-gap-between` | 8 | px — visual padding on each side of a divider |
 | `--card-stacked-text-heading-gap` | 4 | px — gap between heading and body within a block |
+| `--card-stacked-text-key-takeaway-font-size` | 12 | px — key takeaway font size (defaults to body size) |
+| `--card-stacked-text-key-takeaway-font-color` | var(--color-text-default) | key takeaway text colour |
+| `--card-stacked-text-key-takeaway-font-weight` | 700 | bold by default |
+| `--card-stacked-text-key-takeaway-font-style` | normal | `normal` \| `italic` |
+| `--card-stacked-text-key-takeaway-alignment` | left | `left` \| `center` \| `right` |
+| `--card-stacked-text-key-takeaway-margin-top` | 8 | px — space between last block and key takeaway |
 
 ### Agenda — `.card--agenda`
 | Token | Default |

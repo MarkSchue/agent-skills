@@ -283,6 +283,13 @@ class PptxExporter:
         else:
             shape.fill.background()
 
+        if hasattr(shape, "shadow"):
+            try:
+                shape.shadow.inherit = False
+                shape.shadow.visible = False
+            except Exception:
+                pass
+
         stroke_color = _rgb(str(elem.get("stroke", "")))
         if stroke_color:
             shape.line.color.rgb = stroke_color
@@ -300,6 +307,13 @@ class PptxExporter:
             _px(w),
             _px(h),
         )
+        try:
+            txBox.line.fill.background()
+            if hasattr(txBox, "shadow"):
+                txBox.shadow.inherit = False
+                txBox.shadow.visible = False
+        except Exception:
+            pass
         tf = txBox.text_frame
         # Zero internal margins so element coordinates match visual positions exactly
         tf.margin_top = 0
@@ -354,10 +368,18 @@ class PptxExporter:
             _px(elem["x2"]),
             _px(elem["y2"]),
         )
-        stroke_color = _rgb(str(elem.get("stroke", "#CCCCCC")))
+        stroke_color = _rgb(str(elem.get("stroke", "")))
         if stroke_color:
             connector.line.color.rgb = stroke_color
-        connector.line.width = Pt(float(elem.get("stroke_width", 1)) * 72 / 96)
+            connector.line.width = Pt(float(elem.get("stroke_width", 1)) * 72 / 96)
+        else:
+            connector.line.fill.background()
+        try:
+            if hasattr(connector, "shadow"):
+                connector.shadow.inherit = False
+                connector.shadow.visible = False
+        except Exception:
+            pass
 
     def _add_icon(self, slide, elem: dict[str, Any]) -> None:
         """Render an icon element — SVG download preferred, Unicode fallback."""
@@ -417,13 +439,40 @@ class PptxExporter:
                 img_path = str(candidate)
 
         if img_path:
-            slide.shapes.add_picture(
-                img_path,
-                _px(elem["x"]),
-                _px(elem["y"]),
-                _px(elem["w"]),
-                _px(elem["h"]),
-            )
+            try:
+                picture = None
+                # python-pptx does not support SVG natively; try cairosvg conversion
+                if img_path.lower().endswith(".svg"):
+                    try:
+                        import cairosvg, io
+                        png_bytes = cairosvg.svg2png(url=img_path)
+                        picture = slide.shapes.add_picture(
+                            io.BytesIO(png_bytes),
+                            _px(elem["x"]),
+                            _px(elem["y"]),
+                            _px(elem["w"]),
+                            _px(elem["h"]),
+                        )
+                    except ImportError:
+                        logger.info("cairosvg not available — SVG logo skipped in PPTX (%s)", src)
+                else:
+                    picture = slide.shapes.add_picture(
+                        img_path,
+                        _px(elem["x"]),
+                        _px(elem["y"]),
+                        _px(elem["w"]),
+                        _px(elem["h"]),
+                    )
+                if picture is not None:
+                    try:
+                        picture.line.fill.background()
+                        if hasattr(picture, "shadow"):
+                            picture.shadow.inherit = False
+                            picture.shadow.visible = False
+                    except Exception:
+                        pass
+            except Exception as exc:
+                logger.warning("Failed to add image %s to PPTX: %s", src, exc)
         else:
             logger.warning("Image not found: %s — rendering placeholder", src)
             # Placeholder with missing path text
