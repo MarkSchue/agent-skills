@@ -160,8 +160,10 @@ class ThemeLoader:
         if raw.lower() in ("false", "no"):
             return False
 
-        # Numeric (with optional px/pt suffix)
-        numeric = re.sub(r"(px|pt|em|rem|%)$", "", raw)
+        # Numeric (with optional px/pt suffix — % is intentionally excluded so that
+        # percentage values like "100%" are preserved as strings and can be
+        # interpreted relative to a canvas dimension by the renderer)
+        numeric = re.sub(r"(px|pt|em|rem)$", "", raw)
         try:
             return int(numeric)
         except ValueError:

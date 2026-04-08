@@ -162,8 +162,8 @@ class IconItemTextCardRenderer(BaseCardRenderer):
 
             heading_line_height = h_size * float(self.resolve("card-icon-item-text-heading-line-height") or 1.30)
             body_line_height = b_size * float(self.resolve("card-icon-item-text-body-line-height") or 1.30)
-            heading_chars = max(1, int(text_w / (h_size * 0.55)))
-            body_chars = max(1, int(text_w / (b_size * 0.55)))
+            heading_chars = max(1, int(text_w / (h_size * 0.48)))
+            body_chars = max(1, int(text_w / (b_size * 0.48)))
 
             heading_h = 0
             heading_text_h = 0
@@ -181,7 +181,7 @@ class IconItemTextCardRenderer(BaseCardRenderer):
 
             if vertical_align == "middle":
                 # Step 4: pure centre — gap above == gap below, overflow is symmetric
-                margin = (slot_h - content_height) / 2
+                margin = max(0, (slot_h - content_height) / 2)
                 current_y = slot_start + margin
             elif vertical_align == "bottom":
                 current_y = slot_end - block_pad - content_height

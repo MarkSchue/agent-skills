@@ -26,14 +26,20 @@ class TextCardRenderer(BaseCardRenderer):
         body_align = self.resolve("card-body-alignment") or "left"
         bullet_indent = float(self.resolve("card-body-bullet-indent") or 12)
 
+        chars_per_line_full = max(1, int(box.w / (font_size * 0.6)))
+        chars_per_line_indent = max(1, int((box.w - bullet_indent) / (font_size * 0.6)))
+
         # Body paragraph
         if body_text:
+            num_lines = max(1, len(body_text) // chars_per_line_full + 1)
+            body_h = num_lines * line_height
             box.add(
                 {
                     "type": "text",
                     "x": box.x,
                     "y": y,
                     "w": box.w,
+                    "h": body_h,
                     "text": body_text,
                     "font_size": font_size,
                     "font_color": font_color,
@@ -42,20 +48,20 @@ class TextCardRenderer(BaseCardRenderer):
                     "wrap": True,
                 }
             )
-            # Estimate lines for Y advancement
-            chars_per_line = max(1, int(box.w / (font_size * 0.6)))
-            num_lines = max(1, len(body_text) // chars_per_line + 1)
-            y += num_lines * line_height + 8
+            y += body_h + 8
 
         # Bullet list
         for bullet in bullets:
             bullet_text = f"• {bullet}"
+            num_lines = max(1, len(bullet_text) // chars_per_line_indent + 1)
+            bullet_h = num_lines * line_height
             box.add(
                 {
                     "type": "text",
                     "x": box.x + bullet_indent,
                     "y": y,
                     "w": box.w - bullet_indent,
+                    "h": bullet_h,
                     "text": bullet_text,
                     "font_size": font_size,
                     "font_color": font_color,
@@ -63,4 +69,4 @@ class TextCardRenderer(BaseCardRenderer):
                     "wrap": True,
                 }
             )
-            y += line_height
+            y += bullet_h

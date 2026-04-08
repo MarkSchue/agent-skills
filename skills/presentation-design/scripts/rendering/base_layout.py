@@ -168,20 +168,135 @@ class BaseLayoutRenderer(ABC):
             )
             y_cursor += div_width + 8
 
-        # Footer region
-        footer_y = canvas_h - mb
+        # Footer region — always rendered at its fixed position
         hide_footer = overrides.get("hide_footer", False) if overrides else False
         if not hide_footer:
             footer_y = self._render_footer(
                 canvas, ml, mr, canvas_w, canvas_h, mb, page_number, overrides
             )
+        else:
+            footer_size = float(self._resolve("slide-footer-font-size", overrides) or 10)
+            footer_y = canvas_h - mb - (footer_size + 16)
 
-        # Compute body region
+        # Take-away box — always sits directly above the footer
+        take_away_data = (overrides.get("take_away") or overrides.get("takeaway")) if overrides else None
+        take_away_top = footer_y  # default: no take-away, body ends at footer
+        if take_away_data and isinstance(take_away_data, dict):
+            ta_h = float(
+                take_away_data.get("height")
+                or self._resolve("slide-take-away-height", overrides)
+                or 48
+            )
+            ta_width = (
+                take_away_data.get("width")
+                or self._resolve("slide-take-away-width", overrides)
+                or "100%"
+            )
+            if isinstance(ta_width, str) and ta_width.strip().endswith("%"):
+                ta_w = canvas_w * float(ta_width.strip().rstrip("%")) / 100
+            else:
+                ta_w = float(ta_width)
+            ta_box_alignment = str(
+                take_away_data.get("box_alignment")
+                or self._resolve("slide-take-away-box-alignment", overrides)
+                or "center"
+            )
+            if ta_w < canvas_w:
+                if ta_box_alignment == "left":
+                    ta_x = 0
+                elif ta_box_alignment == "right":
+                    ta_x = canvas_w - ta_w
+                else:
+                    ta_x = (canvas_w - ta_w) / 2
+            else:
+                ta_x = 0
+                ta_w = canvas_w
+            ta_bg = str(
+                take_away_data.get("background_color")
+                or self._resolve("slide-take-away-background-color", overrides)
+                or "#E2001A"
+            )
+            ta_fc = str(
+                take_away_data.get("font_color")
+                or self._resolve("slide-take-away-font-color", overrides)
+                or "#FFFFFF"
+            )
+            ta_fs = float(
+                take_away_data.get("font_size")
+                or self._resolve("slide-take-away-font-size", overrides)
+                or 14
+            )
+            ta_fw = str(
+                take_away_data.get("font_weight")
+                or self._resolve("slide-take-away-font-weight", overrides)
+                or "bold"
+            )
+            ta_fs_style = str(
+                take_away_data.get("font_style")
+                or self._resolve("slide-take-away-font-style", overrides)
+                or "normal"
+            )
+            ta_align = str(
+                take_away_data.get("text_alignment")
+                or self._resolve("slide-take-away-text-alignment", overrides)
+                or take_away_data.get("alignment")
+                or self._resolve("slide-take-away-alignment", overrides)
+                or "center"
+            )
+            ta_pad_x = float(
+                take_away_data.get("padding_x")
+                or self._resolve("slide-take-away-padding-x", overrides)
+                or ml
+            )
+            ta_text = str(take_away_data.get("text", ""))
+            ta_margin_b = take_away_data.get("margin_bottom")
+            if ta_margin_b is None or str(ta_margin_b).strip() == "":
+                ta_margin_b = None
+            else:
+                ta_margin_b = float(ta_margin_b)
+            footer_line_width = float(
+                self._resolve("slide-footer-line-border-width", overrides) or 0
+            )
+            footer_overlap = footer_line_width / 2 if footer_line_width > 0 else 0
+            below_footer_gap = ta_margin_b if ta_margin_b is not None else 0
+            take_away_top = footer_y - ta_h - below_footer_gap + footer_overlap
+
+            # Background bar
+            canvas.add(
+                {
+                    "type": "rect",
+                    "x": ta_x,
+                    "y": take_away_top,
+                    "w": ta_w,
+                    "h": ta_h,
+                    "fill": ta_bg,
+                    "rx": 0,
+                }
+            )
+            # Text centered vertically in bar
+            canvas.add(
+                {
+                    "type": "text",
+                    "x": ta_x + ta_pad_x,
+                    "y": take_away_top + (ta_h - ta_fs) / 2,
+                    "w": ta_w - ta_pad_x * 2,
+                    "h": ta_fs + 4,
+                    "text": ta_text,
+                    "font_size": ta_fs,
+                    "font_color": ta_fc,
+                    "font_weight": ta_fw,
+                    "font_style": ta_fs_style,
+                    "alignment": ta_align,
+                    "wrap": False,
+                }
+            )
+
+        # Compute body region — stops at take-away box (or footer if no take-away)
         chrome = SlideChrome(
             body_x=ml,
             body_y=y_cursor,
             body_w=canvas_w - ml - mr,
-            body_h=footer_y - y_cursor - 8,
+            body_h=take_away_top - y_cursor - 8,
         )
 
         # Store chrome and card slots on the canvas for downstream use
@@ -208,18 +323,42 @@ class BaseLayoutRenderer(ABC):
 
     # ── chrome rendering helpers ─────────────────────────────────────────
 
-    def _find_logo_src(self) -> str | None:
-        """Return the relative src for the first logo file in assets/logos/, or None."""
+    def _find_all_logo_srcs(self) -> list[str]:
+        """Return sorted list of all logo file paths in assets/logos/."""
         if not self.project_root:
-            return None
+            return []
         logos_dir = self.project_root / "assets" / "logos"
         if not logos_dir.is_dir():
-            return None
-        for ext in _LOGO_EXTENSIONS:
-            for candidate in sorted(logos_dir.glob(f"*{ext}")):
-                if candidate.stat().st_size > 0:
-                    return f"logos/{candidate.name}"
-        return None
+            return []
+        found = [
+            f"logos/{f.name}"
+            for f in sorted(logos_dir.iterdir())
+            if f.suffix.lower() in _LOGO_EXTENSIONS and f.stat().st_size > 0
+        ]
+        return found
+
+    def _find_logo_src(self) -> str | None:
+        """Return the primary logo src (first file in assets/logos/), or None."""
+        srcs = self._find_all_logo_srcs()
+        return srcs[0] if srcs else None
+
+    @staticmethod
+    def _logo_xy(
+        pos: str,
+        ml: float, mr: float,
+        canvas_w: float, canvas_h: float, mb: float,
+        y_cursor: float,
+        logo_w: float, logo_h: float, logo_padding: float,
+    ) -> tuple[float, float]:
+        """Compute (x, y) for a logo given its position token."""
+        if pos == "top-left":
+            return ml, y_cursor + logo_padding
+        if pos == "bottom-left":
+            return ml, canvas_h - mb - logo_h - logo_padding
+        if pos == "bottom-right":
+            return canvas_w - mr - logo_w, canvas_h - mb - logo_h - logo_padding
+        # default: top-right
+        return canvas_w - mr - logo_w, y_cursor + logo_padding
 
     def _render_logos(
         self,
@@ -229,37 +368,63 @@ class BaseLayoutRenderer(ABC):
         y: float,
         overrides: dict[str, Any] | None,
     ) -> float:
-        """Render the primary logo top-right. Return updated Y cursor."""
-        logo_w = float(self._resolve("slide-logo-primary-width", overrides) or 100)
-        logo_h = float(self._resolve("slide-logo-primary-height", overrides) or 36)
-        logo_padding = float(self._resolve("slide-logo-primary-padding", overrides) or 12)
+        """Render primary and secondary logos at their configured positions.
 
-        logo_x = canvas.w - mr - logo_w
-        logo_src = self._find_logo_src()
+        Logos positioned at the top advance the returned Y cursor.
+        Logos positioned at the bottom are placed absolutely and do not.
+        """
+        mb = float(self._resolve("canvas-padding-bottom", overrides) or 48)
+        all_srcs = self._find_all_logo_srcs()
+        y_after = y
 
-        if logo_src:
-            canvas.add(
-                {
-                    "type": "image",
-                    "src": logo_src,
-                    "x": logo_x,
-                    "y": y + logo_padding,
-                    "w": logo_w,
-                    "h": logo_h,
-                }
+        for idx, which in enumerate(("primary", "secondary")):
+            logo_src = all_srcs[idx] if idx < len(all_srcs) else None
+            # Secondary logo is optional — skip if no file exists
+            if logo_src is None and which == "secondary":
+                continue
+
+            logo_w = float(self._resolve(f"slide-logo-{which}-width", overrides) or 100)
+            logo_h = float(self._resolve(f"slide-logo-{which}-height", overrides) or 36)
+            logo_padding = float(self._resolve(f"slide-logo-{which}-padding", overrides) or 12)
+            default_pos = "top-right" if which == "primary" else "top-left"
+            logo_pos = str(
+                self._resolve(f"slide-logo-{which}-position", overrides) or default_pos
             )
-        else:
-            canvas.add(
-                {
-                    "type": "placeholder",
-                    "role": "logo-primary",
-                    "x": logo_x,
-                    "y": y + logo_padding,
-                    "w": logo_w,
-                    "h": logo_h,
-                }
+
+            logo_x, logo_y = self._logo_xy(
+                logo_pos, ml, mr, canvas.w, canvas.h, mb,
+                y, logo_w, logo_h, logo_padding,
             )
-        return y + logo_h + logo_padding * 2
+
+            if logo_src:
+                canvas.add(
+                    {
+                        "type": "image",
+                        "src": logo_src,
+                        "x": logo_x,
+                        "y": logo_y,
+                        "w": logo_w,
+                        "h": logo_h,
+                    }
+                )
+            else:
+                # Primary logo placeholder only
+                canvas.add(
+                    {
+                        "type": "placeholder",
+                        "role": "logo-primary",
+                        "x": logo_x,
+                        "y": logo_y,
+                        "w": logo_w,
+                        "h": logo_h,
+                    }
+                )
+
+            # Only top-positioned logos advance the y cursor
+            if logo_pos.startswith("top"):
+                y_after = max(y_after, logo_y + logo_h + logo_padding)
+
+        return y_after
 
     def _render_footer(
         self,

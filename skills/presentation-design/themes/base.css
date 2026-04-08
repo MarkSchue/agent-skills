@@ -410,6 +410,31 @@
     --slide-page-number-width: auto;
     --slide-page-number-height: auto;
     --slide-page-number-alignment: left;
+
+    /* -----------------------------------------------------------------
+     Take-Away Box  (full-width accent bar at slide bottom)
+     Define `take_away: { text: "..." }` in a <!-- slide --> block to
+     activate.  All values below are per-instance overridable.
+     ----------------------------------------------------------------- */
+    --slide-take-away-background-color: #E2001A;
+    /* accent fill for the bar */
+    --slide-take-away-font-color: #FFFFFF;
+    --slide-take-away-font-size: 14;
+    /* px */
+    --slide-take-away-font-weight: bold;
+    --slide-take-away-font-style: normal;
+    --slide-take-away-text-alignment: center;
+    /* left | center | right */
+    --slide-take-away-width: 100%;
+    /* % or px — total bar width */
+    --slide-take-away-box-alignment: center;
+    /* left | center | right */
+    --slide-take-away-height: 48;
+    /* px — total bar height */
+    --slide-take-away-padding-x: 48;
+    /* px — horizontal text indent (usually = canvas-padding-left/right) */
+    --slide-take-away-margin-bottom: ;
+    /* px — gap above footer line when explicitly set; blank means cover footer line */
 }
 
 
