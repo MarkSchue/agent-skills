@@ -100,6 +100,7 @@ class StackedTextCardRenderer(BaseCardRenderer):
         gap_bottom    = float(self.resolve("card-stacked-text-gap-bottom")      or 0)
         gap_between   = float(self.resolve("card-stacked-text-gap-between")     or 8)
         heading_gap   = float(self.resolve("card-stacked-text-heading-gap")     or 4)
+        vertical_align = self.resolve("card-stacked-text-block-vertical-alignment") or "top"
 
         # Key takeaway
         kt_size       = float(self.resolve("card-stacked-text-key-takeaway-font-size")   or b_size)
@@ -115,49 +116,71 @@ class StackedTextCardRenderer(BaseCardRenderer):
         # ── Geometry ──────────────────────────────────────────────────────
 
         avail_h = box.h - gap_top - gap_bottom - kt_height
-        slot_h  = avail_h / n
+        slot_h = avail_h / n
+        block_pad = gap_between / 2  # minimum space from slot boundary (divider) to content
         div_length = box.w * div_length_pct
 
         # ── Render each block in its equal-height slot ────────────────────
 
         for i, block in enumerate(blocks):
-            slot_y = box.y + gap_top + i * slot_h
-
-            # Text area within the slot: leave gap_between/2 at top (except
-            # first block) and gap_between/2 at bottom (except last block).
-            text_y_start = slot_y + (gap_between / 2 if i > 0 else 0)
+            slot_start = box.y + gap_top + i * slot_h
+            slot_end = slot_start + slot_h
 
             heading_text = block["heading"]
             body_text    = block["body"]
 
-            current_y = text_y_start
+            heading_line_height = h_size * float(self.resolve("card-stacked-text-heading-line-height") or 1.25)
+            body_line_height = b_size * float(self.resolve("card-stacked-text-body-line-height") or 1.25)
+            heading_chars = max(1, int(box.w / (h_size * 0.6)))
+            body_chars = max(1, int(box.w / (b_size * 0.6)))
 
-            # Heading
+            heading_h = 0
+            heading_text_h = 0
             if heading_text:
-                heading_h = h_size + heading_gap
+                heading_lines = max(1, len(heading_text) // heading_chars + 1)
+                heading_text_h = heading_lines * heading_line_height
+                heading_h = heading_text_h
+
+            body_h = 0
+            if body_text:
+                body_lines = max(1, len(body_text) // body_chars + 1)
+                body_h = max(b_size, body_lines * body_line_height)
+
+            content_height = heading_text_h + (heading_gap if heading_text and body_text else 0) + body_h
+
+            if vertical_align == "middle":
+                # Step 4: pure centre — gap above == gap below, overflow is symmetric
+                margin = (slot_h - content_height) / 2
+                current_y = slot_start + margin
+            elif vertical_align == "bottom":
+                current_y = slot_end - block_pad - content_height
+            else:  # top
+                current_y = slot_start + block_pad
+
+            if heading_text:
                 box.add(
                     {
                         "type":        "text",
                         "x":           box.x,
                         "y":           current_y,
                         "w":           box.w,
-                        "h":           heading_h,
+                        "h":           heading_text_h,
                         "text":        heading_text,
                         "font_size":   h_size,
+                        "line_height": heading_line_height,
                         "font_color":  h_color,
                         "font_weight": h_weight,
                         "font_style":  h_style,
                         "alignment":   h_align,
+                        "vertical_align": "bottom",
                         "wrap":        True,
                     }
                 )
-                current_y += heading_h
+                current_y += heading_text_h
+                if body_text:
+                    current_y += heading_gap
 
-            # Body text
             if body_text:
-                # Available height: from current_y to slot bottom minus gap_between/2
-                body_end_y = slot_y + slot_h - (gap_between / 2 if i < n - 1 else 0)
-                body_h     = max(b_size, body_end_y - current_y)
                 box.add(
                     {
                         "type":        "text",
@@ -167,6 +190,7 @@ class StackedTextCardRenderer(BaseCardRenderer):
                         "h":           body_h,
                         "text":        body_text,
                         "font_size":   b_size,
+                        "line_height": body_line_height,
                         "font_color":  b_color,
                         "font_weight": b_weight,
                         "font_style":  b_style,
@@ -177,7 +201,7 @@ class StackedTextCardRenderer(BaseCardRenderer):
 
             # Divider between blocks (drawn at the slot boundary, not after last)
             if div_visible and i < n - 1:
-                div_y = slot_y + slot_h  # fixed slot boundary — consistent across cards
+                div_y = slot_end  # fixed slot boundary — consistent across cards
                 x1, x2 = self._divider_x(box.x, box.w, div_length, div_alignment)
                 box.add(
                     {

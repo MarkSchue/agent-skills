@@ -96,6 +96,8 @@ All `.card-base` overrides plus `.card--stacked-text` tokens:
 - `card_stacked_text_gap_bottom` — extra space below the last block (px); `0` by default
 - `card_stacked_text_gap_between` — visual space around each inter-block divider (px); default `8`
 - `card_stacked_text_heading_gap` — gap between heading and body text within one block (px); default `4`
+- `card_body_gap_top` — space between the title/header area and the first block when no subtitle is present (px)
+- `card_stacked_text_block_vertical_alignment` — `top` | `middle` | `bottom`
 
 **Key takeaway:**
 - `card_stacked_text_key_takeaway_font_size` — font size (px); defaults to body font size

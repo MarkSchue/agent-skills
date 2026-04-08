@@ -385,7 +385,7 @@ class BaseCardRenderer(ABC):
                     "stroke": self.resolve("card-title-line-color"),
                     "stroke_width": line_width,
                 })
-                y += float(line_width) + 8
+                y += float(line_width)
 
         # ── Subtitle (independent of title — renders even when title is absent) ──
         sub_text = str(getattr(card, "subtitle", "") or "").strip()
@@ -393,13 +393,15 @@ class BaseCardRenderer(ABC):
         sub_visible = bool(sub_text) or (sub_vis_raw in (True, "true", "True"))
         if sub_visible and sub_text:
             sub_size = float(self.resolve("card-subtitle-font-size") or 12)
-            sub_gap  = 6  # breathing room between subtitle and body
+            sub_top = float(self.resolve("card-subtitle-margin-top") or 6)
+            sub_bottom = float(self.resolve("card-subtitle-margin-bottom") or 8)
+            y += sub_top
             box.add({
                 "type": "text",
                 "x": box.x + self._pad_left,
                 "y": y,
                 "w": box.w - self._pad_left - self._pad_right,
-                "h": sub_size + sub_gap,
+                "h": sub_size,
                 "text": sub_text,
                 "font_size": sub_size,
                 "font_color": str(self.resolve("card-subtitle-font-color") or "#888888"),
@@ -407,6 +409,9 @@ class BaseCardRenderer(ABC):
                 "font_style":  str(self.resolve("card-subtitle-font-style")  or "normal"),
                 "alignment":   str(self.resolve("card-subtitle-alignment")   or "left"),
             })
-            y += sub_size + sub_gap
+            y += sub_size + sub_bottom
+        elif card.title:
+            body_gap_top = float(self.resolve("card-body-gap-top") or 8)
+            y += body_gap_top
 
         return y

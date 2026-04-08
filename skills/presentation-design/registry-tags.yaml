@@ -32,6 +32,9 @@ card-tags:
   sections:    [agenda-card]
   overview:    [agenda-card]
   schedule:    [agenda-card]
+  item:        [icon_item_text]
+  items:       [icon_item_text]
+  icon:        [icon_item_text]
 
 layout-tags:
   title:       [title-slide]

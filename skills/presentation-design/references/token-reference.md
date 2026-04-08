@@ -144,6 +144,10 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-footer-line-color` | #E5E7EB | footer divider line colour |
 | `--card-footer-line-width` | 1 | px — footer divider thickness |
 | `--card-footer-line-visible` | false | show/hide footer line (independent of footer text) |
+| `--card-title-line-gap` | 8 | px — breathing room between title baseline and divider |
+| `--card-subtitle-margin-top` | 6 | px — gap between header line and subtitle |
+| `--card-subtitle-margin-bottom` | 8 | px — gap between subtitle and body |
+| `--card-body-gap-top` | 8 | px — gap between header area and body when no subtitle is shown |
 | `--card-footer-font-size` | 10 | px — footer text size |
 | `--card-footer-font-color` | #9CA3AF | footer text colour |
 | `--card-footer-font-weight` | 400 | footer text weight |
@@ -296,13 +300,47 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-stacked-text-gap-top` | 0 | px — space above first block |
 | `--card-stacked-text-gap-bottom` | 0 | px — space below last block |
 | `--card-stacked-text-gap-between` | 8 | px — visual padding on each side of a divider |
-| `--card-stacked-text-heading-gap` | 4 | px — gap between heading and body within a block |
+| `--card-stacked-text-heading-gap` | 8 | px — gap between heading and body within a block |
+| `--card-stacked-text-heading-line-height` | 1.25 | unitless multiplier for heading line height |
+| `--card-stacked-text-body-line-height` | 1.25 | unitless multiplier for body line height |
+| `--card-stacked-text-block-vertical-alignment` | top | `top` \| `middle` \| `bottom` — vertical alignment of heading/body inside each equal-height block |
 | `--card-stacked-text-key-takeaway-font-size` | 12 | px — key takeaway font size (defaults to body size) |
 | `--card-stacked-text-key-takeaway-font-color` | var(--color-text-default) | key takeaway text colour |
 | `--card-stacked-text-key-takeaway-font-weight` | 700 | bold by default |
 | `--card-stacked-text-key-takeaway-font-style` | normal | `normal` \| `italic` |
 | `--card-stacked-text-key-takeaway-alignment` | left | `left` \| `center` \| `right` |
 | `--card-stacked-text-key-takeaway-margin-top` | 8 | px — space between last block and key takeaway |
+
+### Icon Item Text — `.card--icon-item-text`
+| Token | Default | Description |
+|-------|---------|-------------|
+| `--card-icon-item-text-heading-font-size` | 14 | px — heading font size |
+| `--card-icon-item-text-heading-font-color` | var(--color-text-default) | heading text colour |
+| `--card-icon-item-text-heading-font-weight` | 700 | heading weight |
+| `--card-icon-item-text-heading-font-style` | normal | `normal` \| `italic` |
+| `--card-icon-item-text-heading-alignment` | left | `left` \| `center` \| `right` |
+| `--card-icon-item-text-body-font-size` | 14 | px — body font size |
+| `--card-icon-item-text-body-font-color` | var(--color-text-subtle) | body text colour |
+| `--card-icon-item-text-body-font-weight` | 400 | body weight |
+| `--card-icon-item-text-body-font-style` | normal | `normal` \| `italic` |
+| `--card-icon-item-text-body-alignment` | left | `left` \| `center` \| `right` |
+| `--card-icon-item-text-icon-size` | 20 | px — icon/label size |
+| `--card-icon-item-text-icon-gap` | 8 | px — gap between icon and text area |
+| `--card-icon-item-text-icon-color` | var(--color-text-default) | icon/label colour |
+| `--card-icon-item-text-icon-font-family` | var(--icon-font-family) | icon font family for glyph names |
+| `--card-icon-item-text-icon-font-weight` | 700 | weight for text-style icons |
+| `--card-icon-item-text-divider-visible` | true | show/hide item dividers |
+| `--card-icon-item-text-divider-color` | var(--color-border) | divider line colour |
+| `--card-icon-item-text-divider-width` | 1 | px — divider thickness |
+| `--card-icon-item-text-divider-length-pct` | 100 | 0–100 — length as % of card width |
+| `--card-icon-item-text-divider-alignment` | left | `left` \| `center` \| `right` |
+| `--card-icon-item-text-gap-top` | 0 | px — space above first item |
+| `--card-icon-item-text-gap-bottom` | 0 | px — space below last item |
+| `--card-icon-item-text-gap-between` | 8 | px — space around each item divider |
+| `--card-icon-item-text-heading-gap` | 8 | px — gap between item heading and body |
+| `--card-icon-item-text-heading-line-height` | 1.30 | unitless multiplier for item heading line height |
+| `--card-icon-item-text-body-line-height` | 1.30 | unitless multiplier for item body line height |
+| `--card-icon-item-text-block-vertical-alignment` | top | `top` \| `middle` \| `bottom` — vertical alignment of heading/body inside each item slot |
 
 ### Agenda — `.card--agenda`
 | Token | Default |

@@ -62,6 +62,7 @@ All `.card-base` overrides plus subtitle and icon tokens:
 - `card_subtitle_font_color` — subtitle text color
 - `card_subtitle_font_style` — `normal` or `italic`
 - `card_subtitle_alignment` — `left` | `center` | `right`
+- `card_body_gap_top` — space between the header area and body content when subtitle is absent (px)
 - `card_icon_name` — icon ligature / codepoint
 - `card_icon_position` — `left` or `right`
 - `card_icon_color` — icon foreground color

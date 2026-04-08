@@ -17,6 +17,7 @@
      8. .card--quote    — Quote card variant tokens
      9. .card--agenda   — Agenda card variant tokens
     10. .card--stacked-text — Stacked text card variant tokens
+    11. .card--icon-item-text — Icon item text card variant tokens
 
    RULES:
    - Every token must have an inline comment explaining its role.
@@ -495,6 +496,8 @@
     /* px — gap below header line */
     --card-subtitle-margin-bottom: 8;
     /* px — gap above body */
+    --card-body-gap-top: 8;
+    /* px — gap between header area and body when no subtitle is shown */
 
     /* Card footer divider line (above card footer) */
     --card-footer-line-color: var(--color-border);
@@ -1002,6 +1005,10 @@
     /* normal | italic */
     --card-stacked-text-body-alignment: left;
     /* left | center | right */
+    --card-stacked-text-heading-line-height: 1.25;
+    /* unitless line-height multiplier for block headings */
+    --card-stacked-text-body-line-height: 1.25;
+    /* unitless line-height multiplier for block body text */
 
     /* ── Inter-block divider (drawn at equal-height slot boundaries) ──────────── */
     --card-stacked-text-divider-visible: true;
@@ -1022,8 +1029,10 @@
     /* px — extra space below the last block */
     --card-stacked-text-gap-between: 8;
     /* px — visual padding on each side of the divider line */
-    --card-stacked-text-heading-gap: 4;
+    --card-stacked-text-heading-gap: 8;
     /* px — gap between heading and body text within a block */
+    --card-stacked-text-block-vertical-alignment: top;
+    /* top | middle | bottom */
 
     /* ── Key takeaway ─────────────────────────────────────────────────────────── */
     --card-stacked-text-key-takeaway-font-size: 12;
@@ -1038,6 +1047,36 @@
     /* left | center | right */
     --card-stacked-text-key-takeaway-margin-top: 8;
     /* px — space between the last block and the key takeaway */
+
+    /* ── Icon item text overrides — uncomment to customize icon-item-text cards ─── */
+    /* --card-icon-item-text-heading-font-size: 14; */
+    /* --card-icon-item-text-heading-font-color: var(--color-text-default); */
+    /* --card-icon-item-text-heading-font-weight: 700; */
+    /* --card-icon-item-text-heading-font-style: normal; */
+    /* --card-icon-item-text-heading-alignment: left; */
+
+    /* --card-icon-item-text-body-font-size: 12; */
+    /* --card-icon-item-text-body-font-color: var(--color-text-subtle); */
+    /* --card-icon-item-text-body-font-weight: 400; */
+    /* --card-icon-item-text-body-font-style: normal; */
+    /* --card-icon-item-text-body-alignment: left; */
+
+    /* --card-icon-item-text-icon-size: 20; */
+    /* --card-icon-item-text-icon-gap: 8; */
+    /* --card-icon-item-text-icon-color: var(--color-text-default); */
+    /* --card-icon-item-text-icon-font-family: var(--icon-font-family); */
+    /* --card-icon-item-text-icon-font-weight: 700; */
+
+    /* --card-icon-item-text-divider-visible: true; */
+    /* --card-icon-item-text-divider-color: var(--color-border); */
+    /* --card-icon-item-text-divider-width: 1; */
+    /* --card-icon-item-text-divider-length-pct: 100; */
+    /* --card-icon-item-text-divider-alignment: left; */
+
+    /* --card-icon-item-text-gap-top: 0; */
+    /* --card-icon-item-text-gap-bottom: 0; */
+    /* --card-icon-item-text-gap-between: 8; */
+    /* --card-icon-item-text-heading-gap: 4; */
 
     /* ── Title line overrides — uncomment to customize header line ────────────── */
     /* --card-title-line-visible: true; */
@@ -1067,4 +1106,71 @@
     /* --card-footer-line-visible: false; */
     /* --card-footer-line-color: var(--color-border); */
     /* --card-footer-line-width: 1; */
+}
+
+/* =================================================================
+   11. Card Variant — Icon Item Text Card
+   ================================================================= */
+.card--icon-item-text {
+
+    /* ── Item heading */
+    --card-icon-item-text-heading-font-size: 14;
+    /* px */
+    --card-icon-item-text-heading-font-color: var(--color-text-default);
+    /* heading colour */
+    --card-icon-item-text-heading-font-weight: 700;
+    --card-icon-item-text-heading-font-style: normal;
+    /* normal | italic */
+    --card-icon-item-text-heading-alignment: left;
+    /* left | center | right */
+
+    /* ── Item body */
+    --card-icon-item-text-body-font-size: 14;
+    /* px */
+    --card-icon-item-text-body-font-color: var(--color-text-subtle);
+    /* body colour */
+    --card-icon-item-text-body-font-weight: 400;
+    --card-icon-item-text-body-font-style: normal;
+    /* normal | italic */
+    --card-icon-item-text-body-alignment: left;
+    /* left | center | right */
+    --card-icon-item-text-heading-line-height: 1.30;
+    /* unitless line-height multiplier for item headings */
+    --card-icon-item-text-body-line-height: 1.30;
+    /* unitless line-height multiplier for item body text */
+
+    /* ── Item icon / label */
+    --card-icon-item-text-icon-size: 20;
+    /* px */
+    --card-icon-item-text-icon-gap: 8;
+    /* px — gap between icon and text */
+    --card-icon-item-text-icon-color: var(--color-text-default);
+    --card-icon-item-text-icon-font-family: var(--icon-font-family);
+    --card-icon-item-text-icon-font-weight: 700;
+    /* weight for text-style icons */
+
+    /* ── Item dividers */
+    --card-icon-item-text-divider-visible: true;
+    /* true | false */
+    --card-icon-item-text-divider-color: var(--color-border);
+    /* line colour */
+    --card-icon-item-text-divider-width: 1;
+    /* px */
+    --card-icon-item-text-divider-length-pct: 100;
+    /* 0–100 — length as % of card width */
+    --card-icon-item-text-divider-alignment: left;
+    /* left | center | right */
+
+    /* ── Vertical spacing */
+    /* --card-body-gap-top: 8; */
+    --card-icon-item-text-gap-top: 0;
+    /* px — extra space above first item */
+    --card-icon-item-text-gap-bottom: 0;
+    /* px — extra space below last item */
+    --card-icon-item-text-gap-between: 8;
+    /* px — space around each item divider */
+    --card-icon-item-text-heading-gap: 8;
+    /* px — gap between item heading and body text */
+    --card-icon-item-text-block-vertical-alignment: top;
+    /* top | middle | bottom */
 }

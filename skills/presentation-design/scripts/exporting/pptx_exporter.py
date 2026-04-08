@@ -115,6 +115,11 @@ _ICON_UNICODE_MAP: dict[str, str] = {
     "business":          "◆",
     "factory":           "◆",
     "precision_manufacturing": "⚙",
+    # Additional material symbol fallbacks
+    "shield":           "🛡",
+    "autorenew":        "↻",
+    "visibility":       "👁",
+    "gavel":            "⚖",
 }
 # Fallback glyph when the icon name is not in the map above
 _ICON_FALLBACK_GLYPH = "◉"
@@ -346,6 +351,12 @@ class PptxExporter:
         p = tf.paragraphs[0]
         p.text = raw_text
         p.alignment = _ALIGN_MAP.get(elem.get("alignment", "left"), PP_ALIGN.LEFT)
+        line_height = elem.get("line_height")
+        if line_height is not None:
+            try:
+                p.line_spacing = Pt(float(line_height) * 72 / 96)
+            except Exception:
+                pass
 
         run = p.runs[0] if p.runs else p.add_run()
         # font_size tokens are in px; convert to pt (1pt = 96/72 px at 96 DPI)

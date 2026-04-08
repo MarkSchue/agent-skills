@@ -43,6 +43,11 @@ cards:
     file: cards/text/stacked-text-card.md
     tags: [text, stacked, blocks, heading, body, list, steps, comparison, process]
 
+  - id: icon_item_text
+    description: 1–5 heading/body items with optional left/right icons or labels.
+    file: cards/text/icon_item_text.md
+    tags: [text, icon, items, heading, body, list, label]
+
 layouts:
   - id: title-slide
     description: Full-width title slide with centered heading, subtitle, and optional background.

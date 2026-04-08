@@ -171,11 +171,21 @@ class DrawioExporter:
 
         v_align = elem.get("vertical_align", "top")
         drawio_valign = {"top": "top", "middle": "middle", "bottom": "bottom"}.get(v_align, "top")
+        line_height = elem.get("line_height")
+        line_spacing_style = ""
+        if line_height is not None:
+            try:
+                spacing_ratio = float(line_height) / float(font_size)
+                line_spacing_style = f"lineSpacing={spacing_ratio:.2f};"
+            except Exception:
+                line_spacing_style = ""
+
         style = (
             f"text;html=1;fontSize={font_size_pt};fontColor={font_color};"
             f"fontStyle={(int(bold) * 1) + (int(italic) * 2)};"
             f"{font_family_attr}"
             f"align={align};verticalAlign={drawio_valign};whiteSpace=wrap;"
+            f"{line_spacing_style}"
             f"fillColor=none;strokeColor=none;"
         )
         cell.set("style", style)
@@ -244,6 +254,25 @@ class DrawioExporter:
         color = str(elem.get("color") or "#000000")
         font_family = str(elem.get("font_family") or "")
 
+        from scripts.exporting.pptx_exporter import _ICON_UNICODE_MAP, _ICON_FALLBACK_GLYPH  # noqa: PLC0415
+
+        icon_family_lower = font_family.lower()
+        if name in _ICON_UNICODE_MAP and any(marker in icon_family_lower for marker in ("material icons", "material symbols", "phosphor")):
+            fallback_char = _ICON_UNICODE_MAP[name]
+            icon_size = elem.get("w") or elem.get("h") or 20
+            return self._add_text(mx_root, {
+                "x": elem["x"],
+                "y": elem["y"],
+                "w": icon_size,
+                "h": icon_size,
+                "text": fallback_char,
+                "font_size": int(icon_size),
+                "font_color": color,
+                "font_weight": "bold",
+                "alignment": "center",
+                "vertical_align": "middle",
+            }, cell_id)
+
         svg_path = self._icon_resolver.resolve(name, font_family, color)
         if svg_path is not None:
             try:
@@ -275,8 +304,6 @@ class DrawioExporter:
             except Exception as exc:
                 logger.warning("draw.io SVG icon failed for %s: %s \u2014 falling back to Unicode", name, exc)
 
-        # Fallback: Unicode symbol text cell (reuses the same map as the PPTX exporter)
-        from scripts.exporting.pptx_exporter import _ICON_UNICODE_MAP, _ICON_FALLBACK_GLYPH  # noqa: PLC0415
         fallback_char = _ICON_UNICODE_MAP.get(name, _ICON_FALLBACK_GLYPH)
         icon_size = elem.get("w") or elem.get("h") or 20
         return self._add_text(mx_root, {
