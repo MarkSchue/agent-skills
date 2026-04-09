@@ -44,6 +44,7 @@ from scripts.rendering.quote_card import QuoteCardRenderer
 from scripts.rendering.agenda_card import AgendaCardRenderer
 from scripts.rendering.stacked_text_card import StackedTextCardRenderer
 from scripts.rendering.icon_item_text_card import IconItemTextCardRenderer
+from scripts.rendering.numbered_text_card import NumberedTextCardRenderer
 from scripts.exporting.pptx_exporter import PptxExporter
 from scripts.exporting.drawio_exporter import DrawioExporter
 
@@ -72,6 +73,8 @@ def _card_renderer_for(
         return StackedTextCardRenderer(theme)
     if card_type in ("icon_item_text", "icon-item-text", "icon-item-text-card"):
         return IconItemTextCardRenderer(theme)
+    if card_type in ("numbered_text_card", "numbered-text-card"):
+        return NumberedTextCardRenderer(theme)
     logger.warning("Unknown card type '%s' — falling back to text-card", card_type)
     return TextCardRenderer(theme)
 

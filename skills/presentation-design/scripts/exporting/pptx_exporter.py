@@ -266,10 +266,40 @@ class PptxExporter:
             self._add_image(slide, elem)
         elif etype == "icon":
             self._add_icon(slide, elem)
+        elif etype == "ellipse":
+            self._add_ellipse(slide, elem)
         elif etype == "placeholder":
             pass  # placeholders are not rendered in PPTX
         else:
             logger.debug("Unknown element type: %s", etype)
+
+    def _add_ellipse(self, slide, elem: dict[str, Any]) -> None:
+        shape = slide.shapes.add_shape(
+            9,  # MSO_AUTO_SHAPE_TYPE.OVAL
+            _px(elem["x"]),
+            _px(elem["y"]),
+            _px(elem["w"]),
+            _px(elem["h"]),
+        )
+        fill_color = _rgb(str(elem.get("fill", "#FFFFFF")))
+        if fill_color:
+            shape.fill.solid()
+            shape.fill.fore_color.rgb = fill_color
+        else:
+            shape.fill.background()
+        if hasattr(shape, "shadow"):
+            try:
+                shape.shadow.inherit = False
+                shape.shadow.visible = False
+            except Exception:
+                pass
+        stroke_color = _rgb(str(elem.get("stroke", "")))
+        if stroke_color:
+            from pptx.util import Pt
+            shape.line.color.rgb = stroke_color
+            shape.line.width = Pt(float(elem.get("stroke_width", 1)) * 72 / 96)
+        else:
+            shape.line.fill.background()
 
     def _add_rect(self, slide, elem: dict[str, Any]) -> None:
         from pptx.util import Emu

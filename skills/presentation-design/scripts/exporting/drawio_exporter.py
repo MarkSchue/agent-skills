@@ -117,9 +117,35 @@ class DrawioExporter:
             return self._add_image(mx_root, elem, cell_id)
         elif etype == "icon":
             return self._add_icon(mx_root, elem, cell_id)
+        elif etype == "ellipse":
+            return self._add_ellipse(mx_root, elem, cell_id)
         elif etype == "placeholder":
             return cell_id  # skip placeholders
         return cell_id
+
+    def _add_ellipse(
+        self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
+    ) -> int:
+        cell = ET.SubElement(mx_root, "mxCell")
+        cell.set("id", str(cell_id))
+        cell.set("parent", "1")
+        cell.set("vertex", "1")
+        fill = elem.get("fill", "#FFFFFF")
+        stroke = elem.get("stroke", "none")
+        sw = elem.get("stroke_width", 1)
+        style = (
+            f"ellipse;fillColor={fill};"
+            f"strokeColor={stroke};strokeWidth={sw};"
+        )
+        cell.set("style", style)
+        cell.set("value", "")
+        geo = ET.SubElement(cell, "mxGeometry")
+        geo.set("x", str(elem["x"]))
+        geo.set("y", str(elem["y"]))
+        geo.set("width", str(elem["w"]))
+        geo.set("height", str(elem["h"]))
+        geo.set("as", "geometry")
+        return cell_id + 1
 
     def _add_rect(
         self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
@@ -180,13 +206,15 @@ class DrawioExporter:
             except Exception:
                 line_spacing_style = ""
 
+        wrap_val = elem.get("wrap", True)
+        ws = "wrap" if wrap_val else "nowrap"
         style = (
             f"text;html=1;fontSize={font_size_pt};fontColor={font_color};"
             f"fontStyle={(int(bold) * 1) + (int(italic) * 2)};"
             f"{font_family_attr}"
-            f"align={align};verticalAlign={drawio_valign};whiteSpace=wrap;"
+            f"align={align};verticalAlign={drawio_valign};whiteSpace={ws};"
             f"{line_spacing_style}"
-            f"fillColor=none;strokeColor=none;"
+            f"fillColor=none;strokeColor=none;overflow=hidden;"
         )
         cell.set("style", style)
         cell.set("value", str(elem.get("text", "")))
