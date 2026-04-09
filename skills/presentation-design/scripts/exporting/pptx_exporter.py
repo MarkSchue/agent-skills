@@ -317,6 +317,23 @@ class PptxExporter:
         if fill_color:
             shape.fill.solid()
             shape.fill.fore_color.rgb = fill_color
+            # Apply opacity if specified (0-100).
+            # OOXML: a:alpha val="100000" = fully opaque, val="0" = fully transparent.
+            opacity_pct = elem.get("opacity")
+            if opacity_pct is not None:
+                try:
+                    from pptx.oxml.ns import qn as _qn
+                    from lxml import etree as _lET
+                    alpha_val = int(float(opacity_pct) * 1000)  # e.g. 40 → 40000
+                    spPr = shape._element.spPr
+                    solid_fill = spPr.find(".//" + _qn("a:solidFill"))
+                    if solid_fill is not None:
+                        srgb = solid_fill.find(_qn("a:srgbClr"))
+                        if srgb is not None:
+                            alpha_el = _lET.SubElement(srgb, _qn("a:alpha"))
+                            alpha_el.set("val", str(alpha_val))
+                except Exception:
+                    pass
         else:
             shape.fill.background()
 

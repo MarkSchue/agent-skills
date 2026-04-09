@@ -180,6 +180,7 @@ class GanttChartCardRenderer(BaseCardRenderer):
         overlay_fill    = self.resolve("card-gantt-overlay-fill") or "#E8F0FE"
         overlay_label_color = self.resolve("card-gantt-overlay-label-color") or "#6B7280"
         overlay_label_size = float(self.resolve("card-gantt-overlay-label-font-size") or 8)
+        overlay_opacity = int(float(self.resolve("card-gantt-overlay-opacity") or 40))
         condensed_threshold = float(self.resolve("card-gantt-condensed-threshold") or 320)
 
         # ── Content parsing ───────────────────────────────────────────────
@@ -316,33 +317,6 @@ class GanttChartCardRenderer(BaseCardRenderer):
             "fill": "#FFFFFF", "stroke": grid_color,
             "stroke_width": 1, "rx": 0,
         })
-
-        # Overlay spans behind the chart (holidays, code-freeze, UAT, …)
-        for overlay in overlays:
-            os_ = max(0.0, overlay["start"])
-            oe = max(os_ + overlay["duration"], os_ + 0.5)
-            ox = t2x(os_)
-            ow = max(2.0, t2x(oe) - ox)
-            fill_color = overlay["color"] or overlay_fill
-            box.add({
-                "type": "rect",
-                "x": ox, "y": box.y + header_h,
-                "w": ow, "h": box.h - header_h,
-                "fill": fill_color, "stroke": "none",
-                "stroke_width": 0, "rx": 0,
-            })
-            if overlay["label"] and ow > overlay_label_size * 2:
-                box.add({
-                    "type": "text",
-                    "x": ox + 2, "y": box.y,
-                    "w": max(1.0, ow - 4), "h": header_h,
-                    "text": overlay["label"],
-                    "font_size": overlay_label_size,
-                    "font_color": overlay_label_color,
-                    "alignment": "left",
-                    "vertical_align": "middle",
-                    "wrap": False,
-                })
 
         # Vertical separator after label column
         box.add({
@@ -503,3 +477,32 @@ class GanttChartCardRenderer(BaseCardRenderer):
                         "vertical_align": "middle",
                         "wrap": False,
                     })
+
+        # ── Overlay spans — drawn last so they sit on top in z-order ─────
+        # Semi-transparent so bars beneath remain visible.
+        for overlay in overlays:
+            os_ = max(0.0, overlay["start"])
+            oe = max(os_ + overlay["duration"], os_ + 0.5)
+            ox = t2x(os_)
+            ow = max(2.0, t2x(oe) - ox)
+            fill_color = overlay["color"] or overlay_fill
+            box.add({
+                "type": "rect",
+                "x": ox, "y": box.y + header_h,
+                "w": ow, "h": box.h - header_h,
+                "fill": fill_color, "stroke": "none",
+                "stroke_width": 0, "rx": 0,
+                "opacity": overlay_opacity,
+            })
+            if overlay["label"] and ow > overlay_label_size * 2:
+                box.add({
+                    "type": "text",
+                    "x": ox + 2, "y": box.y,
+                    "w": max(1.0, ow - 4), "h": header_h,
+                    "text": overlay["label"],
+                    "font_size": overlay_label_size,
+                    "font_color": overlay_label_color,
+                    "alignment": "left",
+                    "vertical_align": "middle",
+                    "wrap": False,
+                })

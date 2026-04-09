@@ -1373,6 +1373,8 @@
     /* ── Overlay spans (holidays, code-freeze, UAT, sprints, …) ────── */
     --card-gantt-overlay-fill: #EFF6FF;
     /* default fill for named background bands; per-entry `color:` overrides this */
+    --card-gantt-overlay-opacity: 40;
+    /* 0-100 — semi-transparent so bars beneath remain visible */
     --card-gantt-overlay-label-font-size: 8;
     /* px */
     --card-gantt-overlay-label-color: var(--color-text-muted);

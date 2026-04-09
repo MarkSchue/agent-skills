@@ -161,10 +161,13 @@ class DrawioExporter:
         stroke = elem.get("stroke", "none")
         sw = elem.get("stroke_width", 1)
         rx = elem.get("rx", 0)
+        opacity = elem.get("opacity")  # 0-100; None means fully opaque
         style = (
             f"rounded=1;arcSize={rx};fillColor={fill};"
             f"strokeColor={stroke};strokeWidth={sw};"
         )
+        if opacity is not None:
+            style += f"opacity={int(opacity)};"
         cell.set("style", style)
         cell.set("value", "")
 
