@@ -28,6 +28,7 @@ VALID_CARD_TYPES = {
     "image-card",
     "kpi-card",
     "chart-card",
+    "gantt-chart-card",
     "quote-card",
     "agenda-card",
     "stacked-text-card",

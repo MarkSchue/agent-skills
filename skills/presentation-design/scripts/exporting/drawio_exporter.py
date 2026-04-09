@@ -119,6 +119,8 @@ class DrawioExporter:
             return self._add_icon(mx_root, elem, cell_id)
         elif etype == "ellipse":
             return self._add_ellipse(mx_root, elem, cell_id)
+        elif etype == "table":
+            return self._add_table(mx_root, elem, cell_id, page_idx)
         elif etype == "placeholder":
             return cell_id  # skip placeholders
         return cell_id
@@ -387,3 +389,116 @@ class DrawioExporter:
         geo.set("as", "geometry")
 
         return cell_id + 1
+
+    def _add_table(
+        self,
+        mx_root: ET.Element,
+        elem: dict[str, Any],
+        cell_id: int,
+        page_idx: int,
+    ) -> int:
+        """Render a ``table`` element as a draw.io table using stacked rect+text cells.
+
+        draw.io's native ``shape=table`` is interactive/editable only in the
+        draw.io desktop app, and its XML format has changed across versions.
+        For maximum compatibility and visual fidelity we build the table from
+        individual rect (background fill) + text (cell content) mxCell pairs —
+        one pair per cell — which matches the style of all other primitive
+        elements in this exporter.
+        """
+        all_rows: list[dict] = elem.get("rows", [])
+        col_widths_px: list[float] = elem.get("col_widths", [])
+        border_color: str = str(elem.get("border_color") or "#E5E7EB")
+        border_width: float = float(elem.get("border_width") or 1)
+        pad_x: float = float(elem.get("pad_x") or 8)
+        pad_y: float = float(elem.get("pad_y") or 4)
+
+        n_rows = len(all_rows)
+        n_cols = len(col_widths_px)
+        if n_rows == 0 or n_cols == 0:
+            return cell_id
+
+        # Scale row heights to fit available height
+        total_height = sum(float(r.get("row_height", 24)) for r in all_rows)
+        available_h = float(elem.get("h") or total_height)
+        scale = min(1.0, available_h / total_height) if total_height > 0 else 1.0
+        row_heights = [float(r.get("row_height", 24)) * scale for r in all_rows]
+
+        base_x = float(elem["x"])
+        base_y = float(elem["y"])
+
+        y_cursor = base_y
+        for ri, row_desc in enumerate(all_rows):
+            rh = row_heights[ri]
+            x_cursor = base_x
+
+            cells_text: list[str] = row_desc.get("cells", [])
+            bg_color: str = str(row_desc.get("bg_color") or "#FFFFFF")
+            fg_color: str = str(row_desc.get("font_color") or "#000000")
+            font_size: float = float(row_desc.get("font_size") or 12)
+            font_size_pt = round(font_size * 72 / 96, 1)
+            weight: str = str(row_desc.get("font_weight") or "normal")
+            style_str: str = str(row_desc.get("font_style") or "normal").lower()
+            aligns: list[str] = row_desc.get("alignments") or []
+            bottom_border: str = str(row_desc.get("border_bottom_color") or border_color)
+            is_bold = str(weight).lower() in ("bold", "700") or "bold" in style_str
+            is_italic = "italic" in style_str
+            font_style_num = (1 if is_bold else 0) + (2 if is_italic else 0)
+
+            for ci, cw in enumerate(col_widths_px):
+                cell_text = cells_text[ci] if ci < len(cells_text) else ""
+                align = aligns[ci] if ci < len(aligns) else "left"
+
+                # Bottom border is thicker/different for header row
+                b_color = bottom_border if ri == 0 else border_color
+
+                # Background rect with borders simulated via stroke
+                bg_cell = ET.SubElement(mx_root, "mxCell")
+                bg_cell.set("id", str(cell_id))
+                bg_cell.set("parent", "1")
+                bg_cell.set("vertex", "1")
+                bg_style = (
+                    f"fillColor={bg_color};"
+                    f"strokeColor={border_color};strokeWidth={border_width};"
+                    "rounded=0;"
+                )
+                # Override bottom stroke for header row
+                if ri == 0:
+                    bg_style += f"strokeBottom={b_color};"
+                bg_cell.set("style", bg_style)
+                bg_cell.set("value", "")
+                bg_geo = ET.SubElement(bg_cell, "mxGeometry")
+                bg_geo.set("x", str(round(x_cursor, 2)))
+                bg_geo.set("y", str(round(y_cursor, 2)))
+                bg_geo.set("width", str(round(cw, 2)))
+                bg_geo.set("height", str(round(rh, 2)))
+                bg_geo.set("as", "geometry")
+                cell_id += 1
+
+                # Text cell on top
+                txt_cell = ET.SubElement(mx_root, "mxCell")
+                txt_cell.set("id", str(cell_id))
+                txt_cell.set("parent", "1")
+                txt_cell.set("vertex", "1")
+                txt_style = (
+                    f"text;html=1;fontSize={font_size_pt};"
+                    f"fontColor={fg_color};fontStyle={font_style_num};"
+                    f"align={align};verticalAlign=middle;"
+                    f"whiteSpace=wrap;overflow=hidden;"
+                    f"fillColor=none;strokeColor=none;"
+                )
+                txt_cell.set("style", txt_style)
+                txt_cell.set("value", str(cell_text))
+                txt_geo = ET.SubElement(txt_cell, "mxGeometry")
+                txt_geo.set("x", str(round(x_cursor + pad_x, 2)))
+                txt_geo.set("y", str(round(y_cursor, 2)))
+                txt_geo.set("width", str(round(max(cw - 2 * pad_x, 4), 2)))
+                txt_geo.set("height", str(round(rh, 2)))
+                txt_geo.set("as", "geometry")
+                cell_id += 1
+
+                x_cursor += cw
+
+            y_cursor += rh
+
+        return cell_id

@@ -268,6 +268,8 @@ class PptxExporter:
             self._add_icon(slide, elem)
         elif etype == "ellipse":
             self._add_ellipse(slide, elem)
+        elif etype == "table":
+            self._add_table(slide, elem)
         elif etype == "placeholder":
             pass  # placeholders are not rendered in PPTX
         else:
@@ -541,3 +543,149 @@ class PptxExporter:
                     "alignment": "center",
                 },
             )
+
+    def _add_table(self, slide, elem: dict[str, Any]) -> None:
+        """Render a ``table`` element as a native python-pptx table shape.
+
+        The table is positioned at the coordinates given in *elem* and sized
+        to fit the available body area.  Each row descriptor in ``elem['rows']``
+        carries its own styling so header, data, stripe, and sum rows are all
+        handled uniformly.
+        """
+        from pptx.util import Pt
+        from pptx.dml.color import RGBColor
+        from pptx.enum.text import PP_ALIGN
+
+        all_rows: list[dict] = elem.get("rows", [])
+        col_widths_px: list[float] = elem.get("col_widths", [])
+        border_color_hex: str = str(elem.get("border_color") or "#E5E7EB")
+        border_width_pt: float = float(elem.get("border_width") or 1) * 72 / 96
+        pad_x: float = float(elem.get("pad_x") or 8)
+        pad_y: float = float(elem.get("pad_y") or 4)
+
+        n_rows = len(all_rows)
+        n_cols = len(col_widths_px)
+        if n_rows == 0 or n_cols == 0:
+            return
+
+        # Total height: sum of row heights, capped to elem["h"]
+        total_height = sum(float(r.get("row_height", 24)) for r in all_rows)
+        available_h = float(elem.get("h") or total_height)
+        # Scale row heights proportionally when they exceed available space
+        scale = min(1.0, available_h / total_height) if total_height > 0 else 1.0
+
+        row_heights_px = [float(r.get("row_height", 24)) * scale for r in all_rows]
+
+        # python-pptx wants col widths and row heights in EMU
+        col_w_emu = [_px(w) for w in col_widths_px]
+        row_h_emu = [_px(h) for h in row_heights_px]
+
+        tbl = slide.shapes.add_table(
+            n_rows,
+            n_cols,
+            _px(elem["x"]),
+            _px(elem["y"]),
+            _px(elem["w"]),
+            _px(available_h),
+        ).table
+
+        # Set column widths
+        for ci, cw in enumerate(col_w_emu):
+            tbl.columns[ci].width = cw
+
+        # Set row heights
+        for ri, rh in enumerate(row_h_emu):
+            tbl.rows[ri].height = rh
+
+        # Style each cell
+        for ri, row_desc in enumerate(all_rows):
+            cells: list[str] = row_desc.get("cells", [])
+            bg_hex: str = str(row_desc.get("bg_color") or "#FFFFFF")
+            fg_hex: str = str(row_desc.get("font_color") or "#000000")
+            font_size: float = float(row_desc.get("font_size") or 12)
+            weight: str = str(row_desc.get("font_weight") or "normal")
+            style: str = str(row_desc.get("font_style") or "normal").lower()
+            aligns: list[str] = row_desc.get("alignments") or []
+            border_bottom_hex: str = str(row_desc.get("border_bottom_color") or border_color_hex)
+
+            is_bold = str(weight).lower() in ("bold", "700") or "bold" in style
+            is_italic = "italic" in style
+
+            for ci in range(n_cols):
+                cell = tbl.cell(ri, ci)
+                cell_text = cells[ci] if ci < len(cells) else ""
+                alignment = aligns[ci] if ci < len(aligns) else "left"
+
+                # Background fill
+                bg_rgb = _rgb(bg_hex)
+                if bg_rgb:
+                    cell.fill.solid()
+                    cell.fill.fore_color.rgb = bg_rgb
+                else:
+                    cell.fill.background()
+
+                # Text frame
+                tf = cell.text_frame
+                tf.margin_top = _px(pad_y)
+                tf.margin_bottom = _px(pad_y)
+                tf.margin_left = _px(pad_x)
+                tf.margin_right = _px(pad_x)
+                tf.word_wrap = True
+
+                para = tf.paragraphs[0]
+                para.text = cell_text
+                para.alignment = _ALIGN_MAP.get(alignment, PP_ALIGN.LEFT)
+
+                if para.runs:
+                    run = para.runs[0]
+                else:
+                    run = para.add_run()
+                    run.text = cell_text
+
+                run.font.size = Pt(font_size * 72 / 96)
+                run.font.bold = is_bold
+                run.font.italic = is_italic
+                fg_rgb = _rgb(fg_hex)
+                if fg_rgb:
+                    run.font.color.rgb = fg_rgb
+
+                # Cell borders via tcPr XML — apply uniform border_color
+                self._set_table_cell_borders(
+                    cell, border_color_hex, border_width_pt,
+                    border_bottom_hex if ri == 0 else border_color_hex,
+                )
+
+    @staticmethod
+    def _set_table_cell_borders(
+        cell: Any,
+        border_color_hex: str,
+        border_width_pt: float,
+        bottom_color_hex: str,
+    ) -> None:
+        """Apply solid borders on all four sides of a python-pptx table cell via OOXML."""
+        from lxml import etree
+        from pptx.oxml.ns import qn
+
+        def _make_ln(color_hex: str, width_pt: float) -> "etree._Element":
+            w_emu = int(width_pt * 12700)  # pt → EMU (1 pt = 12700 EMU)
+            ln = etree.Element(qn("a:ln"), attrib={"w": str(w_emu)})
+            solid = etree.SubElement(ln, qn("a:solidFill"))
+            srgb = etree.Element(qn("a:srgbClr"), attrib={"val": color_hex.lstrip("#")})
+            solid.append(srgb)
+            return ln
+
+        tc = cell._tc
+        tcPr = tc.find(qn("a:tcPr"))
+        if tcPr is None:
+            tcPr = etree.SubElement(tc, qn("a:tcPr"))
+
+        for tag, color in (
+            ("a:lnL", border_color_hex),
+            ("a:lnR", border_color_hex),
+            ("a:lnT", border_color_hex),
+            ("a:lnB", bottom_color_hex),
+        ):
+            existing = tcPr.find(qn(tag))
+            if existing is not None:
+                tcPr.remove(existing)
+            tcPr.append(_make_ln(color, border_width_pt))

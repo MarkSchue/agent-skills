@@ -40,11 +40,13 @@ from scripts.rendering.text_card import TextCardRenderer
 from scripts.rendering.image_card import ImageCardRenderer
 from scripts.rendering.kpi_card import KpiCardRenderer
 from scripts.rendering.chart_card import ChartCardRenderer
+from scripts.rendering.gantt_chart_card import GanttChartCardRenderer
 from scripts.rendering.quote_card import QuoteCardRenderer
 from scripts.rendering.agenda_card import AgendaCardRenderer
 from scripts.rendering.stacked_text_card import StackedTextCardRenderer
 from scripts.rendering.icon_item_text_card import IconItemTextCardRenderer
 from scripts.rendering.numbered_text_card import NumberedTextCardRenderer
+from scripts.rendering.table_card import TableCardRenderer
 from scripts.exporting.pptx_exporter import PptxExporter
 from scripts.exporting.drawio_exporter import DrawioExporter
 
@@ -65,6 +67,8 @@ def _card_renderer_for(
         return KpiCardRenderer(theme)
     if card_type == "chart-card":
         return ChartCardRenderer(theme, project_root=project_root)
+    if card_type in ("gantt-chart-card", "gantt_chart_card"):
+        return GanttChartCardRenderer(theme)
     if card_type == "quote-card":
         return QuoteCardRenderer(theme)
     if card_type == "agenda-card":
@@ -75,6 +79,8 @@ def _card_renderer_for(
         return IconItemTextCardRenderer(theme)
     if card_type in ("numbered_text_card", "numbered-text-card"):
         return NumberedTextCardRenderer(theme)
+    if card_type in ("table-card", "table_card"):
+        return TableCardRenderer(theme)
     logger.warning("Unknown card type '%s' — falling back to text-card", card_type)
     return TextCardRenderer(theme)
 

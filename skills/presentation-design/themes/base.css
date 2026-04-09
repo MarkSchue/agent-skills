@@ -19,6 +19,7 @@
     10. .card--stacked-text — Stacked text card variant tokens
     11. .card--icon-item-text — Icon item text card variant tokens
     12. .card--numbered-text  — Numbered text card variant tokens
+    13. .card--gantt-chart    — Gantt chart card variant tokens
 
    RULES:
    - Every token must have an inline comment explaining its role.
@@ -1311,4 +1312,186 @@
     /* px — extra space above first row */
     --card-numbered-text-gap-bottom: 0;
     /* px — extra space below last row */
+}
+
+
+/* =================================================================
+   13. Gantt Chart Card — timeline chart rendered from primitives.
+       Works at full-slide width (full-blown) and small card slots
+       (condensed mode auto-activates below condensed-threshold px).
+   ================================================================= */
+.card--gantt-chart {
+
+    /* ── Layout ─────────────────────────────────────────────────────── */
+    --card-gantt-label-col-pct: 28;
+    /* % of card body width reserved for the task-name column */
+    --card-gantt-condensed-threshold: 320;
+    /* px — box width below which condensed mode activates automatically */
+
+    /* ── Row / section geometry ──────────────────────────────────────── */
+    --card-gantt-header-height: 20;
+    /* px — height of the axis tick-label row at the top */
+    --card-gantt-row-height: 22;
+    /* px — height of each task row */
+    --card-gantt-section-height: 18;
+    /* px — height of section header rows */
+
+    /* ── Grid & separators ───────────────────────────────────────────── */
+    --card-gantt-grid-color: var(--color-border);
+    /* colour of vertical tick lines and horizontal row separators */
+
+    /* ── Section header ──────────────────────────────────────────────── */
+    --card-gantt-section-fill: var(--color-surface-subtle);
+    /* background fill for section header rows */
+    --card-gantt-section-font-size: 10;
+    /* px */
+    --card-gantt-section-font-color: var(--color-text-subtle);
+
+    /* ── Task label column typography ───────────────────────────────── */
+    --card-gantt-label-font-size: 10;
+    /* px */
+    --card-gantt-label-font-color: var(--color-text-default);
+
+    /* ── Axis tick labels ────────────────────────────────────────────── */
+    --card-gantt-tick-font-size: 9;
+    /* px */
+    --card-gantt-tick-font-color: var(--color-text-muted);
+
+    /* ── Bars ────────────────────────────────────────────────────────── */
+    --card-gantt-bar-color: var(--color-accent);
+    /* default bar fill */
+    --card-gantt-bar-crit-color: var(--color-error);
+    /* fill for bars marked crit: true */
+    --card-gantt-bar-radius: 3;
+    /* px — rounded corners on task bars */
+    --card-gantt-bar-done-opacity: 0.45;
+    /* opacity multiplier applied to the completed portion (not currently used in exporter) */
+    --card-gantt-bar-text-font-size: 8;
+    /* px — id/label text inside bar */
+    --card-gantt-bar-text-font-color: var(--color-on-accent);
+
+    /* ── Overlay spans (holidays, code-freeze, UAT, sprints, …) ────── */
+    --card-gantt-overlay-fill: #EFF6FF;
+    /* default fill for named background bands; per-entry `color:` overrides this */
+    --card-gantt-overlay-label-font-size: 8;
+    /* px */
+    --card-gantt-overlay-label-color: var(--color-text-muted);
+    /* text colour for overlay band labels */
+
+    /* ── Progress overlay ────────────────────────────────────────────── */
+    --card-gantt-progress-color: var(--color-primary);
+    /* fill for the progress portion of a bar (progress: 0-100) */
+
+    /* ── Milestone diamond ───────────────────────────────────────────── */
+    --card-gantt-milestone-color: var(--color-warning);
+    /* fill for milestone markers */
+}
+
+
+/* =================================================================
+   14. Card Variant — Table Card
+       Data table with themed header row, optional sum/total row,
+       alternating row stripe, and full token control.
+       PPTX: native table shape (python-pptx add_table) — edit in PowerPoint.
+       draw.io: table shape with styled header/sum cells.
+   ================================================================= */
+.card--table {
+
+    /* ── Header row ─────────────────────────────────────────────────── */
+    --card-table-header-bg-color: var(--color-primary);
+    /* header row background fill */
+    --card-table-header-font-color: var(--color-on-primary);
+    /* header text colour */
+    --card-table-header-font-size: 12;
+    /* px — header cell font size */
+    --card-table-header-font-weight: 700;
+    /* bold by default */
+    --card-table-header-font-style: normal;
+    /* normal | italic */
+    --card-table-header-alignment: left;
+    /* left | center | right — default for all header cells */
+    --card-table-header-height: 28;
+    /* px — header row height */
+    --card-table-header-border-color: var(--color-primary);
+    /* border colour below the header row */
+
+    /* ── Data rows ──────────────────────────────────────────────────── */
+    --card-table-row-font-size: 12;
+    /* px */
+    --card-table-row-font-color: var(--color-text-subtle);
+    /* data cell text colour */
+    --card-table-row-font-weight: 400;
+    --card-table-row-font-style: normal;
+    /* normal | italic */
+    --card-table-row-height: 24;
+    /* px — data row height */
+    --card-table-row-min-height: 20;
+    /* px — minimum row height */
+    --card-table-row-bg-color: var(--color-surface);
+    /* default row background (transparent = card surface) */
+    --card-table-row-alignment: left;
+    /* default cell text alignment */
+
+    /* ── Alternating row stripe ──────────────────────────────────────── */
+    --card-table-stripe-visible: false;
+    /* true | false — enable alternating row shading */
+    --card-table-stripe-color: var(--color-surface-sunken);
+    /* fill colour for alternating (odd-indexed) data rows */
+
+    /* ── Sum / total row ─────────────────────────────────────────────── */
+    --card-table-sum-bg-color: var(--color-surface-raised);
+    /* sum row background fill */
+    --card-table-sum-font-color: var(--color-text-default);
+    /* sum row text colour */
+    --card-table-sum-font-size: 12;
+    /* px */
+    --card-table-sum-font-weight: 700;
+    /* bold by default — totals should stand out */
+    --card-table-sum-font-style: normal;
+    /* normal | italic */
+    --card-table-sum-alignment: left;
+    /* cell text alignment for the sum row */
+    --card-table-sum-height: 28;
+    /* px — sum row height (slightly taller by default) */
+
+    /* ── Grid lines ──────────────────────────────────────────────────── */
+    --card-table-border-color: var(--color-border);
+    /* inner and outer cell border colour */
+    --card-table-border-width: 1;
+    /* px — border line thickness */
+
+    /* ── Cell padding ────────────────────────────────────────────────── */
+    --card-table-padding-x: 8;
+    /* px — horizontal cell padding */
+    --card-table-padding-y: 4;
+    /* px — vertical cell padding */
+
+    /* ── Footer overrides — uncomment to customize footer for table cards ── */
+    /* --card-footer-font-size: 10; */
+    /* --card-footer-font-color: var(--color-text-muted); */
+    /* --card-footer-font-weight: 400; */
+    /* --card-footer-font-style: italic; */
+    /* --card-footer-alignment: left; */
+    /* --card-footer-margin-top: 8; */
+    /* --card-footer-line-visible: false; */
+    /* --card-footer-line-color: var(--color-border); */
+    /* --card-footer-line-width: 1; */
+
+    /* ── Title line overrides — uncomment to customize header line ── */
+    /* --card-title-line-visible: true; */
+    /* --card-title-line-color: var(--color-accent); */
+    /* --card-title-line-width: 1; */
+
+    /* ── Subtitle overrides — uncomment to show/customize subtitle ── */
+    /* --card-subtitle-visible: false; */
+    /* --card-subtitle-font-size: 12; */
+    /* --card-subtitle-font-color: var(--color-text-muted); */
+    /* --card-subtitle-alignment: left; */
+
+    /* ── Icon overrides — uncomment to enable/customize title icon ── */
+    /* --card-icon-visible: false; */
+    /* --card-icon-name: ""; */
+    /* --card-icon-position: right; */
+    /* --card-icon-size: 20; */
+    /* --card-icon-color: var(--color-accent); */
 }

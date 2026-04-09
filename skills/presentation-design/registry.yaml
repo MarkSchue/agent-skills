@@ -28,6 +28,11 @@ cards:
     file: cards/data/chart-card.md
     tags: [chart, data, bar, pie, line, visualization, analytics]
 
+  - id: table-card
+    description: Data table card with themed header row, optional sum row, and alternating row stripe.
+    file: cards/data/table-card.md
+    tags: [table, data, rows, columns, grid, sum, totals, comparison, financials, kpi]
+
   - id: quote-card
     description: Styled quotation card with quote text, attribution, and optional image.
     file: cards/structural/quote-card.md
