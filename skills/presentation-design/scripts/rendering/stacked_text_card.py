@@ -74,18 +74,18 @@ class StackedTextCardRenderer(BaseCardRenderer):
         # ── Token resolution ──────────────────────────────────────────────
 
         # Heading (h2-style)
-        h_size   = float(self.resolve("card-stacked-text-heading-font-size")   or 14)
-        h_color  = self.resolve("card-stacked-text-heading-font-color")         or self.resolve("card-title-font-color") or "#1A1A1A"
-        h_weight = str(self.resolve("card-stacked-text-heading-font-weight")    or "700")
-        h_style  = self.resolve("card-stacked-text-heading-font-style")         or "normal"
-        h_align  = self.resolve("card-stacked-text-heading-alignment")          or "left"
+        h_size   = float(self._resolve_tok("stacked-text", "heading-font-size",   14))
+        h_color  = self._resolve_tok("stacked-text", "heading-font-color",         "#1A1A1A")
+        h_weight = str(self._resolve_tok("stacked-text", "heading-font-weight",    "700"))
+        h_style  = self._resolve_tok("stacked-text", "heading-font-style",         "normal")
+        h_align  = self._resolve_tok("stacked-text", "heading-alignment",          "left")
 
         # Body (text-body style)
-        b_size   = float(self.resolve("card-stacked-text-body-font-size")       or 12)
-        b_color  = self.resolve("card-stacked-text-body-font-color")            or self.resolve("text-body-font-color") or "#333333"
-        b_weight = str(self.resolve("card-stacked-text-body-font-weight")       or "400")
-        b_style  = self.resolve("card-stacked-text-body-font-style")            or "normal"
-        b_align  = self.resolve("card-stacked-text-body-alignment")             or "left"
+        b_size   = float(self._resolve_tok("stacked-text", "body-font-size",       12))
+        b_color  = self._resolve_tok("stacked-text", "body-font-color",            "#333333")
+        b_weight = str(self._resolve_tok("stacked-text", "body-font-weight",       "400"))
+        b_style  = self._resolve_tok("stacked-text", "body-font-style",            "normal")
+        b_align  = self._resolve_tok("stacked-text", "body-alignment",             "left")
 
         # Divider between blocks
         div_visible_raw = self.resolve("card-stacked-text-divider-visible")

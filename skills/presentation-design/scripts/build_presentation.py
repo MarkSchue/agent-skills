@@ -47,6 +47,7 @@ from scripts.rendering.stacked_text_card import StackedTextCardRenderer
 from scripts.rendering.icon_item_text_card import IconItemTextCardRenderer
 from scripts.rendering.numbered_text_card import NumberedTextCardRenderer
 from scripts.rendering.table_card import TableCardRenderer
+from scripts.rendering.timeline_card import TimelineCardRenderer
 from scripts.exporting.pptx_exporter import PptxExporter
 from scripts.exporting.drawio_exporter import DrawioExporter
 
@@ -81,6 +82,8 @@ def _card_renderer_for(
         return NumberedTextCardRenderer(theme)
     if card_type in ("table-card", "table_card"):
         return TableCardRenderer(theme)
+    if card_type in ("timeline-card", "timeline_card"):
+        return TimelineCardRenderer(theme)
     logger.warning("Unknown card type '%s' — falling back to text-card", card_type)
     return TextCardRenderer(theme)
 

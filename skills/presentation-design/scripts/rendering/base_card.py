@@ -232,6 +232,37 @@ class BaseCardRenderer(ABC):
             overrides=merged if merged else None,
         )
 
+    def _resolve_tok(self, variant_prefix: str, name: str, default: Any = None) -> Any:
+        """Resolve a token with automatic card-base fallback.
+
+        Design pattern for all card renderers:
+
+        1. Try ``card-{variant_prefix}-{name}`` (the variant-specific CSS token).
+        2. If absent or empty, fall back to ``card-{name}`` (the shared
+           ``.card-base`` token — e.g. ``card-body-font-size``).
+        3. If still absent, return *default*.
+
+        This means variant-specific tokens in CSS are *optional overrides*.
+        Commenting them out automatically inherits the card-base value, giving
+        consistent typography across all card types by default.
+
+        Usage in renderer::
+
+            def _tok(self, name: str, default: Any = None) -> Any:
+                return self._resolve_tok("my-card", name, default)
+
+        Args:
+            variant_prefix: The card-specific prefix without leading ``card-``
+                (e.g. ``"timeline"`` → tries ``card-timeline-{name}``).
+            name: Token suffix (e.g. ``"body-font-size"``).
+            default: Fallback value when neither CSS layer defines the token.
+        """
+        v = self.resolve(f"card-{variant_prefix}-{name}")
+        if v is not None and v != "":
+            return v
+        v = self.resolve(f"card-{name}")
+        return v if (v is not None and v != "") else default
+
     # ── private rendering helpers ────────────────────────────────────────
 
     @property

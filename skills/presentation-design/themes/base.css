@@ -20,6 +20,8 @@
     11. .card--icon-item-text — Icon item text card variant tokens
     12. .card--numbered-text  — Numbered text card variant tokens
     13. .card--gantt-chart    — Gantt chart card variant tokens
+    14. .card--table         — Table card variant tokens
+    15. .card--timeline      — Timeline card variant tokens
 
    RULES:
    - Every token must have an inline comment explaining its role.
@@ -545,9 +547,11 @@
     --card-footer-margin-top: 8;
     /* px — space above footer text */
 
-    /* Card body defaults */
+    /* Card body defaults — shared baseline for ALL card types.
+       Variant-specific tokens (e.g. --card-timeline-body-font-size) override
+       these values when present; comment them out to inherit from here. */
     --card-body-font-size: 14;
-    /* px — default body text */
+    /* px — default body text size; all cards fall back to this */
     --card-body-font-color: var(--color-text-subtle);
     /* default body text colour */
     --card-body-font-weight: 400;
@@ -560,6 +564,18 @@
     /* left | center | right — heading alignment */
     --card-body-bullet-indent: 12;
     /* px — bullet list left indent */
+
+    /* Card heading defaults — shared baseline for ALL card types.
+       Variant-specific tokens (e.g. --card-timeline-heading-font-size) override
+       these values when present; comment them out to inherit from here. */
+    --card-heading-font-size: 14;
+    /* px — default heading size inside card body */
+    --card-heading-font-color: var(--color-text-default);
+    /* heading text colour */
+    --card-heading-font-weight: 700;
+    --card-heading-font-style: normal;
+    --card-heading-alignment: left;
+    /* left | center | right */
 }
 
 
@@ -763,44 +779,67 @@
    ================================================================= */
 .card--chart {
 
-    /* Axis */
+    /* ── Axis ─────────────────────────────────────────────────── */
     --card-chart-axis-color: var(--color-text-muted);
-    /* axis line colour */
-    --card-chart-axis-font-size: 10;
-    /* axis label size */
+    /* y/x axis spine colour */
+    --card-chart-axis-font-size: 9;
+    /* tick-label font size (px) */
+    --card-chart-axis-font-color: var(--color-text-muted);
+    /* tick-label colour; defaults to axis-color */
     --card-chart-axis-font-style: normal;
     /* normal | italic | bold | italic bold */
+    --card-chart-axis-title-font-size: 10;
+    /* axis title (x_axis.title / y_axis.title) font size */
+    --card-chart-axis-title-font-color: var(--color-text-muted);
 
-    /* Grid */
+    /* ── Grid ─────────────────────────────────────────────────── */
     --card-chart-grid-color: var(--color-surface-raised);
-    /* grid line colour */
+    /* horizontal grid-line colour */
 
-    /* Legend */
-    --card-chart-legend-font-size: 11;
-    /* legend text size */
+    /* ── Series colour palette ────────────────────────────────── */
+    /* Override any of palette-1..8 to customise the automatic colour cycle. */
+    --card-chart-palette-1: #3B82F6;
+    --card-chart-palette-2: #EF4444;
+    --card-chart-palette-3: #10B981;
+    --card-chart-palette-4: #F59E0B;
+    --card-chart-palette-5: #8B5CF6;
+    --card-chart-palette-6: #EC4899;
+    --card-chart-palette-7: #06B6D4;
+    --card-chart-palette-8: #F97316;
+
+    /* ── Bar chart ───────────────────────────────────────────── */
+    /* (bar width / gap is controlled automatically from category slot width) */
+
+    /* ── Line chart ──────────────────────────────────────────── */
+    --card-chart-line-width: 2;
+    /* stroke width for line series (px) */
+    --card-chart-line-marker-size: 5;
+    /* diameter of data-point markers (px); 0 to hide */
+
+    /* ── Data labels (value-labels: true) ────────────────────── */
+    --card-chart-label-font-size: 8;
+    /* font size for bar/point data labels */
+    --card-chart-label-font-color: #FFFFFF;
+    /* colour for labels inside bars */
+
+    /* ── Legend ──────────────────────────────────────────────── */
+    --card-chart-legend-font-size: 10;
+    /* legend item text size */
     --card-chart-legend-font-style: normal;
-    /* normal | italic | bold | italic bold */
+    --card-chart-legend-font-color: var(--color-text-primary);
     --card-chart-legend-position: bottom;
-    /* bottom | right | top */
+    /* bottom | right | top | none */
 
-    /* Caption */
-    --card-chart-caption-font-size: 11;
+    /* ── Caption (attribution line) ──────────────────────────── */
+    --card-chart-caption-font-size: 10;
     /* px */
     --card-chart-caption-font-color: var(--color-text-muted);
-    /* caption text colour */
     --card-chart-caption-alignment: center;
     /* left | center | right */
 
-    /* Body icon placeholder — for future use (e.g. legend icons, header badge) */
-    --card-chart-icon-visible: false;
-    /* true | false */
-    --card-chart-icon-name: "";
-    /* icon ligature / codepoint */
-    --card-chart-icon-size: 20;
-    /* px */
-    --card-chart-icon-color: var(--color-text-muted);
-    --card-chart-icon-position: legend;
-    /* legend | header | decorative */
+    /* ── Pie / donut ─────────────────────────────────────────── */
+    --card-chart-bg-color: #FFFFFF;
+    /* background used for donut punch-out circle */
 
     /* Footer overrides — uncomment to customize footer for chart cards */
     /* --card-footer-font-size: 10; */
@@ -1496,4 +1535,82 @@
     /* --card-icon-position: right; */
     /* --card-icon-size: 20; */
     /* --card-icon-color: var(--color-accent); */
+}
+
+
+/* =================================================================
+   15. Card Variant — Timeline Card
+   ================================================================= */
+.card--timeline {
+
+    /* ── Spine ───────────────────────────────────────────────── */
+    --card-timeline-spine-color: var(--color-border);
+    /* spine line colour */
+    --card-timeline-spine-width: 2;
+    /* spine stroke width (px) */
+
+    /* ── Orientation & behaviour ─────────────────────────────── */
+    --card-timeline-orientation: horizontal;
+    /* horizontal | vertical */
+    --card-timeline-alternate: true;
+    /* alternate entries above/below spine in horizontal mode */
+    --card-timeline-arrow: true;
+    /* show arrowhead at end of spine */
+    --card-timeline-arrow-size: 10;
+    /* arrowhead leg length (px) */
+    --card-timeline-connector-length: 10;
+    /* tick line from spine to content (px) */
+
+    /* ── Marker circle ────────────────────────────────────────── */
+    --card-timeline-marker-size: 28;
+    /* diameter of the spine dot (px) */
+    --card-timeline-marker-fill: var(--color-accent);
+    /* default marker background */
+    --card-timeline-marker-stroke: var(--color-accent);
+    /* marker border colour */
+    --card-timeline-marker-font-size: 8;
+    /* text/number inside marker (px) */
+    --card-timeline-marker-font-color: #FFFFFF;
+    /* text colour inside marker */
+
+    /* ── Accent / goal markers ────────────────────────────────── */
+    --card-timeline-accent-marker-fill: var(--color-warning);
+    /* highlighted milestone fill */
+    --card-timeline-goal-marker-fill: var(--color-accent-alt);
+    /* terminal goal marker fill (defaults to secondary accent) */
+
+    /* ── Entry heading ────────────────────────────────────────── */
+    --card-timeline-heading-font-size: 11;
+    /* px */
+    --card-timeline-heading-font-color: var(--color-text-primary);
+    --card-timeline-heading-font-weight: 700;
+    --card-timeline-heading-font-style: normal;
+
+    /* ── Entry body ───────────────────────────────────────────── */
+    --card-timeline-body-font-size: 9;
+    /* px */
+    --card-timeline-body-font-color: var(--color-text-muted);
+    --card-timeline-body-font-weight: 400;
+    --card-timeline-body-font-style: normal;
+
+    /* ── Entry icon (beside heading) ─────────────────────────── */
+    --card-timeline-icon-size: 13;
+    /* px — icon beside entry heading */
+    --card-timeline-icon-gap: 3;
+    /* gap between icon and heading text */
+    --card-timeline-icon-color: var(--color-accent);
+    /* default icon colour (overridable per entry) */
+    /* --card-timeline-icon-font-family: ""; */
+    /* defaults to global icon-font-family token */
+    --card-timeline-icon-font-weight: 700;
+
+    /* ── Caption ──────────────────────────────────────────────── */
+    --card-timeline-caption-font-size: 10;
+    --card-timeline-caption-font-color: var(--color-text-muted);
+    --card-timeline-caption-alignment: center;
+
+    /* Footer overrides — uncomment to customise */
+    /* --card-footer-line-visible: false; */
+    /* --card-footer-font-size: 10; */
+    /* --card-footer-font-color: var(--color-text-muted); */
 }

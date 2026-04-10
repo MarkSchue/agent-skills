@@ -97,18 +97,18 @@ class IconItemTextCardRenderer(BaseCardRenderer):
         blocks = blocks[:n]
 
         # Heading style
-        h_size = float(self.resolve("card-icon-item-text-heading-font-size") or 14)
-        h_color = self.resolve("card-icon-item-text-heading-font-color") or self.resolve("card-title-font-color") or "#1A1A1A"
-        h_weight = str(self.resolve("card-icon-item-text-heading-font-weight") or "700")
-        h_style = self.resolve("card-icon-item-text-heading-font-style") or "normal"
-        h_align = self.resolve("card-icon-item-text-heading-alignment") or "left"
+        h_size = float(self._resolve_tok("icon-item-text", "heading-font-size",  14))
+        h_color = self._resolve_tok("icon-item-text", "heading-font-color",       "#1A1A1A")
+        h_weight = str(self._resolve_tok("icon-item-text", "heading-font-weight", "700"))
+        h_style = self._resolve_tok("icon-item-text", "heading-font-style",        "normal")
+        h_align = self._resolve_tok("icon-item-text", "heading-alignment",         "left")
 
         # Body style
-        b_size = float(self.resolve("card-icon-item-text-body-font-size") or 12)
-        b_color = self.resolve("card-icon-item-text-body-font-color") or self.resolve("text-body-font-color") or "#333333"
-        b_weight = str(self.resolve("card-icon-item-text-body-font-weight") or "400")
-        b_style = self.resolve("card-icon-item-text-body-font-style") or "normal"
-        b_align = self.resolve("card-icon-item-text-body-alignment") or "left"
+        b_size = float(self._resolve_tok("icon-item-text", "body-font-size",      12))
+        b_color = self._resolve_tok("icon-item-text", "body-font-color",           "#333333")
+        b_weight = str(self._resolve_tok("icon-item-text", "body-font-weight",    "400"))
+        b_style = self._resolve_tok("icon-item-text", "body-font-style",           "normal")
+        b_align = self._resolve_tok("icon-item-text", "body-alignment",            "left")
 
         # Icon style
         icon_size = float(self.resolve("card-icon-item-text-icon-size") or 20)

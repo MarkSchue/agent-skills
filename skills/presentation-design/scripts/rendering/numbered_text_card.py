@@ -104,25 +104,17 @@ class NumberedTextCardRenderer(BaseCardRenderer):
         row_padding = float(self.resolve("card-numbered-text-row-padding") or 6)
 
         # ── Heading (col 2) tokens ───────────────────────────────────────
-        h_size = float(self.resolve("card-numbered-text-heading-font-size") or 14)
-        h_color = (
-            self.resolve("card-numbered-text-heading-font-color")
-            or self.resolve("color-text-default")
-            or "#1A1A2E"
-        )
-        h_weight = str(self.resolve("card-numbered-text-heading-font-weight") or "600")
-        h_style = self.resolve("card-numbered-text-heading-font-style") or "normal"
+        h_size = float(self._resolve_tok("numbered-text", "heading-font-size",  14))
+        h_color = self._resolve_tok("numbered-text", "heading-font-color",       "#1A1A2E")
+        h_weight = str(self._resolve_tok("numbered-text", "heading-font-weight", "600"))
+        h_style = self._resolve_tok("numbered-text", "heading-font-style",        "normal")
         h_lh = h_size * float(self.resolve("card-numbered-text-heading-line-height") or 1.3)
 
         # ── Body (col 3) tokens ──────────────────────────────────────────
-        b_size = float(self.resolve("card-numbered-text-body-font-size") or 12)
-        b_color = (
-            self.resolve("card-numbered-text-body-font-color")
-            or self.resolve("color-text-muted")
-            or "#6B7280"
-        )
-        b_weight = str(self.resolve("card-numbered-text-body-font-weight") or "400")
-        b_style = self.resolve("card-numbered-text-body-font-style") or "normal"
+        b_size = float(self._resolve_tok("numbered-text", "body-font-size",      12))
+        b_color = self._resolve_tok("numbered-text", "body-font-color",           "#6B7280")
+        b_weight = str(self._resolve_tok("numbered-text", "body-font-weight",    "400"))
+        b_style = self._resolve_tok("numbered-text", "body-font-style",           "normal")
         b_lh = b_size * float(self.resolve("card-numbered-text-body-line-height") or 1.3)
 
         # Gap between heading and body inside same row (when col2 and col3 share the row)

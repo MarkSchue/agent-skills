@@ -247,10 +247,13 @@ class DrawioExporter:
 
         stroke = elem.get("stroke", "#CCCCCC")
         sw = elem.get("stroke_width", 1)
+        dashed = elem.get("dashed", False)
         style = (
             f"endArrow=none;strokeColor={stroke};strokeWidth={sw};"
             f"edgeStyle=straightEdgeStyle;"
         )
+        if dashed:
+            style += "dashed=1;"
         cell.set("style", style)
         cell.set("value", "")
 

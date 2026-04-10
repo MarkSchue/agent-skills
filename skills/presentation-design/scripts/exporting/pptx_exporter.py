@@ -432,6 +432,20 @@ class PptxExporter:
         if stroke_color:
             connector.line.color.rgb = stroke_color
             connector.line.width = Pt(float(elem.get("stroke_width", 1)) * 72 / 96)
+            if elem.get("dashed"):
+                try:
+                    from pptx.oxml.ns import qn as _qn2
+                    from lxml import etree as _et2
+                    spPr = connector._element.spPr
+                    ln_el = spPr.find(_qn2("a:ln"))
+                    if ln_el is None:
+                        ln_el = _et2.SubElement(spPr, _qn2("a:ln"))
+                    pd = ln_el.find(_qn2("a:prstDash"))
+                    if pd is None:
+                        pd = _et2.SubElement(ln_el, _qn2("a:prstDash"))
+                    pd.set("val", "dash")
+                except Exception:
+                    pass
         else:
             connector.line.fill.background()
         try:
