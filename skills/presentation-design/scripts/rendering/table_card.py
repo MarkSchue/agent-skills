@@ -42,25 +42,25 @@ class TableCardRenderer(BaseCardRenderer):
 
         # ── Token resolution ────────────────────────────────────────────
 
-        # Header
-        header_bg        = self.resolve("card-table-header-bg-color")       or "#1A1A2E"
-        header_fg        = self.resolve("card-table-header-font-color")     or "#FFFFFF"
-        header_font_size = float(self.resolve("card-table-header-font-size") or 12)
-        header_weight    = self.resolve("card-table-header-font-weight")    or "bold"
-        header_style     = self.resolve("card-table-header-font-style")     or "normal"
-        header_align     = header_alignment_override or self.resolve("card-table-header-alignment") or "left"
-        header_height    = float(self.resolve("card-table-header-height")   or 28)
-        header_border_color = self.resolve("card-table-header-border-color") or header_bg
+        # Heading row
+        header_bg        = self.resolve("card-table-heading-bg-color")       or "#1A1A2E"
+        header_fg        = self.resolve("card-table-heading-font-color")     or "#FFFFFF"
+        header_font_size = float(self.resolve("card-table-heading-font-size") or 12)
+        header_weight    = self.resolve("card-table-heading-font-weight")    or "bold"
+        header_style     = self.resolve("card-table-heading-font-style")     or "normal"
+        header_align     = header_alignment_override or self.resolve("card-table-heading-alignment") or "left"
+        header_height    = float(self.resolve("card-table-heading-height")   or 28)
+        header_border_color = self.resolve("card-table-heading-border-color") or header_bg
 
-        # Data rows
-        row_font_size  = float(self.resolve("card-table-row-font-size")  or 12)
-        row_fg         = self.resolve("card-table-row-font-color")       or "#374151"
-        row_weight     = self.resolve("card-table-row-font-weight")      or "normal"
-        row_style      = self.resolve("card-table-row-font-style")       or "normal"
-        row_height     = float(self.resolve("card-table-row-height")     or 24)
-        row_min_height = float(self.resolve("card-table-row-min-height") or 20)
-        row_bg         = self.resolve("card-table-row-bg-color")         or "transparent"
-        row_align      = self.resolve("card-table-row-alignment")        or "left"
+        # Body rows
+        row_font_size  = float(self.resolve("card-table-body-font-size")  or 12)
+        row_fg         = self.resolve("card-table-body-font-color")       or "#374151"
+        row_weight     = self.resolve("card-table-body-font-weight")      or "normal"
+        row_style      = self.resolve("card-table-body-font-style")       or "normal"
+        row_height     = float(self.resolve("card-table-body-height")     or 24)
+        row_min_height = float(self.resolve("card-table-body-min-height") or 20)
+        row_bg         = self.resolve("card-table-body-bg-color")         or "transparent"
+        row_align      = self.resolve("card-table-body-alignment")        or "left"
 
         # Stripe
         stripe_color   = self.resolve("card-table-stripe-color")         or "#F3F4F6"

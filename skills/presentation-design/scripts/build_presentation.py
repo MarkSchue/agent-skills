@@ -48,6 +48,8 @@ from scripts.rendering.icon_item_text_card import IconItemTextCardRenderer
 from scripts.rendering.numbered_text_card import NumberedTextCardRenderer
 from scripts.rendering.table_card import TableCardRenderer
 from scripts.rendering.timeline_card import TimelineCardRenderer
+from scripts.rendering.scope_card import ScopeCardRenderer
+from scripts.rendering.compare_card import CompareCardRenderer
 from scripts.exporting.pptx_exporter import PptxExporter
 from scripts.exporting.drawio_exporter import DrawioExporter
 
@@ -84,6 +86,10 @@ def _card_renderer_for(
         return TableCardRenderer(theme)
     if card_type in ("timeline-card", "timeline_card"):
         return TimelineCardRenderer(theme)
+    if card_type in ("scope-card", "scope_card"):
+        return ScopeCardRenderer(theme)
+    if card_type in ("compare-card", "compare_card"):
+        return CompareCardRenderer(theme)
     logger.warning("Unknown card type '%s' — falling back to text-card", card_type)
     return TextCardRenderer(theme)
 

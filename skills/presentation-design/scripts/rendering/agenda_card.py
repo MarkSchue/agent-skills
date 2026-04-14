@@ -55,7 +55,7 @@ class AgendaCardRenderer(BaseCardRenderer):
         col3_align = self.resolve("card-agenda-col3-alignment") or "left"
 
         # ── Row geometry (fixed row height token override plus legacy spacing) ───
-        entry_size = float(self.resolve("card-agenda-entry-font-size") or 16)
+        entry_size = float(self.resolve("card-agenda-heading-font-size") or 16)
         entry_spacing = float(self.resolve("card-agenda-entry-spacing") or 12)
         row_height_token = self.resolve("card-agenda-row-height")
         row_h = None
@@ -90,31 +90,31 @@ class AgendaCardRenderer(BaseCardRenderer):
         number_style_inactive = self.resolve("card-agenda-number-font-style") or "normal"
 
         # ── Title column tokens (inactive / active) ───────────────────────
-        # col2 uses entry-specific tokens (h2-style); inactive-color is a
+        # col2 uses heading-specific tokens (h2-style); inactive-color is a
         # secondary fallback so both naming conventions work.
         entry_color_inactive = (
-            self.resolve("card-agenda-entry-font-color")
+            self.resolve("card-agenda-heading-font-color")
             or self.resolve("card-agenda-inactive-color")
             or "#888888"
         )
         entry_weight_inactive = str(
-            self.resolve("card-agenda-entry-font-weight")
+            self.resolve("card-agenda-heading-font-weight")
             or self.resolve("card-agenda-inactive-font-weight")
             or "600"
         )
-        entry_style_inactive = self.resolve("card-agenda-entry-font-style") or "normal"
+        entry_style_inactive = self.resolve("card-agenda-heading-font-style") or "normal"
 
         active_number_color = self.resolve("card-agenda-active-number-color") or "#003087"
-        active_title_color = self.resolve("card-agenda-active-title-color") or "#003087"
-        active_info_color = self.resolve("card-agenda-active-info-color") or "#374151"
+        active_title_color = self.resolve("card-agenda-active-heading-color") or "#003087"
+        active_info_color = self.resolve("card-agenda-active-body-color") or "#374151"
         active_weight = str(self.resolve("card-agenda-active-font-weight") or "700")
         active_style = self.resolve("card-agenda-active-font-style") or "normal"
 
         # ── Info column tokens ────────────────────────────────────────────
-        info_size = float(self.resolve("card-agenda-info-font-size") or 12)
-        info_color = self.resolve("card-agenda-info-font-color") or "#888888"
-        info_weight = str(self.resolve("card-agenda-info-font-weight") or "400")
-        info_style = self.resolve("card-agenda-info-font-style") or "normal"
+        info_size = float(self.resolve("card-agenda-body-font-size") or 12)
+        info_color = self.resolve("card-agenda-body-font-color") or "#888888"
+        info_weight = str(self.resolve("card-agenda-body-font-weight") or "400")
+        info_style = self.resolve("card-agenda-body-font-style") or "normal"
 
         # ── Row separator tokens ──────────────────────────────────────────
         sep_visible_raw = self.resolve("card-agenda-separator-visible")

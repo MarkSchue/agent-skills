@@ -1,4 +1,4 @@
-/* =================================================================
+﻿/* =================================================================
    Presentation Design System — Base CSS Token Set
    =================================================================
    This file defines ALL available design tokens. It is the
@@ -22,6 +22,8 @@
     13. .card--gantt-chart    — Gantt chart card variant tokens
     14. .card--table         — Table card variant tokens
     15. .card--timeline      — Timeline card variant tokens
+    16. .card--scope         — Scope card variant tokens
+    17. .card--compare       — Compare card variant tokens
 
    RULES:
    - Every token must have an inline comment explaining its role.
@@ -576,6 +578,13 @@
     --card-heading-font-style: normal;
     --card-heading-alignment: left;
     /* left | center | right */
+
+    /* Card label defaults — for KPI labels, axis labels, row/column identifiers. */
+    --card-label-font-size: 11;
+    /* px — default label size */
+    --card-label-font-color: var(--color-text-muted);
+    --card-label-font-weight: 400;
+    --card-label-font-style: normal;
 }
 
 
@@ -865,17 +874,17 @@
     --card-quote-accent-width: 4;
     /* px — accent bar width */
 
-    /* Quote text */
-    --card-quote-font-size: 18;
+    /* Quote body text */
+    --card-quote-body-font-size: 18;
     /* px — quote text */
-    --card-quote-font-color: var(--color-text-subtle);
-    --card-quote-font-style: italic;
+    --card-quote-body-font-color: var(--color-text-subtle);
+    --card-quote-body-font-style: italic;
     /* normal | italic | bold | italic bold */
     --card-quote-mark-color: var(--color-border);
     /* quotation mark colour */
     --card-quote-mark-size: 48;
     /* px — decorative mark */
-    --card-quote-text-alignment: left;
+    --card-quote-body-alignment: left;
     /* left | center | right */
 
     /* Attribution */
@@ -926,9 +935,9 @@
     /* px — space between bar and col 1 */
 
     /* ── Active entry text style ──────────────────────────────────────────── */
-    --card-agenda-active-number-color: var(--color-primary);   /* highlighted col 1 — number / indicator */
-    --card-agenda-active-title-color: var(--color-primary);    /* highlighted col 2 — section title */
-    --card-agenda-active-info-color: var(--color-text-subtle); /* highlighted col 3 — info text */
+    --card-agenda-active-number-color: var(--color-primary);    /* highlighted col 1 — number / indicator */
+    --card-agenda-active-heading-color: var(--color-primary);   /* highlighted col 2 — section heading */
+    --card-agenda-active-body-color: var(--color-text-subtle);  /* highlighted col 3 — body text */
     --card-agenda-active-font-weight: 700;
     /* bold weight for active row */
     --card-agenda-active-font-style: normal;
@@ -943,9 +952,9 @@
     /* normal | italic */
 
     /* ── Row geometry ─────────────────────────────────────────────────────── */
-    --card-agenda-entry-font-size: 16;                            /* px — text height for each row */
+    --card-agenda-heading-font-size: 16;                            /* px — text height for each row */
     --card-agenda-row-height: 36;                                 /* px — full row height (controls highlight bar height) */
-    /* --card-agenda-entry-spacing: 12; */                        /* legacy token; row-height overrides it */
+    /* --card-agenda-heading-spacing: 12; */                        /* legacy token; row-height overrides it */
 
     /* ── Row separator line (horizontal rule between entries) ──────────────── */
     --card-agenda-separator-visible: false;
@@ -970,29 +979,29 @@
     --card-agenda-number-font-style: normal;
     /* normal | italic */
 
-    /* ── Column 2 — section title (h2-style) ──────────────────────────────── */
+    /* ── Column 2 — section heading (h2-style) ──────────────────────────────── */
     --card-agenda-col2-width-pct: 55;
     /* % of usable row width (20–60 recommended) */
     --card-agenda-col2-alignment: left;
     /* left | center | right */
-    --card-agenda-entry-font-size: 16;
-    /* px — section title size */
-    --card-agenda-entry-font-color: var(--color-text-subtle);
+    --card-agenda-heading-font-size: 16;
+    /* px — section heading size */
+    --card-agenda-heading-font-color: var(--color-text-subtle);
     /* inactive state colour */
-    --card-agenda-entry-font-weight: 600;
+    --card-agenda-heading-font-weight: 600;
     /* semibold — h2-like */
-    --card-agenda-entry-font-style: normal;
+    --card-agenda-heading-font-style: normal;
     /* normal | italic */
 
-    /* ── Column 3 — optional info (text-body, up to 2 lines) ──────────────── */
+    /* ── Column 3 — optional body text (up to 2 lines) ──────────────────────── */
     --card-agenda-col3-alignment: left;
     /* left | center | right */
-    --card-agenda-info-font-size: 12;
+    --card-agenda-body-font-size: 12;
     /* px */
-    --card-agenda-info-font-color: var(--color-text-muted);
-    /* info text colour */
-    --card-agenda-info-font-weight: 400;
-    --card-agenda-info-font-style: normal;
+    --card-agenda-body-font-color: var(--color-text-muted);
+    /* body text colour */
+    --card-agenda-body-font-weight: 400;
+    --card-agenda-body-font-style: normal;
     /* normal | italic */
 
     /* ── Body icon placeholder — future use ────────────────────────────────── */
@@ -1438,39 +1447,39 @@
    ================================================================= */
 .card--table {
 
-    /* ── Header row ─────────────────────────────────────────────────── */
-    --card-table-header-bg-color: var(--color-primary);
-    /* header row background fill */
-    --card-table-header-font-color: var(--color-on-primary);
-    /* header text colour */
-    --card-table-header-font-size: 12;
-    /* px — header cell font size */
-    --card-table-header-font-weight: 700;
+    /* ── Heading row ─────────────────────────────────────────────────── */
+    --card-table-heading-bg-color: var(--color-primary);
+    /* heading row background fill */
+    --card-table-heading-font-color: var(--color-on-primary);
+    /* heading text colour */
+    --card-table-heading-font-size: 12;
+    /* px — heading cell font size */
+    --card-table-heading-font-weight: 700;
     /* bold by default */
-    --card-table-header-font-style: normal;
+    --card-table-heading-font-style: normal;
     /* normal | italic */
-    --card-table-header-alignment: left;
-    /* left | center | right — default for all header cells */
-    --card-table-header-height: 28;
-    /* px — header row height */
-    --card-table-header-border-color: var(--color-primary);
-    /* border colour below the header row */
+    --card-table-heading-alignment: left;
+    /* left | center | right — default for all heading cells */
+    --card-table-heading-height: 28;
+    /* px — heading row height */
+    --card-table-heading-border-color: var(--color-primary);
+    /* border colour below the heading row */
 
-    /* ── Data rows ──────────────────────────────────────────────────── */
-    --card-table-row-font-size: 12;
+    /* ── Body rows ──────────────────────────────────────────────────── */
+    --card-table-body-font-size: 12;
     /* px */
-    --card-table-row-font-color: var(--color-text-subtle);
+    --card-table-body-font-color: var(--color-text-subtle);
     /* data cell text colour */
-    --card-table-row-font-weight: 400;
-    --card-table-row-font-style: normal;
+    --card-table-body-font-weight: 400;
+    --card-table-body-font-style: normal;
     /* normal | italic */
-    --card-table-row-height: 24;
-    /* px — data row height */
-    --card-table-row-min-height: 20;
+    --card-table-body-height: 24;
+    /* px — body row height */
+    --card-table-body-min-height: 20;
     /* px — minimum row height */
-    --card-table-row-bg-color: var(--color-surface);
+    --card-table-body-bg-color: var(--color-surface);
     /* default row background (transparent = card surface) */
-    --card-table-row-alignment: left;
+    --card-table-body-alignment: left;
     /* default cell text alignment */
 
     /* ── Alternating row stripe ──────────────────────────────────────── */
@@ -1608,6 +1617,216 @@
     --card-timeline-caption-font-size: 10;
     --card-timeline-caption-font-color: var(--color-text-muted);
     --card-timeline-caption-alignment: center;
+
+    /* Footer overrides — uncomment to customise */
+    /* --card-footer-line-visible: false; */
+    /* --card-footer-font-size: 10; */
+    /* --card-footer-font-color: var(--color-text-muted); */
+}
+
+/* =================================================================
+   17. .card--compare — Comparison matrix card variant tokens
+   ================================================================= */
+
+.card--compare {
+
+    /* ── Heading row ───────────────────────────────────────────────── */
+    --card-compare-heading-height: 28;
+    /* px */
+    --card-compare-heading-bg-color: var(--color-primary);
+    /* default heading background (non-highlighted columns) */
+    --card-compare-heading-font-color: var(--color-text-inverse);
+    --card-compare-heading-font-size: 9;
+    /* px */
+    --card-compare-heading-font-weight: 700;
+    --card-compare-heading-font-style: normal;
+    --card-compare-heading-alignment: center;
+    /* left | center | right */
+
+    /* ── Highlighted column — overrides for columns with highlight:true ── */
+    --card-compare-highlight-col-heading-bg-color: var(--color-accent);
+    /* heading bg for highlighted comparison columns */
+    --card-compare-highlight-col-heading-font-color: #FFFFFF;
+    --card-compare-highlight-col-bg-color: var(--color-surface-raised);
+    /* data-row background for highlighted columns */
+
+    /* ── Label column (left) ──────────────────────────────────────── */
+    --card-compare-label-col-visible: true;
+    /* show / hide the left label column */
+    --card-compare-label-col-width-pct: 25;
+    /* label column width as % of total card body width (1–80) */
+    --card-compare-label-col-bg-color: var(--color-surface-sunken);
+    /* background fill for entire label column data area */
+    --card-compare-label-col-heading-bg-color: var(--color-primary);
+    /* heading cell bg for the label column; defaults to heading-bg-color */
+    --card-compare-label-col-heading-font-color: var(--color-text-inverse);
+
+    --card-compare-label-font-size: 11;
+    /* px */
+    --card-compare-label-font-color: var(--color-text-default);
+    --card-compare-label-font-weight: 700;
+    --card-compare-label-font-style: normal;
+    --card-compare-label-alignment: left;
+    /* left | center | right */
+
+    /* ── Label marker (badge beside the label) ─────────────────────── */
+    --card-compare-label-marker: none;
+    /* none | number | icon
+       none   → plain text only (no badge)
+       number → sequential 1-based number in a filled circle/square
+       icon   → per-row topic.icon field rendered inside a circle/square */
+    --card-compare-label-badge-shape: circle;
+    /* circle | square | none */
+    --card-compare-label-badge-color: var(--color-accent);
+    /* badge background fill */
+    --card-compare-label-badge-size: 18;
+    /* px — diameter / side length */
+    --card-compare-label-badge-font-size: 8;
+    /* px — text size inside badge */
+    --card-compare-label-badge-font-color: #FFFFFF;
+    /* text / icon colour inside badge */
+    --card-compare-label-badge-gap: 6;
+    /* px — horizontal gap between badge right edge and label text */
+
+    /* ── Body cells ───────────────────────────────────────────────── */
+    --card-compare-body-font-size: 11;
+    /* px */
+    --card-compare-body-font-color: var(--color-text-subtle);
+    --card-compare-body-font-weight: 400;
+    --card-compare-body-font-style: normal;
+    --card-compare-body-alignment: center;
+    /* left | center | right — default alignment for all cells */
+    --card-compare-body-bg-color: transparent;
+    /* per-cell background; overridable per cell via cell.bg_color */
+    --card-compare-body-icon-size: 14;
+    /* px — size of icon element rendered in a cell */
+    --card-compare-body-icon-color: var(--color-text-default);
+    /* default icon colour (overridable per cell via cell.color) */
+    --card-compare-body-padding-x: 6;
+    /* px — horizontal inner padding inside each cell */
+    --card-compare-body-padding-y: 4;
+    /* px — vertical inner padding inside each cell */
+
+    /* ── Row geometry ─────────────────────────────────────────────── */
+    --card-compare-row-height: 32;
+    /* px — fixed row height; scaled down proportionally when rows exceed space */
+    --card-compare-row-min-height: 24;
+    /* px — minimum row height after scaling */
+    --card-compare-row-stripe-visible: false;
+    /* alternate-row background tint */
+    --card-compare-row-stripe-color: var(--color-surface-sunken);
+    --card-compare-row-separator-visible: true;
+    /* horizontal line between rows */
+    --card-compare-row-separator-color: var(--color-border);
+    --card-compare-row-separator-width: 1;
+    /* px */
+
+    /* ── Column separators ────────────────────────────────────────── */
+    --card-compare-col-separator-visible: true;
+    /* vertical line between columns */
+    --card-compare-col-separator-color: var(--color-border);
+    --card-compare-col-separator-width: 1;
+    /* px */
+
+    /* ── Outer grid border (around the entire table area) ─────────── */
+    --card-compare-grid-border-visible: true;
+    --card-compare-grid-border-color: var(--color-border);
+    --card-compare-grid-border-width: 1;
+    /* px */
+
+    /* ── Summary / result row (optional bottom row) ───────────────── */
+    --card-compare-summary-height: 32;
+    /* px */
+    --card-compare-summary-bg-color: var(--color-primary);
+    /* default background for the entire summary row */
+    --card-compare-summary-font-color: var(--color-text-inverse);
+    --card-compare-summary-font-size: 11;
+    /* px */
+    --card-compare-summary-font-weight: 700;
+    --card-compare-summary-font-style: normal;
+    --card-compare-summary-alignment: center;
+    /* left | center | right */
+    --card-compare-summary-highlight-bg-color: var(--color-accent);
+    /* bg for cells with highlighted:true in the summary row */
+    --card-compare-summary-highlight-font-color: #FFFFFF;
+
+    /* Footer overrides — uncomment to customise */
+    /* --card-footer-line-visible: false; */
+    /* --card-footer-font-size: 10; */
+    /* --card-footer-font-color: var(--color-text-muted); */
+}
+   ================================================================= */
+
+.card--scope {
+
+    /* ── Grid layout ─────────────────────────────────────────────── */
+    --card-scope-columns: 2;
+    /* number of tile columns (1–4); overridable via content.layout_columns */
+    --card-scope-item-gap: 12;
+    /* px — gap between tiles (horizontal and vertical) */
+
+    /* ── Tile container ───────────────────────────────────────────── */
+    --card-scope-item-bg-color: var(--color-surface-subtle);
+    /* tile background fill */
+    --card-scope-item-border-color: var(--color-border);
+    /* tile border colour */
+    --card-scope-item-border-width: 1;
+    /* px — tile border width (0 to disable) */
+    --card-scope-item-border-radius: 4;
+    /* px — tile corner radius */
+    --card-scope-item-padding: 12;
+    /* px — inner padding inside each tile */
+
+    /* ── Badge / marker ───────────────────────────────────────────── */
+    --card-scope-badge-size: 20;
+    /* px — diameter of the circular badge */
+    --card-scope-badge-font-size: 9;
+    /* px — number / text size inside badge */
+    --card-scope-badge-font-color: #FFFFFF;
+    /* colour of number / icon rendered inside the badge */
+    --card-scope-badge-gap: 8;
+    /* px — horizontal gap from badge right edge to title text */
+
+    /* ── Marker type ──────────────────────────────────────────────── */
+    --card-scope-item-marker: number;
+    /* number | check | icon
+       number  → sequential number inside a filled circle
+       check   → checkmark icon inside a filled circle (uses check-icon-name)
+       icon    → per-item icon field inside a filled circle               */
+    --card-scope-check-icon-name: check;
+    /* Material Symbols ligature used for "check" and "icon" marker modes */
+
+    /* ── Status badge colours ─────────────────────────────────────── */
+    --card-scope-status-in-scope-color: var(--color-accent);
+    /* badge fill for status: in-scope (default) */
+    --card-scope-status-out-of-scope-color: var(--color-text-muted);
+    /* badge fill for status: out-of-scope */
+    --card-scope-status-conditional-color: var(--color-warning);
+    /* badge fill for status: conditional */
+
+    /* ── Item heading ─────────────────────────────────────────────── */
+    --card-scope-item-heading-font-size: 11;
+    /* px */
+    --card-scope-item-heading-font-color: var(--color-text-default);
+    --card-scope-item-heading-font-weight: 700;
+    --card-scope-item-heading-line-height: 1.2;
+    /* unitless — multiplier applied to heading font size */
+
+    /* ── Item body text ───────────────────────────────────────────── */
+    --card-scope-item-body-font-size: 9;
+    /* px */
+    --card-scope-item-body-font-color: var(--color-text-muted);
+    --card-scope-item-body-font-weight: 400;
+    --card-scope-item-body-margin-top: 4;
+    /* px — gap between heading row and body text */
+
+    /* ── Optional status label (small tag at tile bottom-right) ───── */
+    --card-scope-status-label-visible: false;
+    /* set to true to show the status string (e.g. "conditional") in the tile */
+    --card-scope-status-label-font-size: 8;
+    /* px */
+    --card-scope-status-label-gap: 4;
+    /* px — gap above status label */
 
     /* Footer overrides — uncomment to customise */
     /* --card-footer-line-visible: false; */

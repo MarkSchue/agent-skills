@@ -28,7 +28,7 @@ are supported. In draw.io a standard table shape is used.
 └─────────────────────────────────────────────────────┘
 ```
 
-- The header row uses `--card-table-header-*` tokens for background and text.
+- The heading row uses `--card-table-heading-*` tokens for background and text.
 - Data rows can optionally alternate background colour (`--card-table-stripe-*`).
 - The sum/total row (last row) uses `--card-table-sum-*` tokens when
   `content.sum_row: true` is set.

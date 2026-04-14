@@ -1,4 +1,4 @@
-# Token Reference — CSS Design Token Catalogue
+﻿# Token Reference — CSS Design Token Catalogue
 
 This file is the complete catalogue of all CSS design tokens available in the
 presentation design system. It is auto-generated from `themes/base.css`.
@@ -346,10 +346,117 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | Token | Default |
 |-------|---------|
 | `--card-agenda-active-number-color` | var(--color-primary) | highlighted col 1 — number |
-| `--card-agenda-active-title-color` | var(--color-primary) | highlighted col 2 — section title |
-| `--card-agenda-active-info-color` | var(--color-text-subtle) | highlighted col 3 — info text |
+| `--card-agenda-active-heading-color` | var(--color-primary) | highlighted col 2 — section title |
+| `--card-agenda-active-body-color` | var(--color-text-subtle) | highlighted col 3 — info text |
 | `--card-agenda-active-font-weight` | 700 |
 | `--card-agenda-inactive-color` | #9CA3AF |
 | `--card-agenda-inactive-font-weight` | 400 |
-| `--card-agenda-entry-font-size` | 16 |
+| `--card-agenda-heading-font-size` | 16 |
 | `--card-agenda-row-height` | 36 |
+
+---
+
+### Scope — `.card--scope`
+
+| Token | Default | Description |
+|-------|---------|-------------|
+| `--card-scope-columns` | `2` | Tile columns (1–4); `content.layout_columns` takes priority |
+| `--card-scope-item-gap` | `12` | px — horizontal and vertical gap between tiles |
+| `--card-scope-item-bg-color` | `var(--color-surface-subtle)` | Tile background fill |
+| `--card-scope-item-border-color` | `var(--color-border)` | Tile border colour |
+| `--card-scope-item-border-width` | `1` | px — tile border width (0 to disable) |
+| `--card-scope-item-border-radius` | `4` | px — tile corner radius |
+| `--card-scope-item-padding` | `12` | px — inner tile padding |
+| `--card-scope-badge-size` | `20` | px — diameter of the marker badge circle |
+| `--card-scope-badge-font-size` | `9` | px — font size inside badge |
+| `--card-scope-badge-font-color` | `#FFFFFF` | Text / icon colour inside badge |
+| `--card-scope-badge-gap` | `8` | px — gap from badge right edge to title text |
+| `--card-scope-item-marker` | `number` | `number` \| `check` \| `icon` — badge interior style |
+| `--card-scope-check-icon-name` | `check` | Material Symbols ligature for check/icon modes |
+| `--card-scope-status-in-scope-color` | `var(--color-accent)` | Badge fill for `in-scope` status |
+| `--card-scope-status-out-of-scope-color` | `var(--color-text-muted)` | Badge fill for `out-of-scope` |
+| `--card-scope-status-conditional-color` | `var(--color-warning)` | Badge fill for `conditional` |
+| `--card-scope-item-heading-font-size` | `11` | px |
+| `--card-scope-item-heading-font-color` | `var(--color-text-default)` | Item heading colour |
+| `--card-scope-item-heading-font-weight` | `700` | Item heading weight |
+| `--card-scope-item-heading-line-height` | `1.2` | Unitless multiplier for heading line height |
+| `--card-scope-item-body-font-size` | `9` | px — body text size |
+| `--card-scope-item-body-font-color` | `var(--color-text-muted)` | Body text colour |
+| `--card-scope-item-body-font-weight` | `400` | Body weight |
+| `--card-scope-item-body-margin-top` | `4` | px — gap between heading row and body text |
+| `--card-scope-status-label-visible` | `false` | Show status string at tile bottom-right |
+| `--card-scope-status-label-font-size` | `8` | px — status label font size |
+| `--card-scope-status-label-gap` | `4` | px — gap above status label |
+
+### Compare — `.card--compare`
+
+| Token | Default | Description |
+|-------|---------|-------------|
+| **Header row** | | |
+| `--card-compare-heading-height` | `28` | px — row height of the header |
+| `--card-compare-heading-bg-color` | `var(--color-primary)` | Default header cell background |
+| `--card-compare-heading-font-color` | `var(--color-text-inverse)` | Header label text colour |
+| `--card-compare-heading-font-size` | `11` | px |
+| `--card-compare-heading-font-weight` | `700` | |
+| `--card-compare-heading-font-style` | `normal` | |
+| `--card-compare-heading-alignment` | `center` | `left` \| `center` \| `right` |
+| **Highlighted column** | | |
+| `--card-compare-highlight-col-heading-bg-color` | `var(--color-accent)` | Header bg for highlighted columns |
+| `--card-compare-highlight-col-heading-font-color` | `#FFFFFF` | Header text for highlighted columns |
+| `--card-compare-highlight-col-bg-color` | `var(--color-surface-raised)` | Data-area background for highlighted columns |
+| **Topic column** | | |
+| `--card-compare-label-col-visible` | `true` | Show/hide left topic column |
+| `--card-compare-label-col-width-pct` | `25` | Width of topic column as % of card width |
+| `--card-compare-label-col-bg-color` | `var(--color-surface-sunken)` | Topic column background |
+| `--card-compare-label-col-heading-bg-color` | `var(--color-primary)` | Topic column header background |
+| `--card-compare-label-col-heading-font-color` | `var(--color-text-inverse)` | Topic column header text colour |
+| `--card-compare-label-font-size` | `11` | px — topic label text |
+| `--card-compare-label-font-color` | `var(--color-text-default)` | |
+| `--card-compare-label-font-weight` | `700` | |
+| `--card-compare-label-font-style` | `normal` | |
+| `--card-compare-label-alignment` | `left` | |
+| **Topic marker / badge** | | |
+| `--card-compare-label-marker` | `none` | `none` \| `number` \| `icon` |
+| `--card-compare-label-badge-shape` | `circle` | `circle` \| `square` \| `none` |
+| `--card-compare-label-badge-color` | `var(--color-accent)` | Badge background fill |
+| `--card-compare-label-badge-size` | `18` | px — badge width & height |
+| `--card-compare-label-badge-font-size` | `8` | px — text inside badge |
+| `--card-compare-label-badge-font-color` | `#FFFFFF` | Colour inside badge |
+| `--card-compare-label-badge-gap` | `6` | px — gap from badge right edge to label |
+| **Data cells** | | |
+| `--card-compare-body-font-size` | `11` | px |
+| `--card-compare-body-font-color` | `var(--color-text-subtle)` | |
+| `--card-compare-body-font-weight` | `400` | |
+| `--card-compare-body-font-style` | `normal` | |
+| `--card-compare-body-alignment` | `center` | `left` \| `center` \| `right` |
+| `--card-compare-body-bg-color` | `transparent` | Default per-cell background (can be overridden per cell in YAML) |
+| `--card-compare-body-icon-size` | `14` | px — icon element size in cells |
+| `--card-compare-body-icon-color` | `var(--color-text-default)` | Default icon colour (overridable per cell) |
+| `--card-compare-body-padding-x` | `6` | px — horizontal inner cell padding |
+| `--card-compare-body-padding-y` | `4` | px — vertical inner cell padding |
+| **Row geometry** | | |
+| `--card-compare-row-height` | `32` | px — fixed data row height |
+| `--card-compare-row-min-height` | `24` | px — minimum row height when auto-scaling |
+| `--card-compare-row-stripe-visible` | `false` | Alternating row stripe |
+| `--card-compare-row-stripe-color` | `var(--color-surface-sunken)` | |
+| `--card-compare-row-separator-visible` | `true` | Horizontal lines between rows |
+| `--card-compare-row-separator-color` | `var(--color-border)` | |
+| `--card-compare-row-separator-width` | `1` | px |
+| **Column separators** | | |
+| `--card-compare-col-separator-visible` | `true` | Vertical lines between columns |
+| `--card-compare-col-separator-color` | `var(--color-border)` | |
+| `--card-compare-col-separator-width` | `1` | px |
+| **Outer border** | | |
+| `--card-compare-grid-border-visible` | `true` | Outer rect stroke |
+| `--card-compare-grid-border-color` | `var(--color-border)` | |
+| `--card-compare-grid-border-width` | `1` | px |
+| **Summary row** | | |
+| `--card-compare-summary-height` | `32` | px |
+| `--card-compare-summary-bg-color` | `var(--color-primary)` | Full-width background |
+| `--card-compare-summary-font-color` | `var(--color-text-inverse)` | |
+| `--card-compare-summary-font-size` | `11` | px |
+| `--card-compare-summary-font-weight` | `700` | |
+| `--card-compare-summary-font-style` | `normal` | |
+| `--card-compare-summary-alignment` | `center` | |
+| `--card-compare-summary-highlight-bg-color` | `var(--color-accent)` | Accent background for cells with `highlighted: true` |
+| `--card-compare-summary-highlight-font-color` | `#FFFFFF` | Text colour in highlighted summary cells |

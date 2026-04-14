@@ -445,18 +445,24 @@ class BaseLayoutRenderer(ABC):
         footer_top = canvas_h - mb - footer_h
 
         # Footer line
-        canvas.add(
-            {
-                "type": "line",
-                "x1": ml,
-                "y1": footer_top,
-                "x2": canvas_w - mr,
-                "y2": footer_top,
-                "stroke": self._resolve("slide-divider-border-color", overrides)
-                or "#CCCCCC",
-                "stroke_width": 1,
-            }
+        footer_line_width = float(
+            self._resolve("slide-footer-line-border-width", overrides) or 0
         )
+        if footer_line_width > 0:
+            canvas.add(
+                {
+                    "type": "line",
+                    "x1": ml,
+                    "y1": footer_top,
+                    "x2": canvas_w - mr,
+                    "y2": footer_top,
+                    "stroke": self._resolve(
+                        "slide-footer-line-border-color", overrides
+                    )
+                    or "#CCCCCC",
+                    "stroke_width": footer_line_width,
+                }
+            )
 
         # Footer text placeholder (left-aligned)
         canvas.add(

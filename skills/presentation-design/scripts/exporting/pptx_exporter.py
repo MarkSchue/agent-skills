@@ -409,16 +409,23 @@ class PptxExporter:
 
         run = p.runs[0] if p.runs else p.add_run()
         # font_size tokens are in px; convert to pt (1pt = 96/72 px at 96 DPI)
-        run.font.size = Pt(float(elem.get("font_size", 14)) * 72 / 96)
+        font_size_pt = Pt(float(elem.get("font_size", 14)) * 72 / 96)
         color = _rgb(str(elem.get("font_color", "#000000")))
-        if color:
-            run.font.color.rgb = color
         weight = elem.get("font_weight", "normal")
         style = str(elem.get("font_style") or "").lower()
-        run.font.bold = str(weight).lower() in ("bold", "700") or "bold" in style
-        run.font.italic = "italic" in style
-        if font_family:
-            run.font.name = str(font_family)
+        is_bold = str(weight).lower() in ("bold", "700") or "bold" in style
+        is_italic = "italic" in style
+        # Apply font properties to ALL runs — p.text setter splits on \n and
+        # creates multiple <a:r> runs via add_br(); only setting run[0] would
+        # leave subsequent runs with the slide-default (large) font size.
+        for r in p.runs:
+            r.font.size = font_size_pt
+            if color:
+                r.font.color.rgb = color
+            r.font.bold = is_bold
+            r.font.italic = is_italic
+            if font_family:
+                r.font.name = str(font_family)
 
     def _add_line(self, slide, elem: dict[str, Any]) -> None:
         connector = slide.shapes.add_connector(

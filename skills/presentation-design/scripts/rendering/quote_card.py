@@ -22,9 +22,9 @@ class QuoteCardRenderer(BaseCardRenderer):
 
         accent_color = self.resolve("card-quote-accent-color") or "#003087"
         accent_width = float(self.resolve("card-quote-accent-width") or 4)
-        quote_size = float(self.resolve("card-quote-font-size") or 16)
-        quote_color = self.resolve("card-quote-font-color") or "#333333"
-        quote_style = self.resolve("card-quote-font-style") or "italic"
+        quote_size = float(self.resolve("card-quote-body-font-size") or 16)
+        quote_color = self.resolve("card-quote-body-font-color") or "#333333"
+        quote_style = self.resolve("card-quote-body-font-style") or "italic"
 
         y = box.y
 
@@ -45,7 +45,7 @@ class QuoteCardRenderer(BaseCardRenderer):
         # Quote text (indented past the accent bar)
         text_x = bar_x + accent_width + 12
         text_w = box.w - accent_width - 12
-        quote_text_align = self.resolve("card-quote-text-alignment") or "left"
+        quote_text_align = self.resolve("card-quote-body-alignment") or "left"
         attribution_align = self.resolve("card-quote-attribution-alignment") or "left"
         box.add(
             {
