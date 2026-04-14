@@ -296,10 +296,11 @@ class PptxExporter:
             except Exception:
                 pass
         stroke_color = _rgb(str(elem.get("stroke", "")))
-        if stroke_color:
+        stroke_width = float(elem.get("stroke_width", 1))
+        if stroke_color and stroke_width > 0:
             from pptx.util import Pt
             shape.line.color.rgb = stroke_color
-            shape.line.width = Pt(float(elem.get("stroke_width", 1)) * 72 / 96)
+            shape.line.width = Pt(stroke_width * 72 / 96)
         else:
             shape.line.fill.background()
 
@@ -345,9 +346,10 @@ class PptxExporter:
                 pass
 
         stroke_color = _rgb(str(elem.get("stroke", "")))
-        if stroke_color:
+        stroke_width = float(elem.get("stroke_width", 1))
+        if stroke_color and stroke_width > 0:
             shape.line.color.rgb = stroke_color
-            shape.line.width = Pt(float(elem.get("stroke_width", 1)) * 72 / 96)
+            shape.line.width = Pt(stroke_width * 72 / 96)
         else:
             shape.line.fill.background()
 
@@ -403,13 +405,13 @@ class PptxExporter:
         line_height = elem.get("line_height")
         if line_height is not None:
             try:
-                p.line_spacing = Pt(float(line_height) * 72 / 96)
+                p.line_spacing = Pt(float(line_height))
             except Exception:
                 pass
 
         run = p.runs[0] if p.runs else p.add_run()
-        # font_size tokens are in px; convert to pt (1pt = 96/72 px at 96 DPI)
-        font_size_pt = Pt(float(elem.get("font_size", 14)) * 72 / 96)
+        # Font-size tokens are defined in pt — use directly (no px→pt conversion needed)
+        font_size_pt = Pt(float(elem.get("font_size", 14)))
         color = _rgb(str(elem.get("font_color", "#000000")))
         weight = elem.get("font_weight", "normal")
         style = str(elem.get("font_style") or "").lower()
@@ -463,14 +465,42 @@ class PptxExporter:
             pass
 
     def _add_icon(self, slide, elem: dict[str, Any]) -> None:
-        """Render an icon element — SVG download preferred, Unicode fallback."""
+        """Render an icon element — Unicode text for known icons, SVG→PNG for others.
+
+        Logic mirrors draw.io: icons whose names are in ``_ICON_UNICODE_MAP`` and
+        whose font-family is a Material Symbols / Phosphor family are rendered as a
+        centered Unicode character so they fill their bounding box exactly (SVG
+        files from the Google Fonts API have built-in design margins of ~10–15 %
+        which would make the glyph visibly smaller than its badge outline).
+        Unknown icons fall through to the SVG→PNG path.
+        """
         name = str(elem.get("name", ""))
         color = str(elem.get("color") or "#000000")
         font_family = str(elem.get("font_family") or "")
         x, y = elem["x"], elem["y"]
         size = float(elem.get("w") or elem.get("h") or 20)
+        # Caller may supply an explicit font_size (e.g. scope card: badge_size * 0.65)
+        font_size = float(elem.get("font_size") or size)
 
-        # Try SVG→PNG conversion for PPTX (python-pptx uses PIL which can't read SVG)
+        # ── Known icons: render as centered Unicode text (same as draw.io) ──────
+        icon_family_lower = font_family.lower()
+        if name in _ICON_UNICODE_MAP and any(
+            marker in icon_family_lower
+            for marker in ("material icons", "material symbols", "phosphor")
+        ):
+            self._add_text(slide, {
+                "type": "text",
+                "x": x, "y": y, "w": size, "h": size,
+                "text": _ICON_UNICODE_MAP[name],
+                "font_size": font_size,
+                "font_color": color,
+                "font_weight": "bold",
+                "alignment": "center",
+                "vertical_align": "middle",
+            })
+            return
+
+        # ── Unknown icons: try SVG→PNG via cairosvg ──────────────────────────────
         png_path = self._icon_resolver.resolve_png(name, font_family, color, size=int(size * 2))
         if png_path is not None:
             try:
@@ -482,16 +512,17 @@ class PptxExporter:
             except Exception as exc:
                 logger.warning("PPTX PNG picture failed for %s: %s — falling back to Unicode", name, exc)
 
-        # Fallback: Unicode symbol substitution
+        # ── Final fallback: Unicode symbol, vertically centred ───────────────────
         fallback_char = _ICON_UNICODE_MAP.get(name, _ICON_FALLBACK_GLYPH)
         self._add_text(slide, {
             "type": "text",
             "x": x, "y": y, "w": size, "h": size,
             "text": fallback_char,
-            "font_size": size,
+            "font_size": font_size,
             "font_color": color,
-            "font_weight": "normal",
+            "font_weight": "bold",
             "alignment": "center",
+            "vertical_align": "middle",
         })
 
     def _add_image(self, slide, elem: dict[str, Any]) -> None:
@@ -522,6 +553,27 @@ class PptxExporter:
         if img_path:
             try:
                 picture = None
+
+                # Compute aspect-ratio-preserving box (fit=contain, centered)
+                target_w = float(elem["w"])
+                target_h = float(elem["h"])
+                fit_x = float(elem["x"])
+                fit_y = float(elem["y"])
+                fit_w = target_w
+                fit_h = target_h
+                try:
+                    from PIL import Image as _PILImg
+                    with _PILImg.open(img_path) as _img:
+                        nat_w, nat_h = _img.size
+                    if nat_w > 0 and nat_h > 0:
+                        scale = min(target_w / nat_w, target_h / nat_h)
+                        fit_w = nat_w * scale
+                        fit_h = nat_h * scale
+                        fit_x = float(elem["x"]) + (target_w - fit_w) / 2
+                        fit_y = float(elem["y"]) + (target_h - fit_h) / 2
+                except Exception:
+                    pass  # PIL unavailable or image unreadable — use full box
+
                 # python-pptx does not support SVG natively; try cairosvg conversion
                 if img_path.lower().endswith(".svg"):
                     try:
@@ -529,20 +581,20 @@ class PptxExporter:
                         png_bytes = cairosvg.svg2png(url=img_path)
                         picture = slide.shapes.add_picture(
                             io.BytesIO(png_bytes),
-                            _px(elem["x"]),
-                            _px(elem["y"]),
-                            _px(elem["w"]),
-                            _px(elem["h"]),
+                            _px(fit_x),
+                            _px(fit_y),
+                            _px(fit_w),
+                            _px(fit_h),
                         )
                     except ImportError:
                         logger.info("cairosvg not available — SVG logo skipped in PPTX (%s)", src)
                 else:
                     picture = slide.shapes.add_picture(
                         img_path,
-                        _px(elem["x"]),
-                        _px(elem["y"]),
-                        _px(elem["w"]),
-                        _px(elem["h"]),
+                        _px(fit_x),
+                        _px(fit_y),
+                        _px(fit_w),
+                        _px(fit_h),
                     )
                 if picture is not None:
                     try:
@@ -680,7 +732,7 @@ class PptxExporter:
                     run = para.add_run()
                     run.text = cell_text
 
-                run.font.size = Pt(font_size * 72 / 96)
+                run.font.size = Pt(font_size)
                 run.font.bold = is_bold
                 run.font.italic = is_italic
                 fg_rgb = _rgb(fg_hex)

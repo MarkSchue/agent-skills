@@ -108,7 +108,7 @@ class BaseLayoutRenderer(ABC):
                     "x": ml,
                     "y": y_cursor,
                     "w": canvas_w - ml - mr,
-                    "h": title_size + 8,
+                    "h": title_size * 1.2 + 8,
                     "text": slide.title,
                     "font_size": title_size,
                     "font_color": self._resolve("slide-title-font-color", overrides)
@@ -123,7 +123,7 @@ class BaseLayoutRenderer(ABC):
                     or "left",
                 }
             )
-            y_cursor += title_size + 8
+            y_cursor += title_size * 1.2 + 8
 
         # Subtitle
         if slide.subtitle:

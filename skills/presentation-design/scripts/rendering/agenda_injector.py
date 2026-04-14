@@ -47,15 +47,25 @@ class AgendaInjector:
         if not config.get("auto_agenda", True):
             return deck
 
-        section_titles = deck.section_titles
+        # Skip anonymous (empty-title) sections such as the title slide wrapper
+        content_pairs = [
+            (orig_idx, sec)
+            for orig_idx, sec in enumerate(deck.sections)
+            if sec.title.strip()
+        ]
+
+        if len(content_pairs) < 2:
+            return deck
+
+        section_titles = [sec.title for _, sec in content_pairs]
 
         if config:
             agenda = AgendaModel.from_agenda_config(section_titles, config)
         else:
             agenda = AgendaModel.from_section_titles(section_titles)
 
-        for idx, section in enumerate(deck.sections):
-            agenda_slide = self._build_agenda_slide(agenda, idx, config)
+        for agenda_idx, (_, section) in enumerate(content_pairs):
+            agenda_slide = self._build_agenda_slide(agenda, agenda_idx, config)
             section.slides.insert(0, agenda_slide)
 
         return deck

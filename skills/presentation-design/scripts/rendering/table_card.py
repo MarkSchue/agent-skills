@@ -53,14 +53,14 @@ class TableCardRenderer(BaseCardRenderer):
         header_border_color = self.resolve("card-table-heading-border-color") or header_bg
 
         # Body rows
-        row_font_size  = float(self.resolve("card-table-body-font-size")  or 12)
-        row_fg         = self.resolve("card-table-body-font-color")       or "#374151"
-        row_weight     = self.resolve("card-table-body-font-weight")      or "normal"
-        row_style      = self.resolve("card-table-body-font-style")       or "normal"
-        row_height     = float(self.resolve("card-table-body-height")     or 24)
-        row_min_height = float(self.resolve("card-table-body-min-height") or 20)
-        row_bg         = self.resolve("card-table-body-bg-color")         or "transparent"
-        row_align      = self.resolve("card-table-body-alignment")        or "left"
+        body_font_size  = float(self.resolve("card-table-body-font-size")  or 12)
+        body_fg         = self.resolve("card-table-body-font-color")       or "#374151"
+        body_weight     = self.resolve("card-table-body-font-weight")      or "normal"
+        body_style      = self.resolve("card-table-body-font-style")       or "normal"
+        body_height     = float(self.resolve("card-table-body-height")     or 24)
+        body_min_height = float(self.resolve("card-table-body-min-height") or 20)
+        body_bg         = self.resolve("card-table-body-bg-color")         or "transparent"
+        body_align      = self.resolve("card-table-body-alignment")        or "left"
 
         # Stripe
         stripe_color   = self.resolve("card-table-stripe-color")         or "#F3F4F6"
@@ -129,21 +129,21 @@ class TableCardRenderer(BaseCardRenderer):
             if stripe_visible and (i % 2 == 1):
                 bg = stripe_color
             else:
-                bg = row_bg if row_bg and row_bg.lower() != "transparent" else "#FFFFFF"
+                bg = body_bg if body_bg and body_bg.lower() != "transparent" else "#FFFFFF"
 
-            # Per-column alignment — fall back to row_align
+            # Per-column alignment — fall back to body_align
             aligns = []
             for ci in range(n_cols):
-                aligns.append(col_alignments[ci] if ci < len(col_alignments) else row_align)
+                aligns.append(col_alignments[ci] if ci < len(col_alignments) else body_align)
 
             all_rows.append({
                 "cells": cells,
                 "bg_color": bg,
-                "font_color": row_fg,
-                "font_size": row_font_size,
-                "font_weight": row_weight,
-                "font_style": row_style,
-                "row_height": max(row_height, row_min_height),
+                "font_color": body_fg,
+                "font_size": body_font_size,
+                "font_weight": body_weight,
+                "font_style": body_style,
+                "row_height": max(body_height, body_min_height),
                 "is_header": False,
                 "is_sum": False,
                 "alignments": aligns,
@@ -163,7 +163,7 @@ class TableCardRenderer(BaseCardRenderer):
                 "font_size": sum_font_size,
                 "font_weight": sum_weight,
                 "font_style": sum_style,
-                "row_height": max(sum_height, row_min_height),
+                "row_height": max(sum_height, body_min_height),
                 "is_header": False,
                 "is_sum": True,
                 "alignments": s_aligns,

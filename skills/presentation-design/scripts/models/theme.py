@@ -13,6 +13,7 @@ implements the 4-level override priority chain:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -116,20 +117,22 @@ class ThemeTokens:
         if overrides:
             # Allow both dash-style and underscore-style keys
             if token_name in overrides:
-                return overrides[token_name]
+                candidate = overrides[token_name]
+                return self._resolve_var_reference(candidate, variant, overrides)
             underscore_key = token_name.replace("-", "_")
             if underscore_key in overrides:
-                return overrides[underscore_key]
+                candidate = overrides[underscore_key]
+                return self._resolve_var_reference(candidate, variant, overrides)
 
         # 2. Variant class token
         if variant and variant in self.variant_tokens:
             vt = self.variant_tokens[variant]
             if token_name in vt:
-                return vt[token_name]
+                return self._resolve_var_reference(vt[token_name], variant, overrides)
 
         # 3. Base class token
         if token_name in self.base_tokens:
-            return self.base_tokens[token_name]
+            return self._resolve_var_reference(self.base_tokens[token_name], variant, overrides)
 
         # 4. Python fallback
         return FALLBACK_DEFAULTS.get(token_name)
@@ -143,3 +146,40 @@ class ThemeTokens:
         if variant not in self.variant_tokens:
             self.variant_tokens[variant] = {}
         self.variant_tokens[variant][token_name] = value
+
+    def _resolve_var_reference(
+        self,
+        value: Any,
+        variant: str | None = None,
+        overrides: dict[str, Any] | None = None,
+    ) -> Any:
+        """Resolve a one-level ``var(--token-name)`` reference in a token value."""
+        if not isinstance(value, str):
+            return value
+
+        match = re.match(r"^var\(--(.+)\)$", value)
+        if not match:
+            return value
+
+        ref = match.group(1)
+
+        # First check overrides, allowing dash/underscore names.
+        if overrides:
+            if ref in overrides:
+                return overrides[ref]
+            override_key = ref.replace("-", "_")
+            if override_key in overrides:
+                return overrides[override_key]
+
+        # Then variant token values.
+        if variant and variant in self.variant_tokens:
+            vt = self.variant_tokens[variant]
+            if ref in vt:
+                return vt[ref]
+
+        # Then base token values.
+        if ref in self.base_tokens:
+            return self.base_tokens[ref]
+
+        # Finally, Python fallback defaults.
+        return FALLBACK_DEFAULTS.get(ref, value)

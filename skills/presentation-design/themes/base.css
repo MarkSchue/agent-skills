@@ -252,7 +252,7 @@
     /* -----------------------------------------------------------------
      Slide Title
      ----------------------------------------------------------------- */
-    --slide-title-font-size: 28;
+    --slide-title-font-size: 16;
     /* px */
     --slide-title-font-color: var(--color-text-default);
     /* title text colour */
@@ -465,7 +465,7 @@
     /* box shadow */
 
     /* Card title */
-    --card-title-font-size: 16;
+    --card-title-font-size: 14;
     /* px */
     --card-title-font-color: var(--color-text-default);
     /* title text colour */
@@ -506,7 +506,7 @@
     --card-title-line-alignment: left;
     /* left | center | right | full */
     --card-title-line-visible: true;
-    --card-title-line-gap: 8;
+    --card-title-line-gap: 10;
     /* px — breathing room between title baseline and divider */
 
     /* Card subtitle (optional — below header line, above body)
@@ -797,7 +797,7 @@
     /* tick-label colour; defaults to axis-color */
     --card-chart-axis-font-style: normal;
     /* normal | italic | bold | italic bold */
-    --card-chart-axis-title-font-size: 10;
+    --card-chart-axis-title-font-size: 14;
     /* axis title (x_axis.title / y_axis.title) font size */
     --card-chart-axis-title-font-color: var(--color-text-muted);
 
@@ -875,7 +875,7 @@
     /* px — accent bar width */
 
     /* Quote body text */
-    --card-quote-body-font-size: 18;
+    --card-quote-body-font-size: 14;
     /* px — quote text */
     --card-quote-body-font-color: var(--color-text-subtle);
     --card-quote-body-font-style: italic;
@@ -952,7 +952,7 @@
     /* normal | italic */
 
     /* ── Row geometry ─────────────────────────────────────────────────────── */
-    --card-agenda-heading-font-size: 16;                            /* px — text height for each row */
+    --card-agenda-heading-font-size: 14;                            /* px — text height for each row */
     --card-agenda-row-height: 36;                                 /* px — full row height (controls highlight bar height) */
     /* --card-agenda-heading-spacing: 12; */                        /* legacy token; row-height overrides it */
 
@@ -984,7 +984,7 @@
     /* % of usable row width (20–60 recommended) */
     --card-agenda-col2-alignment: left;
     /* left | center | right */
-    --card-agenda-heading-font-size: 16;
+    --card-agenda-heading-font-size: 14;
     /* px — section heading size */
     --card-agenda-heading-font-color: var(--color-text-subtle);
     /* inactive state colour */
@@ -996,7 +996,7 @@
     /* ── Column 3 — optional body text (up to 2 lines) ──────────────────────── */
     --card-agenda-col3-alignment: left;
     /* left | center | right */
-    --card-agenda-body-font-size: 12;
+    --card-agenda-body-font-size: 14;
     /* px */
     --card-agenda-body-font-color: var(--color-text-muted);
     /* body text colour */
@@ -1070,7 +1070,7 @@
     /* left | center | right */
 
     /* ── Body style (text-body applied to every block body paragraph) ───────── */
-    --card-stacked-text-body-font-size: 12;
+    --card-stacked-text-body-font-size: 14;
     /* px */
     --card-stacked-text-body-font-color: var(--color-text-subtle);
     /* body colour */
@@ -1327,7 +1327,7 @@
     /* ── Column 3 — body text (secondary, right side) ────────────────── */
     --card-numbered-text-col3-alignment: left;
     /* left | center | right */
-    --card-numbered-text-body-font-size: 12;
+    --card-numbered-text-body-font-size: 14;
     /* px */
     --card-numbered-text-body-font-color: var(--color-text-muted);
     --card-numbered-text-body-font-weight: 400;
@@ -1452,7 +1452,7 @@
     /* heading row background fill */
     --card-table-heading-font-color: var(--color-on-primary);
     /* heading text colour */
-    --card-table-heading-font-size: 12;
+    --card-table-heading-font-size: 14;
     /* px — heading cell font size */
     --card-table-heading-font-weight: 700;
     /* bold by default */
@@ -1466,7 +1466,7 @@
     /* border colour below the heading row */
 
     /* ── Body rows ──────────────────────────────────────────────────── */
-    --card-table-body-font-size: 12;
+    --card-table-body-font-size: 14;
     /* px */
     --card-table-body-font-color: var(--color-text-subtle);
     /* data cell text colour */
@@ -1589,14 +1589,14 @@
     /* terminal goal marker fill (defaults to secondary accent) */
 
     /* ── Entry heading ────────────────────────────────────────── */
-    --card-timeline-heading-font-size: 11;
+    --card-timeline-heading-font-size: 14;
     /* px */
     --card-timeline-heading-font-color: var(--color-text-primary);
     --card-timeline-heading-font-weight: 700;
     --card-timeline-heading-font-style: normal;
 
     /* ── Entry body ───────────────────────────────────────────── */
-    --card-timeline-body-font-size: 9;
+    --card-timeline-body-font-size: 14;
     /* px */
     --card-timeline-body-font-color: var(--color-text-muted);
     --card-timeline-body-font-weight: 400;
@@ -1636,7 +1636,7 @@
     --card-compare-heading-bg-color: var(--color-primary);
     /* default heading background (non-highlighted columns) */
     --card-compare-heading-font-color: var(--color-text-inverse);
-    --card-compare-heading-font-size: 9;
+    --card-compare-heading-font-size: 14;
     /* px */
     --card-compare-heading-font-weight: 700;
     --card-compare-heading-font-style: normal;
@@ -1689,7 +1689,7 @@
     /* px — horizontal gap between badge right edge and label text */
 
     /* ── Body cells ───────────────────────────────────────────────── */
-    --card-compare-body-font-size: 11;
+    --card-compare-body-font-size: 14;
     /* px */
     --card-compare-body-font-color: var(--color-text-subtle);
     --card-compare-body-font-weight: 400;
@@ -1755,6 +1755,8 @@
     /* --card-footer-font-size: 10; */
     /* --card-footer-font-color: var(--color-text-muted); */
 }
+/* =================================================================
+   18. .card--scope — Scope card variant tokens
    ================================================================= */
 
 .card--scope {
@@ -1805,7 +1807,7 @@
     /* badge fill for status: conditional */
 
     /* ── Item heading ─────────────────────────────────────────────── */
-    --card-scope-item-heading-font-size: 11;
+    --card-scope-item-heading-font-size: 14;
     /* px */
     --card-scope-item-heading-font-color: var(--color-text-default);
     --card-scope-item-heading-font-weight: 700;
@@ -1813,7 +1815,7 @@
     /* unitless — multiplier applied to heading font size */
 
     /* ── Item body text ───────────────────────────────────────────── */
-    --card-scope-item-body-font-size: 9;
+    --card-scope-item-body-font-size: 14;
     /* px */
     --card-scope-item-body-font-color: var(--color-text-muted);
     --card-scope-item-body-font-weight: 400;

@@ -189,8 +189,8 @@ class DrawioExporter:
         cell.set("vertex", "1")
 
         font_size = elem.get("font_size", 14)
-        # Convert px → pt to match draw.io's internal unit (same as pptx exporter)
-        font_size_pt = round(float(font_size) * 72 / 96, 1)
+        # Font-size tokens are defined in pt — use directly
+        font_size_pt = round(float(font_size), 1)
         font_color = elem.get("font_color", "#000000")
         weight = elem.get("font_weight", "normal")
         style = str(elem.get("font_style") or "").lower()
@@ -379,9 +379,9 @@ class DrawioExporter:
         cell.set("vertex", "1")
 
         if data_uri:
-            style = f"shape=image;image={data_uri};imageAspect=0;aspect=fixed;"
+            style = f"shape=image;image={data_uri};imageAspect=1;aspect=fixed;"
         elif src:
-            style = f"shape=image;image={src};imageAspect=0;"
+            style = f"shape=image;image={src};imageAspect=1;aspect=fixed;"
         else:
             style = "rounded=1;fillColor=#F5F5F5;strokeColor=#CCCCCC;"
         cell.set("style", style)
@@ -442,7 +442,7 @@ class DrawioExporter:
             bg_color: str = str(row_desc.get("bg_color") or "#FFFFFF")
             fg_color: str = str(row_desc.get("font_color") or "#000000")
             font_size: float = float(row_desc.get("font_size") or 12)
-            font_size_pt = round(font_size * 72 / 96, 1)
+            font_size_pt = round(font_size, 1)
             weight: str = str(row_desc.get("font_weight") or "normal")
             style_str: str = str(row_desc.get("font_style") or "normal").lower()
             aligns: list[str] = row_desc.get("alignments") or []

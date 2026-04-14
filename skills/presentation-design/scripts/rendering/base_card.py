@@ -380,7 +380,7 @@ class BaseCardRenderer(ABC):
                     "x": title_x,
                     "y": y,
                     "w": text_w,
-                    "h": title_size + title_line_gap,
+                    "h": title_size * 1.2 + title_line_gap,
                     "text": card.title,
                     "font_size": title_size,
                     "font_color": self.resolve("card-title-font-color"),
@@ -393,20 +393,24 @@ class BaseCardRenderer(ABC):
                     "x": box.x + self._pad_left,
                     "y": y,
                     "w": content_w,
-                    "h": title_size + title_line_gap,
+                    "h": title_size * 1.2 + title_line_gap,
                     "text": card.title,
                     "font_size": title_size,
                     "font_color": self.resolve("card-title-font-color"),
                     "font_weight": self.resolve("card-title-font-weight"),
                 })
 
-            y += title_size + title_line_gap
+            y += title_size * 1.2 + title_line_gap
 
             # ── Header line (gated on --card-title-line-visible AND line-width > 0) ──
             line_vis_raw = self.resolve("card-title-line-visible")
             line_visible = line_vis_raw in (True, "true", "True")
             line_width = self.resolve("card-title-line-width")
-            if line_visible and line_width and float(line_width) > 0:
+            try:
+                line_width_f = float(line_width) if line_width else 0
+            except (ValueError, TypeError):
+                line_width_f = 0
+            if line_visible and line_width_f > 0:
                 box.add({
                     "type": "line",
                     "x1": box.x + self._pad_left,
@@ -414,9 +418,9 @@ class BaseCardRenderer(ABC):
                     "x2": box.x + box.w - self._pad_right,
                     "y2": y,
                     "stroke": self.resolve("card-title-line-color"),
-                    "stroke_width": line_width,
+                    "stroke_width": line_width_f,
                 })
-                y += float(line_width)
+                y += line_width_f
 
         # ── Subtitle (independent of title — renders even when title is absent) ──
         sub_text = str(getattr(card, "subtitle", "") or "").strip()

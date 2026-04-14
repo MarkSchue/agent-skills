@@ -78,14 +78,14 @@ All `.card-base` tokens apply. Additionally, `.card--table` specific overrides:
 - `card_table_header_alignment` — `left` | `center` | `right`
 - `card_table_header_height` — header row height (px)
 
-### Data rows
-- `card_table_row_font_size` — data-row font size (px)
-- `card_table_row_font_color` — data-row text colour
-- `card_table_row_font_weight` — `normal` | `bold`
-- `card_table_row_font_style` — `normal` | `italic`
-- `card_table_row_height` — data row height (px)
-- `card_table_row_bg_color` — default row background colour
-- `card_table_row_alignment` — default cell text alignment
+### Body rows
+- `card_table_body_font_size` — body row font size (px)
+- `card_table_body_font_color` — body row text colour
+- `card_table_body_font_weight` — `normal` | `bold`
+- `card_table_body_font_style` — `normal` | `italic`
+- `card_table_body_height` — body row height (px)
+- `card_table_body_bg_color` — default row background colour
+- `card_table_body_alignment` — default cell text alignment
 
 ### Alternating row stripe
 - `card_table_stripe_visible` — `true` | `false` — enable alternating row shading
@@ -108,7 +108,7 @@ All `.card-base` tokens apply. Additionally, `.card--table` specific overrides:
 ### Shared
 - `card_table_padding_x` — horizontal cell padding (px)
 - `card_table_padding_y` — vertical cell padding (px)
-- `card_table_row_min_height` — minimum row height when content grows (px)
+- `card_table_body_min_height` — minimum row height when content grows (px)
 
 Footer tokens (shared with all card types):
 - `card_footer_font_size` / `card_footer_font_color` / `card_footer_font_weight`
