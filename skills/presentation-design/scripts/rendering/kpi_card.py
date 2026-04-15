@@ -22,7 +22,7 @@ class KpiCardRenderer(BaseCardRenderer):
         comparison = content.get("comparison", "")
 
         value_size = float(self.resolve("card-kpi-value-font-size") or 48)
-        value_color = self.resolve("card-kpi-value-font-color") or "#1A1A1A"
+        value_color = self.resolve("card-kpi-value-font-color")
         value_align = self.resolve("card-kpi-value-alignment") or "center"
         value_valign = self.resolve("card-kpi-value-vertical-align") or "middle"
         trend_font_size = float(self.resolve("card-kpi-trend-font-size") or 14)

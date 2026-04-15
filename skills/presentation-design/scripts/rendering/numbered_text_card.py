@@ -106,14 +106,14 @@ class NumberedTextCardRenderer(BaseCardRenderer):
 
         # ── Heading (col 2) tokens ───────────────────────────────────────
         h_size = float(self._resolve_tok("numbered-text", "heading-font-size",  14))
-        h_color = self._resolve_tok("numbered-text", "heading-font-color",       "#1A1A2E")
+        h_color = self._resolve_tok("numbered-text", "heading-font-color")
         h_weight = str(self._resolve_tok("numbered-text", "heading-font-weight", "600"))
         h_style = self._resolve_tok("numbered-text", "heading-font-style",        "normal")
         h_lh = h_size * float(self._resolve_tok("numbered-text", "heading-line-height", 1.3))
 
         # ── Body (col 3) tokens ──────────────────────────────────────────
         b_size = float(self._resolve_tok("numbered-text", "body-font-size",      12))
-        b_color = self._resolve_tok("numbered-text", "body-font-color",           "#6B7280")
+        b_color = self._resolve_tok("numbered-text", "body-font-color")
         b_weight = str(self._resolve_tok("numbered-text", "body-font-weight",    "400"))
         b_style = self._resolve_tok("numbered-text", "body-font-style",           "normal")
         b_lh = b_size * float(self._resolve_tok("numbered-text", "body-line-height", 1.3))

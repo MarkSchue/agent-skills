@@ -1094,12 +1094,7 @@
     /* line-height for block body text (base default: 1.3) */
 
     /* ── Inter-block divider (drawn at equal-height slot boundaries) ──────────── */
-    --card-stacked-text-divider-visible: true;
-    /* true | false */
-    --card-stacked-text-divider-color: var(--color-border);
-    /* line colour */
-    --card-stacked-text-divider-width: 1;
-    /* px — line thickness */
+    /* visible/color/width inherit from .card-base --card-divider-* tokens */
     --card-stacked-text-divider-length-pct: 50;
     /* 0–100 — length as % of card body width */
     --card-stacked-text-divider-alignment: left;
@@ -1177,12 +1172,7 @@
        Icon font-family is always inherited from --icon-font-family (global). */
 
     /* ── Item dividers */
-    --card-icon-item-text-divider-visible: true;
-    /* true | false */
-    --card-icon-item-text-divider-color: var(--color-border);
-    /* line colour */
-    --card-icon-item-text-divider-width: 1;
-    /* px */
+    /* visible/color/width inherit from .card-base --card-divider-* tokens */
     --card-icon-item-text-divider-length-pct: 100;
     /* 0–100 — length as % of card width */
     --card-icon-item-text-divider-alignment: left;

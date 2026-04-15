@@ -76,23 +76,23 @@ class StackedTextCardRenderer(BaseCardRenderer):
 
         # Heading (h2-style)
         h_size   = float(self._resolve_tok("stacked-text", "heading-font-size",   14))
-        h_color  = self._resolve_tok("stacked-text", "heading-font-color",         "#1A1A1A")
+        h_color  = self._resolve_tok("stacked-text", "heading-font-color")
         h_weight = str(self._resolve_tok("stacked-text", "heading-font-weight",    "700"))
         h_style  = self._resolve_tok("stacked-text", "heading-font-style",         "normal")
         h_align  = self._resolve_tok("stacked-text", "heading-alignment",          "left")
 
         # Body (text-body style)
         b_size   = float(self._resolve_tok("stacked-text", "body-font-size",       12))
-        b_color  = self._resolve_tok("stacked-text", "body-font-color",            "#333333")
+        b_color  = self._resolve_tok("stacked-text", "body-font-color")
         b_weight = str(self._resolve_tok("stacked-text", "body-font-weight",       "400"))
         b_style  = self._resolve_tok("stacked-text", "body-font-style",            "normal")
         b_align  = self._resolve_tok("stacked-text", "body-alignment",             "left")
 
         # Divider between blocks
-        div_visible_raw = self._resolve_tok("stacked-text", "divider-visible")
+        div_visible_raw = self.resolve("card-divider-visible")
         div_visible    = div_visible_raw in (True, "true", "True")
-        div_color      = self._resolve_tok("stacked-text", "divider-color") or self.resolve("card-title-line-color") or "#003087"
-        div_width      = float(self._resolve_tok("stacked-text", "divider-width") or 1)
+        div_color      = self.resolve("card-divider-color")
+        div_width      = float(self.resolve("card-divider-width") or 1)
         div_length_pct = float(self.resolve("card-stacked-text-divider-length-pct") or 50) / 100
         div_alignment  = self.resolve("card-stacked-text-divider-alignment")    or "left"
 

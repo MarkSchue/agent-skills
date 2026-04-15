@@ -99,14 +99,14 @@ class IconItemTextCardRenderer(BaseCardRenderer):
 
         # Heading style
         h_size = float(self._resolve_tok("icon-item-text", "heading-font-size",  14))
-        h_color = self._resolve_tok("icon-item-text", "heading-font-color",       "#1A1A1A")
+        h_color = self._resolve_tok("icon-item-text", "heading-font-color")
         h_weight = str(self._resolve_tok("icon-item-text", "heading-font-weight", "700"))
         h_style = self._resolve_tok("icon-item-text", "heading-font-style",        "normal")
         h_align = self._resolve_tok("icon-item-text", "heading-alignment",         "left")
 
         # Body style
         b_size = float(self._resolve_tok("icon-item-text", "body-font-size",      12))
-        b_color = self._resolve_tok("icon-item-text", "body-font-color",           "#333333")
+        b_color = self._resolve_tok("icon-item-text", "body-font-color")
         b_weight = str(self._resolve_tok("icon-item-text", "body-font-weight",    "400"))
         b_style = self._resolve_tok("icon-item-text", "body-font-style",           "normal")
         b_align = self._resolve_tok("icon-item-text", "body-alignment",            "left")
@@ -116,15 +116,15 @@ class IconItemTextCardRenderer(BaseCardRenderer):
         # or at instance level via style_overrides: card_item_icon_color: ...
         icon_size = float(self.resolve("card-item-icon-size") or 20)
         icon_gap = float(self.resolve("card-item-icon-gap") or 8)
-        icon_color = self.resolve("card-item-icon-color") or "#1A1A1A"
+        icon_color = self.resolve("card-item-icon-color")
         icon_font_family = self.resolve("icon-font-family") or "Material Symbols Outlined"
         icon_weight = str(self.resolve("card-item-icon-font-weight") or "700")
 
         # Divider style
-        div_visible_raw = self._resolve_tok("icon-item-text", "divider-visible")
+        div_visible_raw = self.resolve("card-divider-visible")
         div_visible = div_visible_raw in (True, "true", "True")
-        div_color = self._resolve_tok("icon-item-text", "divider-color") or self.resolve("card-title-line-color") or "#003087"
-        div_width = float(self._resolve_tok("icon-item-text", "divider-width") or 1)
+        div_color = self.resolve("card-divider-color")
+        div_width = float(self.resolve("card-divider-width") or 1)
         div_length_pct = float(self.resolve("card-icon-item-text-divider-length-pct") or 100) / 100
         div_alignment = self.resolve("card-icon-item-text-divider-alignment") or "left"
 
