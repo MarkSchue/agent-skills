@@ -32,7 +32,7 @@ class TextCardRenderer(BaseCardRenderer):
 
         y = box.y
         font_size = float(self.resolve("text-body-font-size") or 14)
-        font_color = self.resolve("text-body-font-color") or "#333333"
+        font_color = self.resolve("text-body-font-color")
         line_height = font_size * 1.5
         body_align = self.resolve("card-body-alignment") or "left"
         bullet_indent = float(self.resolve("card-body-bullet-indent") or 12)

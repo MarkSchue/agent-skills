@@ -47,8 +47,8 @@ class TableCardRenderer(BaseCardRenderer):
         # ── Token resolution ────────────────────────────────────────────
 
         # Heading row
-        header_bg        = self._tok("heading-bg-color",       "#1A1A2E")
-        header_fg        = self._tok("heading-font-color",     "#FFFFFF")
+        header_bg        = self._tok("heading-bg-color")
+        header_fg        = self._tok("heading-font-color")
         header_font_size = float(self._tok("heading-font-size", 14))
         header_weight    = self._tok("heading-font-weight",    "bold")
         header_style     = self._tok("heading-font-style",     "normal")
@@ -58,7 +58,7 @@ class TableCardRenderer(BaseCardRenderer):
 
         # Body rows
         body_font_size  = float(self._tok("body-font-size",  14))
-        body_fg         = self._tok("body-font-color",       "#374151")
+        body_fg         = self._tok("body-font-color")
         body_weight     = self._tok("body-font-weight",      "normal")
         body_style      = self._tok("body-font-style",       "normal")
         body_height     = float(self._tok("body-height",     24))
@@ -67,11 +67,11 @@ class TableCardRenderer(BaseCardRenderer):
         body_align      = self._tok("body-alignment",        "left")
 
         # Stripe
-        stripe_color   = self._tok("stripe-color",           "#F3F4F6")
+        stripe_color   = self._tok("stripe-color")
 
         # Sum row
-        sum_bg         = self._tok("sum-bg-color",           "#E5E7EB")
-        sum_fg         = self._tok("sum-font-color",         "#1A1A2E")
+        sum_bg         = self._tok("sum-bg-color")
+        sum_fg         = self._tok("sum-font-color")
         sum_font_size  = float(self._tok("sum-font-size",    12))
         sum_weight     = self._tok("sum-font-weight",        "bold")
         sum_style      = self._tok("sum-font-style",         "normal")
@@ -79,7 +79,7 @@ class TableCardRenderer(BaseCardRenderer):
         sum_height     = float(self._tok("sum-height",       28))
 
         # Grid
-        border_color   = self._tok("border-color",           "#E5E7EB")
+        border_color   = self._tok("border-color")
         border_width   = float(self._tok("border-width",     1))
 
         # Cell padding

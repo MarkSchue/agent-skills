@@ -138,17 +138,17 @@ class ChartCardRenderer(BaseCardRenderer):
             return
 
         # ── Shared token resolution ────────────────────────────────────
-        axis_color       = self._tok("axis-color",            "#9CA3AF")
+        axis_color       = self._tok("axis-color")
         axis_font_size   = self._f("axis-font-size",          9)
         axis_font_color  = self._tok("axis-font-color",       axis_color)
-        grid_color       = self._tok("grid-color",            "#F3F4F6")
+        grid_color       = self._tok("grid-color")
         legend_font_size = self._f("legend-font-size",        10)
         legend_pos_tok   = self._tok("legend-position",       "bottom")
         caption_font_sz  = self._f("caption-font-size",       10)
-        caption_color    = self._tok("caption-font-color",    "#9CA3AF")
+        caption_color    = self._tok("caption-font-color")
         caption_align    = self._tok("caption-alignment",     "center")
         label_font_size  = self._f("label-font-size",         9)
-        label_font_color = self._tok("label-font-color",      "#FFFFFF")
+        label_font_color = self._tok("label-font-color")
         title_font_size  = self._f("axis-title-font-size",    10)
         title_font_color = self._tok("axis-title-font-color", axis_color)
 
@@ -559,7 +559,7 @@ class ChartCardRenderer(BaseCardRenderer):
             angle += sweep
 
         # Column-scan rendering — accurate and clean
-        bg_color = self._tok("bg-color", "#FFFFFF")
+        bg_color = self._tok("bg-color")
         col_w = max(1.5, r / 60)  # ~60 columns per radius → smooth appearance
 
         xi = cx - r
@@ -692,7 +692,7 @@ class ChartCardRenderer(BaseCardRenderer):
         leg_h: float, leg_w: float,
         font_size: float, swatch: float,
     ) -> None:
-        leg_font_color = self._tok("legend-font-color", "#374151")
+        leg_font_color = self._tok("legend-font-color")
         item_w = 115.0
 
         if position in ("bottom", "top"):
@@ -760,7 +760,7 @@ class ChartCardRenderer(BaseCardRenderer):
                      "x": box.x, "y": box.y + img_h + 4, "w": box.w,
                      "text": caption,
                      "font_size": self._f("caption-font-size", 11),
-                     "font_color": self._tok("caption-font-color", "#888888"),
+                     "font_color": self._tok("caption-font-color"),
                      "alignment": self._tok("caption-alignment", "center")})
 
     # ── Placeholder ─────────────────────────────────────────────────────────
@@ -768,7 +768,7 @@ class ChartCardRenderer(BaseCardRenderer):
     def _draw_placeholder(
         self, box: RenderBox, px: float, py: float, pw: float, ph: float
     ) -> None:
-        border = self._tok("grid-color", "#E5E7EB")
+        border = self._tok("grid-color")
         box.add({"type": "rect",
                  "x": px, "y": py, "w": pw, "h": ph,
                  "fill": "#F9FAFB", "stroke": border, "stroke_width": 1, "rx": 4})

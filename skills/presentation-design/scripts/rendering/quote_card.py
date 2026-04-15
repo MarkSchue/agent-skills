@@ -82,7 +82,7 @@ class QuoteCardRenderer(BaseCardRenderer):
                     "w": text_w,
                     "text": f"\u2014 {attribution}",
                     "font_size": body_size,
-                    "font_color": self.resolve("text-body-font-color") or "#333333",
+                    "font_color": self.resolve("text-body-font-color"),
                     "font_weight": "bold",
                     "alignment": attribution_align,
                 }
@@ -100,7 +100,7 @@ class QuoteCardRenderer(BaseCardRenderer):
                     "w": text_w,
                     "text": role,
                     "font_size": caption_size,
-                    "font_color": self.resolve("text-caption-font-color") or "#888888",
+                    "font_color": self.resolve("text-caption-font-color"),
                     "alignment": attribution_align,
                 }
             )

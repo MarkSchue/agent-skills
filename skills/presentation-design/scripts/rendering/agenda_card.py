@@ -44,7 +44,7 @@ class AgendaCardRenderer(BaseCardRenderer):
         # ── Highlight bar tokens ──────────────────────────────────────────
         bar_visible_raw = self.resolve("card-agenda-highlight-bar-visible")
         bar_visible = bar_visible_raw in (True, "true", "True")
-        bar_color = self.resolve("card-agenda-highlight-bar-color") or "#003087"
+        bar_color = self.resolve("card-agenda-highlight-bar-color")
         bar_width = float(self.resolve("card-agenda-highlight-bar-width") or 3)
         bar_gap = float(self.resolve("card-agenda-highlight-bar-gap") or 8)
 
@@ -116,14 +116,14 @@ class AgendaCardRenderer(BaseCardRenderer):
 
         # ── Info column tokens ────────────────────────────────────────────
         info_size = float(self._tok("body-font-size", 12))
-        info_color = self._tok("body-font-color") or "#888888"
+        info_color = self._tok("body-font-color")
         info_weight = str(self._tok("body-font-weight") or "400")
         info_style = self._tok("body-font-style") or "normal"
 
         # ── Row separator tokens ──────────────────────────────────────────
         sep_visible_raw = self.resolve("card-agenda-separator-visible")
         sep_visible = sep_visible_raw in (True, "true", "True")
-        sep_color = self.resolve("card-agenda-separator-color") or "#E0E0E0"
+        sep_color = self.resolve("card-agenda-separator-color")
         sep_width = float(self.resolve("card-agenda-separator-width") or 1)
         sep_inset = float(self.resolve("card-agenda-separator-inset") or 0)
 

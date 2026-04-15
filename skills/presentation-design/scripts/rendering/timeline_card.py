@@ -141,7 +141,7 @@ class TimelineCardRenderer(BaseCardRenderer):
                      "x": box.x, "y": cap_y, "w": box.w, "h": cap_h,
                      "text": caption,
                      "font_size": self._f("caption-font-size", 10),
-                     "font_color": self._tok("caption-font-color", "#9CA3AF"),
+                     "font_color": self._tok("caption-font-color"),
                      "alignment": self._tok("caption-alignment", "center"),
                      "wrap": False})
 
@@ -162,29 +162,29 @@ class TimelineCardRenderer(BaseCardRenderer):
             return
 
         # ── Token resolution ───────────────────────────────────────────
-        spine_color  = self._tok("spine-color", "#D1D5DB")
+        spine_color  = self._tok("spine-color")
         spine_width  = self._f("spine-width", 2)
         marker_size  = self._f("marker-size", 28)
-        marker_fill  = self._tok("marker-fill", "#3B82F6")
-        marker_stroke = self._tok("marker-stroke", "#2563EB")
+        marker_fill  = self._tok("marker-fill")
+        marker_stroke = self._tok("marker-stroke")
         marker_fsz   = self._f("marker-font-size", 8)
-        marker_fcol  = self._tok("marker-font-color", "#FFFFFF")
-        goal_fill    = self._tok("goal-marker-fill", "#E2001A")
-        accent_fill  = self._tok("accent-marker-fill", "#F59E0B")
+        marker_fcol  = self._tok("marker-font-color")
+        goal_fill    = self._tok("goal-marker-fill")
+        accent_fill  = self._tok("accent-marker-fill")
 
         h_size  = self._f("heading-font-size", 12)
-        h_color = self._tok("heading-font-color", "#1F2937")
+        h_color = self._tok("heading-font-color")
         h_weight = self._tok("heading-font-weight", "700")
         h_style  = self._tok("heading-font-style",  "normal")
 
         b_size  = self._f("body-font-size", 10)
-        b_color = self._tok("body-font-color", "#6B7280")
+        b_color = self._tok("body-font-color")
         b_weight = self._tok("body-font-weight", "400")
         b_style  = self._tok("body-font-style",  "normal")
 
         icon_size = self._f("item-icon-size", 14)
         icon_gap  = self._f("item-icon-gap",  4)
-        icon_color = self._tok("item-icon-color", "#3B82F6")
+        icon_color = self._tok("item-icon-color")
         icon_ff    = self.resolve("icon-font-family") or "Material Symbols Outlined"
         icon_fw    = self._tok("item-icon-font-weight", "700")
 
@@ -291,29 +291,29 @@ class TimelineCardRenderer(BaseCardRenderer):
             return
 
         # ── Token resolution ───────────────────────────────────────────
-        spine_color  = self._tok("spine-color", "#D1D5DB")
+        spine_color  = self._tok("spine-color")
         spine_width  = self._f("spine-width", 2)
         marker_size  = self._f("marker-size", 28)
-        marker_fill  = self._tok("marker-fill", "#3B82F6")
-        marker_stroke = self._tok("marker-stroke", "#2563EB")
+        marker_fill  = self._tok("marker-fill")
+        marker_stroke = self._tok("marker-stroke")
         marker_fsz   = self._f("marker-font-size", 8)
-        marker_fcol  = self._tok("marker-font-color", "#FFFFFF")
-        goal_fill    = self._tok("goal-marker-fill", "#E2001A")
-        accent_fill  = self._tok("accent-marker-fill", "#F59E0B")
+        marker_fcol  = self._tok("marker-font-color")
+        goal_fill    = self._tok("goal-marker-fill")
+        accent_fill  = self._tok("accent-marker-fill")
 
         h_size  = self._f("heading-font-size", 12)
-        h_color = self._tok("heading-font-color", "#1F2937")
+        h_color = self._tok("heading-font-color")
         h_weight = self._tok("heading-font-weight", "700")
         h_style  = self._tok("heading-font-style",  "normal")
 
         b_size  = self._f("body-font-size", 10)
-        b_color = self._tok("body-font-color", "#6B7280")
+        b_color = self._tok("body-font-color")
         b_weight = self._tok("body-font-weight", "400")
         b_style  = self._tok("body-font-style",  "normal")
 
         icon_size = self._f("item-icon-size", 14)
         icon_gap  = self._f("item-icon-gap",  4)
-        icon_color = self._tok("item-icon-color", "#3B82F6")
+        icon_color = self._tok("item-icon-color")
         icon_ff    = self.resolve("icon-font-family") or "Material Symbols Outlined"
         icon_fw    = self._tok("item-icon-font-weight", "700")
 
@@ -529,7 +529,7 @@ class TimelineCardRenderer(BaseCardRenderer):
         icon_size: float, icon_gap: float, icon_color: str,
         icon_ff: str, icon_fw: str,
     ) -> None:
-        goal_fill = self._tok("goal-marker-fill", "#E2001A")
+        goal_fill = self._tok("goal-marker-fill")
         has_icon    = bool(item["icon"].get("name"))
         has_heading = bool(item["heading"])
         has_body    = bool(item["body"])
