@@ -325,7 +325,7 @@ class DrawioExporter:
                 "x": elem["x"],
                 "y": elem["y"],
                 "w": icon_size,
-                "h": icon_size,
+                "h": int(icon_size * 1.2),  # buffer for font descent in draw.io
                 "text": fallback_char,
                 "font_size": int(icon_size),
                 "font_color": color,
@@ -371,7 +371,7 @@ class DrawioExporter:
             "x": elem["x"],
             "y": elem["y"],
             "w": icon_size,
-            "h": icon_size,
+            "h": int(icon_size * 1.2),  # buffer for font descent in draw.io
             "text": fallback_char,
             "font_size": int(icon_size),
             "font_color": color,
@@ -388,13 +388,21 @@ class DrawioExporter:
 
         # Embed the image as a base64 data URI so draw.io can display it
         # without needing local file access (file paths are opaque to draw.io).
+        #
+        # draw.io's style-string parser splits on ALL ";" characters, so
+        # "data:image/png;base64,..." is split at ";base64" — the image value
+        # is truncated to "data:image/png".  Percent-encoding the semicolon
+        # ("%3B") prevents the split while remaining a valid data URI (the
+        # browser/draw.io renderer decodes %3B back to ";" when loading).
         data_uri = None
         if src and self.project_root:
             img_path = self.project_root / "assets" / src
             if img_path.exists():
                 mime = mimetypes.guess_type(str(img_path))[0] or "image/png"
                 img_b64 = base64.b64encode(img_path.read_bytes()).decode("ascii")
-                data_uri = f"data:{mime};base64,{img_b64}"
+                # Replace the ";base64," separator with "%3Bbase64," so draw.io's
+                # semicolon-based style parser preserves the full value.
+                data_uri = f"data:{mime}%3Bbase64,{img_b64}"
             else:
                 logger.warning("Image not found: %s \u2014 rendering placeholder", src)
 
@@ -403,10 +411,12 @@ class DrawioExporter:
         cell.set("parent", "1")
         cell.set("vertex", "1")
 
+        # Place image= LAST so draw.io's ";" style-string parser doesn't
+        # truncate the data URI at the ";base64" separator.
         if data_uri:
-            style = f"shape=image;image={data_uri};imageAspect=1;aspect=fixed;"
+            style = f"shape=image;imageAspect=1;aspect=fixed;image={data_uri}"
         elif src:
-            style = f"shape=image;image={src};imageAspect=1;aspect=fixed;"
+            style = f"shape=image;imageAspect=1;aspect=fixed;image={src}"
         else:
             style = "rounded=1;fillColor=#F5F5F5;strokeColor=#CCCCCC;"
         cell.set("style", style)

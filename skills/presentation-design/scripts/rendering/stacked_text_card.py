@@ -110,9 +110,13 @@ class StackedTextCardRenderer(BaseCardRenderer):
         kt_style      = self._resolve_tok("stacked-text", "key-takeaway-font-style",         "normal")
         kt_align      = self._resolve_tok("stacked-text", "key-takeaway-alignment")          or b_align
         kt_margin_top = float(self._resolve_tok("stacked-text", "key-takeaway-margin-top",  8))
+        kt_lh_ratio  = float(self._resolve_tok("stacked-text", "body-line-height",          1.5))
 
-        # Reserve vertical space at the bottom of the body box for key takeaway
-        kt_height = (kt_size * 2 + kt_margin_top) if kt_text else 0
+        # Reserve vertical space for key takeaway — use 2 lines × line-height so
+        # renderers that clip at the cell boundary (e.g. draw.io) don't cut off
+        # the second line of a wrapped key-takeaway.  Use at least 1.5× so there
+        # is a small rendering buffer even when the theme sets a tighter value.
+        kt_height = (kt_size * 2 * max(kt_lh_ratio, 1.5) + kt_margin_top) if kt_text else 0
 
         # ── Geometry ──────────────────────────────────────────────────────
 
@@ -232,6 +236,7 @@ class StackedTextCardRenderer(BaseCardRenderer):
                     "font_weight": kt_weight,
                     "font_style":  kt_style,
                     "alignment":   kt_align,
+                    "line_height": kt_size * kt_lh_ratio,
                     "wrap":        True,
                 }
             )

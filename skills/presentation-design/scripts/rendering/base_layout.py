@@ -276,20 +276,23 @@ class BaseLayoutRenderer(ABC):
                     "rx": 0,
                 }
             )
-            # Text centered vertically in bar
+            # Text centered vertically in bar — use full bar height with
+            # vertical_align=middle so renderers that clip at cell boundaries
+            # (e.g. draw.io) don't cut off content.
             canvas.add(
                 {
                     "type": "text",
                     "x": ta_x + ta_pad_x,
-                    "y": take_away_top + (ta_h - ta_fs) / 2,
+                    "y": take_away_top,
                     "w": ta_w - ta_pad_x * 2,
-                    "h": ta_fs + 4,
+                    "h": ta_h,
                     "text": ta_text,
                     "font_size": ta_fs,
                     "font_color": ta_fc,
                     "font_weight": ta_fw,
                     "font_style": ta_fs_style,
                     "alignment": ta_align,
+                    "vertical_align": "middle",
                     "wrap": False,
                 }
             )
