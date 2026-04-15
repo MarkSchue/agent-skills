@@ -157,6 +157,17 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-body-font-size` | 14 | px |
 | `--card-body-font-color` | #374151 | |
 | `--card-body-font-weight` | 400 | |
+| `--card-heading-line-height` | 1.3 | unitless multiplier — applied to heading font size; override per variant |
+| `--card-body-line-height` | 1.3 | unitless multiplier — applied to body font size; override per variant |
+| `--card-item-icon-size` | 20 | px — body/entry icon size (distinct from title icon `--card-icon-size`) |
+| `--card-item-icon-gap` | 8 | px — gap between entry icon and entry text |
+| `--card-item-icon-color` | var(--color-text-default) | entry icon colour; override at variant or instance level |
+| `--card-item-icon-font-weight` | 700 | bold glyph weight for icon-font ligatures |
+| `--card-gap-top` | 0 | px — extra space above the first item/block |
+| `--card-gap-bottom` | 0 | px — extra space below the last item/block |
+| `--card-gap-between` | 8 | px — spacing between items (around divider lines) |
+| `--card-heading-gap` | 8 | px — gap between item heading and item body text |
+| `--card-block-vertical-alignment` | top | top \| middle \| bottom — content alignment within each item slot |
 
 ---
 
@@ -250,17 +261,27 @@ presentation design system. It is auto-generated from `themes/base.css`.
 
 ## Card Variant Tokens
 
+> **Base token override pattern**
+>
+> Heading and body typography tokens (`--card-heading-font-*`, `--card-body-font-*`,
+> `--card-label-font-*`) are defined once in `.card-base`. Each card variant class overrides
+> only the values that differ from the defaults. For example, `.card--agenda` sets
+> `--card-heading-font-weight: 600` to use semibold headings; all other heading font
+> properties inherit from `.card-base`.
+>
+> In per-card `style_overrides:` YAML, use the base token names (e.g. `card_heading_font_color`,
+> `card_body_font_size`) — they are scoped to that card instance only.
+
 ### KPI — `.card--kpi`
 | Token | Default |
 |-------|---------|
 | `--card-kpi-value-font-size` | 48 |
-| `--card-kpi-value-font-color` | #1A1A2E |
+| `--card-kpi-value-font-color` | var(--color-primary) |
 | `--card-kpi-value-font-weight` | 700 |
-| `--card-kpi-trend-color-up` | #10B981 |
-| `--card-kpi-trend-color-down` | #EF4444 |
-| `--card-kpi-trend-color-neutral` | #6B7280 |
-| `--card-kpi-label-font-size` | 12 |
-| `--card-kpi-label-font-color` | #6B7280 |
+| `--card-kpi-trend-color-up` | var(--color-success) |
+| `--card-kpi-trend-color-down` | var(--color-error) |
+| `--card-kpi-trend-color-neutral` | var(--color-text-muted) |
+| `--card-label-font-size` | 12 | overrides base 11; slightly larger for metric context |
 
 ### Chart — `.card--chart`
 | Token | Default |
@@ -282,77 +303,66 @@ presentation design system. It is auto-generated from `themes/base.css`.
 ### Stacked Text — `.card--stacked-text`
 | Token | Default | Description |
 |-------|---------|-------------|
-| `--card-stacked-text-heading-font-size` | 14 | px — heading font size |
-| `--card-stacked-text-heading-font-color` | var(--color-text-default) | heading text colour |
-| `--card-stacked-text-heading-font-weight` | 700 | heading weight |
-| `--card-stacked-text-heading-font-style` | normal | `normal` \| `italic` |
-| `--card-stacked-text-heading-alignment` | left | `left` \| `center` \| `right` |
-| `--card-stacked-text-body-font-size` | 12 | px — body font size |
-| `--card-stacked-text-body-font-color` | var(--color-text-subtle) | body text colour |
-| `--card-stacked-text-body-font-weight` | 400 | body weight |
-| `--card-stacked-text-body-font-style` | normal | `normal` \| `italic` |
-| `--card-stacked-text-body-alignment` | left | `left` \| `center` \| `right` |
+| `--card-heading-font-*` | *(from `.card-base`)* | Override any base heading token here to scope it to stacked-text cards. |
+| `--card-body-font-*` | *(from `.card-base`)* | Override any base body token here. |
+| `--card-heading-line-height` | 1.25 | unitless multiplier for heading line height (base default: 1.3) |
+| `--card-body-line-height` | 1.25 | unitless multiplier for body line height (base default: 1.3) |
 | `--card-stacked-text-divider-visible` | true | show/hide inter-block lines |
 | `--card-stacked-text-divider-color` | var(--color-border) | divider line colour |
 | `--card-stacked-text-divider-width` | 1 | px — divider thickness |
 | `--card-stacked-text-divider-length-pct` | 50 | 0–100 — length as % of card body width |
 | `--card-stacked-text-divider-alignment` | left | `left` \| `center` \| `right` |
-| `--card-stacked-text-gap-top` | 0 | px — space above first block |
-| `--card-stacked-text-gap-bottom` | 0 | px — space below last block |
-| `--card-stacked-text-gap-between` | 8 | px — visual padding on each side of a divider |
-| `--card-stacked-text-heading-gap` | 8 | px — gap between heading and body within a block |
-| `--card-stacked-text-heading-line-height` | 1.25 | unitless multiplier for heading line height |
-| `--card-stacked-text-body-line-height` | 1.25 | unitless multiplier for body line height |
-| `--card-stacked-text-block-vertical-alignment` | top | `top` \| `middle` \| `bottom` — vertical alignment of heading/body inside each equal-height block |
-| `--card-stacked-text-key-takeaway-font-size` | 12 | px — key takeaway font size (defaults to body size) |
-| `--card-stacked-text-key-takeaway-font-color` | var(--color-text-default) | key takeaway text colour |
+| `--card-stacked-text-gap-top` | 0 | px — space above first block (uses `--card-gap-top` base token) |
+| `--card-stacked-text-gap-bottom` | 0 | px — space below last block (uses `--card-gap-bottom` base token) |
+| `--card-stacked-text-gap-between` | 8 | px — visual padding on each side of a divider (uses `--card-gap-between`) |
+| `--card-stacked-text-heading-gap` | 8 | px — gap between heading and body within a block (uses `--card-heading-gap`) |
+| `--card-stacked-text-block-vertical-alignment` | top | `top` \| `middle` \| `bottom` (uses `--card-block-vertical-alignment`) |
+| `--card-stacked-text-key-takeaway-font-size` | 12 | px |
+| `--card-stacked-text-key-takeaway-font-color` | var(--color-text-default) | |
 | `--card-stacked-text-key-takeaway-font-weight` | 700 | bold by default |
-| `--card-stacked-text-key-takeaway-font-style` | normal | `normal` \| `italic` |
-| `--card-stacked-text-key-takeaway-alignment` | left | `left` \| `center` \| `right` |
+| `--card-stacked-text-key-takeaway-font-style` | normal | |
+| `--card-stacked-text-key-takeaway-alignment` | left | |
 | `--card-stacked-text-key-takeaway-margin-top` | 8 | px — space between last block and key takeaway |
 
 ### Icon Item Text — `.card--icon-item-text`
 | Token | Default | Description |
 |-------|---------|-------------|
-| `--card-icon-item-text-heading-font-size` | 14 | px — heading font size |
-| `--card-icon-item-text-heading-font-color` | var(--color-text-default) | heading text colour |
-| `--card-icon-item-text-heading-font-weight` | 700 | heading weight |
-| `--card-icon-item-text-heading-font-style` | normal | `normal` \| `italic` |
-| `--card-icon-item-text-heading-alignment` | left | `left` \| `center` \| `right` |
-| `--card-icon-item-text-body-font-size` | 14 | px — body font size |
-| `--card-icon-item-text-body-font-color` | var(--color-text-subtle) | body text colour |
-| `--card-icon-item-text-body-font-weight` | 400 | body weight |
-| `--card-icon-item-text-body-font-style` | normal | `normal` \| `italic` |
-| `--card-icon-item-text-body-alignment` | left | `left` \| `center` \| `right` |
-| `--card-icon-item-text-icon-size` | 20 | px — icon/label size |
-| `--card-icon-item-text-icon-gap` | 8 | px — gap between icon and text area |
-| `--card-icon-item-text-icon-color` | var(--color-text-default) | icon/label colour |
-| `--card-icon-item-text-icon-font-family` | var(--icon-font-family) | icon font family for glyph names |
-| `--card-icon-item-text-icon-font-weight` | 700 | weight for text-style icons |
+| `--card-heading-font-*` | *(from `.card-base`)* | Override any base heading token to scope it to icon-item-text cards. |
+| `--card-body-font-*` | *(from `.card-base`)* | Override any base body token here. |
+| `--card-heading-line-height` | 1.3 | unitless multiplier — inherits from `.card-base`; override here to change |
+| `--card-body-line-height` | 1.3 | unitless multiplier — inherits from `.card-base`; override here to change |
+| `--card-item-icon-size` | 20 | px — entry icon size (inherits from `.card-base` `--card-item-icon-size`) |
+| `--card-item-icon-gap` | 8 | px — gap between icon and text area (inherits from `.card-base`) |
+| `--card-item-icon-color` | var(--color-text-default) | icon colour (inherits from `.card-base`) |
+| `--card-item-icon-font-weight` | 700 | icon glyph weight (inherits from `.card-base`) |
+| *(icon font-family)* | var(--icon-font-family) | Always inherited from global `--icon-font-family`; no variant override needed. |
 | `--card-icon-item-text-divider-visible` | true | show/hide item dividers |
 | `--card-icon-item-text-divider-color` | var(--color-border) | divider line colour |
 | `--card-icon-item-text-divider-width` | 1 | px — divider thickness |
 | `--card-icon-item-text-divider-length-pct` | 100 | 0–100 — length as % of card width |
 | `--card-icon-item-text-divider-alignment` | left | `left` \| `center` \| `right` |
-| `--card-icon-item-text-gap-top` | 0 | px — space above first item |
-| `--card-icon-item-text-gap-bottom` | 0 | px — space below last item |
-| `--card-icon-item-text-gap-between` | 8 | px — space around each item divider |
-| `--card-icon-item-text-heading-gap` | 8 | px — gap between item heading and body |
-| `--card-icon-item-text-heading-line-height` | 1.30 | unitless multiplier for item heading line height |
-| `--card-icon-item-text-body-line-height` | 1.30 | unitless multiplier for item body line height |
-| `--card-icon-item-text-block-vertical-alignment` | top | `top` \| `middle` \| `bottom` — vertical alignment of heading/body inside each item slot |
+| `--card-gap-top` | 0 | px — space above first item (inherits from `.card-base`) |
+| `--card-gap-bottom` | 0 | px — space below last item (inherits from `.card-base`) |
+| `--card-gap-between` | 8 | px — space around each item divider (inherits from `.card-base`) |
+| `--card-heading-gap` | 8 | px — gap between item heading and body (inherits from `.card-base`) |
+| `--card-block-vertical-alignment` | top | `top` \| `middle` \| `bottom` (inherits from `.card-base`) |
 
 ### Agenda — `.card--agenda`
 | Token | Default |
 |-------|---------|
+| `--card-heading-font-color` | var(--color-text-subtle) | inactive heading colour (overrides base: text-default) |
+| `--card-heading-font-weight` | 600 | semibold headings (overrides base: 700) |
+| `--card-body-font-color` | var(--color-text-muted) | body text colour (overrides base: text-subtle) |
 | `--card-agenda-active-number-color` | var(--color-primary) | highlighted col 1 — number |
 | `--card-agenda-active-heading-color` | var(--color-primary) | highlighted col 2 — section title |
 | `--card-agenda-active-body-color` | var(--color-text-subtle) | highlighted col 3 — info text |
 | `--card-agenda-active-font-weight` | 700 |
-| `--card-agenda-inactive-color` | #9CA3AF |
+| `--card-agenda-inactive-color` | var(--color-text-muted) |
 | `--card-agenda-inactive-font-weight` | 400 |
-| `--card-agenda-heading-font-size` | 16 |
 | `--card-agenda-row-height` | 36 |
+| `--card-agenda-number-font-size` | 14 |
+| `--card-agenda-number-font-color` | var(--color-text-muted) |
+| `--card-agenda-number-font-weight` | 400 |
 
 ---
 
@@ -360,33 +370,28 @@ presentation design system. It is auto-generated from `themes/base.css`.
 
 | Token | Default | Description |
 |-------|---------|-------------|
-| `--card-scope-columns` | `2` | Tile columns (1–4); `content.layout_columns` takes priority |
-| `--card-scope-item-gap` | `12` | px — horizontal and vertical gap between tiles |
+| `--card-body-font-color` | var(--color-text-muted) | scope item body colour (overrides base: text-subtle) |
+| `--card-scope-columns` | `2` | Tile columns (1–4) |
+| `--card-scope-item-gap` | `12` | px — gap between tiles |
 | `--card-scope-item-bg-color` | `var(--color-surface-subtle)` | Tile background fill |
 | `--card-scope-item-border-color` | `var(--color-border)` | Tile border colour |
-| `--card-scope-item-border-width` | `1` | px — tile border width (0 to disable) |
+| `--card-scope-item-border-width` | `1` | px |
 | `--card-scope-item-border-radius` | `4` | px — tile corner radius |
 | `--card-scope-item-padding` | `12` | px — inner tile padding |
-| `--card-scope-badge-size` | `20` | px — diameter of the marker badge circle |
-| `--card-scope-badge-font-size` | `9` | px — font size inside badge |
-| `--card-scope-badge-font-color` | `#FFFFFF` | Text / icon colour inside badge |
-| `--card-scope-badge-gap` | `8` | px — gap from badge right edge to title text |
-| `--card-scope-item-marker` | `number` | `number` \| `check` \| `icon` — badge interior style |
-| `--card-scope-check-icon-name` | `check` | Material Symbols ligature for check/icon modes |
-| `--card-scope-status-in-scope-color` | `var(--color-accent)` | Badge fill for `in-scope` status |
-| `--card-scope-status-out-of-scope-color` | `var(--color-text-muted)` | Badge fill for `out-of-scope` |
-| `--card-scope-status-conditional-color` | `var(--color-warning)` | Badge fill for `conditional` |
-| `--card-scope-item-heading-font-size` | `11` | px |
-| `--card-scope-item-heading-font-color` | `var(--color-text-default)` | Item heading colour |
-| `--card-scope-item-heading-font-weight` | `700` | Item heading weight |
-| `--card-scope-item-heading-line-height` | `1.2` | Unitless multiplier for heading line height |
-| `--card-scope-item-body-font-size` | `9` | px — body text size |
-| `--card-scope-item-body-font-color` | `var(--color-text-muted)` | Body text colour |
-| `--card-scope-item-body-font-weight` | `400` | Body weight |
-| `--card-scope-item-body-margin-top` | `4` | px — gap between heading row and body text |
-| `--card-scope-status-label-visible` | `false` | Show status string at tile bottom-right |
-| `--card-scope-status-label-font-size` | `8` | px — status label font size |
-| `--card-scope-status-label-gap` | `4` | px — gap above status label |
+| `--card-scope-badge-size` | `20` | px — badge diameter |
+| `--card-scope-badge-font-size` | `9` | px |
+| `--card-scope-badge-font-color` | `#FFFFFF` | |
+| `--card-scope-badge-gap` | `8` | px — gap from badge to title |
+| `--card-scope-item-marker` | `number` | `number` \| `check` \| `icon` |
+| `--card-scope-check-icon-name` | `check` | Material Symbols ligature |
+| `--card-scope-status-in-scope-color` | `var(--color-accent)` | |
+| `--card-scope-status-out-of-scope-color` | `var(--color-text-muted)` | |
+| `--card-scope-status-conditional-color` | `var(--color-warning)` | |
+| `--card-scope-heading-line-height` | `1.2` | uses `--card-heading-line-height` base token; base default: 1.3 |
+| `--card-scope-body-margin-top` | `4` | px — gap between heading and body text |
+| `--card-scope-status-label-visible` | `false` | Show status tag at tile bottom-right |
+| `--card-scope-status-label-font-size` | `8` | px |
+| `--card-scope-status-label-gap` | `4` | px |
 
 ### Compare — `.card--compare`
 
@@ -395,10 +400,7 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | **Header row** | | |
 | `--card-compare-heading-height` | `28` | px — row height of the header |
 | `--card-compare-heading-bg-color` | `var(--color-primary)` | Default header cell background |
-| `--card-compare-heading-font-color` | `var(--color-text-inverse)` | Header label text colour |
-| `--card-compare-heading-font-size` | `11` | px |
-| `--card-compare-heading-font-weight` | `700` | |
-| `--card-compare-heading-font-style` | `normal` | |
+| `--card-heading-font-color` | `var(--color-text-inverse)` | Header label text colour (overrides base: text-default) |
 | `--card-compare-heading-alignment` | `center` | `left` \| `center` \| `right` |
 | **Highlighted column** | | |
 | `--card-compare-highlight-col-heading-bg-color` | `var(--color-accent)` | Header bg for highlighted columns |
@@ -410,10 +412,8 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-compare-label-col-bg-color` | `var(--color-surface-sunken)` | Topic column background |
 | `--card-compare-label-col-heading-bg-color` | `var(--color-primary)` | Topic column header background |
 | `--card-compare-label-col-heading-font-color` | `var(--color-text-inverse)` | Topic column header text colour |
-| `--card-compare-label-font-size` | `11` | px — topic label text |
-| `--card-compare-label-font-color` | `var(--color-text-default)` | |
-| `--card-compare-label-font-weight` | `700` | |
-| `--card-compare-label-font-style` | `normal` | |
+| `--card-label-font-color` | `var(--color-text-default)` | Label text colour (overrides base: text-muted) |
+| `--card-label-font-weight` | `700` | Bold labels (overrides base: 400) |
 | `--card-compare-label-alignment` | `left` | |
 | **Topic marker / badge** | | |
 | `--card-compare-label-marker` | `none` | `none` \| `number` \| `icon` |
@@ -424,10 +424,7 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-compare-label-badge-font-color` | `#FFFFFF` | Colour inside badge |
 | `--card-compare-label-badge-gap` | `6` | px — gap from badge right edge to label |
 | **Data cells** | | |
-| `--card-compare-body-font-size` | `11` | px |
-| `--card-compare-body-font-color` | `var(--color-text-subtle)` | |
-| `--card-compare-body-font-weight` | `400` | |
-| `--card-compare-body-font-style` | `normal` | |
+| *(heading/body font)* | *(from `.card-base`)* | Override `--card-body-font-*` to scope to compare cards. |
 | `--card-compare-body-alignment` | `center` | `left` \| `center` \| `right` |
 | `--card-compare-body-bg-color` | `transparent` | Default per-cell background (can be overridden per cell in YAML) |
 | `--card-compare-body-icon-size` | `14` | px — icon element size in cells |

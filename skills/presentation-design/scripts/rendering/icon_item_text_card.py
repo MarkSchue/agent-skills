@@ -110,16 +110,15 @@ class IconItemTextCardRenderer(BaseCardRenderer):
         b_style = self._resolve_tok("icon-item-text", "body-font-style",           "normal")
         b_align = self._resolve_tok("icon-item-text", "body-alignment",            "left")
 
-        # Icon style
-        icon_size = float(self.resolve("card-icon-item-text-icon-size") or 20)
-        icon_gap = float(self.resolve("card-icon-item-text-icon-gap") or 8)
-        icon_color = self.resolve("card-icon-item-text-icon-color") or self.resolve("card-icon-color") or self.resolve("color-text-default") or "#1A1A1A"
-        icon_font_family = (
-            self.resolve("card-icon-item-text-icon-font-family")
-            or self.resolve("icon-font-family")
-            or "Material Symbols Outlined"
+        # Icon style — resolved via base tokens (--card-item-icon-*) with variant override support
+        icon_size = float(self._resolve_tok("icon-item-text", "item-icon-size", 20))
+        icon_gap = float(self._resolve_tok("icon-item-text", "item-icon-gap", 8))
+        icon_color = (
+            self._resolve_tok("icon-item-text", "item-icon-color")
+            or self.resolve("color-text-default") or "#1A1A1A"
         )
-        icon_weight = str(self.resolve("card-icon-item-text-icon-font-weight") or "700")
+        icon_font_family = self.resolve("icon-font-family") or "Material Symbols Outlined"
+        icon_weight = str(self._resolve_tok("icon-item-text", "item-icon-font-weight", "700"))
 
         # Divider style
         div_visible_raw = self.resolve("card-icon-item-text-divider-visible")
@@ -129,12 +128,12 @@ class IconItemTextCardRenderer(BaseCardRenderer):
         div_length_pct = float(self.resolve("card-icon-item-text-divider-length-pct") or 100) / 100
         div_alignment = self.resolve("card-icon-item-text-divider-alignment") or "left"
 
-        # Vertical spacing
-        gap_top = float(self.resolve("card-icon-item-text-gap-top") or 0)
-        gap_bottom = float(self.resolve("card-icon-item-text-gap-bottom") or 0)
-        gap_between = float(self.resolve("card-icon-item-text-gap-between") or 8)
-        heading_gap = float(self.resolve("card-icon-item-text-heading-gap") or 4)
-        vertical_align = self.resolve("card-icon-item-text-block-vertical-alignment") or "top"
+        # Vertical spacing — falls back to --card-gap-* base tokens
+        gap_top = float(self._resolve_tok("icon-item-text", "gap-top", 0))
+        gap_bottom = float(self._resolve_tok("icon-item-text", "gap-bottom", 0))
+        gap_between = float(self._resolve_tok("icon-item-text", "gap-between", 8))
+        heading_gap = float(self._resolve_tok("icon-item-text", "heading-gap", 8))
+        vertical_align = self._resolve_tok("icon-item-text", "block-vertical-alignment", "top")
 
         avail_h = box.h - gap_top - gap_bottom
         slot_h = avail_h / n
@@ -160,8 +159,8 @@ class IconItemTextCardRenderer(BaseCardRenderer):
             heading_text = block["heading"]
             body_text = block["body"]
 
-            heading_line_height = h_size * float(self.resolve("card-icon-item-text-heading-line-height") or 1.30)
-            body_line_height = b_size * float(self.resolve("card-icon-item-text-body-line-height") or 1.30)
+            heading_line_height = h_size * float(self._resolve_tok("icon-item-text", "heading-line-height", 1.3))
+            body_line_height = b_size * float(self._resolve_tok("icon-item-text", "body-line-height", 1.3))
             heading_chars = max(1, int(text_w / (h_size * 0.48)))
             body_chars = max(1, int(text_w / (b_size * 0.48)))
 

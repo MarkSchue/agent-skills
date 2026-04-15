@@ -476,6 +476,8 @@
     /* left | center | right */
     --card-title-visible: true;
     /* true | false */
+    --card-width-pct: 100;
+    /* % — card width as percentage of allocated slot width */
 
     /* Card title icon (opt-in — requires --card-icon-visible: true)
      Override per card in the presentation MD file via YAML: icon: { name: "star", position: left } */
@@ -585,6 +587,36 @@
     --card-label-font-color: var(--color-text-muted);
     --card-label-font-weight: 400;
     --card-label-font-style: normal;
+
+    /* Line-height multipliers — defaults for heading and body text inside card items.
+       Override per variant to fine-tune reading density. */
+    --card-heading-line-height: 1.3;
+    /* unitless multiplier applied to heading-font-size */
+    --card-body-line-height: 1.3;
+    /* unitless multiplier applied to body-font-size */
+
+    /* Item / entry icon — body-level icons, NOT the card title icon above.
+       The title icon uses --card-icon-size / --card-icon-color / --card-icon-gap. */
+    --card-item-icon-size: 20;
+    /* px — default entry icon size */
+    --card-item-icon-gap: 8;
+    /* px — gap between entry icon and entry text */
+    --card-item-icon-color: var(--color-text-default);
+    /* entry icon colour */
+    --card-item-icon-font-weight: 700;
+    /* bold glyph weight for icon-font ligatures */
+
+    /* Item / block vertical spacing — defaults shared by multi-item card types. */
+    --card-gap-top: 0;
+    /* px — extra space above the first item/block */
+    --card-gap-bottom: 0;
+    /* px — extra space below the last item/block */
+    --card-gap-between: 8;
+    /* px — spacing between items (around divider lines) */
+    --card-heading-gap: 8;
+    /* px — gap between item heading and item body text */
+    --card-block-vertical-alignment: top;
+    /* top | middle | bottom — content alignment within each item slot */
 }
 
 
@@ -749,11 +781,9 @@
     /* px */
 
     /* Supporting label */
-    --card-kpi-label-font-size: 12;
-    /* px */
-    --card-kpi-label-font-color: var(--color-text-muted);
-    --card-kpi-label-font-style: normal;
-    /* normal | italic | bold | italic bold */
+    --card-label-font-size: 12;
+    /* px — overrides base 11; slightly larger for metric context */
+    /* kpi label-font-color: inherits --card-label-font-color (text-muted) from .card-base */
     --card-kpi-label-alignment: center;
     /* left | center | right */
 
@@ -875,11 +905,10 @@
     /* px — accent bar width */
 
     /* Quote body text */
-    --card-quote-body-font-size: 14;
-    /* px — quote text */
-    --card-quote-body-font-color: var(--color-text-subtle);
-    --card-quote-body-font-style: italic;
-    /* normal | italic | bold | italic bold */
+    /* ── Inherit body font from .card-base; override here to customise. ── */
+    --card-body-font-style: italic;
+    /* quote text is always italic (overrides base: normal) */
+    /* quote body-font-size and body-font-color inherit from .card-base */
     --card-quote-mark-color: var(--color-border);
     /* quotation mark colour */
     --card-quote-mark-size: 48;
@@ -952,9 +981,7 @@
     /* normal | italic */
 
     /* ── Row geometry ─────────────────────────────────────────────────────── */
-    --card-agenda-heading-font-size: 14;                            /* px — text height for each row */
     --card-agenda-row-height: 36;                                 /* px — full row height (controls highlight bar height) */
-    /* --card-agenda-heading-spacing: 12; */                        /* legacy token; row-height overrides it */
 
     /* ── Row separator line (horizontal rule between entries) ──────────────── */
     --card-agenda-separator-visible: false;
@@ -984,25 +1011,17 @@
     /* % of usable row width (20–60 recommended) */
     --card-agenda-col2-alignment: left;
     /* left | center | right */
-    --card-agenda-heading-font-size: 14;
-    /* px — section heading size */
-    --card-agenda-heading-font-color: var(--color-text-subtle);
-    /* inactive state colour */
-    --card-agenda-heading-font-weight: 600;
-    /* semibold — h2-like */
-    --card-agenda-heading-font-style: normal;
-    /* normal | italic */
+    /* ── Heading typography — inherit from .card-base; override here to customise. ── */
+    --card-heading-font-color: var(--color-text-subtle);
+    /* inactive state colour (overrides base: text-default) */
+    --card-heading-font-weight: 600;
+    /* semibold — h2-like (overrides base: 700) */
 
     /* ── Column 3 — optional body text (up to 2 lines) ──────────────────────── */
     --card-agenda-col3-alignment: left;
     /* left | center | right */
-    --card-agenda-body-font-size: 14;
-    /* px */
-    --card-agenda-body-font-color: var(--color-text-muted);
-    /* body text colour */
-    --card-agenda-body-font-weight: 400;
-    --card-agenda-body-font-style: normal;
-    /* normal | italic */
+    --card-body-font-color: var(--color-text-muted);
+    /* body text colour (overrides base: text-subtle) */
 
     /* ── Body icon placeholder — future use ────────────────────────────────── */
     --card-agenda-icon-visible: false;
@@ -1057,33 +1076,16 @@
    ================================================================= */
 .card--stacked-text {
 
-    /* ── Heading style (h2-style applied to every block heading) ──────────────── */
-    --card-stacked-text-heading-font-size: 14;
-    /* px */
-    --card-stacked-text-heading-font-color: var(--color-text-default);
-    /* heading colour */
-    --card-stacked-text-heading-font-weight: 700;
-    /* bold */
-    --card-stacked-text-heading-font-style: normal;
-    /* normal | italic */
-    --card-stacked-text-heading-alignment: left;
-    /* left | center | right */
-
-    /* ── Body style (text-body applied to every block body paragraph) ───────── */
-    --card-stacked-text-body-font-size: 14;
-    /* px */
-    --card-stacked-text-body-font-color: var(--color-text-subtle);
-    /* body colour */
-    --card-stacked-text-body-font-weight: 400;
-    /* regular */
-    --card-stacked-text-body-font-style: normal;
-    /* normal | italic */
-    --card-stacked-text-body-alignment: left;
-    /* left | center | right */
-    --card-stacked-text-heading-line-height: 1.25;
-    /* unitless line-height multiplier for block headings */
-    --card-stacked-text-body-line-height: 1.25;
-    /* unitless line-height multiplier for block body text */
+    /* ── Heading & body typography — inherit from .card-base.
+       Override --card-heading-font-* or --card-body-font-* here to
+       customise text style across the whole card type at once, e.g.:
+         --card-heading-font-color: var(--color-accent);
+         --card-body-font-size: 12;
+    ── */
+    --card-heading-line-height: 1.25;
+    /* line-height for block headings (base default: 1.3) */
+    --card-body-line-height: 1.25;
+    /* line-height for block body text (base default: 1.3) */
 
     /* ── Inter-block divider (drawn at equal-height slot boundaries) ──────────── */
     --card-stacked-text-divider-visible: true;
@@ -1098,16 +1100,9 @@
     /* left | center | right */
 
     /* ── Vertical spacing ─────────────────────────────────────────────────────── */
-    --card-stacked-text-gap-top: 0;
-    /* px — extra space above the first block */
-    --card-stacked-text-gap-bottom: 0;
-    /* px — extra space below the last block */
-    --card-stacked-text-gap-between: 8;
-    /* px — visual padding on each side of the divider line */
-    --card-stacked-text-heading-gap: 8;
-    /* px — gap between heading and body text within a block */
-    --card-stacked-text-block-vertical-alignment: top;
-    /* top | middle | bottom */
+    /* gap-top, gap-bottom, gap-between, heading-gap, block-vertical-alignment
+       all match the .card-base defaults (0 / 0 / 8 / 8 / top) — override here
+       only if this card type needs different values. */
 
     /* ── Key takeaway ─────────────────────────────────────────────────────────── */
     --card-stacked-text-key-takeaway-font-size: 12;
@@ -1188,41 +1183,21 @@
    ================================================================= */
 .card--icon-item-text {
 
-    /* ── Item heading */
-    --card-icon-item-text-heading-font-size: 14;
-    /* px */
-    --card-icon-item-text-heading-font-color: var(--color-text-default);
-    /* heading colour */
-    --card-icon-item-text-heading-font-weight: 700;
-    --card-icon-item-text-heading-font-style: normal;
-    /* normal | italic */
-    --card-icon-item-text-heading-alignment: left;
-    /* left | center | right */
+    /* ── Heading & body typography — inherit from .card-base.
+       Override --card-heading-font-* or --card-body-font-* here.
+    ── */
+    /* --card-heading-line-height and --card-body-line-height both default to 1.3
+       (from .card-base); uncomment to override:
+       --card-heading-line-height: 1.25;
+       --card-body-line-height: 1.25; */
 
-    /* ── Item body */
-    --card-icon-item-text-body-font-size: 14;
-    /* px */
-    --card-icon-item-text-body-font-color: var(--color-text-subtle);
-    /* body colour */
-    --card-icon-item-text-body-font-weight: 400;
-    --card-icon-item-text-body-font-style: normal;
-    /* normal | italic */
-    --card-icon-item-text-body-alignment: left;
-    /* left | center | right */
-    --card-icon-item-text-heading-line-height: 1.30;
-    /* unitless line-height multiplier for item headings */
-    --card-icon-item-text-body-line-height: 1.30;
-    /* unitless line-height multiplier for item body text */
-
-    /* ── Item icon / label */
-    --card-icon-item-text-icon-size: 20;
-    /* px */
-    --card-icon-item-text-icon-gap: 8;
-    /* px — gap between icon and text */
-    --card-icon-item-text-icon-color: var(--color-text-default);
-    --card-icon-item-text-icon-font-family: var(--icon-font-family);
-    --card-icon-item-text-icon-font-weight: 700;
-    /* weight for text-style icons */
+    /* ── Item icon / label — all values match .card-base defaults.
+       Uncomment to override per-instance or at card-type level:
+       --card-item-icon-size: 20;
+       --card-item-icon-gap: 8;
+       --card-item-icon-color: var(--color-text-default);
+       --card-item-icon-font-weight: 700;
+       Icon font-family is always inherited from --icon-font-family (global). */
 
     /* ── Item dividers */
     --card-icon-item-text-divider-visible: true;
@@ -1236,18 +1211,13 @@
     --card-icon-item-text-divider-alignment: left;
     /* left | center | right */
 
-    /* ── Vertical spacing */
-    /* --card-body-gap-top: 8; */
-    --card-icon-item-text-gap-top: 0;
-    /* px — extra space above first item */
-    --card-icon-item-text-gap-bottom: 0;
-    /* px — extra space below last item */
-    --card-icon-item-text-gap-between: 8;
-    /* px — space around each item divider */
-    --card-icon-item-text-heading-gap: 8;
-    /* px — gap between item heading and body text */
-    --card-icon-item-text-block-vertical-alignment: top;
-    /* top | middle | bottom */
+    /* ── Vertical spacing — all values match .card-base defaults (0/0/8/8/top).
+       Uncomment to override:
+       --card-gap-top: 0;
+       --card-gap-bottom: 0;
+       --card-gap-between: 8;
+       --card-heading-gap: 8;
+       --card-block-vertical-alignment: top; */
 }
 
 
@@ -1315,26 +1285,18 @@
     /* % of usable row width reserved for column 2 */
     --card-numbered-text-col2-alignment: left;
     /* left | center | right */
-    --card-numbered-text-heading-font-size: 14;
-    /* px */
-    --card-numbered-text-heading-font-color: var(--color-text-default);
-    --card-numbered-text-heading-font-weight: 600;
-    --card-numbered-text-heading-font-style: normal;
-    /* normal | italic */
-    --card-numbered-text-heading-line-height: 1.30;
-    /* unitless multiplier */
+    --card-heading-font-weight: 600;
+    /* numbered-text uses semibold headings (base .card-base default is 700) */
+    /* --card-heading-line-height defaults to 1.3 from .card-base; uncomment to override:
+       --card-heading-line-height: 1.3; */
 
     /* ── Column 3 — body text (secondary, right side) ────────────────── */
     --card-numbered-text-col3-alignment: left;
     /* left | center | right */
-    --card-numbered-text-body-font-size: 14;
-    /* px */
-    --card-numbered-text-body-font-color: var(--color-text-muted);
-    --card-numbered-text-body-font-weight: 400;
-    --card-numbered-text-body-font-style: normal;
-    /* normal | italic */
-    --card-numbered-text-body-line-height: 1.30;
-    /* unitless multiplier */
+    --card-body-font-color: var(--color-text-muted);
+    /* numbered-text body uses muted colour (base default is text-subtle) */
+    /* --card-body-line-height defaults to 1.3 from .card-base; uncomment to override:
+       --card-body-line-height: 1.3; */
 
     /* ── Row geometry ───────────────────────────────────────────────────── */
     --card-numbered-text-row-vertical-alignment: middle;
@@ -1356,10 +1318,10 @@
     /* px — horizontal inset from each side edge (0 = full card width) */
 
     /* ── Outer spacing ──────────────────────────────────────────────────── */
-    --card-numbered-text-gap-top: 0;
-    /* px — extra space above first row */
-    --card-numbered-text-gap-bottom: 0;
-    /* px — extra space below last row */
+    /* --card-gap-top and --card-gap-bottom both default to 0 from .card-base;
+       uncomment to override:
+       --card-gap-top: 0;
+       --card-gap-bottom: 0; */
 }
 
 
@@ -1396,9 +1358,10 @@
     --card-gantt-section-font-color: var(--color-text-subtle);
 
     /* ── Task label column typography ───────────────────────────────── */
-    --card-gantt-label-font-size: 10;
-    /* px */
-    --card-gantt-label-font-color: var(--color-text-default);
+    --card-label-font-size: 10;
+    /* px (overrides base 11 — gantt uses slightly smaller labels) */
+    --card-label-font-color: var(--color-text-default);
+    /* task names use default fg (overrides base: text-muted) */
 
     /* ── Axis tick labels ────────────────────────────────────────────── */
     --card-gantt-tick-font-size: 9;
@@ -1450,37 +1413,20 @@
     /* ── Heading row ─────────────────────────────────────────────────── */
     --card-table-heading-bg-color: var(--color-primary);
     /* heading row background fill */
-    --card-table-heading-font-color: var(--color-on-primary);
-    /* heading text colour */
-    --card-table-heading-font-size: 14;
-    /* px — heading cell font size */
-    --card-table-heading-font-weight: 700;
-    /* bold by default */
-    --card-table-heading-font-style: normal;
-    /* normal | italic */
-    --card-table-heading-alignment: left;
-    /* left | center | right — default for all heading cells */
+    --card-heading-font-color: var(--color-on-primary);
+    /* heading text is white-on-dark (overrides .card-base --card-heading-font-color) */
     --card-table-heading-height: 28;
     /* px — heading row height */
     --card-table-heading-border-color: var(--color-primary);
     /* border colour below the heading row */
 
     /* ── Body rows ──────────────────────────────────────────────────── */
-    --card-table-body-font-size: 14;
-    /* px */
-    --card-table-body-font-color: var(--color-text-subtle);
-    /* data cell text colour */
-    --card-table-body-font-weight: 400;
-    --card-table-body-font-style: normal;
-    /* normal | italic */
     --card-table-body-height: 24;
     /* px — body row height */
     --card-table-body-min-height: 20;
     /* px — minimum row height */
     --card-table-body-bg-color: var(--color-surface);
     /* default row background (transparent = card surface) */
-    --card-table-body-alignment: left;
-    /* default cell text alignment */
 
     /* ── Alternating row stripe ──────────────────────────────────────── */
     --card-table-stripe-visible: false;
@@ -1588,30 +1534,22 @@
     --card-timeline-goal-marker-fill: var(--color-accent-alt);
     /* terminal goal marker fill (defaults to secondary accent) */
 
-    /* ── Entry heading ────────────────────────────────────────── */
-    --card-timeline-heading-font-size: 14;
-    /* px */
-    --card-timeline-heading-font-color: var(--color-text-primary);
-    --card-timeline-heading-font-weight: 700;
-    --card-timeline-heading-font-style: normal;
-
-    /* ── Entry body ───────────────────────────────────────────── */
-    --card-timeline-body-font-size: 14;
-    /* px */
-    --card-timeline-body-font-color: var(--color-text-muted);
-    --card-timeline-body-font-weight: 400;
-    --card-timeline-body-font-style: normal;
+    /* ── Entry heading & body typography — inherit from .card-base.
+       Override --card-heading-font-* or --card-body-font-* here, e.g.:
+         --card-heading-font-color: var(--color-text-default);
+    ── */
+    --card-body-font-color: var(--color-text-muted);
+    /* timeline entry body uses muted text (base default is text-subtle) */
 
     /* ── Entry icon (beside heading) ─────────────────────────── */
-    --card-timeline-icon-size: 13;
-    /* px — icon beside entry heading */
-    --card-timeline-icon-gap: 3;
-    /* gap between icon and heading text */
-    --card-timeline-icon-color: var(--color-accent);
-    /* default icon colour (overridable per entry) */
-    /* --card-timeline-icon-font-family: ""; */
-    /* defaults to global icon-font-family token */
-    --card-timeline-icon-font-weight: 700;
+    --card-timeline-item-icon-size: 13;
+    /* px — icon beside entry heading (base default: 20) */
+    --card-timeline-item-icon-gap: 3;
+    /* gap between icon and heading text (base default: 8) */
+    --card-item-icon-color: var(--color-accent);
+    /* entry icon colour (base default: color-text-default) */
+    /* icon font-family inherited from global --icon-font-family token */
+    /* --card-item-icon-font-weight defaults to 700 from .card-base */
 
     /* ── Caption ──────────────────────────────────────────────── */
     --card-timeline-caption-font-size: 10;
@@ -1635,11 +1573,8 @@
     /* px */
     --card-compare-heading-bg-color: var(--color-primary);
     /* default heading background (non-highlighted columns) */
-    --card-compare-heading-font-color: var(--color-text-inverse);
-    --card-compare-heading-font-size: 14;
-    /* px */
-    --card-compare-heading-font-weight: 700;
-    --card-compare-heading-font-style: normal;
+    --card-heading-font-color: var(--color-text-inverse);
+    /* heading text on dark bg (overrides base: text-default) */
     --card-compare-heading-alignment: center;
     /* left | center | right */
 
@@ -1661,11 +1596,10 @@
     /* heading cell bg for the label column; defaults to heading-bg-color */
     --card-compare-label-col-heading-font-color: var(--color-text-inverse);
 
-    --card-compare-label-font-size: 11;
-    /* px */
-    --card-compare-label-font-color: var(--color-text-default);
-    --card-compare-label-font-weight: 700;
-    --card-compare-label-font-style: normal;
+    --card-label-font-color: var(--color-text-default);
+    /* label text uses default fg (overrides base: text-muted) */
+    --card-label-font-weight: 700;
+    /* bold labels in compare (overrides base: 400) */
     --card-compare-label-alignment: left;
     /* left | center | right */
 
@@ -1689,11 +1623,7 @@
     /* px — horizontal gap between badge right edge and label text */
 
     /* ── Body cells ───────────────────────────────────────────────── */
-    --card-compare-body-font-size: 14;
-    /* px */
-    --card-compare-body-font-color: var(--color-text-subtle);
-    --card-compare-body-font-weight: 400;
-    --card-compare-body-font-style: normal;
+    /* ── Inherit body font from .card-base; override here to customise. ── */
     --card-compare-body-alignment: center;
     /* left | center | right — default alignment for all cells */
     --card-compare-body-bg-color: transparent;
@@ -1807,19 +1737,14 @@
     /* badge fill for status: conditional */
 
     /* ── Item heading ─────────────────────────────────────────────── */
-    --card-scope-item-heading-font-size: 14;
-    /* px */
-    --card-scope-item-heading-font-color: var(--color-text-default);
-    --card-scope-item-heading-font-weight: 700;
-    --card-scope-item-heading-line-height: 1.2;
-    /* unitless — multiplier applied to heading font size */
+    /* ── Inherit heading/body from .card-base; override here to customise. ── */
+    --card-heading-line-height: 1.2;
+    /* unitless — multiplier applied to heading font size (base default: 1.3) */
 
     /* ── Item body text ───────────────────────────────────────────── */
-    --card-scope-item-body-font-size: 14;
-    /* px */
-    --card-scope-item-body-font-color: var(--color-text-muted);
-    --card-scope-item-body-font-weight: 400;
-    --card-scope-item-body-margin-top: 4;
+    --card-body-font-color: var(--color-text-muted);
+    /* scope item body uses muted text (overrides base: text-subtle) */
+    --card-scope-body-margin-top: 4;
     /* px — gap between heading row and body text */
 
     /* ── Optional status label (small tag at tile bottom-right) ───── */

@@ -28,6 +28,10 @@ class AgendaCardRenderer(BaseCardRenderer):
 
     variant = "card--agenda"
 
+    def _tok(self, name: str, default=None):
+        """Resolve ``card-agenda-{name}`` with fallback to ``card-{name}`` (base token)."""
+        return self._resolve_tok("agenda", name, default)
+
     def render_body(self, card: CardModel, box: RenderBox) -> None:
         """Render section list as a three-column single-column layout."""
         content = card.content if isinstance(card.content, dict) else {}
@@ -54,8 +58,8 @@ class AgendaCardRenderer(BaseCardRenderer):
         col2_align = self.resolve("card-agenda-col2-alignment") or "left"
         col3_align = self.resolve("card-agenda-col3-alignment") or "left"
 
-        # ── Row geometry (fixed row height token override plus legacy spacing) ───
-        entry_size = float(self.resolve("card-agenda-heading-font-size") or 16)
+        # ── Row geometry ───────────────────────────────────────────────────────
+        entry_size = float(self._tok("heading-font-size", 14))
         entry_spacing = float(self.resolve("card-agenda-entry-spacing") or 12)
         row_height_token = self.resolve("card-agenda-row-height")
         row_h = None
@@ -84,37 +88,37 @@ class AgendaCardRenderer(BaseCardRenderer):
         col3_x = col2_x + col2_w
 
         # ── Number / indicator column tokens ─────────────────────────────
-        number_size = float(self.resolve("card-agenda-number-font-size") or entry_size)
-        number_color_inactive = self.resolve("card-agenda-number-font-color") or "#888888"
-        number_weight_inactive = str(self.resolve("card-agenda-number-font-weight") or "400")
-        number_style_inactive = self.resolve("card-agenda-number-font-style") or "normal"
+        number_size = float(self._tok("number-font-size") or entry_size)
+        number_color_inactive = self._tok("number-font-color") or "#888888"
+        number_weight_inactive = str(self._tok("number-font-weight") or "400")
+        number_style_inactive = self._tok("number-font-style") or "normal"
 
         # ── Title column tokens (inactive / active) ───────────────────────
         # col2 uses heading-specific tokens (h2-style); inactive-color is a
         # secondary fallback so both naming conventions work.
         entry_color_inactive = (
-            self.resolve("card-agenda-heading-font-color")
-            or self.resolve("card-agenda-inactive-color")
+            self._tok("heading-font-color")
+            or self._tok("inactive-color")
             or "#888888"
         )
         entry_weight_inactive = str(
-            self.resolve("card-agenda-heading-font-weight")
-            or self.resolve("card-agenda-inactive-font-weight")
+            self._tok("heading-font-weight")
+            or self._tok("inactive-font-weight")
             or "600"
         )
-        entry_style_inactive = self.resolve("card-agenda-heading-font-style") or "normal"
+        entry_style_inactive = self._tok("heading-font-style") or "normal"
 
-        active_number_color = self.resolve("card-agenda-active-number-color") or "#003087"
-        active_title_color = self.resolve("card-agenda-active-heading-color") or "#003087"
-        active_info_color = self.resolve("card-agenda-active-body-color") or "#374151"
-        active_weight = str(self.resolve("card-agenda-active-font-weight") or "700")
-        active_style = self.resolve("card-agenda-active-font-style") or "normal"
+        active_number_color = self._tok("active-number-color") or "#003087"
+        active_title_color = self._tok("active-heading-color") or "#003087"
+        active_info_color = self._tok("active-body-color") or "#374151"
+        active_weight = str(self._tok("active-font-weight") or "700")
+        active_style = self._tok("active-font-style") or "normal"
 
         # ── Info column tokens ────────────────────────────────────────────
-        info_size = float(self.resolve("card-agenda-body-font-size") or 12)
-        info_color = self.resolve("card-agenda-body-font-color") or "#888888"
-        info_weight = str(self.resolve("card-agenda-body-font-weight") or "400")
-        info_style = self.resolve("card-agenda-body-font-style") or "normal"
+        info_size = float(self._tok("body-font-size", 12))
+        info_color = self._tok("body-font-color") or "#888888"
+        info_weight = str(self._tok("body-font-weight") or "400")
+        info_style = self._tok("body-font-style") or "normal"
 
         # ── Row separator tokens ──────────────────────────────────────────
         sep_visible_raw = self.resolve("card-agenda-separator-visible")

@@ -182,13 +182,11 @@ class TimelineCardRenderer(BaseCardRenderer):
         b_weight = self._tok("body-font-weight", "400")
         b_style  = self._tok("body-font-style",  "normal")
 
-        icon_size = self._f("icon-size", 14)
-        icon_gap  = self._f("icon-gap",  4)
-        icon_color = self._tok("icon-color", "#3B82F6")
-        icon_ff    = (self._tok("icon-font-family") or
-                      self.resolve("icon-font-family") or
-                      "Material Symbols Outlined")
-        icon_fw    = self._tok("icon-font-weight", "700")
+        icon_size = self._f("item-icon-size", 14)
+        icon_gap  = self._f("item-icon-gap",  4)
+        icon_color = self._tok("item-icon-color", "#3B82F6")
+        icon_ff    = self.resolve("icon-font-family") or "Material Symbols Outlined"
+        icon_fw    = self._tok("item-icon-font-weight", "700")
 
         connector_len = self._f("connector-length", 10)
         arrow_size    = self._f("arrow-size", 10)
@@ -313,13 +311,11 @@ class TimelineCardRenderer(BaseCardRenderer):
         b_weight = self._tok("body-font-weight", "400")
         b_style  = self._tok("body-font-style",  "normal")
 
-        icon_size = self._f("icon-size", 14)
-        icon_gap  = self._f("icon-gap",  4)
-        icon_color = self._tok("icon-color", "#3B82F6")
-        icon_ff    = (self._tok("icon-font-family") or
-                      self.resolve("icon-font-family") or
-                      "Material Symbols Outlined")
-        icon_fw    = self._tok("icon-font-weight", "700")
+        icon_size = self._f("item-icon-size", 14)
+        icon_gap  = self._f("item-icon-gap",  4)
+        icon_color = self._tok("item-icon-color", "#3B82F6")
+        icon_ff    = self.resolve("icon-font-family") or "Material Symbols Outlined"
+        icon_fw    = self._tok("item-icon-font-weight", "700")
 
         connector_len = self._f("connector-length", 10)
         arrow_size    = self._f("arrow-size", 10)

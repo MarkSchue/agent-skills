@@ -93,7 +93,7 @@ class KpiCardRenderer(BaseCardRenderer):
 
         # Supporting label
         if label:
-            label_size = float(self.resolve("card-kpi-label-font-size") or self.resolve("text-caption-font-size") or 11)
+            label_size = float(self._resolve_tok("kpi", "label-font-size", 11))
             box.add(
                 {
                     "type": "text",
@@ -102,7 +102,7 @@ class KpiCardRenderer(BaseCardRenderer):
                     "w": box.w,
                     "text": label,
                     "font_size": label_size,
-                    "font_color": self.resolve("card-kpi-label-font-color") or self.resolve("text-caption-font-color") or "#888888",
+                    "font_color": self._resolve_tok("kpi", "label-font-color", "#888888"),
                     "alignment": label_align,
                 }
             )

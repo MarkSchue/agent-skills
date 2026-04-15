@@ -95,12 +95,12 @@ class StackedTextCardRenderer(BaseCardRenderer):
         div_length_pct = float(self.resolve("card-stacked-text-divider-length-pct") or 50) / 100
         div_alignment  = self.resolve("card-stacked-text-divider-alignment")    or "left"
 
-        # Vertical gaps
-        gap_top       = float(self.resolve("card-stacked-text-gap-top")         or 0)
-        gap_bottom    = float(self.resolve("card-stacked-text-gap-bottom")      or 0)
-        gap_between   = float(self.resolve("card-stacked-text-gap-between")     or 8)
-        heading_gap   = float(self.resolve("card-stacked-text-heading-gap")     or 4)
-        vertical_align = self.resolve("card-stacked-text-block-vertical-alignment") or "top"
+        # Vertical gaps — falls back to --card-gap-* base tokens
+        gap_top       = float(self._resolve_tok("stacked-text", "gap-top",       0))
+        gap_bottom    = float(self._resolve_tok("stacked-text", "gap-bottom",    0))
+        gap_between   = float(self._resolve_tok("stacked-text", "gap-between",   8))
+        heading_gap   = float(self._resolve_tok("stacked-text", "heading-gap",   8))
+        vertical_align = self._resolve_tok("stacked-text", "block-vertical-alignment", "top")
 
         # Key takeaway
         kt_size       = float(self.resolve("card-stacked-text-key-takeaway-font-size")   or b_size)
@@ -129,8 +129,8 @@ class StackedTextCardRenderer(BaseCardRenderer):
             heading_text = block["heading"]
             body_text    = block["body"]
 
-            heading_line_height = h_size * float(self.resolve("card-stacked-text-heading-line-height") or 1.25)
-            body_line_height = b_size * float(self.resolve("card-stacked-text-body-line-height") or 1.25)
+            heading_line_height = h_size * float(self._resolve_tok("stacked-text", "heading-line-height", 1.25))
+            body_line_height = b_size * float(self._resolve_tok("stacked-text", "body-line-height", 1.25))
             heading_chars = max(1, int(box.w / (h_size * 0.6)))
             body_chars = max(1, int(box.w / (b_size * 0.6)))
 

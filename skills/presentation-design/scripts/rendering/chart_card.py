@@ -131,7 +131,7 @@ class ChartCardRenderer(BaseCardRenderer):
     def render_body(self, card: CardModel, box: RenderBox) -> None:  # noqa: C901
         content = card.content if isinstance(card.content, dict) else {}
 
-        # ── Legacy image-based rendering ───────────────────────────────
+        # ── Image path shortcut ────────────────────────────────────────
         image_path = content.get("image", "")
         if image_path:
             self._render_image_fallback(card, box, content, image_path)
@@ -732,12 +732,12 @@ class ChartCardRenderer(BaseCardRenderer):
                          "alignment": "left", "vertical_align": "middle",
                          "wrap": False})
 
-    # ── Legacy image-based fallback ────────────────────────────────────────
+    # ── Image-based rendering (when content supplies an image path) ───────────
 
     def _render_image_fallback(
         self, card: CardModel, box: RenderBox, content: dict, image_path: str
     ) -> None:
-        """Render a plain image + optional caption (backward-compatible path)."""
+        """Render a plain image + optional caption when chart content supplies an image path."""
         import logging
         logger = logging.getLogger(__name__)
         if self.project_root:

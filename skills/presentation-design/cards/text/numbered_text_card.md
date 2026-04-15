@@ -124,18 +124,18 @@ All `.card-base` overrides plus `.card--numbered-text` tokens:
 **Column 2 — heading:**
 - `card_numbered_text_col2_width_pct` — column width as % of usable row width
 - `card_numbered_text_col2_alignment` — `left` | `center` | `right`
-- `card_numbered_text_heading_font_size` — px
-- `card_numbered_text_heading_font_color`
-- `card_numbered_text_heading_font_weight`
-- `card_numbered_text_heading_font_style` — `normal` | `italic`
+- `card_heading_font_size` — px
+- `card_heading_font_color`
+- `card_heading_font_weight`
+- `card_heading_font_style` — `normal` | `italic`
 - `card_numbered_text_heading_line_height` — unitless multiplier (e.g. `1.3`)
 
 **Column 3 — body text:**
 - `card_numbered_text_col3_alignment` — `left` | `center` | `right`
-- `card_numbered_text_body_font_size` — px
-- `card_numbered_text_body_font_color`
-- `card_numbered_text_body_font_weight`
-- `card_numbered_text_body_font_style` — `normal` | `italic`
+- `card_body_font_size` — px
+- `card_body_font_color`
+- `card_body_font_weight`
+- `card_body_font_style` — `normal` | `italic`
 - `card_numbered_text_body_line_height` — unitless multiplier
 
 **Row geometry:**
@@ -170,8 +170,8 @@ style_overrides:
   card_numbered_text_col3_alignment: left
   card_numbered_text_row_vertical_alignment: middle
   card_numbered_text_separator_visible: true
-  card_numbered_text_heading_font_size: 13
-  card_numbered_text_body_font_size: 11
+  card_heading_font_size: 13
+  card_body_font_size: 11
 content:
   highlight: 0
   rows:

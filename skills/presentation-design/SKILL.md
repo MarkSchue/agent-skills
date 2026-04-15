@@ -195,6 +195,34 @@ may short-circuit this order.
 4. **Base CSS class** — `.slide-base`, `.card-base`
 5. **Python fallback default** — hardcoded safe value in renderer
 
+### Base Token Override Pattern
+
+Typography tokens (`--card-heading-font-*`, `--card-body-font-*`, `--card-label-font-*`)
+are defined once in `.card-base` with sensible defaults. Card variant classes override
+**only the values that differ** from those base defaults:
+
+```css
+/* ✓ Correct — override the base token inside the variant scope */
+.card--agenda {
+  --card-heading-font-weight: 600;       /* semibold — overrides base 700 */
+  --card-body-font-color: var(--color-text-muted);  /* overrides base text-subtle */
+}
+
+/* ✗ Avoid — redundant variant-specific alias when value matches base */
+.card--stacked-text {
+  --card-stacked-text-heading-font-size: 14;  /* same as base 14 — no-op */
+}
+```
+
+In per-card `style_overrides:` YAML, use the base token names to scope a value
+to that one card instance:
+
+```yaml
+style_overrides:
+  card_heading_font_color: "#003087"   # scopes to this card only
+  card_body_font_size: 12              # scopes to this card only
+```
+
 ---
 
 ## Design Principles
@@ -204,9 +232,8 @@ Every color, font size, spacing, radius, and font family must come from the
 theme token system. No literal hex codes, pixel values, or font names in
 renderer code.
 
-### 2 — CSS Extensibility Without Breakage
-New tokens may be appended but never renamed. Every new token must have a safe
-default. Every token must have an inline comment in the CSS file.
+### 2 — CSS Extensibility
+New tokens may be freely added or renamed — update all renderers, CSS, and docs in the same commit. Every token must have a safe default and an inline comment in the CSS file.
 
 ### 3 — Registry-First Discovery
 Read `registry.yaml` before loading any spec file. Load specs only for the

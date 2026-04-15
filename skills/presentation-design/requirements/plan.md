@@ -337,7 +337,7 @@ This chain must be documented and enforced centrally — no renderer may short-c
 ## 6.4 CSS extensibility rule
 The CSS classes for slides and cards must be designed to be **addable without breaking**. Rules:
 - New tokens may always be appended to the base class without changing existing token names.
-- Existing token names must not be renamed; add an alias token if a rename is needed.
+- Token names may be renamed when the new name is strictly cleaner; update all renderers, CSS, and docs in the same commit.
 - Every new token must supply a safe default value so existing presentations that do not set it still render correctly.
 - Document each token with an inline comment in the CSS file explaining its role and accepted values.
 

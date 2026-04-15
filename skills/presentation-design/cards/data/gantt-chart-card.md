@@ -54,7 +54,7 @@ content:
 | task `crit` | bool | false | Mark bar as critical (red fill) |
 | task `milestone` | bool | false | Render as a diamond marker instead of a bar |
 | `start_date` | `YYYY-MM-DD` \| `YYYY-MM` | — | Anchor chart dates so overlays can also be expressed as ISO dates |
-| `overlays` | list | — | Named background spans (holidays, code-freeze, UAT, sprints, …) rendered as shaded chart bands. The keys `holidays` and `highlights` are accepted as aliases. |
+| `overlays` | list | — | Named background spans (holidays, code-freeze, UAT, sprints, …) rendered as shaded chart bands. |
 | overlay `label` | str | — | Text shown in the header row above the band |
 | overlay `start` | int \| ISO date | 0 | Band start offset / date (same rules as task `start`) |
 | overlay `duration` | int | 1 | Band length in `unit` |

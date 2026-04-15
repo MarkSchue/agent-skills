@@ -108,14 +108,14 @@ class NumberedTextCardRenderer(BaseCardRenderer):
         h_color = self._resolve_tok("numbered-text", "heading-font-color",       "#1A1A2E")
         h_weight = str(self._resolve_tok("numbered-text", "heading-font-weight", "600"))
         h_style = self._resolve_tok("numbered-text", "heading-font-style",        "normal")
-        h_lh = h_size * float(self.resolve("card-numbered-text-heading-line-height") or 1.3)
+        h_lh = h_size * float(self._resolve_tok("numbered-text", "heading-line-height", 1.3))
 
         # ── Body (col 3) tokens ──────────────────────────────────────────
         b_size = float(self._resolve_tok("numbered-text", "body-font-size",      12))
         b_color = self._resolve_tok("numbered-text", "body-font-color",           "#6B7280")
         b_weight = str(self._resolve_tok("numbered-text", "body-font-weight",    "400"))
         b_style = self._resolve_tok("numbered-text", "body-font-style",           "normal")
-        b_lh = b_size * float(self.resolve("card-numbered-text-body-line-height") or 1.3)
+        b_lh = b_size * float(self._resolve_tok("numbered-text", "body-line-height", 1.3))
 
         # Gap between heading and body inside same row (when col2 and col3 share the row)
         hb_gap = float(self.resolve("card-numbered-text-heading-body-gap") or 4)
@@ -162,8 +162,8 @@ class NumberedTextCardRenderer(BaseCardRenderer):
         sep_inset = float(self.resolve("card-numbered-text-separator-inset") or 0)
 
         # ── Outer gap ────────────────────────────────────────────────────
-        gap_top = float(self.resolve("card-numbered-text-gap-top") or 0)
-        gap_bottom = float(self.resolve("card-numbered-text-gap-bottom") or 0)
+        gap_top = float(self._resolve_tok("numbered-text", "gap-top", 0))
+        gap_bottom = float(self._resolve_tok("numbered-text", "gap-bottom", 0))
 
         # ── Column geometry ───────────────────────────────────────────────
         # The bar area is always reserved when a highlight index is provided

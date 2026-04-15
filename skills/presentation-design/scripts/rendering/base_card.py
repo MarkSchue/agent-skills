@@ -121,6 +121,18 @@ class BaseCardRenderer(ABC):
         self._card = card
         self._slide_overrides = slide_overrides or {}
 
+        # Optional card width reduction (as percent of allocated slot width).
+        width_pct = self.resolve("card-width-pct")
+        if width_pct is not None and width_pct != "":
+            try:
+                width_pct_f = float(width_pct)
+            except (ValueError, TypeError):
+                width_pct_f = None
+            if width_pct_f is not None and 0 < width_pct_f < 100:
+                new_w = box.w * width_pct_f / 100
+                box.x += (box.w - new_w) / 2
+                box.w = new_w
+
         # Container
         self._render_container(box)
 
@@ -312,7 +324,10 @@ class BaseCardRenderer(ABC):
         """
         y = box.y + self._pad_top
 
-        if card.title:
+        title_visible_raw = self.resolve("card-title-visible")
+        title_visible = title_visible_raw not in (False, "false", "False")
+
+        if card.title and title_visible:
             title_size = float(self.resolve("card-title-font-size") or 16)
             title_line_gap = float(self.resolve("card-title-line-gap") or 8)
             content_w = box.w - self._pad_left - self._pad_right

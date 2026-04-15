@@ -31,9 +31,6 @@ sections:
         milestone: bool          if true, renders as a diamond instead of bar
         crit   : bool            marks bar as critical (red tint unless color given)
 
-Backward compatibility: the keys ``holidays`` and ``highlights`` are accepted as
-aliases for ``overlays`` — existing decks do not need to be updated.
-
 The renderer auto-fits the chart into the available body box.  In condensed mode
 (triggered automatically when the box width < card-gantt-condensed-threshold px,
 or when `condensed: true` is set explicitly), row height and fonts are scaled down.
@@ -153,35 +150,42 @@ class GanttChartCardRenderer(BaseCardRenderer):
 
     variant = "card--gantt-chart"
 
+    def _tok(self, name: str, default=None):
+        """Resolve ``card-gantt-{name}`` with fallback to ``card-{name}`` (base token)."""
+        return self._resolve_tok("gantt", name, default)
+
+    def _f(self, name: str, default: float) -> float:
+        return float(self._tok(name, default))
+
     def render_body(self, card: CardModel, box: RenderBox) -> None:  # noqa: C901
         content = card.content if isinstance(card.content, dict) else {}
 
         # ── Resolve tokens ────────────────────────────────────────────────
-        label_col_pct   = float(self.resolve("card-gantt-label-col-pct") or 28)
-        row_h           = float(self.resolve("card-gantt-row-height") or 22)
-        section_h       = float(self.resolve("card-gantt-section-height") or 18)
-        header_h        = float(self.resolve("card-gantt-header-height") or 20)
-        bar_radius      = float(self.resolve("card-gantt-bar-radius") or 3)
-        bar_color       = self.resolve("card-gantt-bar-color") or "#3B82F6"
-        bar_crit_color  = self.resolve("card-gantt-bar-crit-color") or "#EF4444"
-        bar_done_opacity = float(self.resolve("card-gantt-bar-done-opacity") or 0.45)
-        grid_color      = self.resolve("card-gantt-grid-color") or "#E5E7EB"
-        section_fill    = self.resolve("card-gantt-section-fill") or "#F3F4F6"
-        section_color   = self.resolve("card-gantt-section-font-color") or "#374151"
-        section_size    = float(self.resolve("card-gantt-section-font-size") or 10)
-        label_size      = float(self.resolve("card-gantt-label-font-size") or 10)
-        label_color     = self.resolve("card-gantt-label-font-color") or "#1A1A2E"
-        tick_size       = float(self.resolve("card-gantt-tick-font-size") or 9)
-        tick_color      = self.resolve("card-gantt-tick-font-color") or "#6B7280"
-        bar_text_size   = float(self.resolve("card-gantt-bar-text-font-size") or 8)
-        bar_text_color  = self.resolve("card-gantt-bar-text-font-color") or "#FFFFFF"
-        milestone_color = self.resolve("card-gantt-milestone-color") or "#F59E0B"
-        progress_color  = self.resolve("card-gantt-progress-color") or "#1E40AF"
-        overlay_fill    = self.resolve("card-gantt-overlay-fill") or "#E8F0FE"
-        overlay_label_color = self.resolve("card-gantt-overlay-label-color") or "#6B7280"
-        overlay_label_size = float(self.resolve("card-gantt-overlay-label-font-size") or 8)
-        overlay_opacity = int(float(self.resolve("card-gantt-overlay-opacity") or 40))
-        condensed_threshold = float(self.resolve("card-gantt-condensed-threshold") or 320)
+        label_col_pct   = self._f("label-col-pct",    28)
+        row_h           = self._f("row-height",        22)
+        section_h       = self._f("section-height",    18)
+        header_h        = self._f("header-height",     20)
+        bar_radius      = self._f("bar-radius",        3)
+        bar_color       = self._tok("bar-color") or "#3B82F6"
+        bar_crit_color  = self._tok("bar-crit-color") or "#EF4444"
+        bar_done_opacity = self._f("bar-done-opacity", 0.45)
+        grid_color      = self._tok("grid-color") or "#E5E7EB"
+        section_fill    = self._tok("section-fill") or "#F3F4F6"
+        section_color   = self._tok("section-font-color") or "#374151"
+        section_size    = self._f("section-font-size",  10)
+        label_size      = self._f("label-font-size",    10)
+        label_color     = self._tok("label-font-color") or "#1A1A2E"
+        tick_size       = self._f("tick-font-size",     9)
+        tick_color      = self._tok("tick-font-color") or "#6B7280"
+        bar_text_size   = self._f("bar-text-font-size", 8)
+        bar_text_color  = self._tok("bar-text-font-color") or "#FFFFFF"
+        milestone_color = self._tok("milestone-color") or "#F59E0B"
+        progress_color  = self._tok("progress-color") or "#1E40AF"
+        overlay_fill    = self._tok("overlay-fill") or "#E8F0FE"
+        overlay_label_color = self._tok("overlay-label-color") or "#6B7280"
+        overlay_label_size = self._f("overlay-label-font-size", 8)
+        overlay_opacity = int(float(self._tok("overlay-opacity") or 40))
+        condensed_threshold = self._f("condensed-threshold",   320)
 
         # ── Content parsing ───────────────────────────────────────────────
         unit      = str(content.get("unit", "weeks")).lower()
@@ -206,8 +210,7 @@ class GanttChartCardRenderer(BaseCardRenderer):
                 start_date = None
 
         # Overlays: named background spans (holidays, code-freeze, UAT, sprints, …).
-        # Accept "overlays" as the canonical key; "holidays" and "highlights" are aliases.
-        raw_overlays = content.get("overlays", content.get("highlights", content.get("holidays", [])))
+        raw_overlays = content.get("overlays", [])
         if not isinstance(raw_overlays, list):
             raw_overlays = []
 

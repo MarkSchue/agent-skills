@@ -61,18 +61,20 @@ each row, and may render as a glyph, number, or plain text.
 All `.card-base` overrides plus `.card--icon-item-text` tokens:
 
 **Item heading:**
-- `card_icon_item_text_heading_font_size` — heading font size (px)
-- `card_icon_item_text_heading_font_color` — heading text colour
-- `card_icon_item_text_heading_font_weight` — `400`  `600`  `700`
-- `card_icon_item_text_heading_font_style` — `normal`  `italic`
-- `card_icon_item_text_heading_alignment` — `left`  `center`  `right`
+- `card_heading_font_size` — heading font size (px)
+- `card_heading_font_color` — heading text colour
+- `card_heading_font_weight` — `400` | `600` | `700`
+- `card_heading_font_style` — `normal` | `italic`
+- `card_icon_item_text_heading_alignment` — `left` | `center` | `right`
+- `card_icon_item_text_heading_line_height` — unitless multiplier
 
 **Item body:**
-- `card_icon_item_text_body_font_size` — body font size (px); default matches other card body text
-- `card_icon_item_text_body_font_color` — body text colour
-- `card_icon_item_text_body_font_weight` — `400`  `600`
-- `card_icon_item_text_body_font_style` — `normal`  `italic`
-- `card_icon_item_text_body_alignment` — `left`  `center`  `right`
+- `card_body_font_size` — body font size (px)
+- `card_body_font_color` — body text colour
+- `card_body_font_weight` — `400` | `600`
+- `card_body_font_style` — `normal` | `italic`
+- `card_icon_item_text_body_alignment` — `left` | `center` | `right`
+- `card_icon_item_text_body_line_height` — unitless multiplier
 
 **Item icon:**
 - `card_icon_item_text_icon_size` — icon width/height in px

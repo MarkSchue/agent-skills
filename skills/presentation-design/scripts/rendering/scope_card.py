@@ -136,24 +136,24 @@ class ScopeCardRenderer(BaseCardRenderer):
         )
 
         # ── Item heading tokens ────────────────────────────────────────────
-        title_size = float(self._tok("item-heading-font-size") or 11)
+        title_size = float(self._tok("heading-font-size") or 11)
         title_color = str(
-            self._tok("item-heading-font-color")
+            self._tok("heading-font-color")
             or self.resolve("color-text-default")
             or "#1F2937"
         )
-        title_weight = str(self._tok("item-heading-font-weight") or "700")
-        title_lh = title_size * float(self._tok("item-heading-line-height") or 1.2)
+        title_weight = str(self._tok("heading-font-weight") or "700")
+        title_lh = title_size * float(self._tok("heading-line-height") or 1.2)
 
         # ── Item body text tokens ─────────────────────────────────────────
-        body_size = float(self._tok("item-body-font-size") or 9)
+        body_size = float(self._tok("body-font-size") or 9)
         body_color = str(
-            self._tok("item-body-font-color")
+            self._tok("body-font-color")
             or self.resolve("color-text-muted")
             or "#9CA3AF"
         )
-        body_weight = str(self._tok("item-body-font-weight") or "400")
-        body_margin_top = float(self._tok("item-body-margin-top") or 4)
+        body_weight = str(self._tok("body-font-weight") or "400")
+        body_margin_top = float(self._tok("body-margin-top") or 4)
         body_lh = body_size * 1.3
 
         # ── Status label tokens (optional small tag at tile bottom-right) ─

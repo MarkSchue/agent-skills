@@ -205,7 +205,7 @@ style_overrides:
   card_timeline_marker_fill: "#003087"
   card_timeline_marker_stroke: "#003087"
   card_timeline_goal_marker_fill: "#E2001A"
-  card_timeline_heading_font_color: "#003087"
+  card_heading_font_color: "#003087"
 content:
   orientation: horizontal
   milestones:

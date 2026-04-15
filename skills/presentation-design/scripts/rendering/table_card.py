@@ -18,6 +18,10 @@ class TableCardRenderer(BaseCardRenderer):
 
     variant = "card--table"
 
+    def _tok(self, name: str, default=None):
+        """Resolve ``card-table-{name}`` with fallback to ``card-{name}`` (base token)."""
+        return self._resolve_tok("table", name, default)
+
     def render_body(self, card: CardModel, box: RenderBox) -> None:
         """Emit a single ``table`` element that fills the body box."""
         content = card.content if isinstance(card.content, dict) else {}
@@ -34,7 +38,7 @@ class TableCardRenderer(BaseCardRenderer):
         if stripe_content is not None:
             stripe_visible = bool(stripe_content)
         else:
-            stripe_raw = self.resolve("card-table-stripe-visible")
+            stripe_raw = self._tok("stripe-visible")
             stripe_visible = stripe_raw in (True, "true", "True")
 
         if not headers and not rows:
@@ -43,44 +47,44 @@ class TableCardRenderer(BaseCardRenderer):
         # ── Token resolution ────────────────────────────────────────────
 
         # Heading row
-        header_bg        = self.resolve("card-table-heading-bg-color")       or "#1A1A2E"
-        header_fg        = self.resolve("card-table-heading-font-color")     or "#FFFFFF"
-        header_font_size = float(self.resolve("card-table-heading-font-size") or 12)
-        header_weight    = self.resolve("card-table-heading-font-weight")    or "bold"
-        header_style     = self.resolve("card-table-heading-font-style")     or "normal"
-        header_align     = header_alignment_override or self.resolve("card-table-heading-alignment") or "left"
-        header_height    = float(self.resolve("card-table-heading-height")   or 28)
-        header_border_color = self.resolve("card-table-heading-border-color") or header_bg
+        header_bg        = self._tok("heading-bg-color",       "#1A1A2E")
+        header_fg        = self._tok("heading-font-color",     "#FFFFFF")
+        header_font_size = float(self._tok("heading-font-size", 14))
+        header_weight    = self._tok("heading-font-weight",    "bold")
+        header_style     = self._tok("heading-font-style",     "normal")
+        header_align     = header_alignment_override or self._tok("heading-alignment", "left")
+        header_height    = float(self._tok("heading-height",   28))
+        header_border_color = self._tok("heading-border-color") or header_bg
 
         # Body rows
-        body_font_size  = float(self.resolve("card-table-body-font-size")  or 12)
-        body_fg         = self.resolve("card-table-body-font-color")       or "#374151"
-        body_weight     = self.resolve("card-table-body-font-weight")      or "normal"
-        body_style      = self.resolve("card-table-body-font-style")       or "normal"
-        body_height     = float(self.resolve("card-table-body-height")     or 24)
-        body_min_height = float(self.resolve("card-table-body-min-height") or 20)
-        body_bg         = self.resolve("card-table-body-bg-color")         or "transparent"
-        body_align      = self.resolve("card-table-body-alignment")        or "left"
+        body_font_size  = float(self._tok("body-font-size",  14))
+        body_fg         = self._tok("body-font-color",       "#374151")
+        body_weight     = self._tok("body-font-weight",      "normal")
+        body_style      = self._tok("body-font-style",       "normal")
+        body_height     = float(self._tok("body-height",     24))
+        body_min_height = float(self._tok("body-min-height", 20))
+        body_bg         = self._tok("body-bg-color")         or "transparent"
+        body_align      = self._tok("body-alignment",        "left")
 
         # Stripe
-        stripe_color   = self.resolve("card-table-stripe-color")         or "#F3F4F6"
+        stripe_color   = self._tok("stripe-color",           "#F3F4F6")
 
         # Sum row
-        sum_bg         = self.resolve("card-table-sum-bg-color")         or "#E5E7EB"
-        sum_fg         = self.resolve("card-table-sum-font-color")       or "#1A1A2E"
-        sum_font_size  = float(self.resolve("card-table-sum-font-size")  or 12)
-        sum_weight     = self.resolve("card-table-sum-font-weight")      or "bold"
-        sum_style      = self.resolve("card-table-sum-font-style")       or "normal"
-        sum_align      = self.resolve("card-table-sum-alignment")        or "left"
-        sum_height     = float(self.resolve("card-table-sum-height")     or 28)
+        sum_bg         = self._tok("sum-bg-color",           "#E5E7EB")
+        sum_fg         = self._tok("sum-font-color",         "#1A1A2E")
+        sum_font_size  = float(self._tok("sum-font-size",    12))
+        sum_weight     = self._tok("sum-font-weight",        "bold")
+        sum_style      = self._tok("sum-font-style",         "normal")
+        sum_align      = self._tok("sum-alignment",          "left")
+        sum_height     = float(self._tok("sum-height",       28))
 
         # Grid
-        border_color   = self.resolve("card-table-border-color")         or "#E5E7EB"
-        border_width   = float(self.resolve("card-table-border-width")   or 1)
+        border_color   = self._tok("border-color",           "#E5E7EB")
+        border_width   = float(self._tok("border-width",     1))
 
         # Cell padding
-        pad_x          = float(self.resolve("card-table-padding-x")      or 8)
-        pad_y          = float(self.resolve("card-table-padding-y")      or 4)
+        pad_x          = float(self._tok("padding-x",        8))
+        pad_y          = float(self._tok("padding-y",        4))
 
         # ── Column widths ───────────────────────────────────────────────
         n_cols = max(len(headers), max((len(r) for r in rows), default=0))

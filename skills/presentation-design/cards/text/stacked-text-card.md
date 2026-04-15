@@ -71,18 +71,20 @@ the body area into `n` exactly equal slots. Divider lines appear at
 All `.card-base` overrides plus `.card--stacked-text` tokens:
 
 **Heading (h2-style — applied to every block heading):**
-- `card_stacked_text_heading_font_size` — heading font size (px); default matches `.text-h2`
-- `card_stacked_text_heading_font_color` — heading text color
-- `card_stacked_text_heading_font_weight` — `400` | `600` | `700`
-- `card_stacked_text_heading_font_style` — `normal` | `italic`
+- `card_heading_font_size` — heading font size (px)
+- `card_heading_font_color` — heading text color
+- `card_heading_font_weight` — `400` | `600` | `700`
+- `card_heading_font_style` — `normal` | `italic`
 - `card_stacked_text_heading_alignment` — `left` | `center` | `right`
+- `card_stacked_text_heading_line_height` — unitless multiplier (e.g. `1.25`)
 
 **Body text (text-body style — applied to every block body):**
-- `card_stacked_text_body_font_size` — body font size (px); default matches `.text-body`
-- `card_stacked_text_body_font_color` — body text color
-- `card_stacked_text_body_font_weight` — `400` | `600`
-- `card_stacked_text_body_font_style` — `normal` | `italic`
+- `card_body_font_size` — body font size (px)
+- `card_body_font_color` — body text color
+- `card_body_font_weight` — `400` | `600`
+- `card_body_font_style` — `normal` | `italic`
 - `card_stacked_text_body_alignment` — `left` | `center` | `right`
+- `card_stacked_text_body_line_height` — unitless multiplier (e.g. `1.25`)
 
 **Inter-block divider line:**
 - `card_stacked_text_divider_visible` — `true` | `false` — show/hide lines between blocks

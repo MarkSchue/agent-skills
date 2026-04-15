@@ -70,19 +70,19 @@ are supported. In draw.io a standard table shape is used.
 All `.card-base` tokens apply. Additionally, `.card--table` specific overrides:
 
 ### Header row
-- `card_table_header_bg_color` — header row fill colour
-- `card_table_header_font_color` — header text colour
-- `card_table_header_font_size` — header font size (px)
-- `card_table_header_font_weight` — `normal` | `bold`
-- `card_table_header_font_style` — `normal` | `italic`
-- `card_table_header_alignment` — `left` | `center` | `right`
-- `card_table_header_height` — header row height (px)
+- `card_table_heading_bg_color` — header row fill colour
+- `card_heading_font_color` — header text colour (base token override applies to this card only)
+- `card_heading_font_size` — header font size (px)
+- `card_heading_font_weight` — `normal` | `bold`
+- `card_heading_font_style` — `normal` | `italic`
+- `card_table_heading_alignment` — `left` | `center` | `right`
+- `card_table_heading_height` — header row height (px)
 
 ### Body rows
-- `card_table_body_font_size` — body row font size (px)
-- `card_table_body_font_color` — body row text colour
-- `card_table_body_font_weight` — `normal` | `bold`
-- `card_table_body_font_style` — `normal` | `italic`
+- `card_body_font_size` — body row font size (px)
+- `card_body_font_color` — body row text colour
+- `card_body_font_weight` — `normal` | `bold`
+- `card_body_font_style` — `normal` | `italic`
 - `card_table_body_height` — body row height (px)
 - `card_table_body_bg_color` — default row background colour
 - `card_table_body_alignment` — default cell text alignment

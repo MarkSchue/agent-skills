@@ -13,6 +13,10 @@ class QuoteCardRenderer(BaseCardRenderer):
 
     variant = "card--quote"
 
+    def _tok(self, name: str, default=None):
+        """Resolve ``card-quote-{name}`` with fallback to ``card-{name}`` (base token)."""
+        return self._resolve_tok("quote", name, default)
+
     def render_body(self, card: CardModel, box: RenderBox) -> None:
         """Render quote text with left accent bar and attribution."""
         content = card.content if isinstance(card.content, dict) else {}
@@ -20,11 +24,11 @@ class QuoteCardRenderer(BaseCardRenderer):
         attribution = content.get("attribution", "")
         role = content.get("role", "")
 
-        accent_color = self.resolve("card-quote-accent-color") or "#003087"
-        accent_width = float(self.resolve("card-quote-accent-width") or 4)
-        quote_size = float(self.resolve("card-quote-body-font-size") or 16)
-        quote_color = self.resolve("card-quote-body-font-color") or "#333333"
-        quote_style = self.resolve("card-quote-body-font-style") or "italic"
+        accent_color = self._tok("accent-color") or "#003087"
+        accent_width = float(self._tok("accent-width") or 4)
+        quote_size = float(self._tok("body-font-size", 14))
+        quote_color = self._tok("body-font-color") or "#333333"
+        quote_style = self._tok("body-font-style") or "italic"
 
         y = box.y
 
@@ -45,8 +49,8 @@ class QuoteCardRenderer(BaseCardRenderer):
         # Quote text (indented past the accent bar)
         text_x = bar_x + accent_width + 12
         text_w = box.w - accent_width - 12
-        quote_text_align = self.resolve("card-quote-body-alignment") or "left"
-        attribution_align = self.resolve("card-quote-attribution-alignment") or "left"
+        quote_text_align = self._tok("body-alignment") or "left"
+        attribution_align = self._tok("attribution-alignment") or "left"
         box.add(
             {
                 "type": "text",
