@@ -111,21 +111,20 @@ class IconItemTextCardRenderer(BaseCardRenderer):
         b_style = self._resolve_tok("icon-item-text", "body-font-style",           "normal")
         b_align = self._resolve_tok("icon-item-text", "body-alignment",            "left")
 
-        # Icon style — resolved via base tokens (--card-item-icon-*) with variant override support
-        icon_size = float(self._resolve_tok("icon-item-text", "item-icon-size", 20))
-        icon_gap = float(self._resolve_tok("icon-item-text", "item-icon-gap", 8))
-        icon_color = (
-            self._resolve_tok("icon-item-text", "item-icon-color")
-            or self.resolve("color-text-default") or "#1A1A1A"
-        )
+        # Icon style — resolved from --card-item-icon-* base tokens.
+        # Override at class level in CSS (.card--icon-item-text { --card-item-icon-color: ...; })
+        # or at instance level via style_overrides: card_item_icon_color: ...
+        icon_size = float(self.resolve("card-item-icon-size") or 20)
+        icon_gap = float(self.resolve("card-item-icon-gap") or 8)
+        icon_color = self.resolve("card-item-icon-color") or "#1A1A1A"
         icon_font_family = self.resolve("icon-font-family") or "Material Symbols Outlined"
-        icon_weight = str(self._resolve_tok("icon-item-text", "item-icon-font-weight", "700"))
+        icon_weight = str(self.resolve("card-item-icon-font-weight") or "700")
 
         # Divider style
-        div_visible_raw = self.resolve("card-icon-item-text-divider-visible")
+        div_visible_raw = self._resolve_tok("icon-item-text", "divider-visible")
         div_visible = div_visible_raw in (True, "true", "True")
-        div_color = self.resolve("card-icon-item-text-divider-color") or self.resolve("card-title-line-color") or "#003087"
-        div_width = float(self.resolve("card-icon-item-text-divider-width") or 1)
+        div_color = self._resolve_tok("icon-item-text", "divider-color") or self.resolve("card-title-line-color") or "#003087"
+        div_width = float(self._resolve_tok("icon-item-text", "divider-width") or 1)
         div_length_pct = float(self.resolve("card-icon-item-text-divider-length-pct") or 100) / 100
         div_alignment = self.resolve("card-icon-item-text-divider-alignment") or "left"
 
@@ -182,11 +181,12 @@ class IconItemTextCardRenderer(BaseCardRenderer):
             if vertical_align == "middle":
                 # Step 4: pure centre — gap above == gap below, overflow is symmetric
                 margin = max(0, (slot_h - content_height) / 2)
-                current_y = slot_start + margin
+                content_top = slot_start + margin
             elif vertical_align == "bottom":
-                current_y = slot_end - block_pad - content_height
+                content_top = slot_end - block_pad - content_height
             else:  # top
-                current_y = slot_start + block_pad
+                content_top = slot_start + block_pad
+            current_y = content_top
 
             if heading_text:
                 box.add(
@@ -231,7 +231,8 @@ class IconItemTextCardRenderer(BaseCardRenderer):
                 )
 
             if has_icon:
-                icon_y = slot_start + (slot_h - icon_size) / 2
+                # Align icon vertically with the heading line (top-aligned, or centred for tall headings)
+                icon_y = content_top + max(0.0, (heading_text_h - icon_size) / 2.0)
                 icon_name = str(icon_data.get("name") or "").strip()
                 icon_text = str(icon_data.get("text") or "").strip()
 

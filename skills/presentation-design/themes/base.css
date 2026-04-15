@@ -1124,36 +1124,6 @@
     --card-stacked-text-key-takeaway-margin-top: 8;
     /* px — space between the last block and the key takeaway */
 
-    /* ── Icon item text overrides — uncomment to customize icon-item-text cards ─── */
-    /* --card-icon-item-text-heading-font-size: 14; */
-    /* --card-icon-item-text-heading-font-color: var(--color-text-default); */
-    /* --card-icon-item-text-heading-font-weight: 700; */
-    /* --card-icon-item-text-heading-font-style: normal; */
-    /* --card-icon-item-text-heading-alignment: left; */
-
-    /* --card-icon-item-text-body-font-size: 12; */
-    /* --card-icon-item-text-body-font-color: var(--color-text-subtle); */
-    /* --card-icon-item-text-body-font-weight: 400; */
-    /* --card-icon-item-text-body-font-style: normal; */
-    /* --card-icon-item-text-body-alignment: left; */
-
-    /* --card-icon-item-text-icon-size: 20; */
-    /* --card-icon-item-text-icon-gap: 8; */
-    /* --card-icon-item-text-icon-color: var(--color-text-default); */
-    /* --card-icon-item-text-icon-font-family: var(--icon-font-family); */
-    /* --card-icon-item-text-icon-font-weight: 700; */
-
-    /* --card-icon-item-text-divider-visible: true; */
-    /* --card-icon-item-text-divider-color: var(--color-border); */
-    /* --card-icon-item-text-divider-width: 1; */
-    /* --card-icon-item-text-divider-length-pct: 100; */
-    /* --card-icon-item-text-divider-alignment: left; */
-
-    /* --card-icon-item-text-gap-top: 0; */
-    /* --card-icon-item-text-gap-bottom: 0; */
-    /* --card-icon-item-text-gap-between: 8; */
-    /* --card-icon-item-text-heading-gap: 4; */
-
     /* ── Title line overrides — uncomment to customize header line ────────────── */
     /* --card-title-line-visible: true; */
     /* --card-title-line-color: var(--color-accent); */
@@ -1197,12 +1167,13 @@
        --card-heading-line-height: 1.25;
        --card-body-line-height: 1.25; */
 
-    /* ── Item icon / label — all values match .card-base defaults.
-       Uncomment to override per-instance or at card-type level:
-       --card-item-icon-size: 20;
-       --card-item-icon-gap: 8;
-       --card-item-icon-color: var(--color-text-default);
-       --card-item-icon-font-weight: 700;
+    /* ── Item icon / label
+       Resolved from .card-base tokens (--card-item-icon-*). Override here to apply
+       to all icon-item-text cards at class level:
+         --card-item-icon-size: 20;           px — glyph render size
+         --card-item-icon-gap: 8;             px — space between icon column and text
+         --card-item-icon-color: var(--color-text-default);  glyph colour
+         --card-item-icon-font-weight: 700;
        Icon font-family is always inherited from --icon-font-family (global). */
 
     /* ── Item dividers */

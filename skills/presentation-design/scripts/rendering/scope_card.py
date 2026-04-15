@@ -3,7 +3,7 @@ ScopeCardRenderer — Renders a project scope overview as a grid of visual tiles
 
 Each tile displays one scope item with:
   - A status-coloured circular badge (number / checkmark / custom icon)
-  - A bold item title (right of the badge)
+  - A bold item heading (right of the badge)
   - Optional body text in muted text (below the badge row)
 
 Grid configuration:
@@ -30,11 +30,11 @@ YAML content structure::
     content:
       layout_columns: 2          # optional — overrides CSS token
       items:
-        - title: "Data Migration"
+        - heading: "Data Migration"
           body: "Move all legacy records to the new platform."
           status: in-scope        # in-scope | out-of-scope | conditional
           icon: "storage"         # Material Symbols name (used when marker=icon)
-        - title: "Reporting"
+        - heading: "Reporting"
           status: conditional
 
 All visual properties are controlled by CSS tokens on ``.card--scope``.
@@ -97,7 +97,7 @@ class ScopeCardRenderer(BaseCardRenderer):
             if isinstance(entry, dict):
                 items.append(entry)
             else:
-                items.append({"title": str(entry)})
+                items.append({"heading": str(entry)})
 
         # ── Grid geometry ──────────────────────────────────────────────
         # content.layout_columns takes priority over CSS token
@@ -136,14 +136,14 @@ class ScopeCardRenderer(BaseCardRenderer):
         )
 
         # ── Item heading tokens ────────────────────────────────────────────
-        title_size = float(self._tok("heading-font-size") or 11)
-        title_color = str(
+        h_size = float(self._tok("heading-font-size") or 11)
+        h_color = str(
             self._tok("heading-font-color")
             or self.resolve("color-text-default")
             or "#1F2937"
         )
-        title_weight = str(self._tok("heading-font-weight") or "700")
-        title_lh = title_size * float(self._tok("heading-line-height") or 1.2)
+        h_weight = str(self._tok("heading-font-weight") or "700")
+        h_lh = h_size * float(self._tok("heading-line-height") or 1.2)
 
         # ── Item body text tokens ─────────────────────────────────────────
         body_size = float(self._tok("body-font-size") or 9)
@@ -247,13 +247,13 @@ class ScopeCardRenderer(BaseCardRenderer):
                     }
                 )
 
-            # ── Title text (right of badge) ────────────────────────────
+            # ── Heading text (right of badge) ──────────────────────────
             text_x = cx + badge_size + badge_gap
             text_w = max(1.0, cw - badge_size - badge_gap)
-            badge_row_h = max(title_size, badge_size)
-            title_text = str(item.get("title") or "")
+            badge_row_h = max(h_size, badge_size)
+            heading_text = str(item.get("heading") or "")
 
-            if title_text:
+            if heading_text:
                 box.add(
                     {
                         "type": "text",
@@ -261,13 +261,13 @@ class ScopeCardRenderer(BaseCardRenderer):
                         "y": by,
                         "w": text_w,
                         "h": badge_row_h,
-                        "text": title_text,
-                        "font_size": title_size,
-                        "font_color": title_color,
-                        "font_weight": title_weight,
+                        "text": heading_text,
+                        "font_size": h_size,
+                        "font_color": h_color,
+                        "font_weight": h_weight,
                         "alignment": "left",
                         "vertical_align": "middle",
-                        "line_height": title_lh,
+                        "line_height": h_lh,
                         "wrap": True,
                     }
                 )

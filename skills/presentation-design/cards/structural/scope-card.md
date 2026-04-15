@@ -37,16 +37,16 @@ optional body text. The grid adapts from 1 to 4 columns.
 |-------|------|-------------|
 | `type` | string | Must be `scope-card` |
 | `content.items` | list | List of scope items (see Item Fields below) |
-| `content.items[].title` | string | Item label (displayed bold beside the badge) |
+| `content.items[].heading` | string | Item heading (displayed bold beside the badge) |
 
 ---
 
 ## Item Fields
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `title` | string | ✅ | Bold item label |
-| `body` | string | — | Optional muted text below the title |
+|-------|------|----------|--------------|
+| `heading` | string | ✓ | Bold item heading |
+| `body` | string | — | Optional muted text below the heading |
 | `status` | string | — | `in-scope` (default) · `out-of-scope` · `conditional` |
 | `icon` | string | — | Material Symbols ligature used when `marker=icon` (e.g. `"storage"`) |
 
@@ -62,19 +62,22 @@ optional body text. The grid adapts from 1 to 4 columns.
 
 ## Style Overrides (per card)
 
-Pass any `--card-scope-*` token as a `style_overrides` key using underscores:
+Pass any `--card-scope-*` token (or a `.card-base` token) as a `style_overrides` key using
+underscores and the base token name:
 
 | Override key | CSS token | Example value |
 |---|---|---|
-| `card_scope_columns` | `--card-scope-columns` | `3` |
-| `card_scope_item_gap` | `--card-scope-item-gap` | `8` |
-| `card_scope_item_marker` | `--card-scope-item-marker` | `check` |
-| `card_scope_check_icon_name` | `--card-scope-check-icon-name` | `task_alt` |
-| `card_scope_badge_size` | `--card-scope-badge-size` | `24` |
-| `card_scope_item_bg_color` | `--card-scope-item-bg-color` | `transparent` |
-| `card_scope_item_border_width` | `--card-scope-item-border-width` | `0` |
-| `card_scope_status_in_scope_color` | `--card-scope-status-in-scope-color` | `#10B981` |
-| `card_scope_status_label_visible` | `--card-scope-status-label-visible` | `true` |
+| `card_columns` | `--card-scope-columns` | `3` |
+| `card_item_gap` | `--card-scope-item-gap` | `8` |
+| `card_item_marker` | `--card-scope-item-marker` | `check` |
+| `card_check_icon_name` | `--card-scope-check-icon-name` | `task_alt` |
+| `card_badge_size` | `--card-scope-badge-size` | `24` |
+| `card_item_bg_color` | `--card-scope-item-bg-color` | `transparent` |
+| `card_item_border_width` | `--card-scope-item-border-width` | `0` |
+| `card_status_in_scope_color` | `--card-scope-status-in-scope-color` | `#10B981` |
+| `card_status_label_visible` | `--card-scope-status-label-visible` | `true` |
+| `card_heading_font_color` | `--card-heading-font-color` | `var(--color-primary)` |
+| `card_body_font_color` | `--card-body-font-color` | `var(--color-text-muted)` |
 
 ---
 
@@ -87,7 +90,7 @@ Pass any `--card-scope-*` token as a `style_overrides` key using underscores:
 
 ## Marker Mode
 
-Controlled by `--card-scope-item-marker` (or `style_overrides.card_scope_item_marker`):
+Controlled by `--card-scope-item-marker` (or `style_overrides.card_item_marker`):
 
 | Value | Behaviour |
 |-------|-----------|
@@ -117,22 +120,22 @@ title: Project Scope Overview
 content:
   layout_columns: 2
   items:
-    - title: Data Migration
+    - heading: Data Migration
       body: Move all legacy records to the new platform.
       status: in-scope
-    - title: Standard KPI Reports
+    - heading: Standard KPI Reports
       body: Standard KPI reports included; custom dashboards excluded.
       status: conditional
-    - title: API Integration
+    - heading: API Integration
       body: REST endpoints for ERP and CRM systems.
       status: in-scope
-    - title: Mobile App
+    - heading: Mobile App
       body: Planned for Phase 2 only.
       status: out-of-scope
-    - title: User Training
+    - heading: User Training
       body: End-user onboarding workshops.
       status: in-scope
-    - title: Data Archiving
+    - heading: Data Archiving
       body: Automated archiving of records older than 7 years.
       status: in-scope
 ```
@@ -146,20 +149,20 @@ type: scope-card
 title: Technical Scope
 content:
   items:
-    - title: Cloud Infrastructure
+    - heading: Cloud Infrastructure
       body: AWS multi-region deployment.
       status: in-scope
       icon: cloud
-    - title: On-Premises Servers
+    - heading: On-Premises Servers
       status: out-of-scope
       icon: dns
-    - title: CI/CD Pipeline
+    - heading: CI/CD Pipeline
       body: GitHub Actions workflows.
       status: in-scope
       icon: rocket_launch
 style_overrides:
-  card_scope_item_marker: icon
-  card_scope_badge_size: 22
+  card_item_marker: icon
+  card_badge_size: 22
 ```
 
 ---

@@ -89,10 +89,10 @@ class StackedTextCardRenderer(BaseCardRenderer):
         b_align  = self._resolve_tok("stacked-text", "body-alignment",             "left")
 
         # Divider between blocks
-        div_visible_raw = self.resolve("card-stacked-text-divider-visible")
+        div_visible_raw = self._resolve_tok("stacked-text", "divider-visible")
         div_visible    = div_visible_raw in (True, "true", "True")
-        div_color      = self.resolve("card-stacked-text-divider-color")        or self.resolve("card-title-line-color") or "#003087"
-        div_width      = float(self.resolve("card-stacked-text-divider-width")  or 1)
+        div_color      = self._resolve_tok("stacked-text", "divider-color") or self.resolve("card-title-line-color") or "#003087"
+        div_width      = float(self._resolve_tok("stacked-text", "divider-width") or 1)
         div_length_pct = float(self.resolve("card-stacked-text-divider-length-pct") or 50) / 100
         div_alignment  = self.resolve("card-stacked-text-divider-alignment")    or "left"
 

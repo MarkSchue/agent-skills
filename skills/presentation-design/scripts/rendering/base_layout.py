@@ -216,11 +216,14 @@ class BaseLayoutRenderer(ABC):
                 or self._resolve("slide-take-away-background-color", overrides)
                 or "#E2001A"
             )
+            # Resolve any var(--token) reference so exporters receive a plain hex value
+            ta_bg = str(self.theme._resolve_var_reference(ta_bg) or ta_bg)
             ta_fc = str(
                 take_away_data.get("font_color")
                 or self._resolve("slide-take-away-font-color", overrides)
                 or "#FFFFFF"
             )
+            ta_fc = str(self.theme._resolve_var_reference(ta_fc) or ta_fc)
             ta_fs = float(
                 take_away_data.get("font_size")
                 or self._resolve("slide-take-away-font-size", overrides)

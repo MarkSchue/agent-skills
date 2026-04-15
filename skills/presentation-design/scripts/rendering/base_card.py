@@ -248,16 +248,18 @@ class BaseCardRenderer(ABC):
     def _resolve_tok(self, variant_prefix: str, name: str, default: Any = None) -> Any:
         """Resolve a token with automatic card-base fallback.
 
-        Design pattern for all card renderers:
+        Resolution order:
 
-        1. Try ``card-{variant_prefix}-{name}`` (the variant-specific CSS token).
-        2. If absent or empty, fall back to ``card-{name}`` (the shared
-           ``.card-base`` token — e.g. ``card-body-font-size``).
-        3. If still absent, return *default*.
+        0. ``card-{name}`` in instance/slide overrides — authors write
+           ``card_heading_font_color`` (no card-type prefix) and it wins over
+           any variant CSS token.
+        1. ``card-{variant_prefix}-{name}`` in overrides, then variant CSS.
+        2. ``card-{name}`` in base CSS.
+        3. *default*.
 
-        This means variant-specific tokens in CSS are *optional overrides*.
-        Commenting them out automatically inherits the card-base value, giving
-        consistent typography across all card types by default.
+        Using base token names in ``style_overrides`` (step 0) is the
+        recommended approach: it keeps the presentation YAML free of
+        card-type-specific token names.
 
         Usage in renderer::
 
@@ -270,6 +272,19 @@ class BaseCardRenderer(ABC):
             name: Token suffix (e.g. ``"body-font-size"``).
             default: Fallback value when neither CSS layer defines the token.
         """
+        # Step 0: base-name override wins over any variant CSS token.
+        merged: dict = {**self._slide_overrides}
+        if self._card and self._card.style_overrides:
+            merged.update(self._card.style_overrides)
+        if merged:
+            base_key = f"card-{name}"
+            candidate = merged.get(base_key)
+            if candidate is None:
+                candidate = merged.get(base_key.replace("-", "_"))
+            if candidate is not None and candidate != "":
+                return self.theme._resolve_var_reference(candidate, self.variant, merged)
+
+        # Step 1 & 2: standard two-level CSS lookup.
         v = self.resolve(f"card-{variant_prefix}-{name}")
         if v is not None and v != "":
             return v
