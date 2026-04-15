@@ -222,7 +222,32 @@ class DrawioExporter:
             f"fillColor=none;strokeColor=none;overflow=hidden;"
         )
         cell.set("style", style)
-        cell.set("value", str(elem.get("text", "")))
+
+        runs_data = elem.get("runs")
+        if runs_data:
+            # Build an HTML string where each run is wrapped in <b>/<i> as needed.
+            # draw.io already uses html=1 in the style string above, so HTML tags
+            # in the value are rendered correctly.
+            parts: list[str] = []
+            for r_data in runs_data:
+                t = (
+                    str(r_data["text"])
+                    .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                )
+                r_bold = bool(r_data.get("bold"))
+                r_italic = bool(r_data.get("italic"))
+                if r_bold and r_italic:
+                    t = f"<b><i>{t}</i></b>"
+                elif r_bold:
+                    t = f"<b>{t}</b>"
+                elif r_italic:
+                    t = f"<i>{t}</i>"
+                parts.append(t)
+            cell.set("value", "".join(parts))
+        else:
+            cell.set("value", str(elem.get("text", "")))
 
         w = elem.get("w", 200)
         h = elem.get("h", float(font_size) + 8)

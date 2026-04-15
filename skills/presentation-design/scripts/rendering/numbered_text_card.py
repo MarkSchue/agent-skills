@@ -20,6 +20,7 @@ All visual properties are controlled by CSS tokens on ``.card--numbered-text``.
 from __future__ import annotations
 
 from scripts.models.deck import CardModel
+from scripts.parsing.inline_markdown import text_and_runs
 from scripts.rendering.base_card import BaseCardRenderer, RenderBox
 
 
@@ -418,7 +419,7 @@ class NumberedTextCardRenderer(BaseCardRenderer):
                         "y": col2_y,
                         "w": col2_w,
                         "h": row_h,
-                        "text": row["heading"],
+                        **text_and_runs(row["heading"]),
                         "font_size": h_size,
                         "line_height": h_lh,
                         "font_color": eff_h_color,
@@ -440,7 +441,7 @@ class NumberedTextCardRenderer(BaseCardRenderer):
                         "y": col3_y,
                         "w": col3_w,
                         "h": row_h,
-                        "text": row["body"],
+                        **text_and_runs(row["body"]),
                         "font_size": b_size,
                         "line_height": b_lh,
                         "font_color": eff_b_color,

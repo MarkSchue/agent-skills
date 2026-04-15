@@ -44,6 +44,7 @@ from typing import Any
 
 from scripts.models.deck import CardModel
 from scripts.models.theme import ThemeTokens
+from scripts.parsing.inline_markdown import text_and_runs
 
 
 class RenderBox:
@@ -204,7 +205,7 @@ class BaseCardRenderer(ABC):
                         "y": footer_text_y,
                         "w": box.w - self._pad_left - self._pad_right,
                         "h": footer_font_size,
-                        "text": footer_text,
+                        **text_and_runs(footer_text),
                         "font_size": footer_font_size,
                         "font_color": (
                             self.resolve("card-footer-font-color")
@@ -396,7 +397,7 @@ class BaseCardRenderer(ABC):
                     "y": y,
                     "w": text_w,
                     "h": title_size * 1.2 + title_line_gap,
-                    "text": card.title,
+                    **text_and_runs(card.title),
                     "font_size": title_size,
                     "font_color": self.resolve("card-title-font-color"),
                     "font_weight": self.resolve("card-title-font-weight"),
@@ -409,7 +410,7 @@ class BaseCardRenderer(ABC):
                     "y": y,
                     "w": content_w,
                     "h": title_size * 1.2 + title_line_gap,
-                    "text": card.title,
+                    **text_and_runs(card.title),
                     "font_size": title_size,
                     "font_color": self.resolve("card-title-font-color"),
                     "font_weight": self.resolve("card-title-font-weight"),
@@ -452,7 +453,7 @@ class BaseCardRenderer(ABC):
                 "y": y,
                 "w": box.w - self._pad_left - self._pad_right,
                 "h": sub_size,
-                "text": sub_text,
+                **text_and_runs(sub_text),
                 "font_size": sub_size,
                 "font_color": str(self.resolve("card-subtitle-font-color") or "#888888"),
                 "font_weight": str(self.resolve("card-subtitle-font-weight") or "400"),

@@ -568,6 +568,12 @@
     /* left | center | right — heading alignment */
     --card-body-bullet-indent: 12;
     /* px — bullet list left indent */
+    --card-bullet-style: disc;
+    /* bullet marker shape: disc | circle | square | dash | arrow | none */
+    --card-bullet-color: var(--color-text-default);
+    /* bullet marker color (independent of body text color) */
+    --card-bullet-size: 0;
+    /* 0 = match body font size (px); explicit px value for a smaller/larger marker */
 
     /* Card heading defaults — shared baseline for ALL card types.
        Variant-specific tokens (e.g. --card-timeline-heading-font-size) override

@@ -160,6 +160,31 @@ Every card YAML block normalizes to this schema:
 
 ---
 
+## Inline text formatting
+
+Any plain text field that accepts user content (`body`, `bullets` items, `heading`, `title`, `subtitle`, `footer`) supports inline **bold** and *italic* markdown:
+
+| Markdown | Rendered as |
+|----------|-------------|
+| `**word**` | bold word |
+| `*word*` | italic word |
+| `***word***` | bold + italic word |
+
+The markers are stripped for layout-width estimation, and the styled runs are passed to both the PPTX (via `python-pptx` text runs) and draw.io (via HTML `<b>`/`<i>` tags) exporters.
+
+**Example:**
+
+```yaml
+type: text-card
+content:
+  body: "Results were **very positive** — a *significant* improvement over last year."
+  bullets:
+    - "Cost reduced by **18%** in Q1"
+    - "Lead time *halved* through automation"
+```
+
+---
+
 ## Layout selection
 
 The layout for each slide is determined automatically by the number of `###`

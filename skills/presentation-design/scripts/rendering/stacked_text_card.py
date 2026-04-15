@@ -20,6 +20,7 @@ the ``.card--stacked-text`` variant class, overridable per instance via the
 from __future__ import annotations
 
 from scripts.models.deck import CardModel
+from scripts.parsing.inline_markdown import text_and_runs, strip_inline
 from scripts.rendering.base_card import BaseCardRenderer, RenderBox
 
 
@@ -137,13 +138,13 @@ class StackedTextCardRenderer(BaseCardRenderer):
             heading_h = 0
             heading_text_h = 0
             if heading_text:
-                heading_lines = max(1, len(heading_text) // heading_chars + 1)
+                heading_lines = max(1, len(strip_inline(heading_text)) // heading_chars + 1)
                 heading_text_h = heading_lines * heading_line_height
                 heading_h = heading_text_h
 
             body_h = 0
             if body_text:
-                body_lines = max(1, len(body_text) // body_chars + 1)
+                body_lines = max(1, len(strip_inline(body_text)) // body_chars + 1)
                 body_h = max(b_size, body_lines * body_line_height)
 
             content_height = heading_text_h + (heading_gap if heading_text and body_text else 0) + body_h
@@ -165,7 +166,7 @@ class StackedTextCardRenderer(BaseCardRenderer):
                         "y":           current_y,
                         "w":           box.w,
                         "h":           heading_text_h,
-                        "text":        heading_text,
+                        **text_and_runs(heading_text),
                         "font_size":   h_size,
                         "line_height": heading_line_height,
                         "font_color":  h_color,
@@ -188,7 +189,7 @@ class StackedTextCardRenderer(BaseCardRenderer):
                         "y":           current_y,
                         "w":           box.w,
                         "h":           body_h,
-                        "text":        body_text,
+                        **text_and_runs(body_text),
                         "font_size":   b_size,
                         "line_height": body_line_height,
                         "font_color":  b_color,

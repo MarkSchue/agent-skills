@@ -9,6 +9,7 @@ icon features from BaseCardRenderer.
 from __future__ import annotations
 
 from scripts.models.deck import CardModel
+from scripts.parsing.inline_markdown import text_and_runs, strip_inline
 from scripts.rendering.base_card import BaseCardRenderer, RenderBox
 
 
@@ -167,13 +168,13 @@ class IconItemTextCardRenderer(BaseCardRenderer):
             heading_h = 0
             heading_text_h = 0
             if heading_text:
-                heading_lines = self._estimate_line_count(heading_text, heading_chars)
+                heading_lines = self._estimate_line_count(strip_inline(heading_text), heading_chars)
                 heading_text_h = heading_lines * heading_line_height
                 heading_h = heading_text_h
 
             body_h = 0
             if body_text:
-                body_lines = self._estimate_line_count(body_text, body_chars)
+                body_lines = self._estimate_line_count(strip_inline(body_text), body_chars)
                 body_h = max(b_size, body_lines * body_line_height)
 
             content_height = heading_text_h + (heading_gap if heading_text and body_text else 0) + body_h
@@ -195,7 +196,7 @@ class IconItemTextCardRenderer(BaseCardRenderer):
                         "y": current_y,
                         "w": text_w,
                         "h": heading_text_h,
-                        "text": heading_text,
+                        **text_and_runs(heading_text),
                         "font_size": h_size,
                         "line_height": heading_line_height,
                         "font_color": h_color,
@@ -218,7 +219,7 @@ class IconItemTextCardRenderer(BaseCardRenderer):
                         "y": current_y,
                         "w": text_w,
                         "h": body_h,
-                        "text": body_text,
+                        **text_and_runs(body_text),
                         "font_size": b_size,
                         "line_height": body_line_height,
                         "font_color": b_color,

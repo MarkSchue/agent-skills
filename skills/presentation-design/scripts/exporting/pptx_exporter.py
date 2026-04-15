@@ -400,7 +400,6 @@ class PptxExporter:
                 font_family = None  # standard font — glyph is in BMP, no icon font needed
 
         p = tf.paragraphs[0]
-        p.text = raw_text
         p.alignment = _ALIGN_MAP.get(elem.get("alignment", "left"), PP_ALIGN.LEFT)
         line_height = elem.get("line_height")
         if line_height is not None:
@@ -409,7 +408,6 @@ class PptxExporter:
             except Exception:
                 pass
 
-        run = p.runs[0] if p.runs else p.add_run()
         # Font-size tokens are defined in pt — use directly (no px→pt conversion needed)
         font_size_pt = Pt(float(elem.get("font_size", 14)))
         color = _rgb(str(elem.get("font_color", "#000000")))
@@ -417,17 +415,36 @@ class PptxExporter:
         style = str(elem.get("font_style") or "").lower()
         is_bold = str(weight).lower() in ("bold", "700") or "bold" in style
         is_italic = "italic" in style
-        # Apply font properties to ALL runs — p.text setter splits on \n and
-        # creates multiple <a:r> runs via add_br(); only setting run[0] would
-        # leave subsequent runs with the slide-default (large) font size.
-        for r in p.runs:
-            r.font.size = font_size_pt
-            if color:
-                r.font.color.rgb = color
-            r.font.bold = is_bold
-            r.font.italic = is_italic
-            if font_family:
-                r.font.name = str(font_family)
+
+        runs_data = elem.get("runs")
+        if runs_data:
+            # Multi-run path — inline bold/italic markup was present.
+            # Do NOT use p.text setter; add each run explicitly so per-run
+            # bold/italic attributes are preserved.
+            for r_data in runs_data:
+                run = p.add_run()
+                run.text = r_data["text"]
+                run.font.size = font_size_pt
+                if color:
+                    run.font.color.rgb = color
+                run.font.bold = is_bold or bool(r_data.get("bold"))
+                run.font.italic = is_italic or bool(r_data.get("italic"))
+                if font_family:
+                    run.font.name = str(font_family)
+        else:
+            # Single-run path — plain text, no inline markup.
+            p.text = raw_text
+            # Apply font properties to ALL runs — p.text setter splits on \n and
+            # creates multiple <a:r> runs via add_br(); only setting run[0] would
+            # leave subsequent runs with the slide-default (large) font size.
+            for r in p.runs:
+                r.font.size = font_size_pt
+                if color:
+                    r.font.color.rgb = color
+                r.font.bold = is_bold
+                r.font.italic = is_italic
+                if font_family:
+                    r.font.name = str(font_family)
 
     def _add_line(self, slide, elem: dict[str, Any]) -> None:
         connector = slide.shapes.add_connector(

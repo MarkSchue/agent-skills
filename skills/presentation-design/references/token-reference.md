@@ -157,6 +157,10 @@ presentation design system. It is auto-generated from `themes/base.css`.
 | `--card-body-font-size` | 14 | px |
 | `--card-body-font-color` | #374151 | |
 | `--card-body-font-weight` | 400 | |
+| `--card-body-bullet-indent` | 12 | px — left indent of bullet list items relative to body left edge |
+| `--card-bullet-style` | disc | bullet marker shape: `disc` \| `circle` \| `square` \| `dash` \| `arrow` \| `none` |
+| `--card-bullet-color` | var(--color-text-default) | bullet marker color (independent of body text color) |
+| `--card-bullet-size` | 0 | `0` = match body font size; explicit px value for a different marker size |
 | `--card-heading-line-height` | 1.3 | unitless multiplier — applied to heading font size; override per variant |
 | `--card-body-line-height` | 1.3 | unitless multiplier — applied to body font size; override per variant |
 | `--card-item-icon-size` | 20 | px — body/entry icon size (distinct from title icon `--card-icon-size`) |
