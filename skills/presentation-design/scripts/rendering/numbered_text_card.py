@@ -29,6 +29,10 @@ class NumberedTextCardRenderer(BaseCardRenderer):
 
     variant = "card--numbered-text"
 
+    def _tok(self, name: str, default=None):
+        """Resolve ``card-numbered-text-{name}`` with fallback to ``card-{name}`` (base token)."""
+        return self._resolve_tok("numbered-text", name, default)
+
     # ──────────────────────────────────────────────────────────────────────
     # Helpers
     # ──────────────────────────────────────────────────────────────────────
@@ -82,89 +86,75 @@ class NumberedTextCardRenderer(BaseCardRenderer):
         has_col3 = any(r["body"] for r in rows)
 
         # ── Highlight bar ────────────────────────────────────────────────
-        bar_visible_raw = self.resolve("card-numbered-text-highlight-bar-visible")
+        bar_visible_raw = self._tok("highlight-bar-visible")
         bar_visible = bar_visible_raw in (True, "true", "True")
-        bar_color = self.resolve("card-numbered-text-highlight-bar-color") or "#3B82F6"
-        bar_width = float(self.resolve("card-numbered-text-highlight-bar-width") or 3)
-        bar_gap = float(self.resolve("card-numbered-text-highlight-bar-gap") or 8)
+        bar_color = self._tok("highlight-bar-color")
+        bar_width = float(self._tok("highlight-bar-width", 3))
+        bar_gap = float(self._tok("highlight-bar-gap", 8))
 
         # ── Column proportions ───────────────────────────────────────────
-        col1_pct = float(self.resolve("card-numbered-text-col1-width-pct") or 15) / 100
-        col2_pct = float(self.resolve("card-numbered-text-col2-width-pct") or 55) / 100
+        col1_pct = float(self._tok("col1-width-pct", 15)) / 100
+        col2_pct = float(self._tok("col2-width-pct", 55)) / 100
         # col3 receives the remainder
 
         # ── Per-column alignments ────────────────────────────────────────
-        col1_align = self.resolve("card-numbered-text-col1-alignment") or "center"
-        col1_gap = float(self.resolve("card-numbered-text-col1-gap") or 8)
-        col2_align = self.resolve("card-numbered-text-col2-alignment") or "left"
-        col3_align = self.resolve("card-numbered-text-col3-alignment") or "left"
+        col1_align = self._tok("col1-alignment", "center")
+        col1_gap = float(self._tok("col1-gap", 8))
+        col2_align = self._tok("col2-alignment", "left")
+        col3_align = self._tok("col3-alignment", "left")
 
         # ── Row vertical alignment ───────────────────────────────────────
-        row_valign = self.resolve("card-numbered-text-row-vertical-alignment") or "middle"
-        row_min_h = float(self.resolve("card-numbered-text-row-min-height") or 0)
-        row_padding = float(self.resolve("card-numbered-text-row-padding") or 6)
+        row_valign = self._tok("row-vertical-alignment", "middle")
+        row_min_h = float(self._tok("row-min-height", 0))
+        row_padding = float(self._tok("row-padding", 6))
 
         # ── Heading (col 2) tokens ───────────────────────────────────────
-        h_size = float(self._resolve_tok("numbered-text", "heading-font-size",  14))
-        h_color = self._resolve_tok("numbered-text", "heading-font-color")
-        h_weight = str(self._resolve_tok("numbered-text", "heading-font-weight", "600"))
-        h_style = self._resolve_tok("numbered-text", "heading-font-style",        "normal")
-        h_lh = h_size * float(self._resolve_tok("numbered-text", "heading-line-height", 1.3))
+        h_size = float(self._tok("heading-font-size", 14))
+        h_color = self._tok("heading-font-color")
+        h_weight = str(self._tok("heading-font-weight", "600"))
+        h_style = self._tok("heading-font-style", "normal")
+        h_lh = h_size * float(self._tok("heading-line-height", 1.3))
 
         # ── Body (col 3) tokens ──────────────────────────────────────────
-        b_size = float(self._resolve_tok("numbered-text", "body-font-size",      12))
-        b_color = self._resolve_tok("numbered-text", "body-font-color")
-        b_weight = str(self._resolve_tok("numbered-text", "body-font-weight",    "400"))
-        b_style = self._resolve_tok("numbered-text", "body-font-style",           "normal")
-        b_lh = b_size * float(self._resolve_tok("numbered-text", "body-line-height", 1.3))
+        b_size = float(self._tok("body-font-size", 12))
+        b_color = self._tok("body-font-color")
+        b_weight = str(self._tok("body-font-weight", "400"))
+        b_style = self._tok("body-font-style", "normal")
+        b_lh = b_size * float(self._tok("body-line-height", 1.3))
 
         # Gap between heading and body inside same row (when col2 and col3 share the row)
-        hb_gap = float(self.resolve("card-numbered-text-heading-body-gap") or 4)
+        hb_gap = float(self._tok("heading-body-gap", 4))
 
         # ── Col 1 tokens ─────────────────────────────────────────────────
-        col1_size = float(self.resolve("card-numbered-text-col1-font-size") or h_size)
-        col1_weight = str(self.resolve("card-numbered-text-col1-font-weight") or "700")
-        col1_style = self.resolve("card-numbered-text-col1-font-style") or "normal"
-        col1_font_family = self.resolve("card-numbered-text-col1-font-family") or ""
+        col1_size = float(self._tok("col1-font-size") or h_size)
+        col1_weight = str(self._tok("col1-font-weight", "700"))
+        col1_style = self._tok("col1-font-style", "normal")
+        col1_font_family = self._tok("col1-font-family", "")
         # Badge
-        badge_shape = str(
-            self.resolve("card-numbered-text-badge-shape") or "circle"
-        ).lower()
-        badge_color = self.resolve("card-numbered-text-badge-color") or "#3B82F6"
-        badge_size = float(self.resolve("card-numbered-text-badge-size") or 28)
-        badge_on_color = self.resolve("card-numbered-text-badge-on-color") or "#FFFFFF"
-        badge_pad_x = float(self.resolve("card-numbered-text-badge-padding-x") or 8)
+        badge_shape = str(self._tok("badge-shape", "circle")).lower()
+        badge_color = self._tok("badge-color")
+        badge_size = float(self._tok("badge-size", 28))
+        badge_on_color = self._tok("badge-on-color")
+        badge_pad_x = float(self._tok("badge-padding-x", 8))
 
         # ── Active state tokens ──────────────────────────────────────────
-        active_col1_font_color = (
-            self.resolve("card-numbered-text-active-col1-font-color") or badge_on_color
-        )
-        active_badge_color = (
-            self.resolve("card-numbered-text-active-badge-color") or badge_color
-        )
-        active_h_color = (
-            self.resolve("card-numbered-text-active-heading-font-color") or "#1A1A2E"
-        )
-        active_h_weight = str(
-            self.resolve("card-numbered-text-active-heading-font-weight") or "700"
-        )
-        active_b_color = (
-            self.resolve("card-numbered-text-active-body-font-color") or "#374151"
-        )
-        active_font_style = (
-            self.resolve("card-numbered-text-active-font-style") or "normal"
-        )
+        active_col1_font_color = self._tok("active-col1-font-color") or badge_on_color
+        active_badge_color = self._tok("active-badge-color") or badge_color
+        active_h_color = self._tok("active-heading-font-color")
+        active_h_weight = str(self._tok("active-heading-font-weight", "700"))
+        active_b_color = self._tok("active-body-font-color")
+        active_font_style = self._tok("active-font-style", "normal")
 
         # ── Row separator ────────────────────────────────────────────────
-        sep_visible_raw = self.resolve("card-numbered-text-separator-visible")
+        sep_visible_raw = self._tok("separator-visible")
         sep_visible = sep_visible_raw in (True, "true", "True")
-        sep_color = self.resolve("card-numbered-text-separator-color") or "#E5E7EB"
-        sep_width = float(self.resolve("card-numbered-text-separator-width") or 1)
-        sep_inset = float(self.resolve("card-numbered-text-separator-inset") or 0)
+        sep_color = self._tok("separator-color")
+        sep_width = float(self._tok("separator-width", 1))
+        sep_inset = float(self._tok("separator-inset", 0))
 
         # ── Outer gap ────────────────────────────────────────────────────
-        gap_top = float(self._resolve_tok("numbered-text", "gap-top", 0))
-        gap_bottom = float(self._resolve_tok("numbered-text", "gap-bottom", 0))
+        gap_top = float(self._tok("gap-top", 0))
+        gap_bottom = float(self._tok("gap-bottom", 0))
 
         # ── Column geometry ───────────────────────────────────────────────
         # The bar area is always reserved when a highlight index is provided
@@ -385,7 +375,7 @@ class NumberedTextCardRenderer(BaseCardRenderer):
                         active_col1_font_color
                         if is_active
                         else (
-                            self.resolve("card-numbered-text-col1-font-color") or h_color
+                            self._tok("col1-font-color") or h_color
                         )
                     )
                     box.add(

@@ -13,6 +13,10 @@ class KpiCardRenderer(BaseCardRenderer):
 
     variant = "card--kpi"
 
+    def _tok(self, name: str, default=None):
+        """Resolve ``card-kpi-{name}`` with fallback to ``card-{name}`` (base token)."""
+        return self._resolve_tok("kpi", name, default)
+
     def render_body(self, card: CardModel, box: RenderBox) -> None:
         """Render metric value, trend arrow, and supporting label."""
         content = card.content if isinstance(card.content, dict) else {}
@@ -21,14 +25,14 @@ class KpiCardRenderer(BaseCardRenderer):
         label = content.get("label", "")
         comparison = content.get("comparison", "")
 
-        value_size = float(self.resolve("card-kpi-value-font-size") or 48)
-        value_color = self.resolve("card-kpi-value-font-color")
-        value_align = self.resolve("card-kpi-value-alignment") or "center"
-        value_valign = self.resolve("card-kpi-value-vertical-align") or "middle"
-        trend_font_size = float(self.resolve("card-kpi-trend-font-size") or 14)
-        comparison_font_size = float(self.resolve("card-kpi-comparison-font-size") or 12)
-        trend_align = self.resolve("card-kpi-trend-alignment") or "center"
-        label_align = self.resolve("card-kpi-label-alignment") or "center"
+        value_size = float(self._tok("value-font-size", 48))
+        value_color = self._tok("value-font-color")
+        value_align = self._tok("value-alignment", "center")
+        value_valign = self._tok("value-vertical-align", "middle")
+        trend_font_size = float(self._tok("trend-font-size", 14))
+        comparison_font_size = float(self._tok("comparison-font-size", 12))
+        trend_align = self._tok("trend-alignment", "center")
+        label_align = self._tok("label-alignment", "center")
 
         # Compute vertical start position based on value-vertical-align token
         if value_valign == "top":
@@ -58,9 +62,9 @@ class KpiCardRenderer(BaseCardRenderer):
         if trend != "neutral":
             arrow = "↑" if trend == "up" else "↓"
             trend_color = (
-                self.resolve("card-kpi-trend-color-up")
+                self._tok("trend-color-up")
                 if trend == "up"
-                else self.resolve("card-kpi-trend-color-down")
+                else self._tok("trend-color-down")
             ) or ("#2E7D32" if trend == "up" else "#C62828")
             trend_text = f"{arrow} {comparison}" if comparison else arrow
             box.add(
@@ -85,7 +89,7 @@ class KpiCardRenderer(BaseCardRenderer):
                     "w": box.w,
                     "text": comparison,
                     "font_size": comparison_font_size,
-                    "font_color": self.resolve("card-kpi-trend-color-neutral") or "#888888",
+                    "font_color": self._tok("trend-color-neutral") or "#888888",
                     "alignment": trend_align,
                 }
             )
@@ -93,7 +97,7 @@ class KpiCardRenderer(BaseCardRenderer):
 
         # Supporting label
         if label:
-            label_size = float(self._resolve_tok("kpi", "label-font-size", 11))
+            label_size = float(self._tok("label-font-size", 11))
             box.add(
                 {
                     "type": "text",
@@ -102,7 +106,7 @@ class KpiCardRenderer(BaseCardRenderer):
                     "w": box.w,
                     "text": label,
                     "font_size": label_size,
-                    "font_color": self._resolve_tok("kpi", "label-font-color", "#888888"),
+                    "font_color": self._tok("label-font-color") or "#888888",
                     "alignment": label_align,
                 }
             )

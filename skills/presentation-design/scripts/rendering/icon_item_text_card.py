@@ -125,8 +125,8 @@ class IconItemTextCardRenderer(BaseCardRenderer):
         div_visible = div_visible_raw in (True, "true", "True")
         div_color = self.resolve("card-divider-color")
         div_width = float(self.resolve("card-divider-width") or 1)
-        div_length_pct = float(self.resolve("card-icon-item-text-divider-length-pct") or 100) / 100
-        div_alignment = self.resolve("card-icon-item-text-divider-alignment") or "left"
+        div_length_pct = float(self._resolve_tok("icon-item-text", "divider-length-pct", 100)) / 100
+        div_alignment = self._resolve_tok("icon-item-text", "divider-alignment", "left")
 
         # Vertical spacing — falls back to --card-gap-* base tokens
         gap_top = float(self._resolve_tok("icon-item-text", "gap-top", 0))

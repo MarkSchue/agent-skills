@@ -93,8 +93,8 @@ class StackedTextCardRenderer(BaseCardRenderer):
         div_visible    = div_visible_raw in (True, "true", "True")
         div_color      = self.resolve("card-divider-color")
         div_width      = float(self.resolve("card-divider-width") or 1)
-        div_length_pct = float(self.resolve("card-stacked-text-divider-length-pct") or 50) / 100
-        div_alignment  = self.resolve("card-stacked-text-divider-alignment")    or "left"
+        div_length_pct = float(self._resolve_tok("stacked-text", "divider-length-pct", 50)) / 100
+        div_alignment  = self._resolve_tok("stacked-text", "divider-alignment", "left")
 
         # Vertical gaps — falls back to --card-gap-* base tokens
         gap_top       = float(self._resolve_tok("stacked-text", "gap-top",       0))
@@ -104,12 +104,12 @@ class StackedTextCardRenderer(BaseCardRenderer):
         vertical_align = self._resolve_tok("stacked-text", "block-vertical-alignment", "top")
 
         # Key takeaway
-        kt_size       = float(self.resolve("card-stacked-text-key-takeaway-font-size")   or b_size)
-        kt_color      = self.resolve("card-stacked-text-key-takeaway-font-color")         or h_color
-        kt_weight     = str(self.resolve("card-stacked-text-key-takeaway-font-weight")   or "700")
-        kt_style      = self.resolve("card-stacked-text-key-takeaway-font-style")         or "normal"
-        kt_align      = self.resolve("card-stacked-text-key-takeaway-alignment")          or b_align
-        kt_margin_top = float(self.resolve("card-stacked-text-key-takeaway-margin-top")  or 8)
+        kt_size       = float(self._resolve_tok("stacked-text", "key-takeaway-font-size",   b_size))
+        kt_color      = self._resolve_tok("stacked-text", "key-takeaway-font-color")         or h_color
+        kt_weight     = str(self._resolve_tok("stacked-text", "key-takeaway-font-weight",   "700"))
+        kt_style      = self._resolve_tok("stacked-text", "key-takeaway-font-style",         "normal")
+        kt_align      = self._resolve_tok("stacked-text", "key-takeaway-alignment")          or b_align
+        kt_margin_top = float(self._resolve_tok("stacked-text", "key-takeaway-margin-top",  8))
 
         # Reserve vertical space at the bottom of the body box for key takeaway
         kt_height = (kt_size * 2 + kt_margin_top) if kt_text else 0

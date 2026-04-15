@@ -27,7 +27,7 @@ class QuoteCardRenderer(BaseCardRenderer):
         accent_color = self._tok("accent-color") or "#003087"
         accent_width = float(self._tok("accent-width") or 4)
         quote_size = float(self._tok("body-font-size", 14))
-        quote_color = self._tok("body-font-color") or "#333333"
+        quote_color = self._tok("body-font-color")
         quote_style = self._tok("body-font-style") or "italic"
 
         y = box.y
@@ -73,16 +73,16 @@ class QuoteCardRenderer(BaseCardRenderer):
 
         # Attribution
         if attribution:
-            body_size = float(self.resolve("text-body-font-size") or 14)
+            body_size = float(self._tok("attribution-font-size", 14))
             box.add(
                 {
                     "type": "text",
                     "x": text_x,
                     "y": y,
                     "w": text_w,
-                    "text": f"\u2014 {attribution}",
+                    "text": f"— {attribution}",
                     "font_size": body_size,
-                    "font_color": self.resolve("text-body-font-color"),
+                    "font_color": self._tok("attribution-font-color"),
                     "font_weight": "bold",
                     "alignment": attribution_align,
                 }
@@ -91,7 +91,7 @@ class QuoteCardRenderer(BaseCardRenderer):
 
         # Role / org
         if role:
-            caption_size = float(self.resolve("text-caption-font-size") or 11)
+            caption_size = float(self._tok("role-font-size", 11))
             box.add(
                 {
                     "type": "text",
@@ -100,7 +100,7 @@ class QuoteCardRenderer(BaseCardRenderer):
                     "w": text_w,
                     "text": role,
                     "font_size": caption_size,
-                    "font_color": self.resolve("text-caption-font-color"),
+                    "font_color": self._tok("role-font-color"),
                     "alignment": attribution_align,
                 }
             )

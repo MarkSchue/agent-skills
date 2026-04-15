@@ -42,26 +42,26 @@ class AgendaCardRenderer(BaseCardRenderer):
             return
 
         # ── Highlight bar tokens ──────────────────────────────────────────
-        bar_visible_raw = self.resolve("card-agenda-highlight-bar-visible")
+        bar_visible_raw = self._tok("highlight-bar-visible")
         bar_visible = bar_visible_raw in (True, "true", "True")
-        bar_color = self.resolve("card-agenda-highlight-bar-color")
-        bar_width = float(self.resolve("card-agenda-highlight-bar-width") or 3)
-        bar_gap = float(self.resolve("card-agenda-highlight-bar-gap") or 8)
+        bar_color = self._tok("highlight-bar-color")
+        bar_width = float(self._tok("highlight-bar-width", 3))
+        bar_gap = float(self._tok("highlight-bar-gap", 8))
 
         # ── Column proportions (percent of usable row width) ─────────────
-        col1_pct = float(self.resolve("card-agenda-col1-width-pct") or 15) / 100
-        col2_pct = float(self.resolve("card-agenda-col2-width-pct") or 50) / 100
+        col1_pct = float(self._tok("col1-width-pct", 15)) / 100
+        col2_pct = float(self._tok("col2-width-pct", 50)) / 100
         # col3 receives the remainder
 
         # ── Per-column text alignment ─────────────────────────────────────
-        col1_align = self.resolve("card-agenda-col1-alignment") or "center"
-        col2_align = self.resolve("card-agenda-col2-alignment") or "left"
-        col3_align = self.resolve("card-agenda-col3-alignment") or "left"
+        col1_align = self._tok("col1-alignment", "center")
+        col2_align = self._tok("col2-alignment", "left")
+        col3_align = self._tok("col3-alignment", "left")
 
         # ── Row geometry ───────────────────────────────────────────────────────
         entry_size = float(self._tok("heading-font-size", 14))
-        entry_spacing = float(self.resolve("card-agenda-entry-spacing") or 12)
-        row_height_token = self.resolve("card-agenda-row-height")
+        entry_spacing = float(self._tok("entry-spacing", 12))
+        row_height_token = self._tok("row-height")
         row_h = None
 
         if isinstance(row_height_token, (int, float)) and row_height_token > 0:
@@ -121,11 +121,11 @@ class AgendaCardRenderer(BaseCardRenderer):
         info_style = self._tok("body-font-style") or "normal"
 
         # ── Row separator tokens ──────────────────────────────────────────
-        sep_visible_raw = self.resolve("card-agenda-separator-visible")
+        sep_visible_raw = self._tok("separator-visible")
         sep_visible = sep_visible_raw in (True, "true", "True")
-        sep_color = self.resolve("card-agenda-separator-color")
-        sep_width = float(self.resolve("card-agenda-separator-width") or 1)
-        sep_inset = float(self.resolve("card-agenda-separator-inset") or 0)
+        sep_color = self._tok("separator-color")
+        sep_width = float(self._tok("separator-width", 1))
+        sep_inset = float(self._tok("separator-inset", 0))
 
         # ── Overflow guard — scale row geometry to fit box.h ─────────────
         # When the agenda-card is placed in a small grid cell the token-based
