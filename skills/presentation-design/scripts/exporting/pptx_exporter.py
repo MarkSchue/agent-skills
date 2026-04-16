@@ -120,11 +120,53 @@ _ICON_UNICODE_MAP: dict[str, str] = {
     "autorenew":        "↻",
     "visibility":       "👁",
     "gavel":            "⚖",
+    # Phosphor icon names
+    "trend-up":         "↑",
+    "trend-down":       "↓",
+    "rocket":           "▲",
+    "lightbulb":        "◉",
+    "chart-bar":        "▤",
+    "chart-line":       "▤",
+    "chart-scatter":    "▤",
+    "tree":             "◆",
+    "tree-structure":   "◆",
+    "x":                "✕",
+    "check":            "✓",
+    "intersect":        "◎",
+    "gear":             "⚙",
+    "magnifying-glass": "⌕",
+    "pencil":           "✎",
+    "star":             "★",
+    "heart":            "♥",
+    "warning":          "⚠",
+    "info":             "ℹ",
+    "question":         "?",
+    "flag":             "⚑",
+    "house":            "⌂",
+    "arrow-right":      "→",
+    "arrow-left":       "←",
+    "arrow-up":         "↑",
+    "arrow-down":       "↓",
+    "arrow-up-right":   "↗",
+    "plus":             "+",
+    "minus":            "−",
+    "shield":           "🛡",
+    "eye":              "👁",
+    "scales":           "⚖",
+    "database":         "◆",
+    "cpu":              "⚙",
+    "cloud":            "◎",
+    "lock":             "◆",
+    "user":             "◉",
+    "users":            "◎",
+    "factory":          "◆",
+    "globe":            "◎",
+    "map-pin":          "◎",
 }
 # Fallback glyph when the icon name is not in the map above
 _ICON_FALLBACK_GLYPH = "◉"
 # Font families that use ligatures (substring match, case-insensitive)
-_ICON_FONT_MARKERS = ("material icons", "material symbols")
+_ICON_FONT_MARKERS = ("material icons", "material symbols", "phosphor")
 
 _ALIGN_MAP = {
     "left": PP_ALIGN.LEFT,
@@ -270,6 +312,8 @@ class PptxExporter:
             self._add_ellipse(slide, elem)
         elif etype == "table":
             self._add_table(slide, elem)
+        elif etype == "bullet_list":
+            self._add_bullet_list(slide, elem)
         elif etype == "placeholder":
             pass  # placeholders are not rendered in PPTX
         else:
@@ -445,6 +489,94 @@ class PptxExporter:
                 r.font.italic = is_italic
                 if font_family:
                     r.font.name = str(font_family)
+
+    def _add_bullet_list(self, slide, elem: dict[str, Any]) -> None:
+        """Render a bullet list as a single PPTX text box with native bullet paragraph formatting.
+
+        Each bullet item becomes a paragraph with hanging-indent layout and
+        ``<a:buChar>`` / ``<a:buClr>`` OOXML attributes so PowerPoint renders
+        the marker natively — no separate marker text boxes needed.
+        """
+        from lxml import etree
+        from pptx.oxml.ns import qn
+
+        txBox = slide.shapes.add_textbox(
+            _px(elem["x"]), _px(elem["y"]),
+            _px(elem["w"]), _px(elem["h"]),
+        )
+        try:
+            txBox.line.fill.background()
+            if hasattr(txBox, "shadow"):
+                txBox.shadow.inherit = False
+                txBox.shadow.visible = False
+        except Exception:
+            pass
+
+        tf = txBox.text_frame
+        tf.margin_top = 0
+        tf.margin_bottom = 0
+        tf.margin_left = 0
+        tf.margin_right = 0
+        tf.word_wrap = True
+
+        font_size_pt = Pt(float(elem.get("font_size", 14)))
+        font_color_rgb = _rgb(str(elem.get("font_color") or "#000000"))
+        weight = elem.get("font_weight", "normal")
+        style_str = str(elem.get("font_style") or "").lower()
+        is_bold = str(weight).lower() in ("bold", "700") or "bold" in style_str
+        is_italic = "italic" in style_str
+        align = _ALIGN_MAP.get(elem.get("alignment", "left"), PP_ALIGN.LEFT)
+
+        bullet_char = str(elem.get("bullet_char") or "\u2022")  # fallback: •
+        bullet_color_hex = str(
+            elem.get("bullet_color") or elem.get("font_color") or "#000000"
+        ).lstrip("#")
+        bullet_indent_px = float(elem.get("bullet_indent", 16))
+        # EMU: left margin for indented text; the hanging indent is the negative mirror
+        bullet_indent_emu = int(bullet_indent_px * _EMU_PER_PX)
+
+        items = elem.get("items", [])
+        for i, item in enumerate(items):
+            p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+            p.alignment = align
+
+            # Hanging-indent layout: marL pushes text right, indent pulls marker left
+            pPr = p._p.get_or_add_pPr()
+            pPr.set("marL", str(bullet_indent_emu))
+            pPr.set("indent", str(-bullet_indent_emu))
+
+            # Bullet colour  <a:buClr><a:srgbClr val="RRGGBB"/></a:buClr>
+            if len(bullet_color_hex) == 6:
+                buClr = etree.SubElement(pPr, qn("a:buClr"))
+                srgbClr = etree.SubElement(buClr, qn("a:srgbClr"))
+                srgbClr.set("val", bullet_color_hex)
+
+            # Bullet character (or suppress with buNone when style=none)
+            if bullet_char:
+                buChar = etree.SubElement(pPr, qn("a:buChar"))
+                buChar.set("char", bullet_char)
+            else:
+                etree.SubElement(pPr, qn("a:buNone"))
+
+            # Text run(s)
+            runs_data = item.get("runs")
+            if runs_data:
+                for r_data in runs_data:
+                    run = p.add_run()
+                    run.text = r_data["text"]
+                    run.font.size = font_size_pt
+                    if font_color_rgb:
+                        run.font.color.rgb = font_color_rgb
+                    run.font.bold = is_bold or bool(r_data.get("bold"))
+                    run.font.italic = is_italic or bool(r_data.get("italic"))
+            else:
+                run = p.add_run()
+                run.text = str(item.get("text", ""))
+                run.font.size = font_size_pt
+                if font_color_rgb:
+                    run.font.color.rgb = font_color_rgb
+                run.font.bold = is_bold
+                run.font.italic = is_italic
 
     def _add_line(self, slide, elem: dict[str, Any]) -> None:
         connector = slide.shapes.add_connector(

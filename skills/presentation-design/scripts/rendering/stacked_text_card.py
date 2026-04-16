@@ -64,10 +64,11 @@ class StackedTextCardRenderer(BaseCardRenderer):
                     {
                         "heading": str(entry.get("heading", "")),
                         "body":    str(entry.get("body", "")),
+                        "bullets": list(entry.get("bullets") or []),
                     }
                 )
             else:
-                blocks.append({"heading": "", "body": str(entry)})
+                blocks.append({"heading": "", "body": str(entry), "bullets": []})
 
         n = max(2, min(4, len(blocks)))  # clamp to 2–4
         blocks = blocks[:n]
@@ -146,12 +147,16 @@ class StackedTextCardRenderer(BaseCardRenderer):
                 heading_text_h = heading_lines * heading_line_height
                 heading_h = heading_text_h
 
+            bullets = block.get("bullets") or []
             body_h = 0
-            if body_text:
+            if bullets:
+                body_h = self._bullet_list_height(bullets, b_size, body_line_height, body_chars)
+            elif body_text:
                 body_lines = max(1, len(strip_inline(body_text)) // body_chars + 1)
                 body_h = max(b_size, body_lines * body_line_height)
 
-            content_height = heading_text_h + (heading_gap if heading_text and body_text else 0) + body_h
+            has_body = bool(bullets or body_text)
+            content_height = heading_text_h + (heading_gap if heading_text and has_body else 0) + body_h
 
             if vertical_align == "middle":
                 # Step 4: pure centre — gap above == gap below, overflow is symmetric
@@ -182,10 +187,15 @@ class StackedTextCardRenderer(BaseCardRenderer):
                     }
                 )
                 current_y += heading_text_h
-                if body_text:
+                if has_body:
                     current_y += heading_gap
 
-            if body_text:
+            if bullets:
+                self._emit_bullet_list(
+                    box, bullets, box.x, current_y, box.w, body_h,
+                    b_size, b_color, b_weight, b_align, body_line_height,
+                )
+            elif body_text:
                 box.add(
                     {
                         "type":        "text",

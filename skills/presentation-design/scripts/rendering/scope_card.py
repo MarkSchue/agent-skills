@@ -272,29 +272,37 @@ class ScopeCardRenderer(BaseCardRenderer):
                     }
                 )
 
-            # ── Body text (below the badge row) ────────────────────────
+            # ── Body text / bullets (below the badge row) ──────────────
+            # x-position aligns with the heading (right of the badge), not the tile edge
+            bullets = list(item.get("bullets") or [])
             body_text = str(item.get("body") or item.get("description") or "")
-            if body_text:
+            if bullets or body_text:
                 body_y = by + badge_row_h + body_margin_top
                 # Available height below body text start, up to tile bottom padding
                 avail_body_h = ty + tile_h - tile_padding - body_y
                 if avail_body_h > body_size:
-                    box.add(
-                        {
-                            "type": "text",
-                            "x": cx,
-                            "y": body_y,
-                            "w": cw,
-                            "h": max(body_size, avail_body_h),
-                            "text": body_text,
-                            "font_size": body_size,
-                            "font_color": body_color,
-                            "font_weight": body_weight,
-                            "alignment": "left",
-                            "line_height": body_lh,
-                            "wrap": True,
-                        }
-                    )
+                    if bullets:
+                        self._emit_bullet_list(
+                            box, bullets, text_x, body_y, text_w, avail_body_h,
+                            body_size, body_color, body_weight, "left", body_lh,
+                        )
+                    else:
+                        box.add(
+                            {
+                                "type": "text",
+                                "x": text_x,
+                                "y": body_y,
+                                "w": text_w,
+                                "h": max(body_size, avail_body_h),
+                                "text": body_text,
+                                "font_size": body_size,
+                                "font_color": body_color,
+                                "font_weight": body_weight,
+                                "alignment": "left",
+                                "line_height": body_lh,
+                                "wrap": True,
+                            }
+                        )
 
             # ── Optional status label (bottom-right of tile) ───────────
             if status_label_visible:

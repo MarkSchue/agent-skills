@@ -29,6 +29,13 @@ handles **all** chrome that is universal to every card type:
   Vertical space is reserved from the body before ``render_body`` is called, so
   no subclass needs special-casing.
 
+**Body ↔ Bullets design principle** — every card type that renders a ``body``
+text field must also support a ``bullets`` list as a drop-in replacement.
+When ``bullets`` is present and non-empty it takes precedence over ``body``.
+Use the shared helpers :meth:`_bullet_list_height` and :meth:`_emit_bullet_list`
+instead of duplicating the logic.  Both methods are implemented here in
+``BaseCardRenderer`` so all subclasses automatically inherit them.
+
 Subclasses should call ``self.resolve(token_name)`` to look up any token
 value — this method transparently applies the override chain using the current
 card's ``style_overrides`` and the renderer's variant name.
@@ -481,3 +488,80 @@ class BaseCardRenderer(ABC):
             y += body_gap_top
 
         return y
+
+    # ── Shared bullet-list helpers ────────────────────────────────────────────
+
+    @staticmethod
+    def _bullet_list_height(
+        bullets: list,
+        b_size: float,
+        line_height: float,
+        chars_per_line: int,
+    ) -> float:
+        """Return total pixel height needed to render *bullets* as a bullet list."""
+        from scripts.parsing.inline_markdown import strip_inline
+        total = 0.0
+        for b in bullets:
+            plain = strip_inline(str(b))
+            lines = max(1, len(plain) // max(1, chars_per_line) + 1)
+            total += lines * line_height
+        return total
+
+    def _emit_bullet_list(
+        self,
+        box: "RenderBox",
+        bullets: list,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        b_size: float,
+        b_color: object,
+        b_weight: str,
+        b_align: str,
+        line_height: float,
+    ) -> None:
+        """Emit a single ``bullet_list`` element into *box*."""
+        from scripts.parsing.inline_markdown import text_and_runs, strip_inline
+        _BULLET_CHAR = {
+            "disc": "•", "circle": "○", "square": "■",
+            "dash": "–", "arrow": "›", "none": "",
+        }
+        bullet_style_raw = self.resolve("card-bullet-style") or "square"
+        bullet_char = _BULLET_CHAR.get(str(bullet_style_raw).strip().lower(), "■")
+        bullet_color_raw = self.resolve("card-bullet-color")
+        bullet_color = str(bullet_color_raw) if bullet_color_raw else str(b_color)
+        try:
+            bullet_size_raw = self.resolve("card-bullet-size")
+            bullet_size = (
+                float(bullet_size_raw)
+                if bullet_size_raw and float(bullet_size_raw) > 0
+                else b_size
+            )
+        except (ValueError, TypeError):
+            bullet_size = b_size
+        bullet_indent = float(self.resolve("card-body-bullet-indent") or 16)
+        chars_per_line = max(1, int((w - bullet_indent) / (b_size * 0.6)))
+        items = []
+        for b in bullets:
+            plain = strip_inline(str(b))
+            num_lines = max(1, len(plain) // chars_per_line + 1)
+            item_h = num_lines * line_height
+            items.append({**text_and_runs(str(b)), "h": item_h})
+        box.add(
+            {
+                "type": "bullet_list",
+                "x": x, "y": y, "w": w, "h": h,
+                "items": items,
+                "font_size": b_size,
+                "font_color": b_color,
+                "font_weight": b_weight,
+                "alignment": b_align,
+                "bullet_char": bullet_char,
+                "bullet_color": bullet_color,
+                "bullet_size": bullet_size,
+                "bullet_indent": bullet_indent,
+                "line_height": line_height,
+                "wrap": True,
+            }
+        )

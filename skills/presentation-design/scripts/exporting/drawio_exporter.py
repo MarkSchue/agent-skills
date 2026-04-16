@@ -121,9 +121,94 @@ class DrawioExporter:
             return self._add_ellipse(mx_root, elem, cell_id)
         elif etype == "table":
             return self._add_table(mx_root, elem, cell_id, page_idx)
+        elif etype == "bullet_list":
+            return self._add_bullet_list(mx_root, elem, cell_id)
         elif etype == "placeholder":
             return cell_id  # skip placeholders
         return cell_id
+
+    def _add_bullet_list(
+        self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
+    ) -> int:
+        """Render a bullet list as a single draw.io HTML text cell.
+
+        All bullet items are combined into one mxCell whose value is an HTML
+        string: each item is one line with a colour-spanned marker followed by
+        the item text, joined by ``<br/>``.  This avoids the older pattern of
+        one separate marker cell + one text cell per bullet.
+        """
+        cell = ET.SubElement(mx_root, "mxCell")
+        cell.set("id", str(cell_id))
+        cell.set("parent", "1")
+        cell.set("vertex", "1")
+
+        font_size = float(elem.get("font_size", 14))
+        font_size_pt = round(font_size, 1)
+        font_color = str(elem.get("font_color") or "#000000")
+        weight = elem.get("font_weight", "normal")
+        style_str = str(elem.get("font_style") or "").lower()
+        is_bold = str(weight).lower() in ("bold", "700") or "bold" in style_str
+        is_italic = "italic" in style_str
+        align = elem.get("alignment", "left")
+        font_style_num = (1 if is_bold else 0) + (2 if is_italic else 0)
+
+        bullet_char = str(elem.get("bullet_char") or "\u2022")
+        bullet_color = str(elem.get("bullet_color") or font_color)
+
+        style = (
+            f"text;html=1;fontSize={font_size_pt};fontColor={font_color};"
+            f"fontStyle={font_style_num};"
+            f"align={align};verticalAlign=top;whiteSpace=wrap;"
+            f"fillColor=none;strokeColor=none;overflow=hidden;"
+        )
+        cell.set("style", style)
+
+        # Build one HTML line per bullet item
+        parts: list[str] = []
+        for item in elem.get("items", []):
+            runs_data = item.get("runs")
+            if runs_data:
+                text_parts: list[str] = []
+                for r_data in runs_data:
+                    t = (
+                        str(r_data["text"])
+                        .replace("&", "&amp;")
+                        .replace("<", "&lt;")
+                        .replace(">", "&gt;")
+                    )
+                    r_bold = bool(r_data.get("bold"))
+                    r_italic = bool(r_data.get("italic"))
+                    if r_bold and r_italic:
+                        t = f"<b><i>{t}</i></b>"
+                    elif r_bold:
+                        t = f"<b>{t}</b>"
+                    elif r_italic:
+                        t = f"<i>{t}</i>"
+                    text_parts.append(t)
+                item_html = "".join(text_parts)
+            else:
+                item_html = (
+                    str(item.get("text", ""))
+                    .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                )
+
+            if bullet_char:
+                marker = f'<span style="color:{bullet_color}">{bullet_char}</span>&nbsp;'
+            else:
+                marker = ""
+            parts.append(f"{marker}{item_html}")
+
+        cell.set("value", "<br/>".join(parts))
+
+        geo = ET.SubElement(cell, "mxGeometry")
+        geo.set("x", str(elem["x"]))
+        geo.set("y", str(elem["y"]))
+        geo.set("width", str(elem["w"]))
+        geo.set("height", str(elem["h"]))
+        geo.set("as", "geometry")
+        return cell_id + 1
 
     def _add_ellipse(
         self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int

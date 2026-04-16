@@ -132,6 +132,45 @@ when their variant-specific token is absent or commented out:
 
 | Token | Default | Purpose |
 |---|---|---|
+
+---
+
+## Design Principles
+
+### Body ↔ Bullets are interchangeable
+
+**Every card that accepts a `body` field also accepts a `bullets` list as an
+alternative (or replacement) for that body text.**  This is a universal
+content-model rule, not a per-card feature.
+
+When `bullets` is present, the renderer calls `BaseCardRenderer._emit_bullet_list()`
+and emits a native `bullet_list` element (OOXML `<a:buChar>` in PPTX;
+HTML `<br/>`-separated spans in draw.io) instead of a plain `text` element.
+Bullet style, colour, character, and indent are all controlled via
+`--card-bullet-*` CSS tokens so the design can be overridden globally or
+per-card without touching renderer code.
+
+```yaml
+# plain body — always valid
+content:
+  heading: "Our Approach"
+  body: "We focus on quality and delivery."
+
+# bullet variant — valid on every card type with a body slot
+content:
+  heading: "Our Approach"
+  bullets:
+    - "Quality over speed"
+    - "Continuous delivery"
+    - "Data-driven decisions"
+```
+
+**Implementation rule:** Every new card renderer that renders a `body` field **must**
+also check for a `bullets` list in the same content slot and delegate to
+`self._emit_bullet_list()` when the list is non-empty.  The height estimation
+lookup must likewise call `self._bullet_list_height()` for the bullets branch.
+See `BaseCardRenderer._emit_bullet_list` and `_bullet_list_height` in
+`rendering/base_card.py` for the shared implementation.
 | `--card-body-font-size` | `14` px | Body text size |
 | `--card-body-font-color` | `var(--color-text-subtle)` | Body text colour |
 | `--card-body-font-weight` | `400` | Body text weight |

@@ -124,6 +124,36 @@ Every card YAML block normalizes to this schema:
 | `style_overrides` | no | object | Per-card CSS token overrides |
 | `asset_refs` | no | list | Relative paths to assets used by this card |
 
+### Body ↔ Bullets — universal content principle
+
+Every card type that accepts a `body` text field also accepts a `bullets` list
+as a **drop-in replacement**.  The two can coexist in the YAML, but `bullets`
+takes precedence over `body` when both are present.
+
+```yaml
+# prose body (any card type)
+content:
+  heading: "Key Insight"
+  body: "A single paragraph of explanation."
+
+# bullet list (same card type — no change to `type` needed)
+content:
+  heading: "Key Insight"
+  bullets:
+    - "First supporting point"
+    - "Second supporting point"
+    - "Third supporting point"
+```
+
+Bullet appearance is controlled globally via CSS tokens:
+
+| Token | Default | Purpose |
+|---|---|---|
+| `--card-bullet-style` | `square` | Bullet character: `disc` `circle` `square` `dash` `arrow` `none` |
+| `--card-bullet-color` | inherits body color | Bullet marker colour |
+| `--card-bullet-size` | inherits body font-size | Bullet marker size (px) |
+| `--card-body-bullet-indent` | `16` | Hanging-indent in px for wrapped lines |
+
 ### Per-card override keys
 
 | Key | Type | Description |

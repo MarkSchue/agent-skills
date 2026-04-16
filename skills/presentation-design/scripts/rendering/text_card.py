@@ -73,44 +73,38 @@ class TextCardRenderer(BaseCardRenderer):
             )
             y += body_h + 8
 
-        # Bullet list
-        for bullet in bullets:
-            bullet_str = str(bullet)
-            plain_bullet = strip_inline(bullet_str)
-            num_lines = max(1, len(plain_bullet) // chars_per_line_indent + 1)
-            bullet_h = num_lines * line_height
+        # Bullet list — emit as a single "bullet_list" element so exporters can use
+        # native shape types (PPTX text box with buChar paragraphs, draw.io HTML list)
+        if bullets:
+            items = []
+            total_h = 0.0
+            for bullet in bullets:
+                bullet_str = str(bullet)
+                plain_bullet = strip_inline(bullet_str)
+                num_lines = max(1, len(plain_bullet) // chars_per_line_indent + 1)
+                bullet_h = num_lines * line_height
+                items.append({**text_and_runs(bullet_str), "h": bullet_h})
+                total_h += bullet_h
 
-            # Bullet marker — separate element so color and size are independent
-            if bullet_char:
-                box.add(
-                    {
-                        "type": "text",
-                        "x": box.x,
-                        "y": y,
-                        "w": bullet_indent,
-                        "h": bullet_h,
-                        "text": bullet_char,
-                        "font_size": bullet_size,
-                        "font_color": bullet_color,
-                        "alignment": "left",
-                        "wrap": False,
-                    }
-                )
-
-            # Bullet text (indented, supports inline bold/italic)
             box.add(
                 {
-                    "type": "text",
-                    "x": box.x + bullet_indent,
+                    "type": "bullet_list",
+                    "x": box.x,
                     "y": y,
-                    "w": box.w - bullet_indent,
-                    "h": bullet_h,
-                    **text_and_runs(bullet_str),
+                    "w": box.w,
+                    "h": total_h,
+                    "items": items,
                     "font_size": font_size,
                     "font_color": font_color,
+                    "font_weight": self.resolve("text-body-font-weight") or "normal",
                     "alignment": body_align,
+                    "bullet_char": bullet_char,
+                    "bullet_color": bullet_color,
+                    "bullet_size": bullet_size,
+                    "bullet_indent": bullet_indent,
+                    "line_height": line_height,
                     "wrap": True,
                 }
             )
-            y += bullet_h
+            y += total_h
 
