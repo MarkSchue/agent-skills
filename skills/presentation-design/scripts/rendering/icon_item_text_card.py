@@ -126,7 +126,10 @@ class IconItemTextCardRenderer(BaseCardRenderer):
         div_visible_raw = self.resolve("card-divider-visible")
         div_visible = div_visible_raw in (True, "true", "True")
         div_color = self.resolve("card-divider-color")
-        div_width = float(self.resolve("card-divider-width") or 1)
+        _div_width_raw = self.resolve("card-divider-width")
+        div_width = float(_div_width_raw if _div_width_raw is not None and _div_width_raw != "" else 1)
+        if div_width == 0:
+            div_visible = False
         div_length_pct = float(self._resolve_tok("icon-item-text", "divider-length-pct", 100)) / 100
         div_alignment = self._resolve_tok("icon-item-text", "divider-alignment", "left")
 
