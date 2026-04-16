@@ -167,6 +167,6 @@ content:
       number: "04"
   highlight: 2
 style_overrides:
-  card_agenda_highlight_bar_color: "#0066CC"
-  card_agenda_active_color: "#0066CC"
-  card_agenda_col1_alignment: center
+  card-agenda-highlight-bar-color: "#0066CC"
+  card-agenda-active-color: "#0066CC"
+  card-agenda-col1-alignment: center

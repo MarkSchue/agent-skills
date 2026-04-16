@@ -160,18 +160,18 @@ All `.card-base` overrides plus `.card--numbered-text` tokens:
 type: numbered_text_card
 title: "Implementation Roadmap"
 style_overrides:
-  card_numbered_text_badge_shape: circle
-  card_numbered_text_badge_color: "#003087"
-  card_numbered_text_badge_on_color: "#FFFFFF"
-  card_numbered_text_badge_size: 30
-  card_numbered_text_col1_width_pct: 12
-  card_numbered_text_col2_width_pct: 40
-  card_numbered_text_col2_alignment: left
-  card_numbered_text_col3_alignment: left
-  card_numbered_text_row_vertical_alignment: middle
-  card_numbered_text_separator_visible: true
-  card_heading_font_size: 13
-  card_body_font_size: 11
+  card-numbered-text-badge-shape: circle
+  card-numbered-text-badge-color: "#003087"
+  card-numbered-text-badge-on-color: "#FFFFFF"
+  card-numbered-text-badge-size: 30
+  card-numbered-text-col1-width-pct: 12
+  card-numbered-text-col2-width-pct: 40
+  card-numbered-text-col2-alignment: left
+  card-numbered-text-col3-alignment: left
+  card-numbered-text-row-vertical-alignment: middle
+  card-numbered-text-separator-visible: true
+  card-heading-font-size: 13
+  card-body-font-size: 11
 content:
   highlight: 0
   rows:
@@ -194,9 +194,9 @@ content:
 ```yaml
 type: numbered_text_card
 style_overrides:
-  card_numbered_text_badge_shape: circle
-  card_numbered_text_col1_font_family: "Material Symbols Outlined"
-  card_numbered_text_badge_size: 32
+  card-numbered-text-badge-shape: circle
+  card-numbered-text-col1-font-family: "Material Symbols Outlined"
+  card-numbered-text-badge-size: 32
 content:
   rows:
     - col1: "check_circle"

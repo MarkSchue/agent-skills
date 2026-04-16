@@ -95,5 +95,5 @@ content:
   attribution: "Alan Kay"
   role: "Computer Scientist"
 style_overrides:
-  card_quote_accent_color: "#0066CC"
+  card-quote-accent-color: "#0066CC"
 ```

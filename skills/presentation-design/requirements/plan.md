@@ -261,8 +261,8 @@ The requirement explicitly states that slides *and* cards can each override the 
 ## My Slide Title
 <!-- slide
 background: "#F5F5F5"
-title_color: "#003087"
-hide_footer: true
+title-color: "#003087"
+hide-footer: true
 -->
 ### Card Title
 ```
@@ -272,8 +272,8 @@ hide_footer: true
 type: text-card
 content: ...
 style_overrides:
-  card_background: "#FFFFFF"
-  header_line_color: "#003087"
+  card-background: "#FFFFFF"
+  header-line-color: "#003087"
 ```
 
 Both override levels feed into the same precedence chain defined in §6.3. The Python `SlideModel` must carry a `slide_overrides` dict alongside its card list.

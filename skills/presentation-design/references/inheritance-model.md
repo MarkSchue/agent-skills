@@ -103,7 +103,7 @@ inline `<!-- slide ... -->` blocks in the Markdown.
 For every visual property, the renderer resolves the value through this chain:
 
 ```
-1. Per-card YAML override    →  style_overrides.card_background
+1. Per-card YAML override    →  style_overrides.card-background
 2. Per-slide YAML override   →  <!-- slide background: "#F0F4F8" -->
 3. Card variant CSS class    →  .card--kpi { --card-kpi-value-font-size: 48 }
 4. Base CSS class            →  .card-base { --card-background-color: #FFFFFF }

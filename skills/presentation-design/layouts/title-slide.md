@@ -44,9 +44,9 @@ Opening slide, section dividers, or closing slides. Draws only the slide chrome 
 
 All `.slide-base` tokens, plus:
 - `background` — background color or image path
-- `title_color`, `title_font_size` — title styling
-- `subtitle_color`, `subtitle_font_size` — subtitle styling
-- `hide_footer` — suppress footer region
+- `title-color`, `title-font-size` — title styling
+- `subtitle-color`, `subtitle-font-size` — subtitle styling
+- `hide-footer` — suppress footer region
 
 ## Limitations
 

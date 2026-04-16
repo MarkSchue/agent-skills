@@ -4,8 +4,8 @@
 <!-- slide
 layout: title-slide
 background: "#003087"
-title_color: "#FFFFFF"
-subtitle_color: "#CCDDFF"
+title-color: "#FFFFFF"
+subtitle-color: "#CCDDFF"
 -->
 
 # Executive Summary

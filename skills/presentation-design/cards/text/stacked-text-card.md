@@ -144,9 +144,9 @@ content:
     - heading: "Delivery"
       body: "Phased rollout with embedded support for the first 90 days."
 style_overrides:
-  card_stacked_text_divider_length_pct: 40
-  card_stacked_text_heading_alignment: left
-  card_stacked_text_body_alignment: left
+  card-stacked-text-divider-length-pct: 40
+  card-stacked-text-heading-alignment: left
+  card-stacked-text-body-alignment: left
 ```
 
 ```yaml

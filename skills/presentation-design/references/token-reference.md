@@ -273,8 +273,8 @@ presentation design system. It is auto-generated from `themes/base.css`.
 > `--card-heading-font-weight: 600` to use semibold headings; all other heading font
 > properties inherit from `.card-base`.
 >
-> In per-card `style_overrides:` YAML, use the base token names (e.g. `card_heading_font_color`,
-> `card_body_font_size`) — they are scoped to that card instance only.
+> In per-card `style_overrides:` YAML, use the base token names (e.g. `card-heading-font-color`,
+> `card-body-font-size`) — they are scoped to that card instance only.
 
 ### KPI — `.card--kpi`
 | Token | Default |

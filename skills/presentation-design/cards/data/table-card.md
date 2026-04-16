@@ -180,9 +180,9 @@ content:
   col_alignments: ["left", "right", "right", "right"]
   footer: "Source: Finance dashboard, April 2026"
 style_overrides:
-  card_table_header_bg_color: "#1A1A2E"
-  card_table_header_font_color: "#FFFFFF"
-  card_table_stripe_color: "#F3F4F6"
-  card_table_sum_bg_color: "#E5E7EB"
-  card_table_sum_font_weight: bold
+  card-table-header-bg-color: "#1A1A2E"
+  card-table-header-font-color: "#FFFFFF"
+  card-table-stripe-color: "#F3F4F6"
+  card-table-sum-bg-color: "#E5E7EB"
+  card-table-sum-font-weight: bold
 ```

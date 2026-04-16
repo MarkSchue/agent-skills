@@ -106,5 +106,5 @@ content:
     - "Continuous improvement"
   caption: "Updated Q3 2025"
 style_overrides:
-  card_background: "#F8FAFC"
+  card-background: "#F8FAFC"
 ```

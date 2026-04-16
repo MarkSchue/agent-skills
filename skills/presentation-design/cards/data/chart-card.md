@@ -225,9 +225,9 @@ content:
 type: chart-card
 title: "Customer Satisfaction"
 style_overrides:
-  card_chart_legend_position: right
-  card_chart_palette_1: "#E2001A"
-  card_chart_palette_2: "#003087"
+  card-chart-legend-position: right
+  card-chart-palette-1: "#E2001A"
+  card-chart-palette-2: "#003087"
 content:
   chart_type: bar
   labels: ["Jan", "Feb", "Mar"]

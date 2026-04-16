@@ -94,5 +94,5 @@ content:
   label: "Annual Revenue"
   comparison: "+18% vs Q2"
 style_overrides:
-  card_kpi_value_font_size: 56
+  card-kpi-value-font-size: 56
 ```

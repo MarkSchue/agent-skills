@@ -161,8 +161,8 @@ content:
       status: in-scope
       icon: rocket_launch
 style_overrides:
-  card_item_marker: icon
-  card_badge_size: 22
+  card-item-marker: icon
+  card-badge-size: 22
 ```
 
 ---

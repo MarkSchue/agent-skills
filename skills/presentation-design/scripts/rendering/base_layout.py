@@ -169,7 +169,9 @@ class BaseLayoutRenderer(ABC):
             y_cursor += div_width + 8
 
         # Footer region — always rendered at its fixed position
-        hide_footer = overrides.get("hide_footer", False) if overrides else False
+        hide_footer = (
+            overrides.get("hide-footer") or overrides.get("hide_footer", False)
+        ) if overrides else False
         if not hide_footer:
             footer_y = self._render_footer(
                 canvas, ml, mr, canvas_w, canvas_h, mb, page_number, overrides
@@ -179,7 +181,9 @@ class BaseLayoutRenderer(ABC):
             footer_y = canvas_h - mb - (footer_size + 16)
 
         # Take-away box — always sits directly above the footer
-        take_away_data = (overrides.get("take_away") or overrides.get("takeaway")) if overrides else None
+        take_away_data = (
+            overrides.get("take-away") or overrides.get("take_away") or overrides.get("takeaway")
+        ) if overrides else None
         take_away_top = footer_y  # default: no take-away, body ends at footer
         if take_away_data and isinstance(take_away_data, dict):
             ta_h = float(

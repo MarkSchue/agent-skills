@@ -201,11 +201,11 @@ content:
 ```yaml
 type: timeline-card
 style_overrides:
-  card_timeline_spine_color: "#003087"
-  card_timeline_marker_fill: "#003087"
-  card_timeline_marker_stroke: "#003087"
-  card_timeline_goal_marker_fill: "#E2001A"
-  card_heading_font_color: "#003087"
+  card-timeline-spine-color: "#003087"
+  card-timeline-marker-fill: "#003087"
+  card-timeline-marker-stroke: "#003087"
+  card-timeline-goal-marker-fill: "#E2001A"
+  card-heading-font-color: "#003087"
 content:
   orientation: horizontal
   milestones:

@@ -219,8 +219,8 @@ to that one card instance:
 
 ```yaml
 style_overrides:
-  card_heading_font_color: "#003087"   # scopes to this card only
-  card_body_font_size: 12              # scopes to this card only
+  card-heading-font-color: "#003087"   # scopes to this card only
+  card-body-font-size: 12              # scopes to this card only
 ```
 
 ---

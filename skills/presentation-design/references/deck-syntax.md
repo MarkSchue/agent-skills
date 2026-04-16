@@ -64,9 +64,9 @@ override slide-level CSS tokens for this specific slide.
 ## Custom Background Slide
 <!-- slide
 background: "#F0F4F8"
-title_color: "#003087"
-hide_footer: true
-hide_page_number: false
+title-color: "#003087"
+hide-footer: true
+hide-page-number: false
 -->
 ### Card Title
 ...
@@ -76,15 +76,15 @@ Supported per-slide override keys:
 | Key | Type | Description |
 |-----|------|-------------|
 | `background` | string | Slide background color (hex) |
-| `background_image` | string | Path to background image |
-| `title_color` | string | Slide title font color |
-| `title_size` | int | Slide title font size (px) |
-| `title_alignment` | string | left \| center \| right |
-| `hide_footer` | bool | Hide footer text |
-| `hide_page_number` | bool | Hide page number |
-| `hide_divider` | bool | Hide title divider line |
-| `hide_logo_primary` | bool | Hide primary logo |
-| `hide_logo_secondary` | bool | Hide secondary logo |
+| `background-image` | string | Path to background image |
+| `title-color` | string | Slide title font color |
+| `title-size` | int | Slide title font size (px) |
+| `title-alignment` | string | left \| center \| right |
+| `hide-footer` | bool | Hide footer text |
+| `hide-page-number` | bool | Hide page number |
+| `hide-divider` | bool | Hide title divider line |
+| `hide-logo-primary` | bool | Hide primary logo |
+| `hide-logo-secondary` | bool | Hide secondary logo |
 
 ---
 
@@ -106,8 +106,8 @@ content:
     - "Customer-first approach"
     - "Data-driven decisions"
 style_overrides:
-  card_background: "#F8FAFC"
-  header_line_color: "#3B82F6"
+  card-background: "#F8FAFC"
+  header-line-color: "#3B82F6"
 ```​
 ```
 
@@ -158,35 +158,35 @@ Bullet appearance is controlled globally via CSS tokens:
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `card_background` | string | Card background color |
-| `card_border_color` | string | Card border color |
-| `card_border_radius` | int | Card border radius (px) |
-| `card_padding` | int | Card inner padding (px) |
-| `title_visible` | bool | Show/hide card title |
-| `title_alignment` | string | left \| center \| right |
-| `header_line_visible` | bool | Show/hide header divider |
-| `header_line_color` | string | Header divider color |
-| `header_line_width` | int | Header divider thickness (px) |
-| `footer_line_visible` | bool | Show/hide footer divider line |
-| `footer_font_size` | int | Footer font size (px) |
-| `footer_font_color` | string | Footer text color |
-| `footer_font_weight` | string | `normal` \| `bold` |
-| `footer_font_style` | string | `normal` \| `italic` |
-| `footer_alignment` | string | `left` \| `center` \| `right` |
-| `footer_margin_top` | int | Space above footer text (px) |
-| `footer_line_color` | string | Footer divider color |
-| `footer_line_width` | int | Footer divider thickness (px) |
-| `subtitle_visible` | bool | Show/hide subtitle below header line |
-| `subtitle_font_color` | string | Subtitle text color |
-| `subtitle_font_size` | int | Subtitle font size (px) |
-| `subtitle_font_style` | string | `normal` \| `italic` |
-| `subtitle_alignment` | string | `left` \| `center` \| `right` |
-| `icon_visible` | bool | Show/hide icon next to card title |
-| `icon_name` | string | Icon ligature or Unicode codepoint (e.g. `"bar_chart"`) |
-| `icon_position` | string | `left` \| `right` |
-| `icon_color` | string | Icon foreground color |
-| `icon_size` | int | Icon size in px |
-| `icon_background_color` | string | Icon badge background color |
+| `card-background` | string | Card background color |
+| `card-border-color` | string | Card border color |
+| `card-border-radius` | int | Card border radius (px) |
+| `card-padding` | int | Card inner padding (px) |
+| `title-visible` | bool | Show/hide card title |
+| `title-alignment` | string | left \| center \| right |
+| `header-line-visible` | bool | Show/hide header divider |
+| `header-line-color` | string | Header divider color |
+| `header-line-width` | int | Header divider thickness (px) |
+| `footer-line-visible` | bool | Show/hide footer divider line |
+| `footer-font-size` | int | Footer font size (px) |
+| `footer-font-color` | string | Footer text color |
+| `footer-font-weight` | string | `normal` \| `bold` |
+| `footer-font-style` | string | `normal` \| `italic` |
+| `footer-alignment` | string | `left` \| `center` \| `right` |
+| `footer-margin-top` | int | Space above footer text (px) |
+| `footer-line-color` | string | Footer divider color |
+| `footer-line-width` | int | Footer divider thickness (px) |
+| `subtitle-visible` | bool | Show/hide subtitle below header line |
+| `subtitle-font-color` | string | Subtitle text color |
+| `subtitle-font-size` | int | Subtitle font size (px) |
+| `subtitle-font-style` | string | `normal` \| `italic` |
+| `subtitle-alignment` | string | `left` \| `center` \| `right` |
+| `icon-visible` | bool | Show/hide icon next to card title |
+| `icon-name` | string | Icon ligature or Unicode codepoint (e.g. `"bar_chart"`) |
+| `icon-position` | string | `left` \| `right` |
+| `icon-color` | string | Icon foreground color |
+| `icon-size` | int | Icon size in px |
+| `icon-background-color` | string | Icon badge background color |
 
 ---
 
