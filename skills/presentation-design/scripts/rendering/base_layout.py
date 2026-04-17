@@ -130,22 +130,26 @@ class BaseLayoutRenderer(ABC):
             sub_size = float(
                 self._resolve("slide-subtitle-font-size", overrides) or 18
             )
+            # Allocate 2 lines of height so longer subtitles don't get clipped
+            # (the divider follows after this block, so the full allocation is safe)
+            sub_h = sub_size * 2 + 8
             canvas.add(
                 {
                     "type": "text",
                     "x": ml,
                     "y": y_cursor,
                     "w": canvas_w - ml - mr,
-                    "h": sub_size + 8,
+                    "h": sub_h,
                     "text": slide.subtitle,
                     "font_size": sub_size,
                     "font_color": self._resolve(
                         "slide-subtitle-font-color", overrides
                     )
                     or "#555555",
+                    "wrap": True,
                 }
             )
-            y_cursor += sub_size + 8
+            y_cursor += sub_h
 
         # Divider line
         div_width = float(
@@ -297,7 +301,7 @@ class BaseLayoutRenderer(ABC):
                     "font_style": ta_fs_style,
                     "alignment": ta_align,
                     "vertical_align": "middle",
-                    "wrap": False,
+                    "wrap": True,
                 }
             )
 

@@ -298,13 +298,16 @@ class DrawioExporter:
 
         wrap_val = elem.get("wrap", True)
         ws = "wrap" if wrap_val else "nowrap"
+        # Allow wrapped text to flow slightly beyond cell bounds (subtitle, take-away)
+        # so long text is not clipped. Non-wrapping text stays clipped.
+        overflow = "visible" if wrap_val else "hidden"
         style = (
             f"text;html=1;fontSize={font_size_pt};fontColor={font_color};"
             f"fontStyle={(int(bold) * 1) + (int(italic) * 2)};"
             f"{font_family_attr}"
             f"align={align};verticalAlign={drawio_valign};whiteSpace={ws};"
             f"{line_spacing_style}"
-            f"fillColor=none;strokeColor=none;overflow=hidden;"
+            f"fillColor=none;strokeColor=none;overflow={overflow};"
         )
         cell.set("style", style)
 

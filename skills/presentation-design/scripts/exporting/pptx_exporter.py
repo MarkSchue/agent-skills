@@ -162,6 +162,29 @@ _ICON_UNICODE_MAP: dict[str, str] = {
     "factory":          "◆",
     "globe":            "◎",
     "map-pin":          "◎",
+    # Material Symbols — LAPP deck icons
+    "account_tree":     "⊕",
+    "alt_route":        "⇄",
+    "architecture":     "⊟",
+    "block":            "⊘",
+    "compare_arrows":   "⇔",
+    "conversion_path":  "↝",
+    "domain":           "⊡",
+    "exit_to_app":      "↗",
+    "handshake":        "⊗",
+    "home_work":        "⌂",
+    "hub":              "⊛",
+    "inventory_2":      "◫",
+    "manufacturing":    "⚙",
+    "monitoring":       "◎",
+    "quiz":             "?",
+    "rule":             "≡",
+    "schema":           "⊹",
+    "task_alt":         "✓",
+    "topic":            "◆",
+    "tune":             "⊟",
+    "verified":         "✓",
+    "view_timeline":    "☰",
 }
 # Fallback glyph when the icon name is not in the map above
 _ICON_FALLBACK_GLYPH = "◉"
@@ -186,6 +209,8 @@ class PptxExporter:
         self.project_root = Path(project_root) if project_root else None
         _cache = (self.project_root / "assets" / "icons") if self.project_root else Path("/tmp/pptx_icon_cache")
         self._icon_resolver = IconResolver(_cache)
+        # Counter for unique SVG media-part names within one export session
+        self._svg_part_counter = 0
 
     def export(
         self,
@@ -613,55 +638,106 @@ class PptxExporter:
         except Exception:
             pass
 
-    def _add_icon(self, slide, elem: dict[str, Any]) -> None:
-        """Render an icon element — Unicode text for known icons, SVG→PNG for others.
+    def _add_svg_pic(
+        self, slide, svg_path: "Path", x: float, y: float, w: float, h: float
+    ) -> bool:
+        """Add an SVG as a native picture in PPTX (Office 365 direct SVG support).
 
-        Logic mirrors draw.io: icons whose names are in ``_ICON_UNICODE_MAP`` and
-        whose font-family is a Material Symbols / Phosphor family are rendered as a
-        centered Unicode character so they fill their bounding box exactly (SVG
-        files from the Google Fonts API have built-in design margins of ~10–15 %
-        which would make the glyph visibly smaller than its badge outline).
-        Unknown icons fall through to the SVG→PNG path.
+        Creates a ``<p:pic>`` element that references the SVG directly as its
+        blip — no PNG fallback raster needed.  Office 365 / PowerPoint 2019+
+        renders the SVG natively when the relationship content type is
+        ``image/svg+xml``.  Returns *True* on success.
         """
+        from lxml import etree
+        from pptx.opc.package import Part as _OpcPart
+        from pptx.opc.packuri import PackURI as _PackURI
+        from pptx.oxml.ns import qn
+
+        try:
+            self._svg_part_counter += 1
+            svg_data = svg_path.read_bytes()
+            slide_part = slide.part
+            pkg = slide_part.package
+            IMG_REL = (
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"
+            )
+            R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+
+            svg_opc = _OpcPart(
+                _PackURI(f"/ppt/media/icon_{self._svg_part_counter}.svg"),
+                "image/svg+xml",
+                pkg,
+                svg_data,
+            )
+            r_id = slide_part.relate_to(svg_opc, IMG_REL)
+
+            # Get the next unused shape id to avoid conflicts
+            sp_tree = slide.shapes._spTree
+            max_id = max(
+                (int(el.get("id")) for el in sp_tree.iter()
+                 if el.get("id") and el.get("id").isdigit()),
+                default=0,
+            )
+            shape_id = max_id + 1
+
+            # Build <p:pic> directly — bypasses PIL SVG rejection in add_picture()
+            pic = etree.SubElement(sp_tree, qn("p:pic"))
+
+            nvPicPr = etree.SubElement(pic, qn("p:nvPicPr"))
+            cNvPr = etree.SubElement(nvPicPr, qn("p:cNvPr"))
+            cNvPr.set("id", str(shape_id))
+            cNvPr.set("name", f"icon_{self._svg_part_counter}.svg")
+            cNvPicPr = etree.SubElement(nvPicPr, qn("p:cNvPicPr"))
+            pic_locks = etree.SubElement(cNvPicPr, qn("a:picLocks"))
+            pic_locks.set("noChangeAspect", "1")
+            etree.SubElement(nvPicPr, qn("p:nvPr"))
+
+            blipFill = etree.SubElement(pic, qn("p:blipFill"))
+            blip = etree.SubElement(blipFill, qn("a:blip"))
+            blip.set(f"{{{R_NS}}}embed", r_id)
+            stretch = etree.SubElement(blipFill, qn("a:stretch"))
+            etree.SubElement(stretch, qn("a:fillRect"))
+
+            spPr = etree.SubElement(pic, qn("p:spPr"))
+            xfrm = etree.SubElement(spPr, qn("a:xfrm"))
+            off = etree.SubElement(xfrm, qn("a:off"))
+            off.set("x", str(_px(x)))
+            off.set("y", str(_px(y)))
+            ext_el = etree.SubElement(xfrm, qn("a:ext"))
+            ext_el.set("cx", str(_px(w)))
+            ext_el.set("cy", str(_px(h)))
+            prstGeom = etree.SubElement(spPr, qn("a:prstGeom"))
+            prstGeom.set("prst", "rect")
+            etree.SubElement(prstGeom, qn("a:avLst"))
+
+            return True
+
+        except Exception as exc:
+            logger.warning("SVG pic failed for %s: %s — using Unicode fallback", svg_path.name, exc)
+            return False
+
+    def _add_icon(self, slide, elem: dict[str, Any]) -> None:
+        """Render an icon element — direct SVG picture (Office 365) or Unicode fallback."""
         name = str(elem.get("name", ""))
         color = str(elem.get("color") or "#000000")
         font_family = str(elem.get("font_family") or "")
         x, y = elem["x"], elem["y"]
         size = float(elem.get("w") or elem.get("h") or 20)
-        # Caller may supply an explicit font_size (e.g. scope card: badge_size * 0.65)
         font_size = float(elem.get("font_size") or size)
 
-        # ── Known icons: render as centered Unicode text (same as draw.io) ──────
         icon_family_lower = font_family.lower()
-        if name in _ICON_UNICODE_MAP and any(
+        is_icon_font = any(
             marker in icon_family_lower
             for marker in ("material icons", "material symbols", "phosphor")
-        ):
-            self._add_text(slide, {
-                "type": "text",
-                "x": x, "y": y, "w": size, "h": size,
-                "text": _ICON_UNICODE_MAP[name],
-                "font_size": font_size,
-                "font_color": color,
-                "font_weight": "bold",
-                "alignment": "center",
-                "vertical_align": "middle",
-            })
-            return
+        )
 
-        # ── Unknown icons: try SVG→PNG via cairosvg ──────────────────────────────
-        png_path = self._icon_resolver.resolve_png(name, font_family, color, size=int(size * 2))
-        if png_path is not None:
-            try:
-                slide.shapes.add_picture(
-                    str(png_path),
-                    _px(x), _px(y), _px(size), _px(size),
-                )
+        # Strategy 1: direct SVG picture (Office 365 native SVG support)
+        if is_icon_font:
+            svg_path = self._icon_resolver.resolve(name, font_family, color)
+            if svg_path is not None and self._add_svg_pic(slide, svg_path, x, y, size, size):
                 return
-            except Exception as exc:
-                logger.warning("PPTX PNG picture failed for %s: %s — falling back to Unicode", name, exc)
 
-        # ── Final fallback: Unicode symbol, vertically centred ───────────────────
+        # Strategy 2: Unicode fallback
         fallback_char = _ICON_UNICODE_MAP.get(name, _ICON_FALLBACK_GLYPH)
         self._add_text(slide, {
             "type": "text",
@@ -807,13 +883,16 @@ class PptxExporter:
         if n_rows == 0 or n_cols == 0:
             return
 
-        # Total height: sum of row heights, capped to elem["h"]
+        # Total height: sum of row heights (after any scaling applied in table_card)
         total_height = sum(float(r.get("row_height", 24)) for r in all_rows)
         available_h = float(elem.get("h") or total_height)
-        # Scale row heights proportionally when they exceed available space
+        # Scale row heights proportionally only when they exceed available space.
+        # Use total_height (not available_h) for the shape so PowerPoint doesn't
+        # stretch rows to fill a larger container than the content needs.
         scale = min(1.0, available_h / total_height) if total_height > 0 else 1.0
 
         row_heights_px = [float(r.get("row_height", 24)) * scale for r in all_rows]
+        shape_height = sum(row_heights_px)  # actual content height, not box.h
 
         # python-pptx wants col widths and row heights in EMU
         col_w_emu = [_px(w) for w in col_widths_px]
@@ -825,7 +904,7 @@ class PptxExporter:
             _px(elem["x"]),
             _px(elem["y"]),
             _px(elem["w"]),
-            _px(available_h),
+            _px(shape_height),  # shape sized to content, not full card slot
         ).table
 
         # Set column widths

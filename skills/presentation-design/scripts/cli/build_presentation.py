@@ -44,6 +44,8 @@ from scripts.rendering.quote_card import QuoteCardRenderer
 from scripts.rendering.agenda_card import AgendaCardRenderer
 from scripts.rendering.stacked_text_card import StackedTextCardRenderer
 from scripts.rendering.icon_item_text_card import IconItemTextCardRenderer
+from scripts.rendering.table_card import TableCardRenderer
+from scripts.rendering.gantt_chart_card import GanttChartCardRenderer
 from scripts.exporting.pptx_exporter import PptxExporter
 from scripts.exporting.drawio_exporter import DrawioExporter
 
@@ -72,6 +74,10 @@ def _card_renderer_for(
         return StackedTextCardRenderer(theme)
     if card_type in ("icon_item_text", "icon-item-text", "icon-item-text-card"):
         return IconItemTextCardRenderer(theme)
+    if card_type in ("table-card", "table_card"):
+        return TableCardRenderer(theme)
+    if card_type in ("gantt-chart-card", "gantt-chart", "gantt_chart"):
+        return GanttChartCardRenderer(theme)
     logger.warning("Unknown card type '%s' — falling back to text-card", card_type)
     return TextCardRenderer(theme)
 
@@ -149,9 +155,11 @@ def build(project_dir: Path, output_format: str = "both") -> None:
 
     # 5–8. Render each slide
     rendered_slides: list[RenderBox] = []
+    slide_titles: list[str] = []
     page_num = 1
 
     for slide in deck.all_slides:
+        slide_titles.append(slide.title or f"Slide {page_num}")
         # Skip frozen slides — preserve as-is (empty render)
         if slide.is_frozen:
             logger.info("Skipping frozen slide: %s", slide.title)
@@ -210,6 +218,7 @@ def build(project_dir: Path, output_format: str = "both") -> None:
             output_dir / "presentation.pptx",
             canvas_width=canvas_w,
             canvas_height=canvas_h,
+            slide_titles=slide_titles,
         )
 
     if output_format in ("drawio", "both"):
@@ -219,6 +228,7 @@ def build(project_dir: Path, output_format: str = "both") -> None:
             output_dir / "presentation.drawio",
             canvas_width=canvas_w,
             canvas_height=canvas_h,
+            slide_titles=slide_titles,
         )
 
     logger.info("Build complete — %d slides exported to %s", len(rendered_slides), output_dir)

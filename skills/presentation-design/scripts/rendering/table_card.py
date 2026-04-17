@@ -140,6 +140,22 @@ class TableCardRenderer(BaseCardRenderer):
             for ci in range(n_cols):
                 aligns.append(col_alignments[ci] if ci < len(col_alignments) else body_align)
 
+            # Estimate required row height based on cell content length.
+            # Heuristic: ~0.5em wide per character; 1pt ≈ 1.33px; 1.5× line spacing.
+            max_lines = 1
+            for ci, cell_val in enumerate(cells):
+                if not cell_val or ci >= n_cols:
+                    continue
+                eff_col_w = col_w_px[ci] - 2 * pad_x
+                if eff_col_w <= 0:
+                    continue
+                chars_per_line = max(1, int(eff_col_w / (body_font_size * 1.33 * 0.5)))
+                n_lines = max(1, -(-len(str(cell_val)) // chars_per_line))  # ceiling division
+                max_lines = max(max_lines, n_lines)
+            # Cap at 4× default height to avoid excessively tall rows
+            content_height = min(max_lines * body_font_size * 1.5 + 2 * pad_y, body_height * 4)
+            row_height = max(body_height, body_min_height, content_height)
+
             all_rows.append({
                 "cells": cells,
                 "bg_color": bg,
@@ -147,7 +163,7 @@ class TableCardRenderer(BaseCardRenderer):
                 "font_size": body_font_size,
                 "font_weight": body_weight,
                 "font_style": body_style,
-                "row_height": max(body_height, body_min_height),
+                "row_height": row_height,
                 "is_header": False,
                 "is_sum": False,
                 "alignments": aligns,
@@ -173,6 +189,16 @@ class TableCardRenderer(BaseCardRenderer):
                 "alignments": s_aligns,
                 "border_bottom_color": border_color,
             })
+
+        # ── Overflow protection ─────────────────────────────────────────
+        # Scale all row heights proportionally if the total would exceed the
+        # available card height, preventing content from spilling out of the
+        # allocated bounding box in both PPTX and draw.io renderers.
+        total_h = sum(r["row_height"] for r in all_rows)
+        if total_h > box.h and total_h > 0:
+            scale = box.h / total_h
+            for r in all_rows:
+                r["row_height"] = max(r["row_height"] * scale, 8)
 
         # ── Emit table element ──────────────────────────────────────────
         box.add({
