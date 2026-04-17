@@ -502,27 +502,24 @@ class DrawioExporter:
             img_path = self.project_root / "assets" / src
             if img_path.exists():
                 if img_path.suffix.lower() == ".svg":
-                    # Native SVG: embed the SVG XML directly as the cell label
-                    # with html=1. draw.io (and the underlying browser renderer)
-                    # renders inline SVG natively — no data URI needed, no
-                    # semicolon-splitting issues, no base64 overhead.
-                    import re
+                    # SVG: URL-encode the text — identical to _add_icon's approach.
+                    # shape=image with a data:image/svg+xml,<url-encoded> URI is
+                    # the only draw.io mechanism that reliably renders SVG. The
+                    # html=1 / value approach doesn't work because draw.io's HTML
+                    # label renderer strips <svg> elements entirely.
+                    from urllib.parse import quote as _url_quote
                     svg_text = img_path.read_text(encoding="utf-8")
-                    # Strip <?xml …?> — not valid inside an HTML label context
-                    svg_text = re.sub(r'<\?xml[^?]*\?>\s*', '', svg_text).strip()
-                    # Scale to fill the draw.io cell while preserving viewBox
-                    svg_text = re.sub(r'\bwidth="[^"]*"', 'width="100%"', svg_text, count=1)
-                    svg_text = re.sub(r"\bwidth='[^']*'", "width='100%'", svg_text, count=1)
-                    svg_text = re.sub(r'\bheight="[^"]*"', 'height="100%"', svg_text, count=1)
-                    svg_text = re.sub(r"\bheight='[^']*'", "height='100%'", svg_text, count=1)
+                    encoded = _url_quote(svg_text, safe="")
+                    data_uri = f"data:image/svg+xml,{encoded}"
 
                     cell = ET.SubElement(mx_root, "mxCell")
                     cell.set("id", str(cell_id))
                     cell.set("parent", "1")
                     cell.set("vertex", "1")
-                    cell.set("value", svg_text)
-                    cell.set("style", "text;html=1;fillColor=none;strokeColor=none;"
-                             "align=center;verticalAlign=middle;overflow=hidden;")
+                    cell.set("style",
+                             f"shape=image;imageAspect=1;aspect=fixed;"
+                             f"fillColor=none;strokeColor=none;image={data_uri};")
+                    cell.set("value", "")
 
                     geo = ET.SubElement(cell, "mxGeometry")
                     geo.set("x", str(elem["x"]))
