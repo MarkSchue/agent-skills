@@ -21,13 +21,14 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+from collections import deque
 from pathlib import Path
 
 # Ensure the skill scripts directory is on the path
 SKILL_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(SKILL_DIR))
 
-from scripts.models.deck import DeckModel, SlideModel
+from scripts.models.deck import CardModel, DeckModel, SlideModel
 from scripts.models.theme import ThemeTokens
 from scripts.parsing.deck_parser import DeckParser
 from scripts.parsing.theme_loader import ThemeLoader
@@ -85,13 +86,14 @@ def _card_renderer_for(
 # ── Layout renderer registry ────────────────────────────────────────────────
 
 def _layout_renderer_for(
-    layout_id: str | None, card_count: int, theme: ThemeTokens
+    layout_id: str | None, card_count: int, theme: ThemeTokens,
+    project_root: Path | None = None,
 ) -> BaseLayoutRenderer:
     """Return the correct layout renderer for *layout_id* or auto-select."""
     if layout_id == "title-slide":
-        return TitleSlideLayoutRenderer(theme)
+        return TitleSlideLayoutRenderer(theme, project_root=project_root)
     if layout_id and layout_id.startswith("grid-"):
-        return create_grid_renderer(layout_id, theme)
+        return create_grid_renderer(layout_id, theme, project_root=project_root)
 
     # Auto-select based on card count
     auto_map = {
@@ -111,8 +113,8 @@ def _layout_renderer_for(
     }
     resolved = auto_map.get(card_count, "grid-3x4")
     if resolved == "title-slide":
-        return TitleSlideLayoutRenderer(theme)
-    return create_grid_renderer(resolved, theme)
+        return TitleSlideLayoutRenderer(theme, project_root=project_root)
+    return create_grid_renderer(resolved, theme, project_root=project_root)
 
 
 # ── Build pipeline ──────────────────────────────────────────────────────────
@@ -153,19 +155,25 @@ def build(project_dir: Path, output_format: str = "both") -> None:
     deck = injector.inject(deck)
     logger.info("After agenda injection: %d total slides", len(deck.all_slides))
 
-    # 5–8. Render each slide
+    # 5–8. Render each slide.
+    # A deque is used so table-overflow continuation slides can be injected
+    # immediately after the slide that produced the overflow.
     rendered_slides: list[RenderBox] = []
     slide_titles: list[str] = []
     page_num = 1
 
-    for slide in deck.all_slides:
+    canvas_w = int(theme.resolve("canvas-width") or 1280)
+    canvas_h = int(theme.resolve("canvas-height") or 720)
+
+    slide_queue: deque[SlideModel] = deque(deck.all_slides)
+
+    while slide_queue:
+        slide = slide_queue.popleft()
         slide_titles.append(slide.title or f"Slide {page_num}")
+
         # Skip frozen slides — preserve as-is (empty render)
         if slide.is_frozen:
             logger.info("Skipping frozen slide: %s", slide.title)
-            # Still need a placeholder canvas for the exporter
-            canvas_w = int(theme.resolve("canvas-width") or 1280)
-            canvas_h = int(theme.resolve("canvas-height") or 720)
             placeholder = RenderBox(0, 0, canvas_w, canvas_h)
             placeholder.add({
                 "type": "rect", "x": 0, "y": 0,
@@ -183,12 +191,14 @@ def build(project_dir: Path, output_format: str = "both") -> None:
 
         # Resolve layout
         layout_renderer = _layout_renderer_for(
-            slide.layout, len(slide.cards), theme
+            slide.layout, len(slide.cards), theme, project_root=project_dir
         )
         canvas = layout_renderer.render(slide, page_number=page_num)
 
-        # Render cards into slots
+        # Render cards into slots; collect table-overflow markers
         card_slots = getattr(canvas, "card_slots", [])
+        overflow_continuations: list[tuple[CardModel, dict]] = []
+
         for i, card in enumerate(slide.cards):
             if i >= len(card_slots):
                 logger.warning(
@@ -199,17 +209,45 @@ def build(project_dir: Path, output_format: str = "both") -> None:
             slot = card_slots[i]
             renderer = _card_renderer_for(card.card_type, theme, project_dir)
             renderer.render(card, slot, slide_overrides=slide.slide_overrides)
+
+            # Collect table overflow markers and strip them from the element list
+            clean_elements = []
+            for elem in slot.elements:
+                if elem.get("type") == "_table_overflow":
+                    overflow_continuations.append((card, elem["continuation_content"]))
+                else:
+                    clean_elements.append(elem)
+            slot.elements = clean_elements
+
             canvas.elements.extend(slot.elements)
 
         rendered_slides.append(canvas)
         page_num += 1
 
+        # Push continuation slides to the front of the queue (reversed so
+        # the first overflow card ends up at the very front).
+        for orig_card, cont_content in reversed(overflow_continuations):
+            cont_card = CardModel(
+                title=orig_card.title,
+                card_type="table-card",
+                content=cont_content,
+                style_overrides=orig_card.style_overrides,
+            )
+            cont_slide = SlideModel(
+                title=slide.title,
+                layout=None,  # auto-select: 1 card → grid-1x1
+                slide_overrides=slide.slide_overrides,
+                cards=[cont_card],
+                is_generated=True,
+            )
+            logger.info(
+                "Table overflow: creating continuation slide for '%s'", slide.title
+            )
+            slide_queue.appendleft(cont_slide)
+
     # 9. Export
     output_dir = project_dir / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
-
-    canvas_w = int(theme.resolve("canvas-width") or 1280)
-    canvas_h = int(theme.resolve("canvas-height") or 720)
 
     if output_format in ("pptx", "both"):
         pptx_exp = PptxExporter(project_root=project_dir)

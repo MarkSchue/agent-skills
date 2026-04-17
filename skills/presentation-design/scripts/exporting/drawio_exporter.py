@@ -154,6 +154,15 @@ class DrawioExporter:
 
         bullet_char = str(elem.get("bullet_char") or "\u2022")
         bullet_color = str(elem.get("bullet_color") or font_color)
+        bullet_gap_px = float(elem.get("bullet_gap", 8))
+        bullet_spacing_px = float(elem.get("bullet_spacing", 4))
+        # &nbsp; is ~0.25em wide at the current font size.
+        gap_nbsp_count = max(1, round(bullet_gap_px / 4))
+        gap_nbsp = "&nbsp;" * gap_nbsp_count
+        # Hanging indent: first line has the marker + gap at the left; wrapped
+        # lines are pushed right so they align under the text start, not the
+        # bullet glyph.  hang_em ≈ bullet glyph width (0.7em) + gap nbsp width.
+        hang_em = round(0.7 + gap_nbsp_count * 0.25, 2)
 
         style = (
             f"text;html=1;fontSize={font_size_pt};fontColor={font_color};"
@@ -163,7 +172,7 @@ class DrawioExporter:
         )
         cell.set("style", style)
 
-        # Build one HTML line per bullet item
+        # Build one HTML <p> per bullet item; bottom-margin creates vertical spacing
         parts: list[str] = []
         for item in elem.get("items", []):
             runs_data = item.get("runs")
@@ -195,12 +204,18 @@ class DrawioExporter:
                 )
 
             if bullet_char:
-                marker = f'<span style="color:{bullet_color}">{bullet_char}</span>&nbsp;'
+                marker = f'<span style="color:{bullet_color}">{bullet_char}</span>{gap_nbsp}'
             else:
                 marker = ""
-            parts.append(f"{marker}{item_html}")
+            # padding-left + negative text-indent = CSS hanging indent:
+            # first line (marker) sits at x=0; wrapped lines indent by hang_em.
+            spacing_style = (
+                f'margin:0 0 {int(bullet_spacing_px)}px 0;'
+                f'padding-left:{hang_em}em;text-indent:-{hang_em}em'
+            )
+            parts.append(f'<p style="{spacing_style}">{marker}{item_html}</p>')
 
-        cell.set("value", "<br/>".join(parts))
+        cell.set("value", "".join(parts))
 
         geo = ET.SubElement(cell, "mxGeometry")
         geo.set("x", str(elem["x"]))
@@ -486,11 +501,43 @@ class DrawioExporter:
         if src and self.project_root:
             img_path = self.project_root / "assets" / src
             if img_path.exists():
-                mime = mimetypes.guess_type(str(img_path))[0] or "image/png"
-                img_b64 = base64.b64encode(img_path.read_bytes()).decode("ascii")
-                # Replace the ";base64," separator with "%3Bbase64," so draw.io's
-                # semicolon-based style parser preserves the full value.
-                data_uri = f"data:{mime}%3Bbase64,{img_b64}"
+                if img_path.suffix.lower() == ".svg":
+                    # Native SVG: embed the SVG XML directly as the cell label
+                    # with html=1. draw.io (and the underlying browser renderer)
+                    # renders inline SVG natively — no data URI needed, no
+                    # semicolon-splitting issues, no base64 overhead.
+                    import re
+                    svg_text = img_path.read_text(encoding="utf-8")
+                    # Strip <?xml …?> — not valid inside an HTML label context
+                    svg_text = re.sub(r'<\?xml[^?]*\?>\s*', '', svg_text).strip()
+                    # Scale to fill the draw.io cell while preserving viewBox
+                    svg_text = re.sub(r'\bwidth="[^"]*"', 'width="100%"', svg_text, count=1)
+                    svg_text = re.sub(r"\bwidth='[^']*'", "width='100%'", svg_text, count=1)
+                    svg_text = re.sub(r'\bheight="[^"]*"', 'height="100%"', svg_text, count=1)
+                    svg_text = re.sub(r"\bheight='[^']*'", "height='100%'", svg_text, count=1)
+
+                    cell = ET.SubElement(mx_root, "mxCell")
+                    cell.set("id", str(cell_id))
+                    cell.set("parent", "1")
+                    cell.set("vertex", "1")
+                    cell.set("value", svg_text)
+                    cell.set("style", "text;html=1;fillColor=none;strokeColor=none;"
+                             "align=center;verticalAlign=middle;overflow=hidden;")
+
+                    geo = ET.SubElement(cell, "mxGeometry")
+                    geo.set("x", str(elem["x"]))
+                    geo.set("y", str(elem["y"]))
+                    geo.set("width", str(elem["w"]))
+                    geo.set("height", str(elem["h"]))
+                    geo.set("as", "geometry")
+
+                    return cell_id + 1
+                else:
+                    # Raster images: base64 with percent-encoded semicolon so
+                    # draw.io's style parser doesn't split at ";base64".
+                    mime = mimetypes.guess_type(str(img_path))[0] or "image/png"
+                    img_b64 = base64.b64encode(img_path.read_bytes()).decode("ascii")
+                    data_uri = f"data:{mime}%3Bbase64,{img_b64}"
             else:
                 logger.warning("Image not found: %s \u2014 rendering placeholder", src)
 

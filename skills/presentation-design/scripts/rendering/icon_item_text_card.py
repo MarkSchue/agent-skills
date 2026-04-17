@@ -179,7 +179,7 @@ class IconItemTextCardRenderer(BaseCardRenderer):
             bullets = block.get("bullets") or []
             body_h = 0
             if bullets:
-                body_h = self._bullet_list_height(bullets, b_size, body_line_height, body_chars)
+                body_h = self._bullet_list_height(bullets, b_size, body_line_height, text_w)
             elif body_text:
                 body_lines = self._estimate_line_count(strip_inline(body_text), body_chars)
                 body_h = max(b_size, body_lines * body_line_height)

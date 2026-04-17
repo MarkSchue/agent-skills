@@ -491,20 +491,35 @@ class BaseCardRenderer(ABC):
 
     # ── Shared bullet-list helpers ────────────────────────────────────────────
 
-    @staticmethod
     def _bullet_list_height(
+        self,
         bullets: list,
         b_size: float,
         line_height: float,
-        chars_per_line: int,
+        w: float,
     ) -> float:
-        """Return total pixel height needed to render *bullets* as a bullet list."""
+        """Return total pixel height needed to render *bullets* as a bullet list.
+
+        Uses the same token-driven geometry as :meth:`_emit_bullet_list` so that
+        height allocation and actual rendering are always in sync.  Any new tokens
+        added to ``_emit_bullet_list`` should also be reflected here.
+
+        Args:
+            bullets: Raw bullet items (strings or dicts with inline-markdown).
+            b_size: Body font size in px.
+            line_height: Single line height in px (typically b_size * 1.3–1.5).
+            w: Available width in px for the bullet column (marker + text).
+        """
         from scripts.parsing.inline_markdown import strip_inline
+        bullet_indent = float(self.resolve("card-body-bullet-indent") or 16)
+        bullet_gap = float(self.resolve("card-bullet-gap") or 8)
+        bullet_spacing = float(self.resolve("card-bullet-spacing") or 4)
+        chars_per_line = max(1, int((w - bullet_indent - bullet_gap) / (b_size * 0.6)))
         total = 0.0
         for b in bullets:
             plain = strip_inline(str(b))
-            lines = max(1, len(plain) // max(1, chars_per_line) + 1)
-            total += lines * line_height
+            lines = max(1, len(plain) // chars_per_line + 1)
+            total += lines * line_height + bullet_spacing
         return total
 
     def _emit_bullet_list(
@@ -541,12 +556,14 @@ class BaseCardRenderer(ABC):
         except (ValueError, TypeError):
             bullet_size = b_size
         bullet_indent = float(self.resolve("card-body-bullet-indent") or 16)
-        chars_per_line = max(1, int((w - bullet_indent) / (b_size * 0.6)))
+        bullet_gap = float(self.resolve("card-bullet-gap") or 8)
+        bullet_spacing = float(self.resolve("card-bullet-spacing") or 4)
+        chars_per_line = max(1, int((w - bullet_indent - bullet_gap) / (b_size * 0.6)))
         items = []
         for b in bullets:
             plain = strip_inline(str(b))
             num_lines = max(1, len(plain) // chars_per_line + 1)
-            item_h = num_lines * line_height
+            item_h = num_lines * line_height + bullet_spacing
             items.append({**text_and_runs(str(b)), "h": item_h})
         box.add(
             {
@@ -561,6 +578,8 @@ class BaseCardRenderer(ABC):
                 "bullet_color": bullet_color,
                 "bullet_size": bullet_size,
                 "bullet_indent": bullet_indent,
+                "bullet_gap": bullet_gap,
+                "bullet_spacing": bullet_spacing,
                 "line_height": line_height,
                 "wrap": True,
             }

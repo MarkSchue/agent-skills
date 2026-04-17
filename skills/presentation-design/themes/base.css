@@ -574,6 +574,10 @@
     /* bullet marker color (independent of body text color) */
     --card-bullet-size: 0;
     /* 0 = match body font size (px); explicit px value for a smaller/larger marker */
+    --card-bullet-gap: 8;
+    /* px — horizontal space between the bullet marker and the start of text */
+    --card-bullet-spacing: 4;
+    /* px — vertical gap added below each bullet item */
 
     /* Card heading defaults — shared baseline for ALL card types.
        Variant-specific tokens (e.g. --card-timeline-heading-font-size) override

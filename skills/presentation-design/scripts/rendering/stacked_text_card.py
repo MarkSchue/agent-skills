@@ -153,7 +153,7 @@ class StackedTextCardRenderer(BaseCardRenderer):
             bullets = block.get("bullets") or []
             body_h = 0
             if bullets:
-                body_h = self._bullet_list_height(bullets, b_size, body_line_height, body_chars)
+                body_h = self._bullet_list_height(bullets, b_size, body_line_height, box.w)
             elif body_text:
                 body_lines = max(1, len(strip_inline(body_text)) // body_chars + 1)
                 body_h = max(b_size, body_lines * body_line_height)

@@ -36,6 +36,8 @@ class TextCardRenderer(BaseCardRenderer):
         line_height = font_size * 1.5
         body_align = self.resolve("card-body-alignment") or "left"
         bullet_indent = float(self.resolve("card-body-bullet-indent") or 12)
+        bullet_gap = float(self.resolve("card-bullet-gap") or 8)
+        bullet_spacing = float(self.resolve("card-bullet-spacing") or 4)
 
         # Bullet style tokens
         bullet_style_raw = self.resolve("card-bullet-style") or "disc"
@@ -49,7 +51,7 @@ class TextCardRenderer(BaseCardRenderer):
             bullet_size = font_size
 
         chars_per_line_full = max(1, int(box.w / (font_size * 0.6)))
-        chars_per_line_indent = max(1, int((box.w - bullet_indent) / (font_size * 0.6)))
+        chars_per_line_indent = max(1, int((box.w - bullet_indent - bullet_gap) / (font_size * 0.6)))
 
         # Body paragraph
         if body_text:
@@ -82,7 +84,7 @@ class TextCardRenderer(BaseCardRenderer):
                 bullet_str = str(bullet)
                 plain_bullet = strip_inline(bullet_str)
                 num_lines = max(1, len(plain_bullet) // chars_per_line_indent + 1)
-                bullet_h = num_lines * line_height
+                bullet_h = num_lines * line_height + bullet_spacing
                 items.append({**text_and_runs(bullet_str), "h": bullet_h})
                 total_h += bullet_h
 
@@ -102,6 +104,8 @@ class TextCardRenderer(BaseCardRenderer):
                     "bullet_color": bullet_color,
                     "bullet_size": bullet_size,
                     "bullet_indent": bullet_indent,
+                    "bullet_gap": bullet_gap,
+                    "bullet_spacing": bullet_spacing,
                     "line_height": line_height,
                     "wrap": True,
                 }

@@ -557,8 +557,12 @@ class PptxExporter:
             elem.get("bullet_color") or elem.get("font_color") or "#000000"
         ).lstrip("#")
         bullet_indent_px = float(elem.get("bullet_indent", 16))
-        # EMU: left margin for indented text; the hanging indent is the negative mirror
-        bullet_indent_emu = int(bullet_indent_px * _EMU_PER_PX)
+        bullet_gap_px = float(elem.get("bullet_gap", 8))
+        bullet_spacing_val = float(elem.get("bullet_spacing", 4))
+        # Total hanging indent = marker column + gap between marker and text
+        total_hanging_emu = int((bullet_indent_px + bullet_gap_px) * _EMU_PER_PX)
+        # spcAft in hundredths of a point (1 px ≈ 0.75 pt → × 75)
+        spc_aft_hpt = int(bullet_spacing_val * 75)
 
         items = elem.get("items", [])
         for i, item in enumerate(items):
@@ -567,8 +571,14 @@ class PptxExporter:
 
             # Hanging-indent layout: marL pushes text right, indent pulls marker left
             pPr = p._p.get_or_add_pPr()
-            pPr.set("marL", str(bullet_indent_emu))
-            pPr.set("indent", str(-bullet_indent_emu))
+            pPr.set("marL", str(total_hanging_emu))
+            pPr.set("indent", str(-total_hanging_emu))
+
+            # Vertical spacing below each item
+            if spc_aft_hpt > 0:
+                spcAft = etree.SubElement(pPr, qn("a:spcAft"))
+                spcPts_el = etree.SubElement(spcAft, qn("a:spcPts"))
+                spcPts_el.set("val", str(spc_aft_hpt))
 
             # Bullet colour  <a:buClr><a:srgbClr val="RRGGBB"/></a:buClr>
             if len(bullet_color_hex) == 6:
@@ -799,20 +809,11 @@ class PptxExporter:
                 except Exception:
                     pass  # PIL unavailable or image unreadable — use full box
 
-                # python-pptx does not support SVG natively; try cairosvg conversion
+                # SVG: use the same native Office 365 SVG picture approach as icons
                 if img_path.lower().endswith(".svg"):
-                    try:
-                        import cairosvg, io
-                        png_bytes = cairosvg.svg2png(url=img_path)
-                        picture = slide.shapes.add_picture(
-                            io.BytesIO(png_bytes),
-                            _px(fit_x),
-                            _px(fit_y),
-                            _px(fit_w),
-                            _px(fit_h),
-                        )
-                    except ImportError:
-                        logger.info("cairosvg not available — SVG logo skipped in PPTX (%s)", src)
+                    from pathlib import Path as _Path
+                    self._add_svg_pic(slide, _Path(img_path), fit_x, fit_y, fit_w, fit_h)
+                    picture = None  # _add_svg_pic handles its own return
                 else:
                     picture = slide.shapes.add_picture(
                         img_path,

@@ -193,12 +193,54 @@ class TableCardRenderer(BaseCardRenderer):
         # ── Overflow protection ─────────────────────────────────────────
         # Scale all row heights proportionally if the total would exceed the
         # available card height, preventing content from spilling out of the
-        # allocated bounding box in both PPTX and draw.io renderers.
+        # ── Pagination: split rows that overflow box.h ─────────────────
+        # Instead of squishing rows, emit a continuation marker so the build
+        # pipeline can create a second slide with the remaining rows.
         total_h = sum(r["row_height"] for r in all_rows)
-        if total_h > box.h and total_h > 0:
-            scale = box.h / total_h
-            for r in all_rows:
-                r["row_height"] = max(r["row_height"] * scale, 8)
+        if total_h > box.h and len(all_rows) > 1:
+            # Find the split index: how many rows fit within box.h
+            acc = 0.0
+            split_idx = len(all_rows)
+            for idx, r in enumerate(all_rows):
+                if acc + r["row_height"] > box.h:
+                    split_idx = idx
+                    break
+                acc += r["row_height"]
+            # Always keep at least 1 row on this slide to avoid an infinite loop
+            split_idx = max(1, min(split_idx, len(all_rows) - 1))
+
+            if split_idx < len(all_rows):
+                # Map split_idx back to raw data rows.
+                # all_rows = [header?] + data_rows + [sum_row?]
+                n_header = 1 if headers else 0
+                data_rows_fit = max(0, split_idx - n_header)
+                remaining_data = list(data_rows[data_rows_fit:])
+
+                # Sum row always goes to the continuation (it's the last element).
+                cont_rows = remaining_data
+                sum_in_overflow = last_row is not None
+                if sum_in_overflow:
+                    cont_rows = remaining_data + [last_row]
+
+                cont_content: dict = {
+                    "headers": headers,
+                    "rows": cont_rows,
+                    "sum_row": sum_in_overflow,
+                }
+                if col_widths:
+                    cont_content["col_widths"] = col_widths
+                if col_alignments:
+                    cont_content["col_alignments"] = col_alignments
+                if header_alignment_override:
+                    cont_content["header_alignment"] = header_alignment_override
+                if stripe_content is not None:
+                    cont_content["stripe_rows"] = stripe_content
+
+                box.add({
+                    "type": "_table_overflow",
+                    "continuation_content": cont_content,
+                })
+                all_rows = all_rows[:split_idx]
 
         # ── Emit table element ──────────────────────────────────────────
         box.add({
