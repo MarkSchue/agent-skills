@@ -50,6 +50,7 @@ from scripts.rendering.table_card import TableCardRenderer
 from scripts.rendering.timeline_card import TimelineCardRenderer
 from scripts.rendering.scope_card import ScopeCardRenderer
 from scripts.rendering.compare_card import CompareCardRenderer
+from scripts.rendering.heatmap_card import HeatmapCardRenderer
 from scripts.exporting.pptx_exporter import PptxExporter
 from scripts.exporting.drawio_exporter import DrawioExporter
 
@@ -90,6 +91,8 @@ def _card_renderer_for(
         return ScopeCardRenderer(theme)
     if card_type in ("compare-card", "compare_card"):
         return CompareCardRenderer(theme)
+    if card_type in ("heatmap-card", "heatmap_card"):
+        return HeatmapCardRenderer(theme)
     logger.warning("Unknown card type '%s' — falling back to text-card", card_type)
     return TextCardRenderer(theme)
 

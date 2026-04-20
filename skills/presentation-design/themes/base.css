@@ -24,6 +24,7 @@
     15. .card--timeline      — Timeline card variant tokens
     16. .card--scope         — Scope card variant tokens
     17. .card--compare       — Compare card variant tokens
+    18. .card--heatmap       — Heatmap card variant tokens
 
    RULES:
    - Every token must have an inline comment explaining its role.
@@ -154,6 +155,42 @@
     /* light blue background for info chips */
     --color-info-text: #1E40AF;
     /* dark blue text inside an info-subtle area */
+
+    /* -----------------------------------------------------------------
+     Heatmap heat scale — 6 levels (0 = not applicable, 1–5 = low→critical).
+     These tokens are deck-global so every heatmap card across the deck
+     shares the same consistent scale.  Override here in your theme.css
+     to apply brand-specific colour ramps.
+     ----------------------------------------------------------------- */
+    --color-heat-0: #E5E7EB;
+    /* level 0 — not applicable / no data (light gray) */
+    --color-on-heat-0: #1A1A2E;
+    /* text colour placed ON a heat-0 background */
+
+    --color-heat-1: #22C55E;
+    /* level 1 — low / healthy (green) */
+    --color-on-heat-1: #1A1A2E;
+    /* text colour placed ON a heat-1 background */
+
+    --color-heat-2: #84CC16;
+    /* level 2 — low-medium (lime) */
+    --color-on-heat-2: #1A1A2E;
+    /* text colour placed ON a heat-2 background */
+
+    --color-heat-3: #EAB308;
+    /* level 3 — medium / notable (yellow-amber) */
+    --color-on-heat-3: #1A1A2E;
+    /* text colour placed ON a heat-3 background */
+
+    --color-heat-4: #F97316;
+    /* level 4 — high / elevated (orange) */
+    --color-on-heat-4: #FFFFFF;
+    /* text colour placed ON a heat-4 background */
+
+    --color-heat-5: #EF4444;
+    /* level 5 — critical / maximum (red) */
+    --color-on-heat-5: #FFFFFF;
+    /* text colour placed ON a heat-5 background */
 }
 
 
@@ -1725,6 +1762,101 @@
     /* px */
     --card-scope-status-label-gap: 4;
     /* px — gap above status label */
+
+    /* Footer overrides — uncomment to customise */
+    /* --card-footer-line-visible: false; */
+    /* --card-footer-font-size: 10; */
+    /* --card-footer-font-color: var(--color-text-muted); */
+}
+
+/* =================================================================
+   18. .card--heatmap — Heatmap card variant tokens
+   ================================================================= */
+
+.card--heatmap {
+
+    /* ── Cluster grid layout ──────────────────────────────────────── */
+    --card-heatmap-cluster-columns: 4;
+    /* number of cluster columns per row; overridable via content.cluster_columns */
+    --card-heatmap-cluster-gap: 12;
+    /* px — horizontal and vertical gap between cluster containers */
+    --card-heatmap-cluster-padding: 6;
+    /* px — inner padding inside each cluster (sides and bottom) */
+
+    /* ── Cluster container border ─────────────────────────────────── */
+    --card-heatmap-cluster-border-color: var(--color-border-strong);
+    /* colour of the border drawn around each cluster container */
+    --card-heatmap-cluster-border-width: 1;
+    /* px — set to 0 to remove border */
+    --card-heatmap-cluster-border-radius: 4;
+    /* px — corner radius of the cluster container */
+
+    /* ── Cluster heading bar ──────────────────────────────────────── */
+    --card-heatmap-cluster-heading-bg: var(--color-primary);
+    /* filled background of the cluster label bar (top of cluster) */
+    --card-heatmap-cluster-heading-font-color: var(--color-on-primary);
+    /* text colour inside the heading bar */
+    --card-heatmap-cluster-heading-font-size: 11;
+    /* px — cluster label font size */
+    --card-heatmap-cluster-heading-font-weight: 700;
+    /* font weight of the cluster label */
+    --card-heatmap-cluster-heading-height: 22;
+    /* px — height of the filled heading bar at the top of each cluster */
+    --card-heatmap-cluster-heading-alignment: left;
+    /* text alignment inside the heading bar: left | center | right */
+    --card-heatmap-cluster-heading-padding: 6;
+    /* px — horizontal padding inside the heading bar text */
+
+    /* ── Fact tile dimensions ─────────────────────────────────────── */
+    --card-heatmap-fact-columns: 3;
+    /* number of fact columns inside each cluster; overridable via content.fact_columns */
+    --card-heatmap-fact-gap: 3;
+    /* px — gap between fact tiles (horizontal and vertical) */
+    --card-heatmap-fact-height: 36;
+    /* px — fixed height of each fact tile */
+    --card-heatmap-fact-border-radius: 2;
+    /* px — corner radius of each fact tile */
+    --card-heatmap-fact-padding: 3;
+    /* px — inner padding inside each fact tile */
+
+    /* ── Fact tile text ───────────────────────────────────────────── */
+    --card-heatmap-fact-font-size: 9;
+    /* px — label text inside each fact tile */
+    --card-heatmap-fact-font-weight: 400;
+    /* font weight of the fact label */
+    --card-heatmap-fact-text-alignment: center;
+    /* text alignment of the fact label: left | center | right */
+
+    /* ── Heat level colours ───────────────────────────────────────── */
+    /* Fact tile backgrounds resolve from --color-heat-{0..5} in .theme-colors.
+       Override those tokens in your theme.css .theme-colors block to apply
+       brand-specific flavours of the green-to-red ramp.
+       Level 0 = not applicable (gray), levels 1–5 = low (green) to critical (red). */
+
+    /* ── Legend row ────────────────────────────────────────────────── */
+    --card-heatmap-legend-visible: true;
+    /* show a colour-swatch legend row above the cluster grid */
+    --card-heatmap-legend-height: 18;
+    /* px — total height reserved for the legend row */
+    --card-heatmap-legend-margin-bottom: 8;
+    /* px — gap between the legend row and the first cluster row */
+    --card-heatmap-legend-swatch-size: 12;
+    /* px — width and height of each coloured square swatch */
+    --card-heatmap-legend-swatch-radius: 2;
+    /* px — corner radius of each swatch */
+    --card-heatmap-legend-swatch-gap: 4;
+    /* px — gap between swatch and its label text */
+    --card-heatmap-legend-item-gap: 16;
+    /* px — horizontal gap between legend items */
+    --card-heatmap-legend-font-size: 9;
+    /* px — label text size */
+    --card-heatmap-legend-font-color: var(--color-text-muted);
+    /* colour of the legend label text */
+
+    /* ── Pagination ───────────────────────────────────────────────── */
+    --card-heatmap-page: 1;
+    /* 1-based page index — which window of clusters to display on this card.
+       Increase on subsequent slides to paginate through clusters. */
 
     /* Footer overrides — uncomment to customise */
     /* --card-footer-line-visible: false; */
