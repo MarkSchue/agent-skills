@@ -760,6 +760,32 @@ class PptxExporter:
             "vertical_align": "middle",
         })
 
+    @staticmethod
+    def _svg_viewbox_dims(img_path: str) -> tuple[float, float] | tuple[None, None]:
+        """Parse an SVG file's natural dimensions from its viewBox or width/height attrs.
+
+        Returns (width, height) in user units, or (None, None) if not determinable.
+        """
+        try:
+            import xml.etree.ElementTree as _ET
+            root = _ET.parse(img_path).getroot()
+            # Strip namespace prefix from tag if present
+            ns_prefix = "{http://www.w3.org/2000/svg}"
+            # Try viewBox first (most reliable)
+            vb = root.get("viewBox", "")
+            if vb:
+                parts = vb.replace(",", " ").split()
+                if len(parts) >= 4:
+                    return float(parts[2]), float(parts[3])
+            # Fall back to width/height attributes
+            w_attr = root.get("width", "")
+            h_attr = root.get("height", "")
+            if w_attr and h_attr:
+                return float(w_attr.rstrip("px ")), float(h_attr.rstrip("px "))
+        except Exception:
+            pass
+        return None, None
+
     def _add_image(self, slide, elem: dict[str, Any]) -> None:
         src = elem.get("src", "")
         if not src:
@@ -789,32 +815,55 @@ class PptxExporter:
             try:
                 picture = None
 
-                # Compute aspect-ratio-preserving box (fit=contain, centered)
                 target_w = float(elem["w"])
                 target_h = float(elem["h"])
                 fit_x = float(elem["x"])
                 fit_y = float(elem["y"])
                 fit_w = target_w
                 fit_h = target_h
-                try:
-                    from PIL import Image as _PILImg
-                    with _PILImg.open(img_path) as _img:
-                        nat_w, nat_h = _img.size
-                    if nat_w > 0 and nat_h > 0:
-                        scale = min(target_w / nat_w, target_h / nat_h)
-                        fit_w = nat_w * scale
-                        fit_h = nat_h * scale
-                        fit_x = float(elem["x"]) + (target_w - fit_w) / 2
-                        fit_y = float(elem["y"]) + (target_h - fit_h) / 2
-                except Exception:
-                    pass  # PIL unavailable or image unreadable — use full box
+                fit_mode = elem.get("fit", "contain")
 
-                # SVG: use the same native Office 365 SVG picture approach as icons
                 if img_path.lower().endswith(".svg"):
+                    # SVG: read natural dims from viewBox; let the SVG's own
+                    # preserveAspectRatio handle the internal rendering.
+                    # For cover mode: place at full target box — the SVG's
+                    #   preserveAspectRatio="xMidYMid slice" fills the box,
+                    #   clipping edges symmetrically. No letterboxing.
+                    # For contain mode: scale so the SVG fits within the target
+                    #   box while maintaining ratio; center with letterboxing.
+                    if fit_mode == "contain":
+                        nat_w, nat_h = self._svg_viewbox_dims(img_path)
+                        if nat_w and nat_h and nat_w > 0 and nat_h > 0:
+                            scale = min(target_w / nat_w, target_h / nat_h)
+                            fit_w = nat_w * scale
+                            fit_h = nat_h * scale
+                            fit_x = float(elem["x"]) + (target_w - fit_w) / 2
+                            fit_y = float(elem["y"]) + (target_h - fit_h) / 2
+                    # cover: fit_w/fit_h stay at target_w/target_h (full box)
+
                     from pathlib import Path as _Path
                     self._add_svg_pic(slide, _Path(img_path), fit_x, fit_y, fit_w, fit_h)
                     picture = None  # _add_svg_pic handles its own return
                 else:
+                    # Raster: use PIL for natural dims + apply fit mode
+                    nat_w, nat_h = None, None
+                    try:
+                        from PIL import Image as _PILImg
+                        with _PILImg.open(img_path) as _img:
+                            nat_w, nat_h = _img.size
+                    except Exception:
+                        pass
+
+                    if nat_w and nat_h and nat_w > 0 and nat_h > 0:
+                        if fit_mode == "cover":
+                            scale = max(target_w / nat_w, target_h / nat_h)
+                        else:  # contain (default)
+                            scale = min(target_w / nat_w, target_h / nat_h)
+                        fit_w = nat_w * scale
+                        fit_h = nat_h * scale
+                        fit_x = float(elem["x"]) + (target_w - fit_w) / 2
+                        fit_y = float(elem["y"]) + (target_h - fit_h) / 2
+
                     picture = slide.shapes.add_picture(
                         img_path,
                         _px(fit_x),

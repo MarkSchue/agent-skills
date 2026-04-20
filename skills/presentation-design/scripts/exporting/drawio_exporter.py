@@ -512,13 +512,28 @@ class DrawioExporter:
                     encoded = _url_quote(svg_text, safe="")
                     data_uri = f"data:image/svg+xml,{encoded}"
 
+                    fit_mode = elem.get("fit", "contain")
+                    # cover: imageAspect=0 — draw.io fills the cell geometry;
+                    #   the SVG's own preserveAspectRatio="xMidYMid slice" then
+                    #   fills without letterboxing and clips edges symmetrically.
+                    # contain: imageAspect=1;aspect=fixed — draw.io letterboxes
+                    #   the image to maintain aspect ratio within the cell.
+                    if fit_mode == "cover":
+                        img_style = (
+                            f"shape=image;imageAspect=0;"
+                            f"fillColor=none;strokeColor=none;image={data_uri};"
+                        )
+                    else:
+                        img_style = (
+                            f"shape=image;imageAspect=1;aspect=fixed;"
+                            f"fillColor=none;strokeColor=none;image={data_uri};"
+                        )
+
                     cell = ET.SubElement(mx_root, "mxCell")
                     cell.set("id", str(cell_id))
                     cell.set("parent", "1")
                     cell.set("vertex", "1")
-                    cell.set("style",
-                             f"shape=image;imageAspect=1;aspect=fixed;"
-                             f"fillColor=none;strokeColor=none;image={data_uri};")
+                    cell.set("style", img_style)
                     cell.set("value", "")
 
                     geo = ET.SubElement(cell, "mxGeometry")

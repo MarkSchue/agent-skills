@@ -1,5 +1,18 @@
 """
 ImageCardRenderer — Renders image-card content with fullbleed, framed, or circular styles.
+
+Draw.io diagram support
+-----------------------
+When the ``image`` value follows the pattern ``"path/to/file.drawio#page-name"``,
+the renderer automatically converts the named draw.io page to SVG at build time
+(via :mod:`scripts.rendering.drawio_renderer`).  The SVG is written to the same
+``assets/diagrams/`` directory and named ``{page-name}.svg``.  The SVG is only
+regenerated when the ``.drawio`` source file is newer than the cached SVG
+(mtime-based cache invalidation).
+
+The image-card's body dimensions (``box.w`` × ``box.h``) are passed to the
+renderer so the SVG ``width``/``height`` attributes match the available slide
+area, ensuring a perfect fill with no letterboxing.
 """
 
 from __future__ import annotations
@@ -9,6 +22,7 @@ from pathlib import Path
 
 from scripts.models.deck import CardModel
 from scripts.rendering.base_card import BaseCardRenderer, RenderBox
+from scripts.rendering.drawio_renderer import ensure_diagram_svg
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +51,9 @@ class ImageCardRenderer(BaseCardRenderer):
             or content.get("image_style")
             or "framed"
         )
+
+        # ── Draw.io page reference: "diagrams/file.drawio#page-name" ──────
+        image_path = self._resolve_drawio(image_path, box.w, box.h)
 
         # Resolve full asset path
         resolved_path = self._resolve_asset(image_path)
@@ -120,6 +137,46 @@ class ImageCardRenderer(BaseCardRenderer):
                 "border_color": bc,
             }
         )
+
+    def _resolve_drawio(self, image_path: str, box_w: float, box_h: float) -> str:
+        """If *image_path* is a ``"rel/path.drawio#page-name"`` reference,
+        convert the named draw.io page to SVG (cached, mtime-tracked) and
+        return the relative SVG path.  Otherwise return *image_path* unchanged.
+        """
+        if not image_path or ".drawio#" not in image_path:
+            return image_path
+
+        # Split "diagrams/file.drawio#page-name"
+        drawio_rel, page_name = image_path.split("#", 1)
+
+        if not self.project_root:
+            logger.warning(
+                "Cannot resolve draw.io reference '%s': project_root not set.",
+                image_path,
+            )
+            return image_path
+
+        drawio_abs = self.project_root / "assets" / drawio_rel
+        if not drawio_abs.exists():
+            logger.warning("Draw.io file not found: %s", drawio_abs)
+            return image_path
+
+        # SVG lives alongside the draw.io file, named after the page
+        out_dir = drawio_abs.parent
+        svg_path = ensure_diagram_svg(
+            drawio_path   = drawio_abs,
+            page_name     = page_name,
+            out_dir       = out_dir,
+            target_width  = box_w  if box_w  > 0 else None,
+            target_height = box_h  if box_h  > 0 else None,
+        )
+
+        # Return relative path (relative to assets/) for _resolve_asset
+        try:
+            rel = svg_path.relative_to(self.project_root / "assets")
+            return str(rel).replace("\\", "/")
+        except ValueError:
+            return str(svg_path)
 
     def _resolve_asset(self, rel_path: str) -> str:
         """Resolve a relative asset path against the project root.
