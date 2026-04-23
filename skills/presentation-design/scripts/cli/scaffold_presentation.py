@@ -107,6 +107,8 @@ def scaffold(name: str, base_path: Path, force: bool = False) -> Path:
     project.mkdir(parents=True, exist_ok=True)
     (project / "output").mkdir(exist_ok=True)
     (project / "output" / ".gitkeep").touch()
+    (project / "input").mkdir(exist_ok=True)
+    (project / "input" / ".gitkeep").touch()
     for sub in ("images", "charts", "diagrams", "logos"):
         (project / "assets" / sub).mkdir(parents=True, exist_ok=True)
         (project / "assets" / sub / ".gitkeep").touch()
