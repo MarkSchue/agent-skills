@@ -91,6 +91,13 @@ Follow in sequence. Do not skip or reorder.
   and YAML card blocks. Ask clarifying questions before producing output.
 - If a structured file is already provided, skip to Phase 2.
 
+### Phase 1b — Numbering Sync (automatic, every build)
+- If `presentation-definition.md` contains a `<!-- numbering … -->` block,
+  `sync_numbering.py` resolves and renumbers all `%%` placeholders **before**
+  parsing. Both bare `%%` and previously-resolved numbers (e.g. `US-PH01-03`)
+  are matched so that insertions, deletions, and reorderings always produce a
+  gap-free sequence. See `references/deck-syntax.md#numbering-ranges`.
+
 ### Phase 2 — Selection
 - Load `registry.yaml`. For each slide, select a layout and cards.
 - Report every automatic design decision so the user can override.
@@ -137,10 +144,11 @@ presentation-design/
 │   ├── architecture.md   system architecture
 │   └── inheritance-model.md  Python/CSS inheritance
 ├── cards/
-│   ├── text/             text-card.md
+│   ├── text/             text-card.md, stacked-text-card.md, icon_item_text.md, numbered_text_card.md
 │   ├── media/            image-card.md
-│   ├── data/             kpi-card.md, chart-card.md
-│   └── structural/       agenda-card.md, quote-card.md
+│   ├── data/             kpi-card.md, chart-card.md, gantt-chart-card.md, table-card.md
+│   └── structural/       agenda-card.md, quote-card.md, timeline-card.md,
+│                         scope-card.md, compare-card.md, heatmap-card.md
 ├── layouts/
 │   ├── title-slide.md
 │   ├── grid-1x1.md … grid-3x4.md
@@ -151,10 +159,12 @@ presentation-design/
 │   ├── models/           domain classes
 │   ├── parsing/          Markdown + YAML parser
 │   ├── rendering/        card and layout renderers
-│   ├── exporting/        PPTX and draw.io exporters
+│   ├── exporting/        PPTX and draw.io exporters (always kept in sync)
 │   ├── validation/       lint and schema checks
+│   ├── cli/              thin CLI wrappers for all scripts
+│   ├── build_presentation.py  main build orchestrator
 │   ├── scaffold_presentation.py
-│   ├── build_presentation.py
+│   ├── sync_numbering.py      pre-build %%-placeholder resolver
 │   └── extract_theme.py  (future: token extraction from PPTX/web)
 └── examples/
     ├── minimal-presentation-definition.md
@@ -181,6 +191,9 @@ Run all scripts through this venv:
 ```
 
 See `references/setup.md` for full details.
+
+For Python/CSS class hierarchy and the token resolution chain see
+`references/inheritance-model.md`.
 
 ---
 

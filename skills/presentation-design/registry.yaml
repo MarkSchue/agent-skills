@@ -53,6 +53,36 @@ cards:
     file: cards/text/icon_item_text.md
     tags: [text, icon, items, heading, body, list, label]
 
+  - id: gantt-chart-card
+    description: Gantt chart card with task bars, phase grouping, and date axis.
+    file: cards/data/gantt-chart-card.md
+    tags: [gantt, timeline, schedule, tasks, phases, planning, roadmap, dates]
+
+  - id: numbered-text-card
+    description: Numbered list card with auto-incrementing step numbers and body text.
+    file: cards/text/numbered_text_card.md
+    tags: [numbered, steps, list, sequence, process, ordered, text]
+
+  - id: timeline-card
+    description: Horizontal or vertical timeline card with dated milestones and labels.
+    file: cards/structural/timeline-card.md
+    tags: [timeline, milestones, dates, events, history, roadmap, progress]
+
+  - id: scope-card
+    description: In-scope / out-of-scope two-column card for project boundary definition.
+    file: cards/structural/scope-card.md
+    tags: [scope, in-scope, out-of-scope, boundaries, project, requirements]
+
+  - id: compare-card
+    description: Side-by-side comparison card with labeled columns and row items.
+    file: cards/structural/compare-card.md
+    tags: [comparison, versus, pros-cons, options, alternatives, table]
+
+  - id: heatmap-card
+    description: Color-coded heatmap grid card for risk, priority, or density visualization.
+    file: cards/structural/heatmap-card.md
+    tags: [heatmap, grid, risk, priority, matrix, color, density]
+
 layouts:
   - id: title-slide
     description: Full-width title slide with centered heading, subtitle, and optional background.
@@ -131,6 +161,10 @@ scripts:
   - id: extract_theme
     description: (Future) Extracts design tokens from an existing PPTX or website.
     file: scripts/extract_theme.py
+
+  - id: sync_numbering
+    description: Pre-build step — resolves and renumbers %%-based placeholders in the deck.
+    file: scripts/sync_numbering.py
 
 references:
   - id: deck-syntax

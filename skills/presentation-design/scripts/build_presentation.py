@@ -53,6 +53,7 @@ from scripts.rendering.compare_card import CompareCardRenderer
 from scripts.rendering.heatmap_card import HeatmapCardRenderer
 from scripts.exporting.pptx_exporter import PptxExporter
 from scripts.exporting.drawio_exporter import DrawioExporter
+from scripts.sync_numbering import sync as _sync_numbering
 
 logger = logging.getLogger("build_presentation")
 
@@ -196,6 +197,13 @@ def build(project_dir: Path, output_format: str = "both") -> None:
 
     theme_path = project_dir / "theme.css"
     base_css = SKILL_DIR / "themes" / "base.css"
+
+    # 1b. Resolve numbering placeholders (runs before parsing, every build)
+    try:
+        if _sync_numbering(deck_path):
+            logger.info("Numbering placeholders resolved — %s updated.", deck_path.name)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Numbering sync skipped (%s: %s).", type(exc).__name__, exc)
 
     # 2. Parse deck
     parser = DeckParser()

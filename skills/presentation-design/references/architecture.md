@@ -42,6 +42,7 @@ theme.css ───────────────────┤
 scripts/
 ├── build_presentation.py     CLI entry point — orchestrates pipeline
 ├── scaffold_presentation.py  Project scaffolder
+├── sync_numbering.py         Pre-build %%-placeholder resolver (step 1b)
 ├── extract_theme.py          (future) Token extraction
 ├── models/
 │   ├── __init__.py
@@ -60,35 +61,50 @@ scripts/
 │   ├── image_card.py         ImageCardRenderer
 │   ├── kpi_card.py           KpiCardRenderer
 │   ├── chart_card.py         ChartCardRenderer
+│   ├── gantt_chart_card.py   GanttChartCardRenderer
 │   ├── quote_card.py         QuoteCardRenderer
 │   ├── agenda_card.py        AgendaCardRenderer
+│   ├── stacked_text_card.py  StackedTextCardRenderer
+│   ├── icon_item_text_card.py  IconItemTextCardRenderer
+│   ├── numbered_text_card.py NumberedTextCardRenderer
+│   ├── table_card.py         TableCardRenderer
+│   ├── timeline_card.py      TimelineCardRenderer
+│   ├── scope_card.py         ScopeCardRenderer
+│   ├── compare_card.py       CompareCardRenderer
+│   ├── heatmap_card.py       HeatmapCardRenderer
 │   ├── base_layout.py        BaseLayoutRenderer
 │   ├── title_slide.py        TitleSlideLayoutRenderer
 │   └── grid_layout.py        GridLayoutRenderer
 ├── exporting/
 │   ├── __init__.py
-│   ├── pptx_exporter.py      PptxExporter
-│   └── drawio_exporter.py    DrawioExporter
+│   ├── pptx_exporter.py      PptxExporter  }
+│   └── drawio_exporter.py    DrawioExporter } always kept in sync
 ├── validation/
 │   ├── __init__.py
 │   ├── deck_validator.py     Deck syntax checks
 │   └── token_validator.py    CSS token lint
 └── cli/
-    └── __init__.py
+    ├── __init__.py
+    ├── build_presentation.py  CLI wrapper
+    ├── scaffold_presentation.py
+    ├── sync_numbering.py
+    ├── extract_theme.py
+    └── rescale_drawio.py
 ```
 
 ## Data Flow
 
 1. `build_presentation.py` receives `presentation-definition.md` + `theme.css`
-2. `DeckParser` produces `DeckModel` (list of `SectionModel` → `SlideModel` → `CardModel`)
-3. `ThemeLoader` produces `ThemeTokens` (flat dict of all resolved token values)
-4. `AgendaInjector` reads sections from `DeckModel`, creates agenda `SlideModel` entries
-5. `SlideFreezeGuard` marks frozen slides (`is_frozen = True`)
-6. For each non-frozen slide, the pipeline:
+2. `sync_numbering.py` (step 1b) resolves `%%` numbering placeholders before parsing
+3. `DeckParser` produces `DeckModel` (list of `SectionModel` → `SlideModel` → `CardModel`)
+4. `ThemeLoader` produces `ThemeTokens` (flat dict of all resolved token values)
+5. `AgendaInjector` reads sections from `DeckModel`, creates agenda `SlideModel` entries
+6. `SlideFreezeGuard` marks frozen slides (`is_frozen = True`)
+7. For each non-frozen slide, the pipeline:
    a. Resolves a `LayoutRenderer` based on card count or explicit `<!-- layout: -->` tag
    b. Resolves a `CardRenderer` for each card based on `type` field
    c. Applies token override chain: card override → slide override → variant → base → fallback
-7. `Exporter` writes the final slide objects to `.pptx` or `.drawio`
+8. `Exporter` writes the final slide objects to `.pptx` or `.drawio`
 
 
 ## Token Inheritance Pattern

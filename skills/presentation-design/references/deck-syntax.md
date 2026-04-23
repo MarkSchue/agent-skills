@@ -266,3 +266,77 @@ content:
   label: "Active users"
 ```​
 ```
+
+---
+
+## Numbering Ranges
+
+The numbering system lets you maintain consistent, sequential codes (user stories,
+bug IDs, requirements, etc.) without keeping them in sync by hand.  Every build
+the codes are resolved from scratch, so insertions, deletions, and reorderings
+always produce a gap-free sequence.
+
+### Block syntax
+
+Place a `<!-- numbering … -->` comment block **anywhere in the file** (convention:
+top of the file, before the first `#` section). The block contains a YAML mapping
+of range names to an ordered list of level patterns:
+
+```markdown
+<!-- numbering
+userstories:
+  - "US-PH01-%%"
+  - "US-PH01-%%-AC%%"
+bugs:
+  - "BUG-%%"
+  - "BUG-%%-STEP%%"
+-->
+```
+
+* **Range name** (`userstories`, `bugs`, …) — arbitrary label used in log output.
+* **Level patterns** — list index 0 is the *top-level* pattern, index 1 is the
+  first *sub-level*, and so on.
+* `%%` is the counter placeholder.  It is zero-padded to 2 digits (`01`, `02`, …).
+* Patterns with multiple `%%` slots fill them left-to-right:
+  `US-PH01-%%-AC%%` with counters `[3, 2]` → `US-PH01-03-AC02`.
+
+### Counter rules
+
+| Event | Effect |
+|-------|--------|
+| Level-0 match | `counters[0]` += 1, sub-counters reset to 0 |
+| Level-N match | `counters[N]` += 1, parent counters unchanged |
+| At most one level per line per range | First matching level wins |
+
+### Renumber on every build
+
+Both bare placeholders (`%%`) **and** previously-resolved codes (e.g. `US-PH01-03`)
+are matched by the same regex so the file is always renumbered from scratch.
+This means:
+
+* Adding a story in the middle shifts all subsequent numbers correctly.
+* Removing a story closes the gap automatically.
+* Running the build twice in a row leaves the file unchanged (idempotent when
+  nothing has moved).
+
+### Example
+
+Given a `<!-- numbering -->` block declaring:
+
+```yaml
+userstories:
+  - "US-%%"
+  - "US-%%-AC%%"
+```
+
+And this content (after the first build):
+
+```markdown
+Deliver US-01 by end of sprint.
+Acceptance criteria: US-01-AC01, US-01-AC02.
+Second story: US-02.
+```
+
+If you insert a new story before `US-02` and re-run the build, it becomes `US-02`
+and the old `US-02` (now third) becomes `US-03` automatically.
+
