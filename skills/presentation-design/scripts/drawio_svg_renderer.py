@@ -181,6 +181,21 @@ def _svg_ellipse(x: float, y: float, w: float, h: float, st: dict) -> str:
     )
 
 
+def _svg_rhombus(x: float, y: float, w: float, h: float, st: dict) -> str:
+    """Render a diamond (rhombus) shape as an SVG polygon."""
+    fill   = st["fillColor"]
+    stroke = st["strokeColor"]
+    sw     = st["strokeWidth"]
+    dash   = 'stroke-dasharray="8,4" ' if st["dashed"] not in ("0", "") else ""
+    cx, cy = x + w / 2, y + h / 2
+    # Four cardinal points: top, right, bottom, left
+    pts = f"{cx:.2f},{y:.2f} {x+w:.2f},{cy:.2f} {cx:.2f},{y+h:.2f} {x:.2f},{cy:.2f}"
+    return (
+        f'<polygon points="{pts}" '
+        f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+    )
+
+
 def _svg_label(
     label: str,
     x: float, y: float, w: float, h: float,
@@ -332,6 +347,11 @@ def _render_vertex(
         or st.get("shape") == "ellipse"
         or "perimeter=ellipsePerimeter" in style_str
     )
+    is_rhombus = (
+        "rhombus" in parsed
+        or st.get("shape") == "rhombus"
+        or "perimeter=rhombusPerimeter" in style_str
+    )
 
     if is_swim:
         start_size = float(parsed.get("startSize", "26"))
@@ -386,6 +406,8 @@ def _render_vertex(
 
     if is_ell:
         elems.append(_svg_ellipse(ax, ay, w, h, st))
+    elif is_rhombus:
+        elems.append(_svg_rhombus(ax, ay, w, h, st))
     else:
         elems.append(_svg_rect(ax, ay, w, h, st))
 

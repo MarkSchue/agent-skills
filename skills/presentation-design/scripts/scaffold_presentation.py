@@ -9,6 +9,7 @@ Creates:
     <name>/
     ├── presentation-definition.md
     ├── theme.css
+    ├── input/
     ├── output/
     │   └── .gitkeep
     └── assets/
@@ -105,6 +106,7 @@ def scaffold(name: str, base_path: Path, force: bool = False) -> Path:
 
     # Create directories
     project.mkdir(parents=True, exist_ok=True)
+    (project / "input").mkdir(exist_ok=True)
     (project / "output").mkdir(exist_ok=True)
     (project / "output" / ".gitkeep").touch()
     for sub in ("images", "charts", "diagrams", "logos"):
@@ -128,9 +130,10 @@ def scaffold(name: str, base_path: Path, force: bool = False) -> Path:
         dest_deck.write_text(STARTER_DECK, encoding="utf-8")
 
     print(f"✓ Scaffolded presentation project at: {project}")
-    print(f"  - Edit: {dest_deck.name}")
-    print(f"  - Theme: {dest_theme.name}")
-    print(f"  - Build: python scripts/build_presentation.py {project}")
+    print(f"  - Edit:   {dest_deck.name}")
+    print(f"  - Theme:  {dest_theme.name}")
+    print(f"  - Input:  input/  ← place source files here")
+    print(f"  - Build:  python scripts/build_presentation.py {project}")
     return project
 
 
