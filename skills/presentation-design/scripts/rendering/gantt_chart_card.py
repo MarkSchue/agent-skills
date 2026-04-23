@@ -151,13 +151,11 @@ class GanttChartCardRenderer(BaseCardRenderer):
     variant = "card--gantt-chart"
 
     def _tok(self, name: str, default=None):
-        """Resolve ``card-gantt-{name}`` with fallback to ``card-{name}`` (base token)."""
+        """Override: resolves ``card-gantt-{name}`` (prefix differs from variant ``card--gantt-chart``)."""
         return self._resolve_tok("gantt", name, default)
 
-    def _f(self, name: str, default: float) -> float:
-        return float(self._tok(name, default))
-
     def render_body(self, card: CardModel, box: RenderBox) -> None:  # noqa: C901
+        """Render a Gantt chart with a fixed label column, time-axis grid, and task bars."""
         content = card.content if isinstance(card.content, dict) else {}
 
         # ── Resolve tokens ────────────────────────────────────────────────

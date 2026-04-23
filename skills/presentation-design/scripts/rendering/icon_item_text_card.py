@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from scripts.models.deck import CardModel
 from scripts.parsing.inline_markdown import text_and_runs, strip_inline
+from scripts.rendering._utils import _is_icon_ligature
 from scripts.rendering.base_card import BaseCardRenderer, RenderBox
 
 
@@ -66,10 +67,6 @@ class IconItemTextCardRenderer(BaseCardRenderer):
         }
 
     @staticmethod
-    def _is_icon_ligature(text: str) -> bool:
-        return bool(text and text.islower() and " " not in text)
-
-    @staticmethod
     def _estimate_line_count(text: str, max_chars: int) -> int:
         if max_chars <= 0:
             return max(1, len(text))
@@ -89,6 +86,7 @@ class IconItemTextCardRenderer(BaseCardRenderer):
         return line_count
 
     def render_body(self, card: CardModel, box: RenderBox) -> None:
+        """Render 1–5 icon-item-text blocks, each with an optional icon, heading, and body."""
         content = card.content if isinstance(card.content, dict) else {}
         raw_blocks = content.get("blocks", [])
 

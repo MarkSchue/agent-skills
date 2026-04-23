@@ -303,6 +303,24 @@ class BaseCardRenderer(ABC):
         v = self.resolve(f"card-{name}")
         return v if (v is not None and v != "") else default
 
+    def _tok(self, name: str, default: Any = None) -> Any:
+        """Resolve ``card-{prefix}-{name}`` → ``card-{name}`` priority chain.
+
+        The *prefix* is derived from :attr:`variant` by stripping the
+        ``card--`` class prefix (e.g. ``"card--timeline"`` → ``"timeline"``).
+        Subclasses whose token prefix differs from their CSS variant name
+        (e.g. ``gantt-chart`` uses ``gantt``) must override this method.
+        """
+        prefix = (self.variant or "").replace("card--", "")
+        if not prefix:
+            v = self.resolve(f"card-{name}")
+            return v if (v is not None and v != "") else default
+        return self._resolve_tok(prefix, name, default)
+
+    def _f(self, name: str, default: float) -> float:
+        """Resolve token as :class:`float` — shorthand for ``float(self._tok(…))``."""
+        return float(self._tok(name, default))
+
     # ── private rendering helpers ────────────────────────────────────────
 
     @property

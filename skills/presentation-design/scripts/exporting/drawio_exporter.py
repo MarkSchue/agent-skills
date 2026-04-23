@@ -228,6 +228,7 @@ class DrawioExporter:
     def _add_ellipse(
         self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
     ) -> int:
+        """Add an ellipse (oval) cell to *mx_root* and return the next *cell_id*."""
         cell = ET.SubElement(mx_root, "mxCell")
         cell.set("id", str(cell_id))
         cell.set("parent", "1")

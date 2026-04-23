@@ -18,10 +18,6 @@ class TableCardRenderer(BaseCardRenderer):
 
     variant = "card--table"
 
-    def _tok(self, name: str, default=None):
-        """Resolve ``card-table-{name}`` with fallback to ``card-{name}`` (base token)."""
-        return self._resolve_tok("table", name, default)
-
     def render_body(self, card: CardModel, box: RenderBox) -> None:
         """Emit a single ``table`` element that fills the body box."""
         content = card.content if isinstance(card.content, dict) else {}

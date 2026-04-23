@@ -97,6 +97,7 @@ def _parse_style(style_str: str) -> dict[str, str]:
 
 
 def _merged_style(style_str: str) -> dict[str, str]:
+    """Merge *style_str* key=value pairs on top of the default style dict."""
     return {**_DEFAULTS, **_parse_style(style_str)}
 
 

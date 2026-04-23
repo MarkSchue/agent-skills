@@ -438,4 +438,91 @@ safe zone may be clipped when the slide is rendered.
 Do **not** place important content (title bars, legends, call-out boxes) at the
 very edge of the page if the design ratio differs from the slot ratio.
 
+---
+
+## Adding a New Card Type
+
+Follow these six steps to add a fully supported card type to the skill.
+All steps are required; omitting any one will leave the pipeline, theme, or
+documentation out of sync.
+
+### Step 1 — Write the renderer
+
+Create `scripts/rendering/<name>_card.py`:
+
+```python
+from scripts.rendering.base_card import BaseCardRenderer, RenderBox
+from scripts.models.deck import CardModel
+
+class MyCardRenderer(BaseCardRenderer):
+    """Renderer for ``my-card`` type."""
+    variant = "card--my"
+
+    def render_body(self, card: CardModel, box: RenderBox) -> None:
+        # Token access: self._tok("my-token", default)
+        # Float shorthand: self._f("my-size", 14.0)
+        ...
+```
+
+`BaseCardRenderer` automatically handles the card container, title, header line,
+icon, subtitle, and footer.  Override only `render_body`.
+
+### Step 2 — Register in the build pipeline
+
+Add the new card type to `_card_renderer_for()` in
+`scripts/build_presentation.py`:
+
+```python
+if card_type in ("my-card", "my_card"):
+    return MyCardRenderer(theme)
+```
+
+Also add the import at the top of the file.
+
+### Step 3 — Add CSS tokens
+
+Add a `.card--my` variant block to `themes/base.css`:
+
+```css
+.card--my {
+    /* My-card-specific tokens */
+    --card-my-body-font-size:   14;
+    --card-my-body-font-color:  var(--color-text-primary);
+    /* Footer overrides (shared with all card types) */
+    /* --card-footer-line-visible: false; */
+}
+```
+
+### Step 4 — Register in registry.yaml
+
+Add an entry to `registry.yaml` and `registry-tags.yaml`:
+
+```yaml
+# registry.yaml
+- id: my-card
+  label: My Card
+  category: text          # text | data | media | structural
+  renderer: scripts/rendering/my_card.py
+  css_variant: card--my
+  description: "One-line description."
+```
+
+### Step 5 — Write the card spec
+
+Create `cards/<category>/my-card.md`.  Use an existing spec as a template.
+The spec must include:
+- `content.footer` in the Optional Fields table
+- A "Footer tokens (shared with all card types)" sub-section in Supported Overrides
+- The footer zone in the `## Layout` pictogram
+- `.card-base` footer tokens in `## Design Tokens Used`
+
+### Step 6 — Update reference documentation
+
+- Add the new class to the Python and CSS hierarchies in
+  `references/inheritance-model.md`.
+- Add all new CSS tokens to `references/token-reference.md`.
+
+> **Verification:** rebuild the test deck with `--format both` and confirm the
+> new card type renders without errors or warnings.
+
 

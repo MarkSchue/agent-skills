@@ -74,16 +74,14 @@ class CompareCardRenderer(BaseCardRenderer):
 
     # ── Helpers ──────────────────────────────────────────────────────────
 
-    def _tok(self, name: str, default: Any = None) -> Any:
-        """Resolve ``card-compare-{name}`` with fallback to ``card-{name}``."""
-        return self._resolve_tok("compare", name, default)
-
     @staticmethod
     def _is_false(value: Any) -> bool:
+        """Return True if *value* is a falsy CSS/YAML boolean equivalent."""
         return value in (False, "false", "False", "0", 0)
 
     @staticmethod
     def _is_true(value: Any) -> bool:
+        """Return True if *value* is a truthy CSS/YAML boolean equivalent."""
         return value in (True, "true", "True", "1", 1)
 
     @staticmethod

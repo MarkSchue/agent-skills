@@ -13,10 +13,6 @@ class KpiCardRenderer(BaseCardRenderer):
 
     variant = "card--kpi"
 
-    def _tok(self, name: str, default=None):
-        """Resolve ``card-kpi-{name}`` with fallback to ``card-{name}`` (base token)."""
-        return self._resolve_tok("kpi", name, default)
-
     def render_body(self, card: CardModel, box: RenderBox) -> None:
         """Render metric value, trend arrow, and supporting label."""
         content = card.content if isinstance(card.content, dict) else {}

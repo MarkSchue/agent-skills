@@ -13,10 +13,6 @@ class QuoteCardRenderer(BaseCardRenderer):
 
     variant = "card--quote"
 
-    def _tok(self, name: str, default=None):
-        """Resolve ``card-quote-{name}`` with fallback to ``card-{name}`` (base token)."""
-        return self._resolve_tok("quote", name, default)
-
     def render_body(self, card: CardModel, box: RenderBox) -> None:
         """Render quote text with left accent bar and attribution."""
         content = card.content if isinstance(card.content, dict) else {}

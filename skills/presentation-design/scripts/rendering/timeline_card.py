@@ -38,6 +38,7 @@ import math
 from typing import Any
 
 from scripts.models.deck import CardModel
+from scripts.rendering._utils import _is_icon_ligature
 from scripts.rendering.base_card import BaseCardRenderer, RenderBox
 
 
@@ -93,17 +94,10 @@ class TimelineCardRenderer(BaseCardRenderer):
 
     variant = "card--timeline"
 
-    # ── Token helpers ──────────────────────────────────────────────────────
-
-    def _tok(self, name: str, default: Any = None) -> Any:
-        return self._resolve_tok("timeline", name, default)
-
-    def _f(self, name: str, default: float) -> float:
-        return float(self._tok(name, default))
-
     # ── Main entry ─────────────────────────────────────────────────────────
 
     def render_body(self, card: CardModel, box: RenderBox) -> None:
+        """Render the timeline in horizontal or vertical orientation."""
         content = card.content if isinstance(card.content, dict) else {}
 
         orientation = str(content.get("orientation", self._tok("orientation", "horizontal"))).lower()

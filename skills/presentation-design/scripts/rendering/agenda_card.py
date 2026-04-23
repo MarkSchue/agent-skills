@@ -28,10 +28,6 @@ class AgendaCardRenderer(BaseCardRenderer):
 
     variant = "card--agenda"
 
-    def _tok(self, name: str, default=None):
-        """Resolve ``card-agenda-{name}`` with fallback to ``card-{name}`` (base token)."""
-        return self._resolve_tok("agenda", name, default)
-
     def render_body(self, card: CardModel, box: RenderBox) -> None:
         """Render section list as a three-column single-column layout."""
         content = card.content if isinstance(card.content, dict) else {}

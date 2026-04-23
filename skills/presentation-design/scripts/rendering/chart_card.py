@@ -102,15 +102,8 @@ class ChartCardRenderer(BaseCardRenderer):
         super().__init__(theme)
         self.project_root = Path(project_root) if project_root else None
 
-    # ── Token helpers ────────────────────────────────────────────────────
-
-    def _tok(self, name: str, default: Any = None) -> Any:
-        return self._resolve_tok("chart", name, default)
-
-    def _f(self, name: str, default: float) -> float:
-        return float(self._tok(name, default))
-
     def _palette(self) -> list[str]:
+        """Return the active colour palette: per-slot tokens first, else the default."""
         # Try individual palette-N tokens first (1..8)
         slots = []
         for i in range(1, 9):
@@ -120,6 +113,7 @@ class ChartCardRenderer(BaseCardRenderer):
         return slots if slots else _DEFAULT_PALETTE
 
     def _series_color(self, series: list[dict], idx: int) -> str:
+        """Return the colour for series *idx* — explicit series colour wins over palette."""
         explicit = series[idx].get("color") if idx < len(series) else None
         if explicit:
             return str(explicit)
@@ -129,6 +123,10 @@ class ChartCardRenderer(BaseCardRenderer):
     # ── Main entry point ──────────────────────────────────────────────────
 
     def render_body(self, card: CardModel, box: RenderBox) -> None:  # noqa: C901
+        """Render chart body: bar, line, pie, donut, scatter, or waterfall chart.
+
+        When ``content.image`` is set the card renders a static image instead.
+        """
         content = card.content if isinstance(card.content, dict) else {}
 
         # ── Image path shortcut ────────────────────────────────────────

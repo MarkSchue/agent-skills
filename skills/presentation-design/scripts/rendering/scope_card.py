@@ -55,10 +55,6 @@ class ScopeCardRenderer(BaseCardRenderer):
 
     # ── Helpers ──────────────────────────────────────────────────────────
 
-    def _tok(self, name: str, default: object = None) -> object:
-        """Resolve ``card-scope-{name}`` with automatic fallback to ``card-{name}``."""
-        return self._resolve_tok("scope", name, default)
-
     def _status_badge_color(self, status: str | None) -> str:
         """Return the resolved badge fill colour for *status*."""
         s = (status or "").strip().lower()

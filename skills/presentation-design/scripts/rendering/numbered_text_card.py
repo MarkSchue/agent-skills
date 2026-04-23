@@ -29,10 +29,6 @@ class NumberedTextCardRenderer(BaseCardRenderer):
 
     variant = "card--numbered-text"
 
-    def _tok(self, name: str, default=None):
-        """Resolve ``card-numbered-text-{name}`` with fallback to ``card-{name}`` (base token)."""
-        return self._resolve_tok("numbered-text", name, default)
-
     # ──────────────────────────────────────────────────────────────────────
     # Helpers
     # ──────────────────────────────────────────────────────────────────────
@@ -72,6 +68,7 @@ class NumberedTextCardRenderer(BaseCardRenderer):
     # ──────────────────────────────────────────────────────────────────────
 
     def render_body(self, card: CardModel, box: RenderBox) -> None:  # noqa: C901
+        """Render numbered rows: optional step badge (col1), heading (col2), body text (col3)."""
         content = card.content if isinstance(card.content, dict) else {}
         raw_rows: list = content.get("rows", [])
         highlight: int | None = content.get("highlight")

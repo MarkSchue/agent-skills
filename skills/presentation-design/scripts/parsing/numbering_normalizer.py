@@ -77,6 +77,7 @@ _NUMBERING_CLOSE = "-->"
 # ── Internal data types ──────────────────────────────────────────────────────
 
 class _LevelPattern(NamedTuple):
+    """Compiled representation of a single numbering level (e.g. ``AC-PH01-US%%``)."""
     raw_pattern: str            # e.g. "AC-PH01-US%%-AC%%"
     regex: re.Pattern           # matches both %%/??-placeholders and digits
     placeholder_count: int      # number of %% slots
@@ -84,6 +85,7 @@ class _LevelPattern(NamedTuple):
 
 
 class _Range(NamedTuple):
+    """A named group of numbering levels that share a common reset boundary."""
     name: str
     levels: list[_LevelPattern]
 

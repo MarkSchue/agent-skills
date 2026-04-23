@@ -345,6 +345,7 @@ class PptxExporter:
             logger.debug("Unknown element type: %s", etype)
 
     def _add_ellipse(self, slide, elem: dict[str, Any]) -> None:
+        """Add an oval auto-shape for elements with ``type == 'ellipse'``."""
         shape = slide.shapes.add_shape(
             9,  # MSO_AUTO_SHAPE_TYPE.OVAL
             _px(elem["x"]),

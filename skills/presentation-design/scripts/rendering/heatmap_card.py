@@ -99,10 +99,6 @@ class HeatmapCardRenderer(BaseCardRenderer):
 
     # ── Helpers ──────────────────────────────────────────────────────────
 
-    def _tok(self, name: str, default: object = None) -> object:
-        """Resolve ``card-heatmap-{name}`` with automatic fallback to ``card-{name}``."""
-        return self._resolve_tok("heatmap", name, default)
-
     def _heat_colors(self, level: int) -> tuple[str, str]:
         """Return ``(background, text)`` colour pair for the given heat *level* (0–5)."""
         lvl = max(0, min(5, int(level)))

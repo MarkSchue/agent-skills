@@ -331,6 +331,7 @@ def build(project_dir: Path, output_format: str = "both") -> None:
 # ── CLI ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
+    """Parse CLI arguments and run the build pipeline."""
     parser = argparse.ArgumentParser(
         description="Build a presentation from a structured Markdown definition."
     )

@@ -11,13 +11,21 @@ systems used by the presentation design skill.
 
 ```
 BaseCardRenderer
-├── TextCardRenderer
-├── ImageCardRenderer
-├── KpiCardRenderer
-├── ChartCardRenderer
-├── QuoteCardRenderer
-├── AgendaCardRenderer
-└── StackedTextCardRenderer
+├── TextCardRenderer           (text-card)
+├── ImageCardRenderer          (image-card)
+├── KpiCardRenderer            (kpi-card)
+├── ChartCardRenderer          (chart-card)
+├── QuoteCardRenderer          (quote-card)
+├── AgendaCardRenderer         (agenda-card)
+├── StackedTextCardRenderer    (stacked-text-card)
+├── IconItemTextCardRenderer   (icon-item-text-card)
+├── NumberedTextCardRenderer   (numbered-text-card)
+├── TableCardRenderer          (table-card)
+├── GanttChartCardRenderer     (gantt-chart-card)
+├── TimelineCardRenderer       (timeline-card)
+├── ScopeCardRenderer          (scope-card)
+├── CompareCardRenderer        (compare-card)
+└── HeatmapCardRenderer        (heatmap-card)
 ```
 
 **BaseCardRenderer** provides:
@@ -70,10 +78,18 @@ inline `<!-- slide ... -->` blocks in the Markdown.
 .card-base              ← shared card tokens (background, border, title,
 │                          header line, footer line, body)
 ├── .card--kpi          ← KPI-specific tokens (value size, trend colors)
-├── .card--chart        ← chart-specific tokens (axis, grid, legend)
+├── .card--chart        ← chart-specific tokens (axis, grid, legend, palette)
 ├── .card--quote        ← quote-specific tokens (mark, attribution)
 ├── .card--agenda       ← agenda-specific tokens (active/inactive, bullet)
-└── .card--stacked-text ← stacked-text-specific tokens (heading, body, divider, gaps)
+├── .card--stacked-text ← stacked-text-specific tokens (heading, body, divider, gaps, key-takeaway)
+├── .card--icon-item-text ← icon-item-text tokens (heading, body, icon, divider, gaps)
+├── .card--numbered-text  ← numbered-text tokens (badge, heading, body, highlight bar)
+├── .card--table        ← table tokens (header, row, border, padding, overflow)
+├── .card--gantt-chart  ← gantt tokens (row/section heights, bar colors, grid, label column)
+├── .card--timeline     ← timeline tokens (spine, dot, entry, arrow, caption)
+├── .card--scope        ← scope tokens (status badge, highlight bar, columns)
+├── .card--compare      ← compare tokens (column headers, checkmark colors, divider)
+└── .card--heatmap      ← heatmap tokens (cell colors, level palette, axis)
 ```
 
 ### Text Styles
@@ -127,3 +143,13 @@ method checks per-card → per-slide → merged CSS → fallback in that order.
    - Show the footer zone in the `## Layout` pictogram
    - List `.card-base` footer in the `## Design Tokens Used` section
 6. Add all new tokens to `references/token-reference.md`
+
+---
+
+## See Also
+
+- [`token-reference.md`](token-reference.md) — full list of CSS design tokens
+- [`architecture.md`](architecture.md) — pipeline and module structure
+- [`deck-syntax.md`](deck-syntax.md) — card YAML fields and slide syntax
+- [`SKILL.md`](../SKILL.md) — end-to-end workflow and design principles
+
