@@ -94,9 +94,6 @@ class BaseLayoutRenderer(ABC):
 
         y_cursor = mt
 
-        # Logos
-        y_cursor = self._render_logos(canvas, ml, mr, y_cursor, overrides)
-
         # Title
         if slide.title:
             title_size = float(
@@ -317,6 +314,9 @@ class BaseLayoutRenderer(ABC):
         canvas.chrome = chrome  # type: ignore[attr-defined]
         canvas.card_slots = self.compute_card_slots(chrome, overrides)  # type: ignore[attr-defined]
 
+        # Logos — rendered last so they appear on top of all card content in z-order
+        self._render_logos(canvas, ml, mr, mt, overrides)
+
         return canvas
 
     @abstractmethod
@@ -411,7 +411,7 @@ class BaseLayoutRenderer(ABC):
             )
 
             if logo_src:
-                canvas.add(
+                canvas.add_post(
                     {
                         "type": "image",
                         "src": logo_src,
@@ -423,7 +423,7 @@ class BaseLayoutRenderer(ABC):
                 )
             else:
                 # Primary logo placeholder only
-                canvas.add(
+                canvas.add_post(
                     {
                         "type": "placeholder",
                         "role": "logo-primary",

@@ -279,6 +279,9 @@ def build(project_dir: Path, output_format: str = "both") -> None:
             renderer.render(card, slot, slide_overrides=slide.slide_overrides)
             canvas.elements.extend(slot.elements)
 
+        # Append post-elements (logos etc.) last so they render above card content
+        canvas.elements.extend(getattr(canvas, "post_elements", []))
+
         rendered_slides.append(canvas)
         page_num += 1
 

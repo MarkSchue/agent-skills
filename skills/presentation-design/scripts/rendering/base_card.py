@@ -65,7 +65,7 @@ class RenderBox:
         elements: Child rendered elements (exporter-agnostic dicts).
     """
 
-    __slots__ = ("x", "y", "w", "h", "elements", "chrome", "card_slots")
+    __slots__ = ("x", "y", "w", "h", "elements", "post_elements", "chrome", "card_slots")
 
     def __init__(self, x: float, y: float, w: float, h: float) -> None:
         self.x = x
@@ -73,11 +73,16 @@ class RenderBox:
         self.w = w
         self.h = h
         self.elements: list[dict[str, Any]] = []
+        self.post_elements: list[dict[str, Any]] = []
         self.chrome: Any = None
         self.card_slots: Any = None
 
     def add(self, element: dict[str, Any]) -> None:
         self.elements.append(element)
+
+    def add_post(self, element: dict[str, Any]) -> None:
+        """Add an element that should be rendered on top of all card content."""
+        self.post_elements.append(element)
 
 
 class BaseCardRenderer(ABC):

@@ -56,7 +56,8 @@ class KpiCardRenderer(BaseCardRenderer):
                 "alignment": value_align,
             }
         )
-        y += value_size + 8
+        value_gap = float(self._tok("value-gap", 20))
+        y += value_size + value_gap
 
         # Trend indicator
         if trend != "neutral":
