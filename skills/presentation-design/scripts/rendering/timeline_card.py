@@ -255,7 +255,7 @@ class TimelineCardRenderer(BaseCardRenderer):
                      "stroke": spine_color, "stroke_width": 1})
 
             # Content block
-            cw = min(slot_w - 4, 120)
+            cw = min(slot_w - 4, 160)
             cx_left = mx - cw / 2
             if above:
                 content_bot = tick_y1 - connector_len
@@ -384,7 +384,7 @@ class TimelineCardRenderer(BaseCardRenderer):
 
             heading_lh = h_size * 1.25
             body_lh    = b_size * 1.30
-            body_chars  = max(1, int(content_w / (b_size * 0.48)))
+            body_chars  = max(1, int(content_w / (b_size * 0.55)))
             body_lines  = _estimate_lines(item["body"], body_chars) if has_body else 0
             heading_h   = heading_lh if has_heading else 0
             body_h      = body_lines * body_lh if has_body else 0
@@ -505,7 +505,7 @@ class TimelineCardRenderer(BaseCardRenderer):
         has_body    = bool(item["body"])
         heading_lh  = h_size * 1.25
         body_lh     = b_size * 1.30
-        body_chars  = max(1, int(cw / (b_size * 0.48)))
+        body_chars  = max(1, int(cw / (b_size * 0.55)))
         body_lines  = _estimate_lines(item["body"], body_chars) if has_body else 0
         total_h     = (heading_lh if has_heading else 0) + (4 if has_heading and has_body else 0) + body_lines * body_lh
         top = bottom - total_h
@@ -559,7 +559,7 @@ class TimelineCardRenderer(BaseCardRenderer):
             y_cursor += heading_lh + 2
 
         if has_body:
-            body_chars  = max(1, int(cw / (b_size * 0.48)))
+            body_chars  = max(1, int(cw / (b_size * 0.55)))
             body_lines  = _estimate_lines(item["body"], body_chars)
             body_h      = body_lines * body_lh
             bx = cx + icon_size + icon_gap if has_icon and not has_heading else cx

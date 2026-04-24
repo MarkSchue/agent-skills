@@ -176,8 +176,8 @@ class NumberedTextCardRenderer(BaseCardRenderer):
         col3_x = col2_x + col2_w
 
         # ── Estimate row heights ─────────────────────────────────────────
-        heading_chars = max(1, int(col2_w / (h_size * 0.48))) if col2_w > 0 else 1
-        body_chars = max(1, int(col3_w / (b_size * 0.48))) if col3_w > 0 else 1
+        heading_chars = max(1, int(col2_w / (h_size * 0.55))) if col2_w > 0 else 1
+        body_chars = max(1, int(col3_w / (b_size * 0.55))) if col3_w > 0 else 1
 
         def _row_content_h(row: dict[str, str]) -> float:
             h_lines = (

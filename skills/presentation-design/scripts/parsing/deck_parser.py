@@ -149,6 +149,9 @@ class DeckParser:
                     layout = data.get("layout")
                     if isinstance(layout, str) and layout.strip():
                         slide.layout = layout.strip()
+                    subtitle = data.get("subtitle")
+                    if isinstance(subtitle, str) and subtitle.strip():
+                        slide.subtitle = subtitle.strip()
             except yaml.YAMLError:
                 pass  # malformed YAML; skip silently
 

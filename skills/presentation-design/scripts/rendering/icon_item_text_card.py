@@ -35,8 +35,8 @@ class IconItemTextCardRenderer(BaseCardRenderer):
                 }
             else:
                 icon_dict = {
-                    "name": "",
-                    "text": str(icon) if icon is not None else "",
+                    "name": str(icon) if icon is not None else "",
+                    "text": "",
                     "position": entry.get("icon_position", "left"),
                     "color": "",
                     "size": "",

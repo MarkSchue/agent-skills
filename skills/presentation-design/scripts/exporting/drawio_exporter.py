@@ -546,11 +546,30 @@ class DrawioExporter:
 
                     return cell_id + 1
                 else:
-                    # Raster images: base64 with percent-encoded semicolon so
-                    # draw.io's style parser doesn't split at ";base64".
+                    # Raster images (PNG, JPG, etc.): wrap in an SVG shell and
+                    # URL-encode the whole thing.  This uses the same mechanism
+                    # as SVG assets and icons (data:image/svg+xml,<url-encoded>)
+                    # which is the only draw.io approach that reliably renders
+                    # without semicolon-splitting issues in the style string.
+                    # "data:image/png;base64,..." has a ";" that draw.io's style
+                    # parser would split on; the SVG wrapper avoids that entirely.
+                    from urllib.parse import quote as _url_quote
                     mime = mimetypes.guess_type(str(img_path))[0] or "image/png"
                     img_b64 = base64.b64encode(img_path.read_bytes()).decode("ascii")
-                    data_uri = f"data:{mime}%3Bbase64,{img_b64}"
+                    w_val = elem.get("w", 100)
+                    h_val = elem.get("h", 40)
+                    svg_wrapper = (
+                        f'<svg xmlns="http://www.w3.org/2000/svg" '
+                        f'xmlns:xlink="http://www.w3.org/1999/xlink" '
+                        f'width="{w_val}" height="{h_val}" '
+                        f'viewBox="0 0 {w_val} {h_val}">'
+                        f'<image xlink:href="data:{mime};base64,{img_b64}" '
+                        f'x="0" y="0" width="{w_val}" height="{h_val}" '
+                        f'preserveAspectRatio="xMidYMid meet"/>'
+                        f'</svg>'
+                    )
+                    encoded_svg = _url_quote(svg_wrapper, safe="")
+                    data_uri = f"data:image/svg+xml,{encoded_svg}"
             else:
                 logger.warning("Image not found: %s \u2014 rendering placeholder", src)
 

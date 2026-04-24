@@ -179,12 +179,23 @@ def _write_agenda_block(deck_path: "Path", section_titles: list[str]) -> None:
 
 # ── Build pipeline ──────────────────────────────────────────────────────────
 
-def build(project_dir: Path, output_format: str = "both") -> None:
+def build(
+    project_dir: Path,
+    output_format: str = "both",
+    *,
+    qa: bool = False,
+    qa_scale: int = 2,
+    qa_backend: str = "auto",
+) -> None:
     """Run the full build pipeline.
 
     Args:
-        project_dir: Path to the presentation project folder.
+        project_dir:   Path to the presentation project folder.
         output_format: ``pptx``, ``drawio``, or ``both``.
+        qa:            When True, generate QA screenshots after export.
+        qa_scale:      Resolution multiplier for QA PNGs (default 2).
+        qa_backend:    PPTX screenshot backend: ``auto``, ``powerpoint``,
+                       or ``libreoffice``.
     """
     # 1. Locate source files
     deck_path = project_dir / "presentation-definition.md"
@@ -327,6 +338,17 @@ def build(project_dir: Path, output_format: str = "both") -> None:
 
     logger.info("Build complete — %d slides exported to %s", len(rendered_slides), output_dir)
 
+    # 11. QA screenshots (on demand)
+    if qa:
+        from scripts.cli.qa_screenshots import run_qa  # local import — optional feature
+        run_qa(
+            project_dir,
+            scale=qa_scale,
+            backend=qa_backend,
+            drawio_only=output_format == "drawio",
+            pptx_only=output_format == "pptx",
+        )
+
 
 # ── CLI ─────────────────────────────────────────────────────────────────────
 
@@ -348,6 +370,25 @@ def main() -> None:
         help="Output format (default: both).",
     )
     parser.add_argument(
+        "--qa",
+        action="store_true",
+        help="Generate QA PNG screenshots after build (output/qa/drawio/ and output/qa/pptx/).",
+    )
+    parser.add_argument(
+        "--qa-scale",
+        type=int,
+        default=2,
+        metavar="N",
+        help="Resolution multiplier for QA screenshots (default: 2).",
+    )
+    parser.add_argument(
+        "--backend",
+        choices=["auto", "powerpoint", "libreoffice"],
+        default="auto",
+        dest="qa_backend",
+        help="PPTX screenshot backend for --qa (default: auto).",
+    )
+    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose logging.",
@@ -359,7 +400,13 @@ def main() -> None:
         format="%(levelname)s: %(message)s",
     )
 
-    build(args.project_dir.resolve(), args.output_format)
+    build(
+        args.project_dir.resolve(),
+        args.output_format,
+        qa=args.qa,
+        qa_scale=args.qa_scale,
+        qa_backend=args.qa_backend,
+    )
 
 
 if __name__ == "__main__":

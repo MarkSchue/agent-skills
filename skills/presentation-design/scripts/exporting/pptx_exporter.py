@@ -178,6 +178,56 @@ _ICON_UNICODE_MAP: dict[str, str] = {
     "manufacturing":    "⚙",
     "monitoring":       "◎",
     "quiz":             "?",
+    # Material Symbols — EAM deck icons (legacy)
+    "smart_toy":        "🤖",
+    "psychology":       "🧠",
+    "policy":           "📋",
+    # Phosphor Icons — EAM deck icons
+    "robot":            "🤖",
+    "wrench":           "🔧",
+    "brain":            "🧠",
+    "clipboard-text":   "📋",
+    "warning-circle":   "⚠",
+    "warning-diamond":  "⚠",
+    # Phosphor — common general icons
+    "arrow-right":      "→",
+    "arrow-left":       "←",
+    "check":            "✓",
+    "check-circle":     "✓",
+    "x":                "✕",
+    "x-circle":         "✕",
+    "info":             "ℹ",
+    "question":         "?",
+    "star":             "★",
+    "heart":            "♥",
+    "user":             "◉",
+    "users":            "◎",
+    "lock":             "🔒",
+    "shield":           "🛡",
+    "shield-check":     "🛡",
+    "gear":             "⚙",
+    "lightning":        "⚡",
+    "chart-bar":        "▬",
+    "chart-line":       "∿",
+    "database":         "⊡",
+    "cloud":            "☁",
+    "code":             "⟨⟩",
+    "file-text":        "📄",
+    "folder":           "📁",
+    "magnifying-glass": "🔍",
+    "envelope":         "✉",
+    "phone":            "📞",
+    "calendar":         "📅",
+    "clock":            "🕐",
+    "flag":             "⚑",
+    "tag":              "◈",
+    "link":             "⊕",
+    "globe":            "◎",
+    "map-pin":          "◎",
+    "buildings":        "⌂",
+    "factory":          "◆",
+    "cpu":              "⊟",
+    "network":          "⊛",
     "rule":             "≡",
     "schema":           "⊹",
     "task_alt":         "✓",
@@ -464,8 +514,8 @@ class PptxExporter:
         raw_text = str(elem.get("text", ""))
         font_family = elem.get("font_family")
         if font_family and any(m in font_family.lower() for m in _ICON_FONT_MARKERS):
-            # Ligature name heuristic: all-lowercase, may contain underscores
-            if raw_text and (raw_text.islower() or "_" in raw_text):
+            # Ligature name heuristic: all-lowercase, may contain underscores or hyphens
+            if raw_text and (raw_text.islower() or "_" in raw_text or "-" in raw_text):
                 raw_text = _ICON_UNICODE_MAP.get(raw_text, _ICON_FALLBACK_GLYPH)
                 font_family = None  # standard font — glyph is in BMP, no icon font needed
 
