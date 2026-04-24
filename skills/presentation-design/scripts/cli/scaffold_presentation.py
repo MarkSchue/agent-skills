@@ -26,7 +26,20 @@ import sys
 from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent.parent.parent
-THEME_TEMPLATE = SKILL_DIR / "themes" / "base.css"
+THEMES_DIR = SKILL_DIR / "themes"
+
+# Allow running as a plain script (`python scripts/cli/scaffold_presentation.py`)
+# without an active package install.
+if str(SKILL_DIR) not in sys.path:
+    sys.path.insert(0, str(SKILL_DIR))
+
+# Imported lazily so the file remains importable when the package layout
+# changes during dev.
+from scripts.parsing.base_resolver import (  # noqa: E402
+    DEFAULT_BASE,
+    base_path_for,
+    list_available_bases,
+)
 
 STARTER_DECK = """\
 # My Presentation
@@ -87,17 +100,30 @@ content:
 """
 
 
-def scaffold(name: str, base_path: Path, force: bool = False) -> Path:
+def scaffold(name: str, base_path: Path, force: bool = False, base: str = DEFAULT_BASE) -> Path:
     """Create a new presentation project.
 
     Args:
-        name: Project folder name.
-        base_path: Parent directory for the project.
-        force: If True, overwrite existing files.
+        name:       Project folder name.
+        base_path:  Parent directory for the project.
+        force:      If True, overwrite existing files.
+        base:       Name of the base CSS to start from (e.g. ``standard``,
+                    ``boston``). The selection is recorded as a
+                    ``/* @base: <name> */`` marker at the top of
+                    ``theme.css`` so subsequent builds know which base
+                    to fall back to.
 
     Returns:
         Path to the created project folder.
     """
+    available = list_available_bases(THEMES_DIR)
+    if base not in available:
+        print(
+            f"Error: unknown base '{base}'. Available: {', '.join(available) or '(none)'}",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    theme_template = base_path_for(base, THEMES_DIR)
     project = base_path / name
     if project.exists() and not force:
         print(f"Error: '{project}' already exists. Use --force to overwrite.", file=sys.stderr)
@@ -113,14 +139,17 @@ def scaffold(name: str, base_path: Path, force: bool = False) -> Path:
         (project / "assets" / sub).mkdir(parents=True, exist_ok=True)
         (project / "assets" / sub / ".gitkeep").touch()
 
-    # Copy theme.css from the skill template
+    # Copy theme.css from the chosen base, prepended with a @base marker
     dest_theme = project / "theme.css"
     if not dest_theme.exists() or force:
-        if THEME_TEMPLATE.exists():
-            shutil.copy2(THEME_TEMPLATE, dest_theme)
+        marker = f"/* @base: {base} */\n"
+        if theme_template.exists():
+            body = theme_template.read_text(encoding="utf-8")
+            dest_theme.write_text(marker + body, encoding="utf-8")
         else:
             dest_theme.write_text(
-                "/* Theme overrides — customize tokens from base.css here */\n",
+                marker
+                + f"/* Theme overrides \u2014 customize tokens from {base}_base.css here */\n",
                 encoding="utf-8",
             )
 
@@ -140,7 +169,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Scaffold a new presentation project."
     )
-    parser.add_argument("name", help="Name of the presentation project folder.")
+    parser.add_argument("name", nargs="?", help="Name of the presentation project folder.")
     parser.add_argument(
         "--path",
         type=Path,
@@ -152,8 +181,27 @@ def main() -> None:
         action="store_true",
         help="Overwrite existing files.",
     )
+    parser.add_argument(
+        "--base",
+        default=DEFAULT_BASE,
+        help=(
+            f"Base CSS to start from (default: {DEFAULT_BASE}). "
+            "Use --list-bases to see available options."
+        ),
+    )
+    parser.add_argument(
+        "--list-bases",
+        action="store_true",
+        help="List available *_base.css files and exit.",
+    )
     args = parser.parse_args()
-    scaffold(args.name, args.path.resolve(), args.force)
+    if args.list_bases:
+        for n in list_available_bases(THEMES_DIR):
+            print(n)
+        return
+    if not args.name:
+        parser.error("name is required (unless --list-bases is given)")
+    scaffold(args.name, args.path.resolve(), args.force, base=args.base)
 
 
 if __name__ == "__main__":

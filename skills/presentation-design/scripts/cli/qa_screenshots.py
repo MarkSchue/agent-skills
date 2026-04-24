@@ -155,10 +155,11 @@ def _canvas_size_from_theme(project_dir: Path) -> tuple[int, int]:
     try:
         from scripts.models.theme import ThemeTokens
         from scripts.parsing.theme_loader import ThemeLoader
+        from scripts.parsing.base_resolver import resolve_base_files
 
-        base_css = SKILL_DIR / "themes" / "base.css"
+        themes_dir = SKILL_DIR / "themes"
         theme_css = project_dir / "theme.css"
-        files = [base_css]
+        files = resolve_base_files(themes_dir, theme_css)
         if theme_css.exists():
             files.append(theme_css)
         loader = ThemeLoader()

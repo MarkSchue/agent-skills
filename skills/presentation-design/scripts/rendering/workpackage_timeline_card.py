@@ -126,15 +126,25 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
         x_pt_size     = float(self._tok("cross-pt-font-size") or 12)
         x_pt_color    = self._tok("cross-pt-font-color") or self.resolve("color-text-default") or "#222"
         x_pt_weight   = self._tok("cross-pt-font-weight") or "bold"
-        x_row_gap     = float(self._tok("cross-row-gap") or 8)
+        x_row_gap     = float(self._tok("cross-row-gap") or 16)
 
         # ── Geometry ──────────────────────────────────────────────────
-        n_wp = len(wps)
         # Reserve a right margin to fit the optional inline end-KW label
         right_inline_w = 60.0
-        # Top row (workpackage descriptions) — fixed proportional height
-        # Estimate body lines from text length; cap at 4 lines.
-        wp_top_h = wp_head_size * 2 + 6 + wp_body_size * 5
+        # Inset the left edge of the bar so the first WP description has
+        # room to be right-anchored to its point-in-time (PIT) marker.
+        left_inline_w = float(self._tok("first-wp-min-width") or 90.0)
+        # Inter-column gap between WP description blocks (px)
+        wp_block_gap = float(self._tok("wp-block-gap") or 8.0)
+        # Vertical connector line tokens — visible hairline so the eye can
+        # follow each WP description down to its point-in-time on the bar.
+        connector_color = self._tok("connector-color") or self.resolve("color-text-muted") or "#888"
+        connector_width = float(self._tok("connector-width") or 1.0)
+
+        # Top row (workpackage descriptions) — fixed proportional height.
+        # Made slightly taller so the card uses more vertical space (the
+        # MHP master gives generous room for these descriptions).
+        wp_top_h = wp_head_size * 2 + 6 + wp_body_size * 6 + 4
 
         # Marker row (PT label + diamond)
         mk_h = mk_size + 4 + 8  # text + diamond
@@ -144,13 +154,13 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
 
         # Cross-WP row (one per cross-WP)
         cross_row_h = x_head_size + 4 + x_body_size + 4
-        cross_total_h = (cross_row_h + x_row_gap) * len(xwps) if xwps else 0
 
-        # Vertical layout
+        # Vertical layout — generous breathing room so the timeline
+        # uses more of the available card height (MHP-style spacious feel).
         cur_y = box.y
         # Top WP descriptions
         wp_top_y = cur_y
-        cur_y += wp_top_h + 8
+        cur_y += wp_top_h + 24  # extra gap before the marker row
 
         # Marker row
         mk_row_y = cur_y
@@ -158,11 +168,11 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
 
         # Bar
         bar_y = cur_y
-        cur_y += bar_h + 6
+        cur_y += bar_h + 12
 
         # KW label row
         kw_row_y = cur_y
-        cur_y += kw_h + 24
+        cur_y += kw_h + 44
 
         # Cross-workpackages start right below the KW row (with a gap)
         cross_y = cur_y
@@ -172,40 +182,47 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
         # at the very right edge of the bar (no slot column).
         end_wp = wps[-1] if (wps and bool(wps[-1].get("end"))) else None
         layout_wps = wps[:-1] if end_wp else wps[:]
-        n_cols = max(1, len(layout_wps))
 
-        # Bar geometry
-        bar_x1 = box.x
-        bar_x2 = box.x + box.w - right_inline_w  # leave room for inline KW label
+        # Bar geometry — inset on the left to make room for the first
+        # WP description block which is right-anchored to its PIT.
+        bar_x1 = box.x + left_inline_w
+        bar_x2 = box.x + box.w - right_inline_w
         bar_w  = bar_x2 - bar_x1
 
-        # Column centres (evenly distributed across the bar)
-        if len(layout_wps) > 1:
-            col_step = bar_w / (len(layout_wps) - 1) if not end_wp else bar_w / len(layout_wps)
-        else:
-            col_step = bar_w
-        # If we have an end WP, reserve the last position for it; columns
-        # 0..n-1 of layout_wps occupy positions 0..n-1 of (n+1) total.
+        # Distribute PITs evenly across the bar (including end-WP at far right)
         if end_wp:
             total_positions = len(layout_wps) + 1
             positions = [
-                bar_x1 + (i * bar_w / (total_positions - 1))
+                bar_x1 + (i * bar_w / max(1, total_positions - 1))
                 for i in range(total_positions)
             ]
         else:
-            positions = [
-                bar_x1 + (i * bar_w / max(1, len(layout_wps) - 1))
-                for i in range(len(layout_wps))
-            ] if len(layout_wps) > 1 else [bar_x1 + bar_w / 2]
-
-        # Column widths (for top WP description blocks)
-        col_w = box.w / n_wp
+            positions = (
+                [bar_x1 + (i * bar_w / max(1, len(layout_wps) - 1))
+                 for i in range(len(layout_wps))]
+                if len(layout_wps) > 1
+                else [bar_x1 + bar_w / 2]
+            )
 
         # ── 1) Top row: WP titles & bodies ────────────────────────────
+        # Each description block is RIGHT-ANCHORED to its PIT so the user
+        # can visually follow the text down to the marker on the bar.
+        # A thin vertical connector line links the bottom of the block
+        # to the diamond marker just above the bar.
+        all_positions = positions[:]  # includes end-WP if present
         for i, wp in enumerate(wps):
-            cx = box.x + i * col_w
-            cw = col_w - 12
-            # Title (bold)
+            pit_x = all_positions[i]
+            # Right edge of description block sits AT the PIT
+            right_edge = pit_x
+            # Left edge: previous PIT + gap, or box.x for the first block
+            if i == 0:
+                left_edge = box.x
+            else:
+                left_edge = all_positions[i - 1] + wp_block_gap
+            cw = max(20.0, right_edge - left_edge - wp_block_gap)
+            cx = right_edge - cw  # right-anchored
+
+            # Title (bold) — right-aligned so the text "lands" on the PIT
             title_text = str(wp.get("title", "") or "")
             if title_text:
                 box.add({
@@ -216,22 +233,36 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
                     "font_size": wp_head_size,
                     "font_color": wp_head_color,
                     "font_weight": wp_head_weight,
-                    "alignment": "left",
+                    "alignment": "right",
                     "wrap": True,
                 })
-            # Body
+            # Body — right-aligned
             body_text = str(wp.get("body", "") or "")
             if body_text:
                 box.add({
                     "type": "text",
                     "x": cx, "y": wp_top_y + wp_head_size * 2 + 6,
-                    "w": cw, "h": wp_body_size * 5,
+                    "w": cw, "h": wp_body_size * 6,
                     **text_and_runs(body_text),
                     "font_size": wp_body_size,
                     "font_color": wp_body_color,
                     "font_weight": "normal",
-                    "alignment": "left",
+                    "alignment": "right",
                     "wrap": True,
+                })
+
+            # Thin vertical connector line: bottom of WP block → just
+            # above the PT marker text. Stops short of the diamond so
+            # marker text remains legible.
+            line_top = wp_top_y + wp_top_h + 2
+            line_bot = mk_row_y - 2
+            if line_bot > line_top:
+                box.add({
+                    "type": "line",
+                    "x1": pit_x, "y1": line_top,
+                    "x2": pit_x, "y2": line_bot,
+                    "stroke": str(connector_color),
+                    "stroke_width": connector_width,
                 })
 
         # ── 2) Gradient bar (approximated with N colour-interpolated slices) ──

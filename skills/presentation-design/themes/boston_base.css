@@ -1,0 +1,128 @@
+/* =================================================================
+   Boston Base — BCG-inspired design tokens
+   =================================================================
+   Boston Consulting Group's visual language: deep navy primary, signature
+   bright green accent, generous whitespace, restrained type, white slides
+   with hairline rules. Inspired by https://www.bcg.com/.
+
+   This file is loaded *after* `standard_base.css`, so it only needs to
+   declare tokens that differ from standard. To activate it, add this
+   line to the top of your project's `theme.css`:
+
+       /* @base: boston */
+
+   Authoring guide for new bases:
+   - Override colours in `.theme-colors` first (the rest cascades via var()).
+   - Adjust slide-level chrome in `.slide-base`.
+   - Override only the variant blocks where you want a distinct look.
+   - Do NOT redeclare tokens that are identical to standard — let the
+     standard base supply them.
+   ================================================================= */
+
+/* ──────────────────────────────────────────────────────────────────
+   1. Colour palette — BCG navy + green
+   ────────────────────────────────────────────────────────────────── */
+.theme-colors {
+    /* Brand */
+    --color-primary: #00553F;            /* BCG deep green (signature) */
+    --color-on-primary: #FFFFFF;         /* white on brand green */
+    --color-secondary: #003057;          /* BCG navy — used for headings & rules */
+    --color-on-secondary: #FFFFFF;       /* white on navy */
+    --color-accent: #21BF73;             /* bright supporting green (charts, highlights) */
+    --color-on-accent: #FFFFFF;          /* white on bright green */
+
+    /* Surfaces — pure white slides, very faint sand for sunken panels */
+    --color-background: #FFFFFF;         /* slide canvas */
+    --color-on-background: #003057;      /* navy for primary text */
+    --color-surface: #FFFFFF;            /* card surface */
+    --color-on-surface: #003057;         /* navy text on cards */
+    --color-surface-sunken: #F4F1EC;     /* warm sand panel — BCG's signature neutral */
+    --color-surface-raised: #FFFFFF;     /* no raised differentiation */
+    --color-overlay: rgba(0, 48, 87, 0.45); /* navy-tinted scrim */
+
+    /* Text */
+    --color-text-default: #003057;       /* navy is the default ink */
+    --color-text-subtle: #1F3A5C;        /* slightly lifted navy */
+    --color-text-muted: #6B7C8E;         /* cool grey */
+    --color-text-disabled: #C7CDD3;      /* light cool grey */
+    --color-text-inverse: #FFFFFF;       /* white text on dark surfaces */
+    --color-text-link: #00553F;          /* brand green for links */
+
+    /* Borders — hairlines only, navy-tinted */
+    --color-border: #D7DCE2;             /* faint navy-grey hairline */
+    --color-border-strong: #6B7C8E;      /* dividers & emphasis rules */
+    --color-border-interactive: #00553F; /* focus / interactive */
+
+    /* Status */
+    --color-success: #21BF73;            /* bright BCG green */
+    --color-success-subtle: #E8F7EF;     /* mint tint */
+    --color-success-text: #00553F;       /* deep green text */
+
+    --color-warning: #E8A33D;            /* warm amber */
+    --color-warning-subtle: #FBEFD8;     /* sand tint */
+    --color-warning-text: #7A4D00;       /* deep amber text */
+
+    --color-error: #C8102E;              /* BCG red */
+    --color-error-subtle: #FBE3E6;       /* rose tint */
+    --color-error-text: #8B0A1F;         /* deep red text */
+
+    --color-info: #003057;               /* navy doubles as info */
+    --color-info-subtle: #E5EAF1;        /* pale navy */
+    --color-info-text: #001F3D;          /* deepest navy */
+
+    /* Heatmap — sand → green ramp (BCG-style sequential) */
+    --color-heat-0: #F4F1EC;             /* sand */
+    --color-on-heat-0: #003057;          /* navy on sand */
+    --color-heat-1: #DDEEDC;              /* pale green */
+    --color-on-heat-1: #003057;
+    --color-heat-2: #B5DCB7;              /* light green */
+    --color-on-heat-2: #003057;
+    --color-heat-3: #6FBF85;              /* mid green */
+    --color-on-heat-3: #FFFFFF;
+    --color-heat-4: #21BF73;              /* bright BCG green */
+    --color-on-heat-4: #FFFFFF;
+    --color-heat-5: #00553F;              /* deep brand green */
+    --color-on-heat-5: #FFFFFF;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   2. Slide-level chrome — generous whitespace, navy title rule
+   ────────────────────────────────────────────────────────────────── */
+.slide-base {
+    --canvas-padding-top: 64;            /* extra breathing room */
+    --canvas-padding-right: 64;
+    --canvas-padding-bottom: 64;
+    --canvas-padding-left: 64;
+    --canvas-card-gap: 32;               /* wider gaps between cards */
+
+    --slide-title-font-size: 22;         /* larger, more confident title */
+    --slide-title-font-weight: 600;      /* semi-bold (not heavy) */
+    --slide-title-font-color: var(--color-secondary);  /* navy headings */
+
+    --slide-subtitle-font-size: 13;
+    --slide-subtitle-font-color: var(--color-text-muted);
+
+    --slide-divider-border-color: var(--color-primary); /* brand-green rule */
+    --slide-divider-border-width: 2;     /* thin, confident */
+
+    --slide-footer-font-color: var(--color-text-muted);
+    --slide-footer-line-border-color: var(--color-border);
+
+    --slide-page-number-font-color: var(--color-text-muted);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   3. Card chrome — flat surfaces, hairline borders
+   ────────────────────────────────────────────────────────────────── */
+.card-base {
+    --card-background-color: var(--color-surface);
+    --card-border-color: var(--color-border);
+    --card-border-width: 0;              /* BCG decks: no card outline by default */
+    --card-border-radius: 0;             /* squared corners */
+    --card-padding: 20;                  /* roomy interior */
+    --card-shadow: none;                 /* no drop shadows */
+    --card-title-font-color: var(--color-secondary);   /* navy card titles */
+    --card-title-font-weight: 600;
+    --card-title-line-border-color: var(--color-primary); /* brand-green underline */
+    --card-title-line-border-width: 1;
+}

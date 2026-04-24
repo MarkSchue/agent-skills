@@ -75,8 +75,8 @@ def main() -> None:
     parser.add_argument(
         "--base-css",
         type=Path,
-        default=SKILL_DIR / "themes" / "base.css",
-        help="Path to base.css",
+        default=SKILL_DIR / "themes" / "standard_base.css",
+        help="Path to a *_base.css file (default: standard_base.css)",
     )
     parser.add_argument(
         "--reference",
@@ -93,7 +93,7 @@ def main() -> None:
     if args.base_css.exists():
         all_issues.extend(validate_base_css(args.base_css))
     else:
-        all_issues.append(f"base.css not found: {args.base_css}")
+        all_issues.append(f"Base CSS not found: {args.base_css}")
 
     if args.base_css.exists() and args.reference.exists():
         all_issues.extend(validate_token_reference(args.base_css, args.reference))

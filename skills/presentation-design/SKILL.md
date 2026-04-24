@@ -33,8 +33,9 @@ This creates:
 My Presentation/
 ├── presentation-definition.md   # your slide content
 ├── theme.css                    # SPARSE overrides — only tokens you want to change.
-│                                # Inherits everything else from the skill's base.css,
-│                                # so future base.css updates cascade automatically.
+│                                # Inherits everything else from the chosen base CSS
+│                                # (declared via /* @base: <name> */ marker on line 1),
+│                                # so future base updates cascade automatically.
 ├── output/                      # build output target
 └── assets/
     ├── images/
@@ -155,12 +156,14 @@ presentation-design/
 │                         process-flow-card.md, pyramid-card.md,
 │                         step-card.md, gauge-card.md,
 │                         circular-infographic-card.md,
-│                         calendar-card.md
+│                         calendar-card.md,
+│                         workpackage-timeline-card.md
 ├── layouts/
 │   ├── title-slide.md
 │   ├── grid-1x1.md … grid-3x4.md
 ├── themes/
-│   ├── base.css          full token set — source-of-truth template
+│   ├── standard_base.css full token set — the canonical, always-loaded foundation
+│   ├── boston_base.css   BCG-style alternative base (sparse — overrides only)
 │   └── default-theme.css reference-only sparse override example
 ├── scripts/
 │   ├── models/           domain classes
@@ -214,6 +217,35 @@ may short-circuit this order.
 3. **Variant CSS class** — e.g. `.card--kpi`, `.layout--grid-2x2`
 4. **Base CSS class** — `.slide-base`, `.card-base`
 5. **Python fallback default** — hardcoded safe value in renderer
+
+### Choosing a Base CSS
+
+The skill ships multiple `<name>_base.css` files in `themes/`. Each presentation
+selects one via a marker comment on the **first line** of its `theme.css`:
+
+```css
+/* @base: standard */    /* default — neutral indigo/grey */
+/* @base: boston */      /* BCG-inspired — navy + brand green, generous whitespace */
+```
+
+Loading order during a build:
+
+1. `themes/standard_base.css` — **always loaded first** as the completeness floor
+   (so every token has a defined value, even if the chosen base is sparse).
+2. `themes/<chosen>_base.css` — loaded second when the marker selects a
+   non-standard base. Only needs to declare the tokens that actually differ.
+3. The project's own `theme.css` — final overrides for this presentation.
+
+To pick a base when scaffolding a new project:
+
+```bash
+python scripts/cli/scaffold_presentation.py my-deck --base boston
+python scripts/cli/scaffold_presentation.py --list-bases   # see what's available
+```
+
+To author a **new** base, drop a `<name>_base.css` into `themes/` containing only
+the tokens that differ from `standard_base.css`. It will appear in
+`--list-bases` automatically.
 
 ### Base Token Override Pattern
 
@@ -488,7 +520,7 @@ Also add the import at the top of the file.
 
 ### Step 3 — Add CSS tokens
 
-Add a `.card--my` variant block to `themes/base.css`:
+Add a `.card--my` variant block to `themes/standard_base.css`:
 
 ```css
 .card--my {

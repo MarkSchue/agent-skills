@@ -240,7 +240,16 @@ def build(
         sys.exit(1)
 
     theme_path = project_dir / "theme.css"
-    base_css = SKILL_DIR / "themes" / "base.css"
+    from scripts.parsing.base_resolver import (
+        resolve_base_files, read_base_marker, DEFAULT_BASE,
+    )
+    themes_dir = SKILL_DIR / "themes"
+    base_css_files = resolve_base_files(themes_dir, theme_path)
+    chosen_base = read_base_marker(theme_path) or DEFAULT_BASE
+    if not base_css_files:
+        logger.error("No base CSS files found in %s", themes_dir)
+        sys.exit(1)
+    logger.info("Using base: %s (%d file(s))", chosen_base, len(base_css_files))
 
     # 1b. Resolve numbering placeholders (runs before parsing, every build)
     try:
@@ -265,9 +274,9 @@ def build(
             deck_path,
         )
 
-    # 3. Load theme tokens (base → project theme)
+    # 3. Load theme tokens (standard base → chosen base → project theme)
     loader = ThemeLoader()
-    theme_files = [base_css]
+    theme_files = list(base_css_files)
     if theme_path.exists():
         theme_files.append(theme_path)
     theme = loader.load(*theme_files)
