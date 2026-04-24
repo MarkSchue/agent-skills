@@ -279,8 +279,8 @@
     /* px — bottom margin */
     --canvas-padding-left: 48;
     /* px — left margin */
-    --canvas-card-gap: 16;
-    /* px — spacing between cards */
+    --canvas-card-gap: 24;
+    /* px — spacing between cards (consulting-style breathing room) */
     --canvas-background-color: var(--color-background);
     /* slide background colour */
     --canvas-background-image: none;
@@ -341,9 +341,9 @@
     --slide-divider-font-color: transparent;
     --slide-divider-font-weight: 0;
     --slide-divider-background-color: transparent;
-    --slide-divider-border-color: var(--color-border);
+    --slide-divider-border-color: var(--color-primary);
     /* divider line colour */
-    --slide-divider-border-width: 2;
+    --slide-divider-border-width: 1;
     /* px — divider thickness */
     --slide-divider-border-radius: 0;
     --slide-divider-padding: 0;
@@ -352,7 +352,7 @@
     --slide-divider-position: below-title;
     --slide-divider-width: 100%;
     /* % or px */
-    --slide-divider-height: 2;
+    --slide-divider-height: 1;
     /* px */
     --slide-divider-alignment: left;
 
@@ -677,8 +677,8 @@
 
 /* Heading 1 — primary section heading inside card body */
 .card--text-h1 {
-    --text-h1-font-size: 24;
-    /* px */
+    --text-h1-font-size: 28;
+    /* px — consulting-style large H1 */
     --text-h1-font-color: var(--color-text-default);
     /* heading colour */
     --text-h1-font-weight: 700;
@@ -689,7 +689,7 @@
 
 /* Heading 2 — secondary heading inside card body */
 .card--text-h2 {
-    --text-h2-font-size: 20;
+    --text-h2-font-size: 22;
     --text-h2-font-color: var(--color-text-default);
     --text-h2-font-weight: 600;
     --text-h2-font-style: normal;
@@ -699,9 +699,9 @@
 
 /* Body text — primary content paragraphs */
 .card--text-body {
-    --text-body-font-size: 14;
-    --text-body-font-color: var(--color-text-subtle);
-    /* body colour */
+    --text-body-font-size: 15;
+    --text-body-font-color: var(--color-text-default);
+    /* body colour — default text for max readability */
     --text-body-font-weight: 400;
     --text-body-font-style: normal;
     /* normal | italic | bold | italic bold */
@@ -1419,14 +1419,16 @@
 .card--table {
 
     /* ── Heading row ─────────────────────────────────────────────────── */
-    --card-table-heading-bg-color: var(--color-primary);
-    /* heading row background fill */
-    --card-heading-font-color: var(--color-on-primary);
-    /* heading text is white-on-dark (overrides .card-base --card-heading-font-color) */
-    --card-table-heading-height: 28;
-    /* px — heading row height */
+    /* Refined consulting style: light tinted header, dark text, single accent rule
+       below the header. Much more elegant than a saturated solid-colour header. */
+    --card-table-heading-bg-color: var(--color-surface-sunken);
+    /* heading row background fill — light tint */
+    --card-heading-font-color: var(--color-text-default);
+    /* heading text is dark-on-light (overrides .card-base --card-heading-font-color) */
+    --card-table-heading-height: 32;
+    /* px — heading row height (slightly taller for breathing room) */
     --card-table-heading-border-color: var(--color-primary);
-    /* border colour below the heading row */
+    /* border colour below the heading row — primary accent rule */
 
     /* ── Body rows ──────────────────────────────────────────────────── */
     --card-table-body-height: 24;
@@ -1577,19 +1579,21 @@
 .card--compare {
 
     /* ── Heading row ───────────────────────────────────────────────── */
-    --card-compare-heading-height: 28;
+    /* Refined consulting style: light tinted header (like table-card),
+       highlighted column gets the accent fill so emphasis still reads strong. */
+    --card-compare-heading-height: 32;
     /* px */
-    --card-compare-heading-bg-color: var(--color-primary);
-    /* default heading background (non-highlighted columns) */
-    --card-heading-font-color: var(--color-text-inverse);
-    /* heading text on dark bg (overrides base: text-default) */
+    --card-compare-heading-bg-color: var(--color-surface-sunken);
+    /* default heading background — light tint for non-highlighted columns */
+    --card-heading-font-color: var(--color-text-default);
+    /* heading text on light bg */
     --card-compare-heading-alignment: center;
     /* left | center | right */
 
     /* ── Highlighted column — overrides for columns with highlight:true ── */
-    --card-compare-highlight-col-heading-bg-color: var(--color-accent);
-    /* heading bg for highlighted comparison columns */
-    --card-compare-highlight-col-heading-font-color: #FFFFFF;
+    --card-compare-highlight-col-heading-bg-color: var(--color-primary);
+    /* heading bg for highlighted comparison columns — brand colour for emphasis */
+    --card-compare-highlight-col-heading-font-color: var(--color-on-primary);
     --card-compare-highlight-col-bg-color: var(--color-surface-raised);
     /* data-row background for highlighted columns */
 
@@ -1862,4 +1866,403 @@
     /* --card-footer-line-visible: false; */
     /* --card-footer-font-size: 10; */
     /* --card-footer-font-color: var(--color-text-muted); */
+}
+
+
+/* =================================================================
+   19. .card--callout — Callout / "key insight" card variant tokens
+   =================================================================
+   BCG/McKinsey-style takeaway box: thick coloured left bar + small
+   uppercase eyebrow label + large body sentence. Use for landing a
+   single insight on a slide. Pair with grid-1x1 or grid-1x2 layouts.
+*/
+.card--callout {
+
+    /* ── Accent bar (left vertical rule) ───────────────────────── */
+    --card-callout-accent-color: var(--color-primary);
+    /* full-height accent stripe colour */
+    --card-callout-accent-width: 6;
+    /* px — accent bar thickness */
+    --card-callout-accent-gap: 16;
+    /* px — horizontal gap between accent bar and text block */
+
+    /* ── Eyebrow label (small uppercase tag above body) ────────── */
+    --card-callout-eyebrow-font-size: 11;
+    /* px */
+    --card-callout-eyebrow-font-color: var(--color-primary);
+    --card-callout-eyebrow-font-weight: bold;
+    --card-callout-eyebrow-letter-spacing: 0;
+    /* 0 = none (recommended), >0 = inserts hair spaces between characters
+       (looks compressed at small sizes — only enable for large eyebrows) */
+    --card-callout-eyebrow-margin-bottom: 12;
+    /* px — gap between eyebrow and body */
+
+    /* ── Body (the actual takeaway sentence) ───────────────────── */
+    --card-callout-body-font-size: 22;
+    /* px — large but not heading-large */
+    --card-callout-body-font-color: var(--color-text-default);
+    --card-callout-body-font-weight: 600;
+    --card-callout-body-alignment: left;
+    /* left | center | right */
+}
+
+/* =================================================================
+   20. .card--stat-grid — Multi-stat overview card variant tokens
+   =================================================================
+   "By the numbers" card: 2–6 large-value tiles inside ONE card slot.
+   Different from kpi-card (single value per card). Auto-grid:
+   2 → 1×2, 3 → 1×3, 4 → 2×2, 5–6 → 2×3.
+*/
+.card--stat-grid {
+
+    /* ── Tile geometry ─────────────────────────────────────────── */
+    --card-stat-grid-tile-gap-x: 16;
+    /* px — horizontal gap between tiles */
+    --card-stat-grid-tile-gap-y: 16;
+    /* px — vertical gap between tiles */
+    --card-stat-grid-alignment: center;
+    /* left | center | right — text alignment within each tile */
+
+    /* ── Vertical separator between tiles in a row ─────────────── */
+    --card-stat-grid-tile-separator-visible: true;
+    --card-stat-grid-tile-separator-color: var(--color-border);
+    --card-stat-grid-tile-separator-width: 1;
+
+    /* ── Value (the big number) ────────────────────────────────── */
+    --card-stat-grid-value-font-size: 36;
+    /* px — large but smaller than kpi-card (multiple per card) */
+    --card-stat-grid-value-font-color: var(--color-primary);
+    --card-stat-grid-value-font-weight: bold;
+
+    /* ── Label (under value) ───────────────────────────────────── */
+    --card-stat-grid-label-font-size: 12;
+    --card-stat-grid-label-font-color: var(--color-text-default);
+    --card-stat-grid-label-font-weight: normal;
+
+    /* ── Sub (optional secondary text, e.g. comparison) ────────── */
+    --card-stat-grid-sub-font-size: 10;
+    --card-stat-grid-sub-font-color: var(--color-text-muted);
+}
+
+
+/* =================================================================
+   21. .card--section-divider — Section break / chapter divider
+   =================================================================
+   BCG/McKinsey-style chapter break. Full-bleed coloured panel with an
+   oversized section number on the left and the section title on the
+   right. Use on grid-1x1 layouts to create a strong visual break
+   between deck sections — much bolder than an agenda-card highlight.
+*/
+.card--section-divider {
+
+    /* ── Suppress base chrome (title is delivered via content.title) ── */
+    --card-title-visible: false;
+    --card-title-line-visible: false;
+    /* Full-bleed: no inner padding so the giant number can hug the edge */
+    --card-padding: 0;
+
+    /* ── Background panel (delivered by base container) ──────────── */
+    --card-background: var(--color-surface-sunken);
+    /* Use var(--color-primary) for an inverted/bold treatment
+       (remember to override font colours below). */
+    --card-border-width: 0;
+    --card-border-radius: 0;
+
+    /* ── Left accent stripe ────────────────────────────────────── */
+    --card-section-divider-accent-visible: true;
+    --card-section-divider-accent-color: var(--color-primary);
+    --card-section-divider-accent-width: 4;
+    /* px — left vertical accent bar */
+
+    /* ── Section number (the giant "02") ───────────────────────── */
+    --card-section-divider-number-font-size: 140;
+    /* px — make it huge */
+    --card-section-divider-number-font-color: var(--color-primary);
+    --card-section-divider-number-font-weight: bold;
+    --card-section-divider-number-area-ratio: 0.35;
+    /* fraction of inner width devoted to the number block */
+    --card-section-divider-number-text-gap: 32;
+    /* px — gap between number and title block */
+
+    /* ── Eyebrow (small uppercase label above title) ───────────── */
+    --card-section-divider-eyebrow-font-size: 12;
+    --card-section-divider-eyebrow-font-color: var(--color-primary);
+    --card-section-divider-eyebrow-font-weight: bold;
+
+    /* ── Title (the section name) ──────────────────────────────── */
+    --card-section-divider-title-font-size: 36;
+    --card-section-divider-title-font-color: var(--color-text-default);
+    --card-section-divider-title-font-weight: bold;
+
+    /* ── Subtitle (optional, below title) ──────────────────────── */
+    --card-section-divider-subtitle-font-size: 16;
+    --card-section-divider-subtitle-font-color: var(--color-text-muted);
+}
+
+
+/* =================================================================
+   22. .card--quadrant — 2x2 matrix variant tokens
+   =================================================================
+   2x2 matrix card (SWOT, BCG matrix, prioritisation grid, Eisenhower
+   box). Four labelled quadrants with optional axis labels along the
+   top and left edges. Each quadrant can be highlighted with `accent: true`
+   to flip its background to the accent colour and invert text colours.
+*/
+.card--quadrant {
+
+    /* ── Tile geometry ─────────────────────────────────────────── */
+    --card-quadrant-tile-gap: 12;
+    /* px — gap between the four quadrants */
+    --card-quadrant-tile-bg-color: var(--color-surface-sunken);
+    --card-quadrant-tile-accent-bg-color: var(--color-primary);
+    /* fill used when a quadrant has accent: true */
+    --card-quadrant-tile-border-color: var(--color-border);
+    --card-quadrant-tile-border-width: 0;
+    /* 0 = no border (flat fill style). Set to 1 for outlined tiles. */
+
+    /* ── Quadrant heading ──────────────────────────────────────── */
+    --card-quadrant-quadrant-heading-font-size: 14;
+    --card-quadrant-quadrant-heading-font-color: var(--color-primary);
+    --card-quadrant-quadrant-heading-font-weight: bold;
+    --card-quadrant-quadrant-heading-font-color-accent: #FFFFFF;
+    /* heading colour when the tile is in accent mode */
+
+    /* ── Quadrant body / bullets ───────────────────────────────── */
+    --card-quadrant-quadrant-body-font-size: 11;
+    --card-quadrant-quadrant-body-font-color: var(--color-text-default);
+    --card-quadrant-quadrant-body-font-color-accent: #FFFFFF;
+    --card-quadrant-bullet-char: "\2022";
+    /* bullet glyph (Unicode escape — \2022 = •) */
+    --card-quadrant-bullet-gap: 4;
+    /* px — vertical gap between bullets */
+
+    /* ── Axis labels ───────────────────────────────────────────── */
+    --card-quadrant-axis-visible: true;
+    --card-quadrant-axis-label-font-size: 10;
+    --card-quadrant-axis-label-font-color: var(--color-text-muted);
+    --card-quadrant-axis-label-font-weight: normal;
+    --card-quadrant-axis-pad: 8;
+    /* px — extra padding between axis labels and grid */
+}
+
+
+/* =================================================================
+   23. .card--process-flow — Horizontal process / chevron flow
+   =================================================================
+   N right-pointing chevron steps that visually connect into a flow.
+   Use for project phases, methodology steps, customer-journey stages,
+   or any sequential narrative. Set `accent: true` on the final step
+   to highlight a goal / end state.
+*/
+.card--process-flow {
+
+    /* ── Step appearance ───────────────────────────────────────── */
+    --card-process-flow-step-bg-color: var(--color-surface-sunken);
+    --card-process-flow-step-accent-bg-color: var(--color-primary);
+    --card-process-flow-step-border-color: var(--color-border);
+    --card-process-flow-step-border-width: 0;
+
+    /* ── Chevron geometry ──────────────────────────────────────── */
+    --card-process-flow-chevron-tip-pct: 0.18;
+    /* tip width as fraction of card height */
+    --card-process-flow-step-gap: 4;
+    /* px — gap between consecutive chevrons */
+    --card-process-flow-step-padding-x: 16;
+    --card-process-flow-step-padding-y: 12;
+
+    /* ── Step number (large numeric label) ─────────────────────── */
+    --card-process-flow-step-number-visible: true;
+    --card-process-flow-step-number-font-size: 28;
+    --card-process-flow-step-number-font-color: var(--color-text-muted);
+    --card-process-flow-step-number-font-color-accent: #FFFFFF;
+    --card-process-flow-step-number-font-weight: bold;
+
+    /* ── Step heading ──────────────────────────────────────────── */
+    --card-process-flow-step-heading-font-size: 14;
+    --card-process-flow-step-heading-font-color: var(--color-primary);
+    --card-process-flow-step-heading-font-color-accent: #FFFFFF;
+    --card-process-flow-step-heading-font-weight: bold;
+
+    /* ── Step body ─────────────────────────────────────────────── */
+    --card-process-flow-step-body-font-size: 11;
+    --card-process-flow-step-body-font-color: var(--color-text-default);
+    --card-process-flow-step-body-font-color-accent: #FFFFFF;
+}
+
+
+/* =================================================================
+   24. .card--pyramid — Hierarchical pyramid (stacked trapezoids)
+   =================================================================
+   Strategic hierarchy / Maslow / value pyramid. Each layer is a
+   trapezoid slice; layers stack bottom-up by default (first listed
+   = base). Labels can sit inside each layer or to the right with
+   leader lines. One layer can be highlighted with `accent: true`.
+*/
+.card--pyramid {
+
+    /* ── Layer appearance ──────────────────────────────────────── */
+    --card-pyramid-layer-bg-color: var(--color-surface-sunken);
+    --card-pyramid-layer-accent-bg-color: var(--color-primary);
+    --card-pyramid-layer-border-color: var(--color-border);
+    --card-pyramid-layer-border-width: 0;
+    --card-pyramid-layer-gap: 4;
+    /* px — vertical gap between layers */
+
+    /* ── Layer label position ──────────────────────────────────── */
+    --card-pyramid-layer-label-position: right;
+    /* right (with leader lines) | inline (centred inside layer) */
+
+    /* ── Layer heading ─────────────────────────────────────────── */
+    --card-pyramid-layer-heading-font-size: 14;
+    --card-pyramid-layer-heading-font-color: var(--color-text-default);
+    --card-pyramid-layer-heading-font-color-accent: #FFFFFF;
+    --card-pyramid-layer-heading-font-weight: bold;
+
+    /* ── Layer body ────────────────────────────────────────────── */
+    --card-pyramid-layer-body-font-size: 11;
+    --card-pyramid-layer-body-font-color: var(--color-text-muted);
+    --card-pyramid-layer-body-font-color-accent: #FFFFFF;
+
+    /* ── Leader lines (for label-position: right) ──────────────── */
+    --card-pyramid-label-line-color: var(--color-border);
+    --card-pyramid-label-line-width: 1;
+}
+
+
+/* =================================================================
+   25. .card--step — Diagonal stair of icon + heading + body steps
+   =================================================================
+   3-5 steps laid out along an ascending diagonal. Each step has a
+   circle (with optional icon), heading and body. Optional dashed
+   connector lines link consecutive circles.
+*/
+.card--step {
+    --card-step-step-circle-radius: 32;
+    --card-step-step-circle-stroke-color: var(--color-primary);
+    --card-step-step-circle-stroke-width: 2.5;
+    --card-step-step-circle-fill-color: var(--color-surface);
+    --card-step-step-icon-color: var(--color-primary);
+    --card-step-step-icon-size: 28;
+    --card-step-step-heading-font-size: 14;
+    --card-step-step-heading-font-color: var(--color-text-default);
+    --card-step-step-heading-font-weight: bold;
+    --card-step-step-body-font-size: 11;
+    --card-step-step-body-font-color: var(--color-text-muted);
+    --card-step-step-text-gap: 12;
+    --card-step-step-connector-visible: true;
+    --card-step-step-connector-color: var(--color-border);
+    --card-step-step-connector-width: 1.5;
+    --card-step-step-connector-dashed: true;
+}
+
+
+/* =================================================================
+   26. .card--gauge — Row of 2-5 donut gauges
+   =================================================================
+   KPI / dashboard pattern: each gauge is a partially filled donut
+   showing a percentage, with a heading and optional body below.
+*/
+.card--gauge {
+    --card-gauge-ring-radius: 64;
+    --card-gauge-ring-thickness: 0.22;
+    --card-gauge-ring-bg-color: var(--color-surface-sunken);
+    --card-gauge-ring-fg-color: var(--color-primary);
+    --card-gauge-value-font-color: var(--color-primary);
+    --card-gauge-value-font-weight: bold;
+    --card-gauge-value-suffix: "%";
+    --card-gauge-heading-font-size: 14;
+    --card-gauge-heading-font-color: var(--color-text-default);
+    --card-gauge-heading-font-weight: bold;
+    --card-gauge-body-font-size: 11;
+    --card-gauge-body-font-color: var(--color-text-muted);
+    --card-gauge-gauge-gap: 16;
+}
+
+
+/* =================================================================
+   27. .card--circular-infographic — Concentric ring infographic
+   =================================================================
+   Inner + outer ring, each split into N equal angular segments.
+   Optional `highlighted: true` on a segment bumps it outward.
+*/
+.card--circular-infographic {
+    --card-circular-infographic-outer-radius-pct: 0.95;
+    --card-circular-infographic-inner-radius-pct: 0.55;
+    --card-circular-infographic-inner-hole-pct: 0.35;
+    --card-circular-infographic-ring-gap: 6;
+    --card-circular-infographic-highlight-bump: 14;
+    --card-circular-infographic-segment-stroke-color: var(--color-surface);
+    --card-circular-infographic-segment-stroke-width: 2;
+    --card-circular-infographic-label-font-size: 11;
+    --card-circular-infographic-label-font-color: #FFFFFF;
+    --card-circular-infographic-label-font-weight: bold;
+}
+
+/* =================================================================
+   28. .card--calendar — Multi-month calendar with highlight pills
+   =================================================================
+   Row of N month grids (Mon-Sun). Highlight contiguous date ranges
+   as rounded pills in arbitrary colours. Optional legend below.
+*/
+.card--calendar {
+    --card-calendar-month-title-font-size: 14;
+    --card-calendar-month-title-font-color: var(--color-primary);
+    --card-calendar-month-title-font-weight: bold;
+
+    --card-calendar-weekday-font-size: 10;
+    --card-calendar-weekday-font-color: var(--color-text-muted);
+    --card-calendar-weekday-font-weight: normal;
+
+    --card-calendar-day-font-size: 11;
+    --card-calendar-day-color: var(--color-text-default);
+    --card-calendar-day-out-color: var(--color-border);
+    --card-calendar-day-highlight-color: #FFFFFF;
+
+    --card-calendar-cell-gap: 2;
+    --card-calendar-month-gap: 24;
+    --card-calendar-pill-padding-x: 4;
+    --card-calendar-pill-radius: auto;
+
+    --card-calendar-legend-font-size: 11;
+    --card-calendar-legend-font-color: var(--color-text-default);
+    --card-calendar-legend-dot-radius: 7;
+    --card-calendar-legend-gap: 24;
+}
+/* ========================================================================== */
+/* #29  card--workpackage-timeline                                            */
+/* ========================================================================== */
+.card--workpackage-timeline {
+  --card-workpackage-timeline-wp-heading-font-size: 12;
+  --card-workpackage-timeline-wp-heading-font-color: var(--color-text-default);
+  --card-workpackage-timeline-wp-heading-font-weight: bold;
+  --card-workpackage-timeline-wp-body-font-size: 10;
+  --card-workpackage-timeline-wp-body-font-color: var(--color-text-muted);
+
+  --card-workpackage-timeline-bar-height: 6;
+  --card-workpackage-timeline-bar-color-start: var(--color-primary);
+  --card-workpackage-timeline-bar-color-end: var(--color-accent);
+
+  --card-workpackage-timeline-marker-font-size: 11;
+  --card-workpackage-timeline-marker-font-color: var(--color-text-default);
+  --card-workpackage-timeline-marker-font-weight: bold;
+  --card-workpackage-timeline-marker-color: var(--color-text-default);
+
+  --card-workpackage-timeline-kw-font-size: 11;
+  --card-workpackage-timeline-kw-font-color: var(--color-text-default);
+  --card-workpackage-timeline-kw-font-weight: bold;
+
+  --card-workpackage-timeline-end-arrow-size: 10;
+  --card-workpackage-timeline-end-arrow-color: var(--color-accent);
+  --card-workpackage-timeline-end-kw-font-size: 11;
+  --card-workpackage-timeline-end-kw-font-color: var(--color-text-default);
+
+  --card-workpackage-timeline-cross-heading-font-size: 12;
+  --card-workpackage-timeline-cross-heading-font-color: var(--color-text-default);
+  --card-workpackage-timeline-cross-heading-font-weight: bold;
+  --card-workpackage-timeline-cross-body-font-size: 10;
+  --card-workpackage-timeline-cross-body-font-color: var(--color-text-muted);
+  --card-workpackage-timeline-cross-pt-font-size: 12;
+  --card-workpackage-timeline-cross-pt-font-color: var(--color-text-default);
+  --card-workpackage-timeline-cross-pt-font-weight: bold;
+  --card-workpackage-timeline-cross-row-gap: 8;
 }

@@ -27,7 +27,10 @@ import sys
 from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent.parent
-THEME_TEMPLATE = SKILL_DIR / "themes" / "base.css"
+# Sparse theme template — overrides only. Avoids copying the full base.css
+# (which would shadow every token and prevent base.css updates from cascading
+# into the deck).
+THEME_TEMPLATE = SKILL_DIR / "examples" / "minimal-theme.css"
 
 STARTER_DECK = """\
 # My Presentation

@@ -1,26 +1,33 @@
-# Timeline Card
+﻿# Timeline Card
+<!-- inheritance-note v1 -->
+> **Inherits from `BaseCardRenderer`.** This card automatically gets the
+> base chrome — container background/border/radius, title + header line,
+> optional footer text and footer line — plus the 4-level token resolution
+> chain (card override → slide override → variant CSS → base CSS). The
+> renderer overrides only `render_body`; suppress unwanted chrome via
+> tokens (e.g. `--card-title-visible: false`, `--card-padding: 0`).
 
-Card that renders a timeline with milestone markers, optional entry icons, an arrowhead, and a goal block — all drawn from primitives (no images).
+Card that renders a timeline with milestone markers, optional entry icons, an arrowhead, and a goal block â€” all drawn from primitives (no images).
 
 ## Layout
 
 ### Horizontal (default)
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  [title]                                          [icon: ●]      │
-│  ─────────────────────────────────────────── (header line)       │
-│                                                                  │
-│        Q1              Q3               Q5                       │
-│   [🚀] Kickoff    [🔧] Build       [✓] Review                   │
-│   Team formed     Feature sprint   QA & fixes                   │
-│                                                                  │
-│  ────●──────────────────●──────────────────●──────────────────▶  │
-│                    Q2                  Q4             🏁 Launch   │
-│               [📐] Design         [🚀] Deploy      Go-live!      │
-│               Blueprint          CI/CD ready                     │
-│                                                                  │
-└──────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  [title]                                          [icon: â—]      â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ (header line)       â”‚
+â”‚                                                                  â”‚
+â”‚        Q1              Q3               Q5                       â”‚
+â”‚   [ðŸš€] Kickoff    [ðŸ”§] Build       [âœ“] Review                   â”‚
+â”‚   Team formed     Feature sprint   QA & fixes                   â”‚
+â”‚                                                                  â”‚
+â”‚  â”€â”€â”€â”€â—â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â—â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â—â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¶  â”‚
+â”‚                    Q2                  Q4             ðŸ Launch   â”‚
+â”‚               [ðŸ“] Design         [ðŸš€] Deploy      Go-live!      â”‚
+â”‚               Blueprint          CI/CD ready                     â”‚
+â”‚                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 Markers sit on a horizontal spine line. Content alternates above/below (or all below if `alternate: false`). Optional arrowhead at the end. Optional goal block at the far right.
@@ -28,20 +35,20 @@ Markers sit on a horizontal spine line. Content alternates above/below (or all b
 ### Vertical
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  [title]                                                        │
-│  ────────────────────────────── (header line)                   │
-│                                                                 │
-│  ●── [🚀] Kickoff                                               │
-│  │         Team formed                                          │
-│  ●── [📐] Design                                                │
-│  │         Blueprint                                            │
-│  ●── [🔧] Build                                                 │
-│  │         Feature sprint                                       │
-│  ▼                                                              │
-│  ★── [🏁] Launch                                                │
-│            Go-live!                                             │
-└─────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  [title]                                                        â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ (header line)                   â”‚
+â”‚                                                                 â”‚
+â”‚  â—â”€â”€ [ðŸš€] Kickoff                                               â”‚
+â”‚  â”‚         Team formed                                          â”‚
+â”‚  â—â”€â”€ [ðŸ“] Design                                                â”‚
+â”‚  â”‚         Blueprint                                            â”‚
+â”‚  â—â”€â”€ [ðŸ”§] Build                                                 â”‚
+â”‚  â”‚         Feature sprint                                       â”‚
+â”‚  â–¼                                                              â”‚
+â”‚  â˜…â”€â”€ [ðŸ] Launch                                                â”‚
+â”‚            Go-live!                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 Milestones run top-to-bottom on a vertical spine. Content sits to the right of each marker. An optional downward arrow ends the spine. The goal is marked with the accent color fill.
@@ -58,9 +65,9 @@ Milestones run top-to-bottom on a vertical spine. Content sits to the right of e
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `marker` | string | `""` | Label inside the spine dot: date (`"Q1"`), calendar week (`"CW12"`), number (`"1"`), or icon ligature (`"check_circle"`) |
-| `heading` | string | — | Entry title (bold) |
-| `body` | string | — | Description text |
-| `icon.name` | string | — | Material icon ligature shown beside the heading |
+| `heading` | string | â€” | Entry title (bold) |
+| `body` | string | â€” | Description text |
+| `icon.name` | string | â€” | Material icon ligature shown beside the heading |
 | `icon.color` | string | token | Icon color override |
 | `accent` | bool | `false` | Highlight milestone with accent color |
 
@@ -71,11 +78,11 @@ Milestones run top-to-bottom on a vertical spine. Content sits to the right of e
 | `content.orientation` | string | `horizontal` | `horizontal` \| `vertical` |
 | `content.alternate` | bool | `true` | Alternate entries above/below in horizontal mode |
 | `content.arrow` | bool | `true` | Show arrowhead at end of spine |
-| `content.goal` | object | — | Terminal goal block (same fields as a milestone, always accent-styled) |
-| `content.caption` | string | — | Attribution line at bottom |
-| `content.footer` | string | — | Footer text (base class) |
-| `subtitle` | string | — | Subtitle below the header line |
-| `icon.name` | string | — | Card-level icon in the title row |
+| `content.goal` | object | â€” | Terminal goal block (same fields as a milestone, always accent-styled) |
+| `content.caption` | string | â€” | Attribution line at bottom |
+| `content.footer` | string | â€” | Footer text (base class) |
+| `subtitle` | string | â€” | Subtitle below the header line |
+| `icon.name` | string | â€” | Card-level icon in the title row |
 
 ### Goal Fields (same as Milestone)
 
@@ -83,7 +90,7 @@ Milestones run top-to-bottom on a vertical spine. Content sits to the right of e
 |-------|------|-------------|
 | `goal.heading` | string | Goal title |
 | `goal.body` | string | Goal description |
-| `goal.marker` | string | Marker label (e.g. `"🏁"` or `"flag"`) |
+| `goal.marker` | string | Marker label (e.g. `"ðŸ"` or `"flag"`) |
 | `goal.icon.name` | string | Icon beside the goal heading |
 
 ## Design Tokens (`.card--timeline`)

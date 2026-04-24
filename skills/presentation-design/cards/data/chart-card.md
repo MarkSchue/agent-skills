@@ -1,28 +1,35 @@
-# Chart Card
+﻿# Chart Card
+<!-- inheritance-note v1 -->
+> **Inherits from `BaseCardRenderer`.** This card automatically gets the
+> base chrome — container background/border/radius, title + header line,
+> optional footer text and footer line — plus the 4-level token resolution
+> chain (card override → slide override → variant CSS → base CSS). The
+> renderer overrides only `render_body`; suppress unwanted chrome via
+> tokens (e.g. `--card-title-visible: false`, `--card-padding: 0`).
 
-Card that renders charts natively from data — no image dependency. Supports bar, line, pie, and combo (bar+line) chart types, all drawn from primitives so they work in both draw.io and PPTX output.
+Card that renders charts natively from data â€” no image dependency. Supports bar, line, pie, and combo (bar+line) chart types, all drawn from primitives so they work in both draw.io and PPTX output.
 
 ## Layout
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  [text-label: card title]          [icon: ●]        │
-│  ─────────────────────────────── (header line)      │
-│  [text-caption: subtitle]                           │
-│                                                     │
-│  [legend — top (if position: top)]                  │
-│                                                     │
-│  y│  [chart area]          │[legend — right]        │
-│   │  bars / lines / pie    │                        │
-│   └──────────────────      │                        │
-│       x-axis labels                                 │
-│                                                     │
-│  [legend — bottom (default)]                        │
-│  [text-caption: source attribution]                 │
-│                                                     │
-│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  (footer line, opt.)      │
-│  [text-caption: footer]      (optional, base class)  │
-└─────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  [text-label: card title]          [icon: â—]        â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ (header line)      â”‚
+â”‚  [text-caption: subtitle]                           â”‚
+â”‚                                                     â”‚
+â”‚  [legend â€” top (if position: top)]                  â”‚
+â”‚                                                     â”‚
+â”‚  yâ”‚  [chart area]          â”‚[legend â€” right]        â”‚
+â”‚   â”‚  bars / lines / pie    â”‚                        â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€      â”‚                        â”‚
+â”‚       x-axis labels                                 â”‚
+â”‚                                                     â”‚
+â”‚  [legend â€” bottom (default)]                        â”‚
+â”‚  [text-caption: source attribution]                 â”‚
+â”‚                                                     â”‚
+â”‚  â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€  (footer line, opt.)      â”‚
+â”‚  [text-caption: footer]      (optional, base class)  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ## Supported Chart Types
@@ -48,9 +55,9 @@ Card that renders charts natively from data — no image dependency. Supports ba
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `name` | string | `"Series N"` | Label shown in the legend |
-| `values` | list of floats | — | One numeric value per label |
+| `values` | list of floats | â€” | One numeric value per label |
 | `color` | string | palette | Hex color override (e.g. `"#E2001A"`) |
-| `type` | string | — | `bar` or `line` — **combo only** |
+| `type` | string | â€” | `bar` or `line` â€” **combo only** |
 | `marker` | string | `circle` | Marker shape on line series: `circle` \| `square` \| `none` |
 | `dashed` | bool | `false` | Dashed stroke for line series |
 | `width` | int | token | Stroke width in px for line series |
@@ -69,21 +76,21 @@ series:
 |-------|------|---------|-------------|
 | `content.stacked` | bool | `false` | Stack bars instead of grouping |
 | `content.value_labels` | bool | `false` | Show data-value labels on bars/points |
-| `content.inner_radius` | float 0–0.9 | `0` | Donut hole size (pie only); `0` = full pie |
-| `content.caption` | string | — | Attribution / source line below chart |
-| `content.x_axis.title` | string | — | X-axis title label |
+| `content.inner_radius` | float 0â€“0.9 | `0` | Donut hole size (pie only); `0` = full pie |
+| `content.caption` | string | â€” | Attribution / source line below chart |
+| `content.x_axis.title` | string | â€” | X-axis title label |
 | `content.x_axis.visible` | bool | `true` | Show/hide x-axis labels |
-| `content.y_axis.title` | string | — | Y-axis title label |
+| `content.y_axis.title` | string | â€” | Y-axis title label |
 | `content.y_axis.visible` | bool | `true` | Show/hide y-axis tick labels |
 | `content.y_axis.min` | float | auto | Override y-axis minimum |
 | `content.y_axis.max` | float | auto | Override y-axis maximum |
 | `content.y_axis.step` | float | auto | Override tick step |
-| `content.y_axis.format` | string | auto | Python format string for tick labels: `%`, `.1f`, `,.0f`, … |
+| `content.y_axis.format` | string | auto | Python format string for tick labels: `%`, `.1f`, `,.0f`, â€¦ |
 | `content.legend.visible` | bool | `true` | Show/hide legend |
 | `content.legend.position` | string | token | `bottom` \| `right` \| `top` \| `none` |
-| `content.footer` | string | — | Footer text (base class handles rendering) |
-| `subtitle` | string | — | Subtitle below the header line |
-| `icon.name` | string | — | Icon ligature (e.g. `"bar_chart"`) |
+| `content.footer` | string | â€” | Footer text (base class handles rendering) |
+| `subtitle` | string | â€” | Subtitle below the header line |
+| `icon.name` | string | â€” | Icon ligature (e.g. `"bar_chart"`) |
 | `icon.visible` | bool | `false` | Show/hide icon |
 | `icon.position` | string | `right` | `left` \| `right` |
 | `icon.color` | string | accent | Icon color |
@@ -100,7 +107,7 @@ Override any token globally in your `theme.css` or per-card via `style_overrides
 | `--card-chart-axis-title-font-size` | `10` | Axis-title font size (px) |
 | `--card-chart-axis-title-font-color` | text-muted | Axis-title color |
 | `--card-chart-grid-color` | surface-raised | Horizontal grid-line color |
-| `--card-chart-palette-1` … `-8` | built-in palette | Series color cycle |
+| `--card-chart-palette-1` â€¦ `-8` | built-in palette | Series color cycle |
 | `--card-chart-line-width` | `2` | Default line stroke width (px) |
 | `--card-chart-line-marker-size` | `5` | Data-point marker diameter (px) |
 | `--card-chart-label-font-size` | `8` | Data-label font size (px) |
@@ -206,7 +213,7 @@ content:
   chart_type: combo
   labels: ["Q1", "Q2", "Q3", "Q4"]
   series:
-    - name: "Revenue (k€)"
+    - name: "Revenue (kâ‚¬)"
       type: bar
       values: [280, 340, 310, 420]
       color: "#3B82F6"

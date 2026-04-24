@@ -153,12 +153,39 @@ class BaseLayoutRenderer(ABC):
             self._resolve("slide-divider-border-width", overrides) or 1
         )
         if div_width > 0:
+            # Shorten the divider on the right if a top-right logo would
+            # overlap it. The logo sits at  x = canvas_w - mr - logo_w  and
+            # is reserved a band of  logo_h + 2*logo_padding  vertically.
+            div_x2 = canvas_w - mr
+            for which in ("primary", "secondary"):
+                pos = str(
+                    self._resolve(f"slide-logo-{which}-position", overrides)
+                    or ("top-right" if which == "primary" else "top-left")
+                )
+                if pos != "top-right":
+                    continue
+                logo_w = float(
+                    self._resolve(f"slide-logo-{which}-width", overrides) or 100
+                )
+                logo_h = float(
+                    self._resolve(f"slide-logo-{which}-height", overrides) or 36
+                )
+                logo_pad = float(
+                    self._resolve(f"slide-logo-{which}-padding", overrides) or 12
+                )
+                # Logo vertical band: [mt + logo_pad, mt + logo_pad + logo_h]
+                logo_top    = mt + logo_pad
+                logo_bottom = logo_top + logo_h
+                # Only shorten if the divider y is inside the logo's vertical band
+                if logo_top - 4 <= y_cursor <= logo_bottom + 4:
+                    logo_left = canvas_w - mr - logo_w
+                    div_x2 = min(div_x2, logo_left - 12)
             canvas.add(
                 {
                     "type": "line",
                     "x1": ml,
                     "y1": y_cursor,
-                    "x2": canvas_w - mr,
+                    "x2": div_x2,
                     "y2": y_cursor,
                     "stroke": self._resolve(
                         "slide-divider-border-color", overrides

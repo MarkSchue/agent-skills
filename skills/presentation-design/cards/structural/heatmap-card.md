@@ -1,4 +1,11 @@
-# Heatmap Card
+﻿# Heatmap Card
+<!-- inheritance-note v1 -->
+> **Inherits from `BaseCardRenderer`.** This card automatically gets the
+> base chrome — container background/border/radius, title + header line,
+> optional footer text and footer line — plus the 4-level token resolution
+> chain (card override → slide override → variant CSS → base CSS). The
+> renderer overrides only `render_body`; suppress unwanted chrome via
+> tokens (e.g. `--card-title-visible: false`, `--card-padding: 0`).
 
 A grid of **clusters** (business domains, departments, categories) each containing
 **fact tiles** whose background colour encodes a 6-level heat value.  The visual
@@ -10,27 +17,27 @@ risk assessments, and status dashboards.
 ## Layout
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│  Card Title                                                                      │
-│ ───────────────────────────────────────────────────────────────────────────────  │
-│                                                                                  │
-│  ┌──────────────────────────┐  ┌──────────────────────────┐  ┌────────────────── │
-│  │███ HR ████████████████████│  │███ Information Technology │  │███ Manufacturing  │
-│  │ ┌──────┐ ┌──────┐ ┌──────┐│  │ ┌──────┐ ┌──────┐ ┌──────┐│  │ ┌──────┐ ┌───── │
-│  │ │ ERP  │ │ CRM  │ │ HCM  ││  │ │Jira  │ │ VPN  │ │ MES  ││  │ │ CAD  │ │ PLM  │
-│  │ └──────┘ └──────┘ └──────┘│  │ └──────┘ └──────┘ └──────┘│  │ └──────┘ └───── │
-│  │ ┌──────┐ ┌──────┐         │  │ ┌──────┐ ┌──────┐         │  │ ┌──────┐        │
-│  │ │Payrl │ │T&A   │         │  │ │LDAP  │ │ ITSM │         │  │ │ OEE  │        │
-│  │ └──────┘ └──────┘         │  │ └──────┘ └──────┘         │  │ └──────┘        │
-│  └──────────────────────────┘  └──────────────────────────┘  └────────────────── │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  Card Title                                                                      â”‚
+â”‚ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€  â”‚
+â”‚                                                                                  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ â”‚
+â”‚  â”‚â–ˆâ–ˆâ–ˆ HR â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ”‚  â”‚â–ˆâ–ˆâ–ˆ Information Technology â”‚  â”‚â–ˆâ–ˆâ–ˆ Manufacturing  â”‚
+â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€ â”‚
+â”‚  â”‚ â”‚ ERP  â”‚ â”‚ CRM  â”‚ â”‚ HCM  â”‚â”‚  â”‚ â”‚Jira  â”‚ â”‚ VPN  â”‚ â”‚ MES  â”‚â”‚  â”‚ â”‚ CAD  â”‚ â”‚ PLM  â”‚
+â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”˜â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”˜â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€ â”‚
+â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”         â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”         â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”        â”‚
+â”‚  â”‚ â”‚Payrl â”‚ â”‚T&A   â”‚         â”‚  â”‚ â”‚LDAP  â”‚ â”‚ ITSM â”‚         â”‚  â”‚ â”‚ OEE  â”‚        â”‚
+â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”˜         â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”˜         â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”˜        â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ â”‚
+â”‚                                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
-- **███** — filled heading bar (cluster label; colour = `--card-heatmap-cluster-heading-bg`)
+- **â–ˆâ–ˆâ–ˆ** â€” filled heading bar (cluster label; colour = `--card-heatmap-cluster-heading-bg`)
 - Fact tiles are coloured by their `level` field using `--color-heat-{0..5}` tokens
 - Clusters are equal-sized (height driven by the cluster with the most facts)
-- Pagination: set `content.page` to `2`, `3`, … on subsequent slides to show more clusters
+- Pagination: set `content.page` to `2`, `3`, â€¦ on subsequent slides to show more clusters
 
 ---
 
@@ -50,8 +57,8 @@ risk assessments, and status dashboards.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `name` | string | ✓ | Cluster heading displayed in the heading bar |
-| `facts` | list | ✓ | List of fact objects (see Fact Fields below) |
+| `name` | string | âœ“ | Cluster heading displayed in the heading bar |
+| `facts` | list | âœ“ | List of fact objects (see Fact Fields below) |
 
 ---
 
@@ -59,8 +66,8 @@ risk assessments, and status dashboards.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `text` | string | ✓ | Label displayed inside the fact tile |
-| `level` | int | — | Heat level 0–5 (default: `0`); controls tile background colour |
+| `text` | string | âœ“ | Label displayed inside the fact tile |
+| `level` | int | â€” | Heat level 0â€“5 (default: `0`); controls tile background colour |
 
 ### Heat Levels
 
@@ -84,7 +91,7 @@ Override them in your project `theme.css` to apply theme-specific ramps.
 |-------|------|---------|-------------|
 | `content.cluster_columns` | int | 4 | Number of cluster columns per row (overrides CSS token) |
 | `content.fact_columns` | int | 3 | Number of fact columns inside every cluster (overrides CSS token) |
-| `content.page` | int | 1 | 1-based page; clusters are sliced into windows of `cluster_columns × rows_that_fit` |
+| `content.page` | int | 1 | 1-based page; clusters are sliced into windows of `cluster_columns Ã— rows_that_fit` |
 
 ---
 
@@ -118,9 +125,9 @@ key using underscores (e.g. `card_heatmap_cluster_columns`):
 
 ## Design Tokens Used
 
-- `.card-base` — container, card title, header line, subtitle, footer
-- `.card--heatmap` — all cluster and fact tile tokens (see above)
-- `.theme-colors` — `--color-heat-{0..5}` and `--color-on-heat-{0..5}` (global heat scale)
+- `.card-base` â€” container, card title, header line, subtitle, footer
+- `.card--heatmap` â€” all cluster and fact tile tokens (see above)
+- `.theme-colors` â€” `--color-heat-{0..5}` and `--color-on-heat-{0..5}` (global heat scale)
 
 ---
 
@@ -132,7 +139,7 @@ the card YAML and set `content.page: 2` (or use `style_overrides.card_heatmap_pa
 
 The number of clusters that fit on a single page is:
 ```
-clusters_per_page = cluster_columns × cluster_rows_that_fit
+clusters_per_page = cluster_columns Ã— cluster_rows_that_fit
 ```
 where `cluster_rows_that_fit` is derived from available card body height and uniform
 cluster height (itself driven by the cluster with the most facts).
@@ -207,7 +214,7 @@ content:
 
 ---
 
-## Example — Paginated (page 2)
+## Example â€” Paginated (page 2)
 
 ```yaml
 type: heatmap-card
@@ -222,7 +229,7 @@ content:
 
 ---
 
-## Example — Per-Card Token Override
+## Example â€” Per-Card Token Override
 
 ```yaml
 type: heatmap-card

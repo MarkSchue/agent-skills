@@ -24,8 +24,22 @@ class TitleSlideLayoutRenderer(BaseLayoutRenderer):
         return []
 
     def render(self, slide, *, page_number: int = 1) -> RenderBox:
-        """Render chrome + large centered title/subtitle in the body area."""
-        canvas = super().render(slide, page_number=page_number)
+        """Render chrome + large centered title/subtitle in the body area.
+
+        The chrome title/subtitle/divider are suppressed for title-slide layout —
+        the slide's title/subtitle are rendered as the large centered hero text
+        instead, so duplicating them in the chrome looks redundant. We achieve this
+        by temporarily clearing them on the slide before delegating to super().
+        """
+        saved_title = slide.title
+        saved_subtitle = slide.subtitle
+        slide.title = ""
+        slide.subtitle = ""
+        try:
+            canvas = super().render(slide, page_number=page_number)
+        finally:
+            slide.title = saved_title
+            slide.subtitle = saved_subtitle
         overrides = slide.slide_overrides
 
         chrome = canvas.chrome  # type: ignore[attr-defined]
@@ -33,6 +47,10 @@ class TitleSlideLayoutRenderer(BaseLayoutRenderer):
         body_y = chrome.body_y
         body_w = chrome.body_w
         body_h = chrome.body_h
+
+        # Use the saved (real) title/subtitle for hero rendering
+        slide_title = saved_title or ""
+        slide_subtitle = saved_subtitle or ""
 
         # ── Large centered title ───────────────────────────────────────────
         title_size = float(
@@ -58,7 +76,7 @@ class TitleSlideLayoutRenderer(BaseLayoutRenderer):
                 "y": title_y,
                 "w": body_w,
                 "h": title_h,
-                "text": slide.title or "",
+                "text": slide_title,
                 "font_size": title_size,
                 "font_color": title_color,
                 "font_weight": title_weight,
@@ -68,7 +86,7 @@ class TitleSlideLayoutRenderer(BaseLayoutRenderer):
         )
 
         # ── Subtitle ───────────────────────────────────────────────────────
-        if slide.subtitle:
+        if slide_subtitle:
             sub_size = float(
                 self._resolve("title-slide-subtitle-font-size", overrides) or 20
             )
@@ -87,7 +105,7 @@ class TitleSlideLayoutRenderer(BaseLayoutRenderer):
                     "y": sub_y,
                     "w": body_w,
                     "h": sub_h,
-                    "text": slide.subtitle,
+                    "text": slide_subtitle,
                     "font_size": sub_size,
                     "font_color": sub_color,
                     "alignment": "center",

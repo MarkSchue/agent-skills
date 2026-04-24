@@ -116,8 +116,11 @@ def _esc(text: str) -> str:
 
 
 def _strip_html(html: str) -> str:
-    """Strip HTML tags and decode entities; convert <br> to newlines."""
+    """Strip HTML tags and decode entities; convert <br> and </p> to newlines."""
     text = re.sub(r"<br\s*/?>", "\n", html, flags=re.IGNORECASE)
+    # Block-level paragraph endings → newline (so HTML bullet-lists rendered
+    # as a series of <p>…</p> survive as separate visual lines).
+    text = re.sub(r"</p\s*>", "\n", text, flags=re.IGNORECASE)
     text = re.sub(r"<[^>]+>", "", text)
     text = (
         text.replace("&lt;",     "<")
@@ -197,6 +200,151 @@ def _svg_rhombus(x: float, y: float, w: float, h: float, st: dict) -> str:
     )
 
 
+def _svg_chevron(x: float, y: float, w: float, h: float, st: dict) -> str:
+    """Right-pointing chevron / step (matches drawio ``shape=step``).
+
+    Tip width defaults to ``min(h * 0.5, w * 0.18)`` — tweakable via the
+    ``stepSize`` style key (in absolute px).
+    """
+    fill   = st["fillColor"]
+    stroke = st["strokeColor"]
+    sw     = st["strokeWidth"]
+    dash   = 'stroke-dasharray="8,4" ' if st["dashed"] not in ("0", "") else ""
+    try:
+        tip = float(st.get("stepSize") or min(h * 0.5, w * 0.18))
+    except (TypeError, ValueError):
+        tip = min(h * 0.5, w * 0.18)
+    pts = (
+        f"{x:.2f},{y:.2f} "
+        f"{x+w-tip:.2f},{y:.2f} "
+        f"{x+w:.2f},{y+h/2:.2f} "
+        f"{x+w-tip:.2f},{y+h:.2f} "
+        f"{x:.2f},{y+h:.2f} "
+        f"{x+tip:.2f},{y+h/2:.2f}"
+    )
+    return (
+        f'<polygon points="{pts}" '
+        f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+    )
+
+
+def _svg_arc(
+    cx: float, cy: float, ro: float, ri: float,
+    start_deg: float, end_deg: float, st: dict,
+) -> str:
+    """Annular sector as SVG path. Angles in degrees, 0 = east, CW positive."""
+    import math
+    fill   = st["fillColor"]
+    stroke = st["strokeColor"]
+    sw     = st["strokeWidth"]
+    dash   = 'stroke-dasharray="8,4" ' if st["dashed"] not in ("0", "") else ""
+    if end_deg <= start_deg:
+        return ""
+    sweep = end_deg - start_deg
+    # Cap a near-full circle — SVG arc cannot draw a complete circle in one segment.
+    if sweep >= 359.999:
+        sweep = 359.99
+        end_deg = start_deg + sweep
+    large_arc = "1" if sweep > 180 else "0"
+    s_rad = math.radians(start_deg)
+    e_rad = math.radians(end_deg)
+    # Outer points (CW from start to end)
+    ox1, oy1 = cx + ro * math.cos(s_rad), cy + ro * math.sin(s_rad)
+    ox2, oy2 = cx + ro * math.cos(e_rad), cy + ro * math.sin(e_rad)
+    if ri <= 0:
+        # Pie slice
+        d = (
+            f"M {cx:.2f},{cy:.2f} "
+            f"L {ox1:.2f},{oy1:.2f} "
+            f"A {ro:.2f},{ro:.2f} 0 {large_arc} 1 {ox2:.2f},{oy2:.2f} Z"
+        )
+    else:
+        ix1, iy1 = cx + ri * math.cos(s_rad), cy + ri * math.sin(s_rad)
+        ix2, iy2 = cx + ri * math.cos(e_rad), cy + ri * math.sin(e_rad)
+        d = (
+            f"M {ox1:.2f},{oy1:.2f} "
+            f"A {ro:.2f},{ro:.2f} 0 {large_arc} 1 {ox2:.2f},{oy2:.2f} "
+            f"L {ix2:.2f},{iy2:.2f} "
+            f"A {ri:.2f},{ri:.2f} 0 {large_arc} 0 {ix1:.2f},{iy1:.2f} Z"
+        )
+    return (
+        f'<path d="{d}" fill="{fill}" stroke="{stroke}" '
+        f'stroke-width="{sw}" {dash}/>'
+    )
+
+
+def _svg_trapezoid(
+    x: float, y: float, w: float, h: float, st: dict, *, orientation: str = "down"
+) -> str:
+    """Isoceles trapezoid (drawio ``shape=trapezoid``).
+
+    ``orientation = 'down'`` (default) → wider at the bottom (pyramid layer).
+    ``orientation = 'up'``             → wider at the top (funnel layer).
+    The narrow edge is half the wide edge by default; tweak with the
+    ``trapezoidNarrowPct`` style key (0..1 fraction of width).
+    """
+    fill   = st["fillColor"]
+    stroke = st["strokeColor"]
+    sw     = st["strokeWidth"]
+    dash   = 'stroke-dasharray="8,4" ' if st["dashed"] not in ("0", "") else ""
+    try:
+        narrow_pct = float(st.get("trapezoidNarrowPct") or 0.5)
+    except (TypeError, ValueError):
+        narrow_pct = 0.5
+    inset = w * (1 - narrow_pct) / 2
+    if orientation == "up":
+        # narrow at bottom, wide at top
+        pts = (
+            f"{x:.2f},{y:.2f} "
+            f"{x+w:.2f},{y:.2f} "
+            f"{x+w-inset:.2f},{y+h:.2f} "
+            f"{x+inset:.2f},{y+h:.2f}"
+        )
+    else:
+        # narrow at top, wide at bottom (pyramid layer)
+        pts = (
+            f"{x+inset:.2f},{y:.2f} "
+            f"{x+w-inset:.2f},{y:.2f} "
+            f"{x+w:.2f},{y+h:.2f} "
+            f"{x:.2f},{y+h:.2f}"
+        )
+    return (
+        f'<polygon points="{pts}" '
+        f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+    )
+
+
+def _wrap_text_to_width(text: str, max_w: float, font_size: float) -> list[str]:
+    """Greedy word-wrap text to fit within *max_w* pixels.
+
+    Uses an average char width of font_size * 0.55 (proportional-font
+    heuristic). Preserves explicit '\\n' line breaks. Long words that
+    exceed *max_w* are kept whole on their own line rather than truncated.
+    """
+    if max_w <= 0 or font_size <= 0:
+        return text.split("\n")
+    char_w = font_size * 0.55
+    max_chars = max(1, int(max_w / char_w))
+    out: list[str] = []
+    for paragraph in text.split("\n"):
+        if not paragraph.strip():
+            out.append("")
+            continue
+        words = paragraph.split(" ")
+        line = ""
+        for w in words:
+            candidate = (line + " " + w).strip() if line else w
+            if len(candidate) <= max_chars:
+                line = candidate
+            else:
+                if line:
+                    out.append(line)
+                line = w
+        if line:
+            out.append(line)
+    return out
+
+
 def _svg_label(
     label: str,
     x: float, y: float, w: float, h: float,
@@ -217,7 +365,14 @@ def _svg_label(
     anchor  = _text_anchor(align)
     line_h  = font_size * 1.3
 
-    lines = label.split("\n")
+    # Word-wrap if the cell style requests it (drawio whiteSpace=wrap),
+    # otherwise just split on explicit newlines. Padding is reserved on
+    # both sides of the box.
+    wrap_w = max(1.0, w - 2 * padding)
+    if str(st.get("whiteSpace", "")).lower() == "wrap":
+        lines = _wrap_text_to_width(label, wrap_w, font_size)
+    else:
+        lines = label.split("\n")
     n = len(lines)
     text_h = n * line_h
 
@@ -336,6 +491,24 @@ def _render_vertex(
     if "group" in parsed:
         return
 
+    # Image cells (logos, embedded raster/SVG): emit an <image> tag using the
+    # data URI from the style. Without this branch the cell falls through to
+    # default rect rendering and shows as an empty white box with a black border.
+    if parsed.get("shape") == "image" and "image" in parsed:
+        img_uri = parsed["image"]
+        # Data URIs may have been URL-encoded by the exporter to avoid the
+        # draw.io style-string semicolon parser. Decode for SVG embedding.
+        if img_uri.startswith("data:image/svg+xml,") and "%3C" in img_uri:
+            from urllib.parse import unquote as _url_unquote
+            prefix, _, encoded = img_uri.partition(",")
+            img_uri = prefix + "," + _url_unquote(encoded)
+        elems.append(
+            f'<image x="{ax:.2f}" y="{ay:.2f}" '
+            f'width="{w:.2f}" height="{h:.2f}" '
+            f'preserveAspectRatio="xMidYMid meet" href="{_esc(img_uri)}"/>'
+        )
+        return
+
     value   = _strip_html(cell.get("value", "") or "")
     is_swim = "swimlane" in parsed
     is_text = (
@@ -352,6 +525,19 @@ def _render_vertex(
         "rhombus" in parsed
         or st.get("shape") == "rhombus"
         or "perimeter=rhombusPerimeter" in style_str
+    )
+    is_step = (
+        st.get("shape") == "step"
+        or "shape=step" in style_str
+    )
+    is_trapezoid = (
+        st.get("shape") == "trapezoid"
+        or "shape=trapezoid" in style_str
+    )
+    trap_orientation = "up" if "direction=north" in style_str else "down"
+    is_arc = (
+        st.get("shape") == "mxgraph.basic.partConcEllipse"
+        or "shape=mxgraph.basic.partConcEllipse" in style_str
     )
 
     if is_swim:
@@ -409,6 +595,31 @@ def _render_vertex(
         elems.append(_svg_ellipse(ax, ay, w, h, st))
     elif is_rhombus:
         elems.append(_svg_rhombus(ax, ay, w, h, st))
+    elif is_step:
+        elems.append(_svg_chevron(ax, ay, w, h, st))
+    elif is_trapezoid:
+        elems.append(_svg_trapezoid(ax, ay, w, h, st, orientation=trap_orientation))
+    elif is_arc:
+        # Convert drawio's partConcEllipse parameters back to our angle space
+        # (0 = north, CW positive, fractions of circle) → (0 = east, CW, deg).
+        try:
+            d_start = float(st.get("startAngle", "0"))
+            d_end   = float(st.get("endAngle", "1"))
+            arc_w   = float(st.get("arcWidth", "1"))
+        except (TypeError, ValueError):
+            d_start, d_end, arc_w = 0.0, 1.0, 1.0
+        cx_v = ax + w / 2
+        cy_v = ay + h / 2
+        ro = min(w, h) / 2
+        ri = ro * (1 - max(0.0, min(1.0, arc_w)))
+        # Drawio: 0 = north (12 o'clock), CW positive, 0..1 = fraction of circle
+        # Our:    0 = east  (3  o'clock), CW positive, degrees
+        start_deg = (d_start * 360.0) - 90.0
+        end_deg   = (d_end   * 360.0) - 90.0
+        # Handle wrap-around (end < start after modulo)
+        if end_deg <= start_deg:
+            end_deg += 360.0
+        elems.append(_svg_arc(cx_v, cy_v, ro, ri, start_deg, end_deg, st))
     else:
         elems.append(_svg_rect(ax, ay, w, h, st))
 

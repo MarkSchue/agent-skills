@@ -83,6 +83,61 @@ cards:
     file: cards/structural/heatmap-card.md
     tags: [heatmap, grid, risk, priority, matrix, color, density]
 
+  - id: callout-card
+    description: Consulting-style "key insight" box with accent bar, eyebrow label, and large takeaway.
+    file: cards/structural/callout-card.md
+    tags: [callout, insight, takeaway, key, highlight, executive, summary, hero]
+
+  - id: stat-grid-card
+    description: Multi-metric "by the numbers" card showing 2–6 large statistic tiles in one slot.
+    file: cards/data/stat-grid-card.md
+    tags: [stats, numbers, metrics, dashboard, overview, executive, kpi-grid, hero]
+
+  - id: section-divider-card
+    description: Bold full-bleed chapter break with oversized section number and title. Use between sections.
+    file: cards/structural/section-divider-card.md
+    tags: [section, divider, chapter, break, intermission, transition, hero]
+
+  - id: quadrant-card
+    description: 2×2 matrix card for SWOT, BCG matrix, prioritisation grid, Eisenhower box. Optional axis labels.
+    file: cards/structural/quadrant-card.md
+    tags: [quadrant, matrix, swot, 2x2, prioritisation, eisenhower, framework, strategy]
+
+  - id: process-flow-card
+    description: Horizontal process flow with N right-pointing chevron steps. Use for project phases, methodologies, customer journeys.
+    file: cards/structural/process-flow-card.md
+    tags: [process, flow, chevron, phases, methodology, journey, steps, sequential]
+
+  - id: pyramid-card
+    description: Hierarchical pyramid (stacked trapezoid layers) for strategic hierarchy, Maslow, value pyramid. Optional side labels.
+    file: cards/structural/pyramid-card.md
+    tags: [pyramid, hierarchy, maslow, strategy, layers, levels, value-pyramid]
+
+  - id: step-card
+    description: Diagonal stair of 3-5 steps with circle (icon) + heading + body. Visualises maturity, journey, or progressive build-up.
+    file: cards/structural/step-card.md
+    tags: [steps, stair, journey, maturity, progression, methodology, icons]
+
+  - id: gauge-card
+    description: Row of 2-5 donut gauges showing percentages with heading and optional body. KPI dashboard pattern.
+    file: cards/structural/gauge-card.md
+    tags: [gauge, donut, kpi, dashboard, percentage, metric, score]
+
+  - id: circular-infographic-card
+    description: Concentric inner+outer ring infographic with N coloured segments per ring; optional highlighted segment bumps outward.
+    file: cards/structural/circular-infographic-card.md
+    tags: [circular, ring, donut, wheel, infographic, segments, framework, capability-wheel]
+
+  - id: calendar-card
+    description: Row of N month grids (Mon-Sun) with date-range highlight pills in arbitrary colours and an optional legend. Project schedules, sprint plans, holiday calendars.
+    file: cards/structural/calendar-card.md
+    tags: [calendar, schedule, dates, months, plan, gantt-lite, project-phases, legend]
+
+  - id: workpackage-timeline-card
+    description: Project-phase timeline with N workpackages above a gradient bar (PT count + calendar week per WP) and M cross-workpackages spanning the full width below.
+    file: cards/structural/workpackage-timeline-card.md
+    tags: [timeline, workpackage, phase, project-plan, kickoff, person-days, calendar-week, gradient, cross-workpackage]
+
 layouts:
   - id: title-slide
     description: Full-width title slide with centered heading, subtitle, and optional background.

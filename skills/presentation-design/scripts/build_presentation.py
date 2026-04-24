@@ -51,6 +51,17 @@ from scripts.rendering.timeline_card import TimelineCardRenderer
 from scripts.rendering.scope_card import ScopeCardRenderer
 from scripts.rendering.compare_card import CompareCardRenderer
 from scripts.rendering.heatmap_card import HeatmapCardRenderer
+from scripts.rendering.callout_card import CalloutCardRenderer
+from scripts.rendering.stat_grid_card import StatGridCardRenderer
+from scripts.rendering.section_divider_card import SectionDividerCardRenderer
+from scripts.rendering.quadrant_card import QuadrantCardRenderer
+from scripts.rendering.process_flow_card import ProcessFlowCardRenderer
+from scripts.rendering.pyramid_card import PyramidCardRenderer
+from scripts.rendering.step_card import StepCardRenderer
+from scripts.rendering.gauge_card import GaugeCardRenderer
+from scripts.rendering.circular_infographic_card import CircularInfographicCardRenderer
+from scripts.rendering.calendar_card import CalendarCardRenderer
+from scripts.rendering.workpackage_timeline_card import WorkpackageTimelineCardRenderer
 from scripts.exporting.pptx_exporter import PptxExporter
 from scripts.exporting.drawio_exporter import DrawioExporter
 from scripts.sync_numbering import sync as _sync_numbering
@@ -94,6 +105,28 @@ def _card_renderer_for(
         return CompareCardRenderer(theme)
     if card_type in ("heatmap-card", "heatmap_card"):
         return HeatmapCardRenderer(theme)
+    if card_type in ("callout-card", "callout_card"):
+        return CalloutCardRenderer(theme)
+    if card_type in ("stat-grid-card", "stat_grid_card", "stat-grid"):
+        return StatGridCardRenderer(theme)
+    if card_type in ("section-divider-card", "section_divider_card", "section-divider", "divider-card"):
+        return SectionDividerCardRenderer(theme)
+    if card_type in ("quadrant-card", "quadrant_card", "quadrant", "matrix-card", "swot-card"):
+        return QuadrantCardRenderer(theme)
+    if card_type in ("process-flow-card", "process_flow_card", "process-flow", "process-card", "chevron-card"):
+        return ProcessFlowCardRenderer(theme)
+    if card_type in ("pyramid-card", "pyramid_card", "pyramid", "hierarchy-card"):
+        return PyramidCardRenderer(theme)
+    if card_type in ("step-card", "step_card", "stair-card", "steps-card"):
+        return StepCardRenderer(theme)
+    if card_type in ("gauge-card", "gauge_card", "gauges-card", "kpi-gauge-card"):
+        return GaugeCardRenderer(theme)
+    if card_type in ("circular-infographic-card", "circular_infographic_card", "circular-infographic", "ring-card", "donut-infographic-card"):
+        return CircularInfographicCardRenderer(theme)
+    if card_type in ("calendar-card", "calendar_card", "calendar", "month-card", "schedule-calendar-card"):
+        return CalendarCardRenderer(theme)
+    if card_type in ("workpackage-timeline-card", "workpackage_timeline_card", "wp-timeline-card", "project-timeline-card", "phase-timeline-card"):
+        return WorkpackageTimelineCardRenderer(theme)
     logger.warning("Unknown card type '%s' — falling back to text-card", card_type)
     return TextCardRenderer(theme)
 

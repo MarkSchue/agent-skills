@@ -1,4 +1,11 @@
-# Table Card
+﻿# Table Card
+<!-- inheritance-note v1 -->
+> **Inherits from `BaseCardRenderer`.** This card automatically gets the
+> base chrome — container background/border/radius, title + header line,
+> optional footer text and footer line — plus the 4-level token resolution
+> chain (card override → slide override → variant CSS → base CSS). The
+> renderer overrides only `render_body`; suppress unwanted chrome via
+> tokens (e.g. `--card-title-visible: false`, `--card-padding: 0`).
 
 Card that embeds a data table with themed header row, optional sum/total row,
 alternating row shading, and full design-token control. In PowerPoint the
@@ -8,24 +15,24 @@ are supported. In draw.io a standard table shape is used.
 ## Layout
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  [text-label: card title]          [icon: ●]        │
-│  ─────────────────────────────── (header line)      │
-│  [text-caption: subtitle]                           │
-│                                                     │
-│  ┌───────┬───────────────┬──────────┬─────────┐     │
-│  │ Col 1 │    Col 2      │  Col 3   │  Col 4  │     │  ← header row (themed)
-│  ├───────┼───────────────┼──────────┼─────────┤     │
-│  │  A    │   Value 1     │   123    │   45 %  │     │  ← data rows
-│  │  B    │   Value 2     │   456    │   78 %  │     │  ← (opt. alternating bg)
-│  │  C    │   Value 3     │   789    │   12 %  │     │
-│  ├───────┼───────────────┼──────────┼─────────┤     │
-│  │ Total │               │  1368    │  135 %  │     │  ← sum/total row (themed)
-│  └───────┴───────────────┴──────────┴─────────┘     │
-│                                                     │
-│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  (footer line, opt.)      │
-│  [text-caption: footer]      (optional, base class)  │
-└─────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  [text-label: card title]          [icon: â—]        â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ (header line)      â”‚
+â”‚  [text-caption: subtitle]                           â”‚
+â”‚                                                     â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚  â”‚ Col 1 â”‚    Col 2      â”‚  Col 3   â”‚  Col 4  â”‚     â”‚  â† header row (themed)
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤     â”‚
+â”‚  â”‚  A    â”‚   Value 1     â”‚   123    â”‚   45 %  â”‚     â”‚  â† data rows
+â”‚  â”‚  B    â”‚   Value 2     â”‚   456    â”‚   78 %  â”‚     â”‚  â† (opt. alternating bg)
+â”‚  â”‚  C    â”‚   Value 3     â”‚   789    â”‚   12 %  â”‚     â”‚
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤     â”‚
+â”‚  â”‚ Total â”‚               â”‚  1368    â”‚  135 %  â”‚     â”‚  â† sum/total row (themed)
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â”‚                                                     â”‚
+â”‚  â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€ â”€  (footer line, opt.)      â”‚
+â”‚  [text-caption: footer]      (optional, base class)  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 - The heading row uses `--card-table-heading-*` tokens for background and text.
@@ -51,12 +58,12 @@ are supported. In draw.io a standard table shape is used.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `content.sum_row` | bool | `false` | Treat the last data row as a sum/total row with distinct styling |
-| `content.col_widths` | list[float] | auto | Explicit column width fractions (must sum to ≤ 1.0); e.g. `[0.2, 0.4, 0.2, 0.2]` |
+| `content.col_widths` | list[float] | auto | Explicit column width fractions (must sum to â‰¤ 1.0); e.g. `[0.2, 0.4, 0.2, 0.2]` |
 | `content.col_alignments` | list[string] | `left` | Per-column text alignment: `left` \| `center` \| `right` |
-| `content.header_alignment` | string | — | Override alignment for ALL header cells; falls back to per-column alignment |
+| `content.header_alignment` | string | â€” | Override alignment for ALL header cells; falls back to per-column alignment |
 | `content.stripe_rows` | bool | `false` | Alternate row background colour (overrides token `--card-table-stripe-visible`) |
-| `content.footer` | string | — | Source attribution or footnote text rendered at the card bottom |
-| `subtitle` | string | — | Subtitle text below the header line |
+| `content.footer` | string | â€” | Source attribution or footnote text rendered at the card bottom |
+| `subtitle` | string | â€” | Subtitle text below the header line |
 | `subtitle_visible` | bool | `false` | Explicitly show/hide subtitle |
 | `subtitle_alignment` | string | `left` | `left` \| `center` \| `right` |
 | `icon.name` | string | `""` | Icon ligature (e.g. `"table_chart"`) |
@@ -70,45 +77,45 @@ are supported. In draw.io a standard table shape is used.
 All `.card-base` tokens apply. Additionally, `.card--table` specific overrides:
 
 ### Header row
-- `card_table_heading_bg_color` — header row fill colour
-- `card_heading_font_color` — header text colour (base token override applies to this card only)
-- `card_heading_font_size` — header font size (px)
-- `card_heading_font_weight` — `normal` | `bold`
-- `card_heading_font_style` — `normal` | `italic`
-- `card_table_heading_alignment` — `left` | `center` | `right`
-- `card_table_heading_height` — header row height (px)
+- `card_table_heading_bg_color` â€” header row fill colour
+- `card_heading_font_color` â€” header text colour (base token override applies to this card only)
+- `card_heading_font_size` â€” header font size (px)
+- `card_heading_font_weight` â€” `normal` | `bold`
+- `card_heading_font_style` â€” `normal` | `italic`
+- `card_table_heading_alignment` â€” `left` | `center` | `right`
+- `card_table_heading_height` â€” header row height (px)
 
 ### Body rows
-- `card_body_font_size` — body row font size (px)
-- `card_body_font_color` — body row text colour
-- `card_body_font_weight` — `normal` | `bold`
-- `card_body_font_style` — `normal` | `italic`
-- `card_table_body_height` — body row height (px)
-- `card_table_body_bg_color` — default row background colour
-- `card_table_body_alignment` — default cell text alignment
+- `card_body_font_size` â€” body row font size (px)
+- `card_body_font_color` â€” body row text colour
+- `card_body_font_weight` â€” `normal` | `bold`
+- `card_body_font_style` â€” `normal` | `italic`
+- `card_table_body_height` â€” body row height (px)
+- `card_table_body_bg_color` â€” default row background colour
+- `card_table_body_alignment` â€” default cell text alignment
 
 ### Alternating row stripe
-- `card_table_stripe_visible` — `true` | `false` — enable alternating row shading
-- `card_table_stripe_color` — fill colour for odd/even alternating rows
+- `card_table_stripe_visible` â€” `true` | `false` â€” enable alternating row shading
+- `card_table_stripe_color` â€” fill colour for odd/even alternating rows
 
 ### Sum / total row
-- `card_table_sum_bg_color` — sum row fill colour
-- `card_table_sum_font_color` — sum row text colour
-- `card_table_sum_font_size` — sum row font size (px)
-- `card_table_sum_font_weight` — `normal` | `bold`
-- `card_table_sum_font_style` — `normal` | `italic`
-- `card_table_sum_alignment` — sum row cell alignment
-- `card_table_sum_height` — sum row height (px)
+- `card_table_sum_bg_color` â€” sum row fill colour
+- `card_table_sum_font_color` â€” sum row text colour
+- `card_table_sum_font_size` â€” sum row font size (px)
+- `card_table_sum_font_weight` â€” `normal` | `bold`
+- `card_table_sum_font_style` â€” `normal` | `italic`
+- `card_table_sum_alignment` â€” sum row cell alignment
+- `card_table_sum_height` â€” sum row height (px)
 
 ### Grid lines
-- `card_table_border_color` — inner and outer cell border colour
-- `card_table_border_width` — border line thickness (px)
-- `card_table_header_border_color` — border colour below header (overrides border_color)
+- `card_table_border_color` â€” inner and outer cell border colour
+- `card_table_border_width` â€” border line thickness (px)
+- `card_table_header_border_color` â€” border colour below header (overrides border_color)
 
 ### Shared
-- `card_table_padding_x` — horizontal cell padding (px)
-- `card_table_padding_y` — vertical cell padding (px)
-- `card_table_body_min_height` — minimum row height when content grows (px)
+- `card_table_padding_x` â€” horizontal cell padding (px)
+- `card_table_padding_y` â€” vertical cell padding (px)
+- `card_table_body_min_height` â€” minimum row height when content grows (px)
 
 Footer tokens (shared with all card types):
 - `card_footer_font_size` / `card_footer_font_color` / `card_footer_font_weight`
@@ -122,8 +129,8 @@ Subtitle and icon tokens (shared with all card types):
 
 ## Design Tokens Used
 
-- `.card-base` — container, title, header line, footer, subtitle, icon
-- `.card--table` — all table-specific tokens listed above
+- `.card-base` â€” container, title, header line, footer, subtitle, icon
+- `.card--table` â€” all table-specific tokens listed above
 
 ## PowerPoint Notes
 
@@ -162,7 +169,7 @@ content:
 ```yaml
 type: table-card
 title: "Cost Breakdown"
-subtitle: "FY 2025 — all values in EUR"
+subtitle: "FY 2025 â€” all values in EUR"
 icon:
   name: "table_chart"
   visible: true

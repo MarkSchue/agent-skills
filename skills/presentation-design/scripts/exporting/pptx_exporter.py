@@ -389,6 +389,12 @@ class PptxExporter:
             self._add_table(slide, elem)
         elif etype == "bullet_list":
             self._add_bullet_list(slide, elem)
+        elif etype == "chevron":
+            self._add_chevron(slide, elem)
+        elif etype == "trapezoid":
+            self._add_trapezoid(slide, elem)
+        elif etype == "arc":
+            self._add_arc(slide, elem)
         elif etype == "placeholder":
             pass  # placeholders are not rendered in PPTX
         else:
@@ -423,6 +429,130 @@ class PptxExporter:
             shape.line.width = Pt(stroke_width * 72 / 96)
         else:
             shape.line.fill.background()
+
+    def _add_chevron(self, slide, elem: dict[str, Any]) -> None:
+        """Right-pointing chevron (arrow). MSO_SHAPE.CHEVRON = 52."""
+        self._add_basic_shape(slide, elem, mso_shape=52)
+
+    def _add_arc(self, slide, elem: dict[str, Any]) -> None:
+        """Annular sector (donut slice) using ``MSO_SHAPE.BLOCK_ARC`` (95).
+
+        Required keys: cx, cy, outer_radius, inner_radius, start_angle, end_angle.
+        Angles in degrees, 0 = east, CW positive.
+        """
+        from pptx.oxml.ns import qn
+        from lxml import etree as _lE
+
+        cx = float(elem["cx"])
+        cy = float(elem["cy"])
+        ro = float(elem["outer_radius"])
+        ri = float(elem.get("inner_radius", 0))
+        start = float(elem["start_angle"])
+        end   = float(elem["end_angle"])
+
+        # BLOCK_ARC (95) bounding box = full circle bounding box (2*ro × 2*ro).
+        # adj1 = start angle (in 60000ths of a degree, 0 = north, CW positive)
+        # adj2 = end angle   (same units)
+        # adj3 = inner radius as fraction of outer (0..50000 thousandths… actually
+        #        OOXML uses signed 60000ths-of-degree; for arc thickness we use
+        #        the fillSize via the geometry. Easiest: rely on default donut.
+        # OOXML blockArc uses adj1 = start (60000 per deg, 0 = north) and adj2 = end.
+        # Convert: our 0=east → OOXML 0=north → +90° offset.
+        adj1 = int(((start + 90.0) % 360.0) * 60000)
+        adj2 = int(((end   + 90.0) % 360.0) * 60000)
+        # adj3 = thickness as proportion of half-bounding-box (in 50000ths)
+        # ro - ri vs ro: thickness fraction t = (ro - ri) / ro
+        # OOXML blockArc adj3 default = 25000 (~50% thickness). We pass our value.
+        thick = max(0.0, min(1.0, (ro - ri) / ro if ro > 0 else 1.0))
+        adj3 = int(thick * 50000)  # half-width fraction
+
+        shape = slide.shapes.add_shape(
+            95,  # MSO_SHAPE.BLOCK_ARC
+            _px(cx - ro), _px(cy - ro),
+            _px(ro * 2),  _px(ro * 2),
+        )
+
+        # Apply adjustment values via OOXML
+        try:
+            spPr = shape._element.spPr
+            prstGeom = spPr.find(qn("a:prstGeom"))
+            if prstGeom is not None:
+                avLst = prstGeom.find(qn("a:avLst"))
+                if avLst is None:
+                    avLst = _lE.SubElement(prstGeom, qn("a:avLst"))
+                # Remove any existing gd children
+                for gd in list(avLst.findall(qn("a:gd"))):
+                    avLst.remove(gd)
+                for name, val in (("adj1", adj1), ("adj2", adj2), ("adj3", adj3)):
+                    gd = _lE.SubElement(avLst, qn("a:gd"))
+                    gd.set("name", name)
+                    gd.set("fmla", f"val {val}")
+        except Exception:
+            pass
+
+        fill_color = _rgb(str(elem.get("fill", "#FFFFFF")))
+        if fill_color:
+            shape.fill.solid()
+            shape.fill.fore_color.rgb = fill_color
+        else:
+            shape.fill.background()
+        stroke_color = _rgb(str(elem.get("stroke", "")))
+        stroke_width = float(elem.get("stroke_width", 0))
+        if stroke_color and stroke_width > 0:
+            from pptx.util import Pt
+            shape.line.color.rgb = stroke_color
+            shape.line.width = Pt(stroke_width * 72 / 96)
+        else:
+            shape.line.fill.background()
+
+    def _add_trapezoid(self, slide, elem: dict[str, Any]) -> None:
+        """Isoceles trapezoid (wider at bottom by default).
+
+        Set ``elem['orientation'] = 'down'`` (default) for a triangle-like
+        shape that narrows toward the top (pyramid layer).
+        Set ``orientation = 'up'`` to flip (funnel layer narrowing downward).
+
+        MSO_SHAPE.TRAPEZOID = 8 (wider at top by default; we apply rotation
+        when orientation is the opposite).
+        """
+        # MSO_SHAPE.TRAPEZOID (id 8) is wider at the BOTTOM in PPTX.
+        # If orientation == "up" we rotate 180° so it's wider at the top.
+        orientation = str(elem.get("orientation", "down")).lower()
+        shape = self._add_basic_shape(slide, elem, mso_shape=8)
+        if orientation == "up":
+            shape.rotation = 180.0
+
+    def _add_basic_shape(self, slide, elem: dict[str, Any], *, mso_shape: int):
+        """Shared helper that places an auto-shape and applies fill/stroke
+        the same way ``_add_rect`` and ``_add_ellipse`` do."""
+        shape = slide.shapes.add_shape(
+            mso_shape,
+            _px(elem["x"]),
+            _px(elem["y"]),
+            _px(elem["w"]),
+            _px(elem["h"]),
+        )
+        fill_color = _rgb(str(elem.get("fill", "#FFFFFF")))
+        if fill_color:
+            shape.fill.solid()
+            shape.fill.fore_color.rgb = fill_color
+        else:
+            shape.fill.background()
+        if hasattr(shape, "shadow"):
+            try:
+                shape.shadow.inherit = False
+                shape.shadow.visible = False
+            except Exception:
+                pass
+        stroke_color = _rgb(str(elem.get("stroke", "")))
+        stroke_width = float(elem.get("stroke_width", 1))
+        if stroke_color and stroke_width > 0:
+            from pptx.util import Pt
+            shape.line.color.rgb = stroke_color
+            shape.line.width = Pt(stroke_width * 72 / 96)
+        else:
+            shape.line.fill.background()
+        return shape
 
     def _add_rect(self, slide, elem: dict[str, Any]) -> None:
         from pptx.util import Emu

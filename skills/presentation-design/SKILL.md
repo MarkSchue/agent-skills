@@ -32,7 +32,9 @@ This creates:
 ```
 My Presentation/
 ├── presentation-definition.md   # your slide content
-├── theme.css                    # copied from skill template — customise here
+├── theme.css                    # SPARSE overrides — only tokens you want to change.
+│                                # Inherits everything else from the skill's base.css,
+│                                # so future base.css updates cascade automatically.
 ├── output/                      # build output target
 └── assets/
     ├── images/
@@ -146,9 +148,14 @@ presentation-design/
 ├── cards/
 │   ├── text/             text-card.md, stacked-text-card.md, icon_item_text.md, numbered_text_card.md
 │   ├── media/            image-card.md
-│   ├── data/             kpi-card.md, chart-card.md, gantt-chart-card.md, table-card.md
+│   ├── data/             kpi-card.md, chart-card.md, gantt-chart-card.md, table-card.md, stat-grid-card.md
 │   └── structural/       agenda-card.md, quote-card.md, timeline-card.md,
-│                         scope-card.md, compare-card.md, heatmap-card.md
+│                         scope-card.md, compare-card.md, heatmap-card.md, callout-card.md,
+│                         section-divider-card.md, quadrant-card.md,
+│                         process-flow-card.md, pyramid-card.md,
+│                         step-card.md, gauge-card.md,
+│                         circular-infographic-card.md,
+│                         calendar-card.md
 ├── layouts/
 │   ├── title-slide.md
 │   ├── grid-1x1.md … grid-3x4.md

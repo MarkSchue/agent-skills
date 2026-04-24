@@ -123,6 +123,12 @@ class DrawioExporter:
             return self._add_table(mx_root, elem, cell_id, page_idx)
         elif etype == "bullet_list":
             return self._add_bullet_list(mx_root, elem, cell_id)
+        elif etype == "chevron":
+            return self._add_chevron(mx_root, elem, cell_id)
+        elif etype == "trapezoid":
+            return self._add_trapezoid(mx_root, elem, cell_id)
+        elif etype == "arc":
+            return self._add_arc(mx_root, elem, cell_id)
         elif etype == "placeholder":
             return cell_id  # skip placeholders
         return cell_id
@@ -240,6 +246,120 @@ class DrawioExporter:
             f"ellipse;fillColor={fill};"
             f"strokeColor={stroke};strokeWidth={sw};"
         )
+        cell.set("style", style)
+        cell.set("value", "")
+        geo = ET.SubElement(cell, "mxGeometry")
+        geo.set("x", str(elem["x"]))
+        geo.set("y", str(elem["y"]))
+        geo.set("width", str(elem["w"]))
+        geo.set("height", str(elem["h"]))
+        geo.set("as", "geometry")
+        return cell_id + 1
+
+    def _add_chevron(
+        self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
+    ) -> int:
+        """Right-pointing chevron / arrow step shape (drawio ``shape=step``)."""
+        return self._add_basic_shape(
+            mx_root, elem, cell_id, drawio_style="shape=step;perimeter=stepPerimeter;"
+        )
+
+    def _add_arc(
+        self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
+    ) -> int:
+        """Annular sector (donut slice) defined by center, radii, and angles.
+
+        Required keys:
+            cx, cy           — centre
+            outer_radius     — outer radius (px)
+            inner_radius     — inner radius (px); 0 for a pie slice
+            start_angle      — degrees, 0 = 3 o'clock, increases clockwise
+            end_angle        — degrees, > start_angle
+        Optional:
+            fill, stroke, stroke_width
+        """
+        cx = float(elem["cx"])
+        cy = float(elem["cy"])
+        ro = float(elem["outer_radius"])
+        ri = float(elem.get("inner_radius", 0))
+        start = float(elem["start_angle"])
+        end   = float(elem["end_angle"])
+
+        # drawio's partConcEllipse uses an inverted Y axis for "north = 0°"
+        # (rotated by ‑90° vs our 0°=east convention) and goes CLOCKWISE.
+        # Convert: drawio start = our_start + 90 ; sweep stays the same.
+        sweep = max(0.0, end - start)
+        # `arcWidth` is the ring thickness as fraction of outer radius (0..1).
+        arc_w = (ro - ri) / ro if ro > 0 else 1.0
+        # `startAngle` and `endAngle` are 0..1 fractions of full circle, with 0 = north.
+        # Map our angle (0=east, CW positive) to drawio (0=north, CW positive)
+        # by adding 90° then dividing by 360.
+        d_start = ((start + 90.0) % 360.0) / 360.0
+        d_end   = ((start + 90.0 + sweep) % 360.0) / 360.0
+
+        cell = ET.SubElement(mx_root, "mxCell")
+        cell.set("id", str(cell_id))
+        cell.set("parent", "1")
+        cell.set("vertex", "1")
+        fill = elem.get("fill", "#FFFFFF")
+        stroke = elem.get("stroke", "none")
+        sw = elem.get("stroke_width", 0)
+        style = (
+            f"shape=mxgraph.basic.partConcEllipse;"
+            f"startAngle={d_start:.4f};endAngle={d_end:.4f};arcWidth={arc_w:.4f};"
+            f"fillColor={fill};strokeColor={stroke};strokeWidth={sw};"
+        )
+        cell.set("style", style)
+        cell.set("value", "")
+        geo = ET.SubElement(cell, "mxGeometry")
+        geo.set("x", str(cx - ro))
+        geo.set("y", str(cy - ro))
+        geo.set("width", str(ro * 2))
+        geo.set("height", str(ro * 2))
+        geo.set("as", "geometry")
+        return cell_id + 1
+
+    def _add_trapezoid(
+        self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int
+    ) -> int:
+        """Isoceles trapezoid (drawio ``shape=trapezoid``).
+
+        ``orientation = 'down'`` (default) → wider at the bottom (pyramid layer).
+        ``orientation = 'up'``             → wider at the top (funnel layer).
+        ``narrow_pct`` (0..1) controls the narrow-edge width as a fraction of
+        the wide edge. drawio's built-in ``size`` style key takes the slope
+        per side; we map narrow_pct → size = (1-narrow_pct)/2.
+        """
+        orientation = str(elem.get("orientation", "down")).lower()
+        # drawio's built-in trapezoid is wider at the bottom by default.
+        # direction=north flips to wider at the top.
+        extra = "direction=north;" if orientation == "up" else ""
+        narrow_pct = elem.get("narrow_pct")
+        if narrow_pct is not None:
+            try:
+                size = max(0.0, min(0.5, (1 - float(narrow_pct)) / 2))
+                # `size` is drawio's native key; `trapezoidNarrowPct` is our
+                # own key consumed by drawio_svg_renderer for the QA preview.
+                extra += f"size={size:.3f};trapezoidNarrowPct={float(narrow_pct):.3f};"
+            except (ValueError, TypeError):
+                pass
+        return self._add_basic_shape(
+            mx_root, elem, cell_id, drawio_style=f"shape=trapezoid;{extra}"
+        )
+
+    def _add_basic_shape(
+        self, mx_root: ET.Element, elem: dict[str, Any], cell_id: int,
+        *, drawio_style: str,
+    ) -> int:
+        """Shared helper for any single-cell vertex shape (chevron, trapezoid …)."""
+        cell = ET.SubElement(mx_root, "mxCell")
+        cell.set("id", str(cell_id))
+        cell.set("parent", "1")
+        cell.set("vertex", "1")
+        fill = elem.get("fill", "#FFFFFF")
+        stroke = elem.get("stroke", "none")
+        sw = elem.get("stroke_width", 1)
+        style = f"{drawio_style}fillColor={fill};strokeColor={stroke};strokeWidth={sw};"
         cell.set("style", style)
         cell.set("value", "")
         geo = ET.SubElement(cell, "mxGeometry")

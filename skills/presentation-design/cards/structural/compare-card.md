@@ -8,6 +8,13 @@ description: >
 ---
 
 # compare-card
+<!-- inheritance-note v1 -->
+> **Inherits from `BaseCardRenderer`.** This card automatically gets the
+> base chrome — container background/border/radius, title + header line,
+> optional footer text and footer line — plus the 4-level token resolution
+> chain (card override → slide override → variant CSS → base CSS). The
+> renderer overrides only `render_body`; suppress unwanted chrome via
+> tokens (e.g. `--card-title-visible: false`, `--card-padding: 0`).
 
 ## Layout
 
