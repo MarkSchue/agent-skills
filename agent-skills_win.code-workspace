@@ -13,6 +13,14 @@
 			"registry.yaml": "yaml",
 			"registry-tags.yaml": "yaml"
 		},
-		"extensions.ignoreRecommendations": false
+		"extensions.ignoreRecommendations": false,
+		"mcp": {
+			"servers": {
+				"drawio": {
+					"type": "http",
+					"url": "https://mcp.draw.io/mcp"
+				}
+			}
+		}
 	}
 }

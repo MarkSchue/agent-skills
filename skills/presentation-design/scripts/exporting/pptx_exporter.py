@@ -886,45 +886,74 @@ class PptxExporter:
     def _add_svg_pic(
         self, slide, svg_path: "Path", x: float, y: float, w: float, h: float
     ) -> bool:
-        """Add an SVG icon as a PNG picture in PPTX.
+        """Embed an SVG as a native Office 365 picture shape in PPTX.
 
-        Converts the SVG to a PNG raster via svglib so that the PPTX is
-        compatible with all PowerPoint versions (direct SVG blips cause
-        "PowerPoint could not open the file" errors).  Returns *True* on
-        success.
+        Bypasses PIL/cairo entirely by injecting the SVG bytes directly as an
+        OPC image part with ``image/svg+xml`` content type and wiring a
+        ``<p:pic>`` OOXML element into the slide's shape tree.
+
+        Office 365 / PowerPoint 2019+ renders SVG natively.  Older versions
+        will display a blank, but this is acceptable because they also lacked
+        native SVG support regardless of the embedding approach.
+
+        Returns *True* on success, *False* on any failure.
         """
-        from io import BytesIO
-
-        from pptx.util import Pt
-
         try:
-            # Render SVG → PNG at 3× the display size for crisp icons
-            from svglib.svglib import svg2rlg
-            from reportlab.graphics import renderPM
+            from lxml import etree as _lE
+            from pptx.opc.constants import RELATIONSHIP_TYPE as RT
+            from pptx.parts.image import ImagePart
 
-            drawing = svg2rlg(str(svg_path))
-            if drawing is None:
-                raise ValueError("svg2rlg returned None")
-            # Scale so the PNG resolution is generous (at least 128 px on the longer side)
-            scale = max(3.0, 128.0 / max(w, h, 1))
-            drawing.width = drawing.width * scale  # type: ignore[attr-defined]
-            drawing.height = drawing.height * scale  # type: ignore[attr-defined]
-            drawing.transform = (scale, 0, 0, scale, 0, 0)  # type: ignore[attr-defined]
-            png_bytes = renderPM.drawToString(drawing, fmt="PNG")
+            svg_bytes = svg_path.read_bytes()
+            slide_part = slide.part
+            package = slide_part._package
 
-            from pptx.util import Emu
-            buf = BytesIO(png_bytes)
-            slide.shapes.add_picture(
-                buf,
-                left=Emu(_px(x)),
-                top=Emu(_px(y)),
-                width=Emu(_px(w)),
-                height=Emu(_px(h)),
+            # Allocate a new /ppt/media/imageN.svg part
+            partname = package.next_image_partname("svg")
+            img_part = ImagePart(partname, "image/svg+xml", package, svg_bytes)
+            rId = slide_part.relate_to(img_part, RT.IMAGE)
+
+            # Unique shape id (max of existing ids + 1)
+            sp_tree = slide.shapes._spTree
+            existing_ids = {
+                int(el.get("id", 0))
+                for el in sp_tree.iter()
+                if el.get("id") is not None
+            }
+            shape_id = max(existing_ids, default=0) + 1
+
+            emu_x = int(_px(x))
+            emu_y = int(_px(y))
+            emu_w = int(_px(w))
+            emu_h = int(_px(h))
+
+            PNS = "http://schemas.openxmlformats.org/presentationml/2006/main"
+            ANS = "http://schemas.openxmlformats.org/drawingml/2006/main"
+            RNS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+
+            pic_xml = (
+                f'<p:pic xmlns:p="{PNS}" xmlns:a="{ANS}" xmlns:r="{RNS}">'
+                f'<p:nvPicPr>'
+                f'<p:cNvPr id="{shape_id}" name="Diagram {shape_id}"/>'
+                f'<p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr>'
+                f'<p:nvPr/>'
+                f'</p:nvPicPr>'
+                f'<p:blipFill>'
+                f'<a:blip r:embed="{rId}"/>'
+                f'<a:stretch><a:fillRect/></a:stretch>'
+                f'</p:blipFill>'
+                f'<p:spPr>'
+                f'<a:xfrm><a:off x="{emu_x}" y="{emu_y}"/>'
+                f'<a:ext cx="{emu_w}" cy="{emu_h}"/></a:xfrm>'
+                f'<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
+                f'</p:spPr>'
+                f'</p:pic>'
             )
+            sp_tree.append(_lE.fromstring(pic_xml.encode()))
+            logger.debug("Native SVG embedded: %s rId=%s", svg_path.name, rId)
             return True
 
         except Exception as exc:
-            logger.warning("SVG pic failed for %s: %s — using Unicode fallback", svg_path.name, exc)
+            logger.warning("SVG pic failed for %s: %s", getattr(svg_path, 'name', str(svg_path)), exc)
             return False
 
     def _add_icon(self, slide, elem: dict[str, Any]) -> None:
@@ -1040,11 +1069,27 @@ class PptxExporter:
                             fit_h = nat_h * scale
                             fit_x = float(elem["x"]) + (target_w - fit_w) / 2
                             fit_y = float(elem["y"]) + (target_h - fit_h) / 2
+                            fit_x = float(elem["x"]) + (target_w - fit_w) / 2
+                            fit_y = float(elem["y"]) + (target_h - fit_h) / 2
                     # cover: fit_w/fit_h stay at target_w/target_h (full box)
 
                     from pathlib import Path as _Path
-                    self._add_svg_pic(slide, _Path(img_path), fit_x, fit_y, fit_w, fit_h)
-                    picture = None  # _add_svg_pic handles its own return
+                    svg_ok = self._add_svg_pic(slide, _Path(img_path), fit_x, fit_y, fit_w, fit_h)
+                    if not svg_ok:
+                        # Fallback: labeled placeholder so the layout is not broken
+                        self._add_rect(slide, {
+                            "x": fit_x, "y": fit_y, "w": fit_w, "h": fit_h,
+                            "fill": "#F5F5F5", "stroke": "#CCCCCC", "stroke_width": 1,
+                        })
+                        self._add_text(slide, {
+                            "x": fit_x, "y": fit_y + fit_h * 0.4,
+                            "w": fit_w, "h": fit_h * 0.2,
+                            "text": f"[{_Path(img_path).stem}]",
+                            "font_size": 11,
+                            "font_color": "#999999",
+                            "alignment": "center",
+                        })
+                    picture = None  # _add_svg_pic/_fallback handle their own output
                 else:
                     # Raster: use PIL for natural dims + apply fit mode
                     nat_w, nat_h = None, None

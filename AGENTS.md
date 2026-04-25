@@ -16,6 +16,12 @@ by full instructions for the agent.
   structured Markdown source file using an 8-step build pipeline driven by
   semantic CSS design tokens.
 
+- [`skills/drawio-diagrams/SKILL.md`](skills/drawio-diagrams/SKILL.md) —
+  Draw.io diagram authoring. Creates and maintains `.drawio` diagram files in
+  mxGraphModel XML format. Integrates with the `presentation-design` skill for
+  `image-card` slides. Uses the draw.io MCP App Server (`https://mcp.draw.io/mcp`)
+  for interactive diagram preview directly in chat.
+
 ## When working on this repository
 
 - Do **not** hardcode hex colour values anywhere in `scripts/rendering/`.

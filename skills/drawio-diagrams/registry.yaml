@@ -1,0 +1,13 @@
+name: drawio-diagrams
+description: >
+  Creates and maintains draw.io diagrams as native .drawio files.
+  Integrates with the presentation-design skill for image-card slides.
+  Uses the draw.io MCP App Server (mcp.draw.io/mcp) for interactive preview.
+version: "1.0"
+author: agent-skills
+tags:
+  - drawio
+  - diagram
+  - visualization
+  - mcp
+  - presentation
