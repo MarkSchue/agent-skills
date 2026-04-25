@@ -464,10 +464,10 @@ class PptxExporter:
         # Our renderer convention: 0=east, clockwise (same as OOXML stAng), so no offset needed.
         adj1 = int((start % 360) * 60000)             # start angle (OOXML east-0, CW)
         adj2 = int(((end - start) % 360) * 60000)     # swing angle (arc span)
-        # adj3 = inner radius as fraction of outer (OOXML 50000ths)
-        # adj3=0 → solid pie, adj3=50000 → outer edge only (thin ring)
-        inner_frac = max(0.0, min(1.0, ri / ro if ro > 0 else 0.0))
-        adj3 = int(inner_frac * 50000)
+        # adj3: PowerPoint's blockArc inner-radius rendering is unreliable across
+        # versions.  We always emit solid pie sectors (adj3=0) and rely on the
+        # white-ellipse overlay added by each card renderer to create the donut hole.
+        adj3 = 0
 
         shape = slide.shapes.add_shape(
             20,  # MSO_SHAPE.BLOCK_ARC

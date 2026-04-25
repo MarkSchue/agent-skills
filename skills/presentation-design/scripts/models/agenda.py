@@ -89,15 +89,23 @@ class AgendaModel:
 
         ``config`` may contain a ``sections`` list of dicts (``title``, ``number``,
         ``info``); entries are matched to *titles* by index.
+
+        When the config has fewer entries than ``titles``, the first
+        ``len(titles) - len(section_overrides)`` titles are assumed to be
+        non-agenda sections (e.g. a title / cover slide) and are skipped so
+        the config entries align with the real content sections.
         """
         section_overrides: list[dict] = config.get("sections") or []
         entries: list[AgendaEntry] = []
-        for i, title in enumerate(titles):
+        # Offset: skip leading titles that have no matching config entry
+        # (these are typically cover / title-slide sections).
+        offset = max(0, len(titles) - len(section_overrides))
+        for i, title in enumerate(titles[offset:]):
             ov = section_overrides[i] if i < len(section_overrides) else {}
             override_title = str(ov.get("title") or "").strip()
             entries.append(
                 AgendaEntry(
-                    index=i,
+                    index=i + offset,  # preserves correspondence with agenda_idx
                     title=override_title or title,
                     number=str(ov.get("number") or ""),
                     info=str(ov.get("info") or ""),

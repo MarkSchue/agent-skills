@@ -93,6 +93,14 @@ class AgendaInjector:
         """
         active_agenda = agenda.with_active(active_index)
 
+        # Find the LIST POSITION (0-based index in entries list) of the active entry.
+        # AgendaCardRenderer uses enumerate position (`i`) for highlight matching,
+        # not the entry's logical index — so we must pass the position, not active_index.
+        active_pos = next(
+            (pos for pos, e in enumerate(active_agenda.entries) if e.is_active),
+            None,
+        )
+
         # Build section entries — use rich-dict format when any entry has
         # number or info so col1/col3 render the custom values.
         has_extra = any(e.number or e.info for e in active_agenda.entries)
@@ -100,10 +108,12 @@ class AgendaInjector:
             sections_payload = [
                 {
                     "title": e.title,
-                    "number": e.number or f"{e.index + 1:02d}",
+                    # Use list position + 1 for auto-numbering so numbers start
+                    # at 01 regardless of whether leading sections were skipped.
+                    "number": e.number or f"{pos + 1:02d}",
                     "info": e.info,
                 }
-                for e in active_agenda.entries
+                for pos, e in enumerate(active_agenda.entries)
             ]
         else:
             sections_payload = [e.title for e in active_agenda.entries]
@@ -120,7 +130,7 @@ class AgendaInjector:
             card_type="agenda-card",
             content={
                 "sections": sections_payload,
-                "highlight": active_index,
+                "highlight": active_pos,
                 "columns": 1,
             },
             icon=icon,

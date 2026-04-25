@@ -38,20 +38,35 @@ class CalloutCardRenderer(BaseCardRenderer):
         body_weight = self._tok("body-font-weight") or "600"
         body_align = self._tok("body-alignment") or "left"
 
-        # Left accent bar — full body height
+        # Quote mark — large bold opening guillemet rendered before the body.
+        quote_char_size = float(self._tok("quote-char-size") or body_size * 2.5)
+        quote_char = self._tok("quote-char") or "\u201C"  # "
+
+        text_x = box.x + accent_width + accent_gap
+        text_w = box.w - accent_width - accent_gap
+        y = box.y
+
+        # Measure content height so the accent bar matches actual text height
+        content_h = 0.0
+        if eyebrow:
+            content_h += eyebrow_size + 2 + float(self._tok("eyebrow-margin-bottom") or 12)
+        if body:
+            line_h = body_size * 1.35
+            content_h += quote_char_size * 0.8 + 4  # opening quote
+            content_h += max(line_h * 2, body_size + 4)  # body text
+
+        bar_h = max(content_h, body_size * 1.35)
+
+        # Left accent bar — height matched to content, not full card body
         box.add({
             "type": "rect",
             "x": box.x,
             "y": box.y,
             "w": accent_width,
-            "h": box.h,
+            "h": bar_h,
             "fill": accent_color,
             "rx": 0,
         })
-
-        text_x = box.x + accent_width + accent_gap
-        text_w = box.w - accent_width - accent_gap
-        y = box.y
 
         if eyebrow:
             # Approximate letter spacing by inserting hair spaces between chars
@@ -73,6 +88,21 @@ class CalloutCardRenderer(BaseCardRenderer):
             y += eyebrow_size + float(self._tok("eyebrow-margin-bottom") or 12)
 
         if body:
+            # Large bold opening quote character
+            box.add({
+                "type": "text",
+                "x": text_x,
+                "y": y,
+                "w": text_w,
+                "h": quote_char_size * 0.8 + 4,
+                "text": quote_char,
+                "font_size": quote_char_size,
+                "font_color": accent_color,
+                "font_weight": "bold",
+                "alignment": "left",
+            })
+            y += quote_char_size * 0.6  # overlap slightly so quote feels attached to text
+
             line_h = body_size * 1.35
             # Generous height — let exporter wrap
             avail_h = max(line_h, box.y + box.h - y)

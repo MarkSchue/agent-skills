@@ -144,7 +144,9 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
         # Top row (workpackage descriptions) — fixed proportional height.
         # Made slightly taller so the card uses more vertical space (the
         # MHP master gives generous room for these descriptions).
-        wp_top_h = wp_head_size * 2 + 6 + wp_body_size * 6 + 4
+        # Allow up to 3 heading lines so titles like "Training & Rollout"
+        # don't overflow into the body text row.
+        wp_top_h = wp_head_size * 3 + 8 + wp_body_size * 5 + 4
 
         # Marker row (PT label + diamond)
         mk_h = mk_size + 4 + 8  # text + diamond
@@ -228,7 +230,7 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
                 box.add({
                     "type": "text",
                     "x": cx, "y": wp_top_y,
-                    "w": cw, "h": wp_head_size * 2 + 4,
+                    "w": cw, "h": wp_head_size * 3 + 6,
                     **text_and_runs(title_text),
                     "font_size": wp_head_size,
                     "font_color": wp_head_color,
@@ -241,8 +243,8 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
             if body_text:
                 box.add({
                     "type": "text",
-                    "x": cx, "y": wp_top_y + wp_head_size * 2 + 6,
-                    "w": cw, "h": wp_body_size * 6,
+                    "x": cx, "y": wp_top_y + wp_head_size * 3 + 8,
+                    "w": cw, "h": wp_body_size * 5,
                     **text_and_runs(body_text),
                     "font_size": wp_body_size,
                     "font_color": wp_body_color,

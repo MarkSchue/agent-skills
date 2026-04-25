@@ -155,10 +155,26 @@ class CircularInfographicCardRenderer(BaseCardRenderer):
         outer_style = str(outer_def.get("style") or "donut").lower()
         inner_style = str(inner_def.get("style") or "donut").lower()
 
-        # Outer ring first (drawn underneath any potential overlap from
-        # highlighted bumps in the inner ring is irrelevant — they're
-        # separated by ring_gap).
+        # Outer ring first (drawn underneath).  With adj3=0 these are solid pies
+        # from the centre out to outer_ro, so they cover the whole disc area.
         _emit_ring(outer_segs, outer_ri, outer_ro, style=outer_style)
+
+        # White mask ring covering the interior up to outer_ri — creates the visual
+        # gap between the outer and inner rings.  The inner ring arcs are then drawn
+        # on top of this, so they appear as a distinct inner ring.
+        if outer_ri > 0:
+            slide_bg = self.resolve("color-background") or "#FFFFFF"
+            box.add({
+                "type": "ellipse",
+                "x": cx - outer_ri,
+                "y": cy - outer_ri,
+                "w": outer_ri * 2,
+                "h": outer_ri * 2,
+                "fill": slide_bg,
+                "stroke": "none",
+                "stroke_width": 0,
+            })
+
         _emit_ring(inner_segs, inner_ri, inner_ro, style=inner_style)
 
         # Center mask ellipse — creates the inner hole in PPTX (blockArc adj3

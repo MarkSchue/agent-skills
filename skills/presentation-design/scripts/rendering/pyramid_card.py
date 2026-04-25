@@ -52,7 +52,9 @@ class PyramidCardRenderer(BaseCardRenderer):
 
         # ── Token resolution ───────────────────────────────────────────
         gap            = float(self._tok("layer-gap") or 4)
-        bg             = self._tok("layer-bg-color") or self.resolve("color-surface-sunken") or "#F5F5F7"
+        # Fall back to a medium gray so pyramid layers remain visible even on
+        # near-white slide backgrounds (color-surface-sunken is often too light).
+        bg             = self._tok("layer-bg-color") or self.resolve("color-border") or "#D8D8D8"
         bg_accent      = self._tok("layer-accent-bg-color") or self.resolve("color-primary") or "#000099"
         border         = self._tok("layer-border-color") or self.resolve("color-border") or "#E0E0E0"
         border_w       = float(self._tok("layer-border-width") or 0)

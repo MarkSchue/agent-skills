@@ -53,6 +53,7 @@ class StepCardRenderer(BaseCardRenderer):
         c_fill     = self._tok("step-circle-fill-color") or "#FFFFFF"
         ic_color   = self._tok("step-icon-color") or self.resolve("color-primary") or "#000099"
         ic_size    = float(self._tok("step-icon-size") or 28)
+        ic_font    = str(self.resolve("icon-font-family") or "Material Symbols Outlined")
 
         head_size  = float(self._tok("step-heading-font-size") or 14)
         head_color = self._tok("step-heading-font-color") or self.resolve("color-text-default") or "#222"
@@ -114,6 +115,7 @@ class StepCardRenderer(BaseCardRenderer):
                     "w": ic_size,
                     "h": ic_size,
                     "color": ic_color,
+                    "font_family": ic_font,
                 })
 
             # Connector line to next step (drawn from this circle's centre-right

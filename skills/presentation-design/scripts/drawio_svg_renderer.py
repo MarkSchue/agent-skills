@@ -314,6 +314,237 @@ def _svg_trapezoid(
     )
 
 
+def _svg_triangle(x: float, y: float, w: float, h: float, st: dict) -> str:
+    """Upward-pointing triangle (drawio ``shape=triangle``)."""
+    fill   = st["fillColor"]
+    stroke = st["strokeColor"]
+    sw     = st["strokeWidth"]
+    dash   = 'stroke-dasharray="8,4" ' if st["dashed"] not in ("0", "") else ""
+    pts = f"{x+w/2:.2f},{y:.2f} {x+w:.2f},{y+h:.2f} {x:.2f},{y+h:.2f}"
+    return (
+        f'<polygon points="{pts}" '
+        f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+    )
+
+
+def _svg_hexagon(x: float, y: float, w: float, h: float, st: dict) -> str:
+    """Flat-top hexagon (drawio ``shape=hexagon``)."""
+    fill   = st["fillColor"]
+    stroke = st["strokeColor"]
+    sw     = st["strokeWidth"]
+    dash   = 'stroke-dasharray="8,4" ' if st["dashed"] not in ("0", "") else ""
+    inset  = w * 0.25
+    cy_v   = y + h / 2
+    pts = (
+        f"{x+inset:.2f},{y:.2f} "
+        f"{x+w-inset:.2f},{y:.2f} "
+        f"{x+w:.2f},{cy_v:.2f} "
+        f"{x+w-inset:.2f},{y+h:.2f} "
+        f"{x+inset:.2f},{y+h:.2f} "
+        f"{x:.2f},{cy_v:.2f}"
+    )
+    return (
+        f'<polygon points="{pts}" '
+        f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+    )
+
+
+def _svg_cylinder(x: float, y: float, w: float, h: float, st: dict) -> list[str]:
+    """Cylinder (drawio ``shape=cylinder`` / ``cylinder3``). Returns a list of SVG elements."""
+    fill   = st["fillColor"]
+    stroke = st["strokeColor"]
+    sw     = st["strokeWidth"]
+    dash   = 'stroke-dasharray="8,4" ' if st["dashed"] not in ("0", "") else ""
+    ry     = min(h * 0.15, 12.0)
+    cx_v   = x + w / 2
+    body = (
+        f'<rect x="{x:.2f}" y="{y+ry:.2f}" width="{w:.2f}" height="{h-ry:.2f}" '
+        f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+    )
+    top = (
+        f'<ellipse cx="{cx_v:.2f}" cy="{y+ry:.2f}" rx="{w/2:.2f}" ry="{ry:.2f}" '
+        f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+    )
+    bot = (
+        f'<ellipse cx="{cx_v:.2f}" cy="{y+h:.2f}" rx="{w/2:.2f}" ry="{ry:.2f}" '
+        f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+    )
+    return [body, top, bot]
+
+
+def _svg_parallelogram(x: float, y: float, w: float, h: float, st: dict) -> str:
+    """Parallelogram (drawio ``shape=parallelogram``)."""
+    fill   = st["fillColor"]
+    stroke = st["strokeColor"]
+    sw     = st["strokeWidth"]
+    dash   = 'stroke-dasharray="8,4" ' if st["dashed"] not in ("0", "") else ""
+    inset  = w * 0.2
+    pts = (
+        f"{x+inset:.2f},{y:.2f} "
+        f"{x+w:.2f},{y:.2f} "
+        f"{x+w-inset:.2f},{y+h:.2f} "
+        f"{x:.2f},{y+h:.2f}"
+    )
+    return (
+        f'<polygon points="{pts}" '
+        f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+    )
+
+
+def _svg_callout(x: float, y: float, w: float, h: float, st: dict) -> str:
+    """Speech-bubble callout with a bottom-left pointer."""
+    fill   = st["fillColor"]
+    stroke = st["strokeColor"]
+    sw     = st["strokeWidth"]
+    dash   = 'stroke-dasharray="8,4" ' if st["dashed"] not in ("0", "") else ""
+    rx     = 4.0
+    body_h = h * 0.75
+    ptr_x  = x + w * 0.2
+    ptr_w  = w * 0.15
+    d = (
+        f"M {x+rx:.2f},{y:.2f} "
+        f"H {x+w-rx:.2f} Q {x+w:.2f},{y:.2f} {x+w:.2f},{y+rx:.2f} "
+        f"V {y+body_h-rx:.2f} Q {x+w:.2f},{y+body_h:.2f} {x+w-rx:.2f},{y+body_h:.2f} "
+        f"H {ptr_x+ptr_w:.2f} L {ptr_x:.2f},{y+h:.2f} L {ptr_x:.2f},{y+body_h:.2f} "
+        f"H {x+rx:.2f} Q {x:.2f},{y+body_h:.2f} {x:.2f},{y+body_h-rx:.2f} "
+        f"V {y+rx:.2f} Q {x:.2f},{y:.2f} {x+rx:.2f},{y:.2f} Z"
+    )
+    return f'<path d="{d}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {dash}/>'
+
+
+def _smooth_path(pts: list[tuple[float, float]]) -> str:
+    """Catmull-Rom spline through *pts* converted to SVG cubic Bézier segments."""
+    if len(pts) < 2:
+        return ""
+    if len(pts) == 2:
+        return f"M {pts[0][0]:.1f},{pts[0][1]:.1f} L {pts[1][0]:.1f},{pts[1][1]:.1f}"
+    parts = [f"M {pts[0][0]:.1f},{pts[0][1]:.1f}"]
+    for i in range(1, len(pts)):
+        p0 = pts[i - 2] if i >= 2 else pts[0]
+        p1 = pts[i - 1]
+        p2 = pts[i]
+        p3 = pts[i + 1] if i + 1 < len(pts) else p2
+        cp1x = p1[0] + (p2[0] - p0[0]) / 6.0
+        cp1y = p1[1] + (p2[1] - p0[1]) / 6.0
+        cp2x = p2[0] - (p3[0] - p1[0]) / 6.0
+        cp2y = p2[1] - (p3[1] - p1[1]) / 6.0
+        parts.append(
+            f"C {cp1x:.1f},{cp1y:.1f} {cp2x:.1f},{cp2y:.1f} {p2[0]:.1f},{p2[1]:.1f}"
+        )
+    return " ".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# Shape registry — extended shape library fallbacks
+# ---------------------------------------------------------------------------
+
+def _lookup_shape_renderer(shape_name: str):
+    """Return ``(render_fn, returns_list)`` for *shape_name*, or ``None`` if unknown.
+
+    ``returns_list`` is ``True`` when the render function returns ``list[str]``
+    (e.g. cylinder needs multiple SVG elements), ``False`` when it returns ``str``.
+    Exact matches are checked first; then prefix families (mxgraph.*) fall back
+    to a rectangle so that unknown shapes still render with their label visible.
+    """
+    if not shape_name:
+        return None
+
+    _EXACT: dict[str, tuple] = {
+        "triangle":                        (_svg_triangle,      False),
+        "hexagon":                         (_svg_hexagon,       False),
+        "cylinder":                        (_svg_cylinder,      True),
+        "cylinder3":                       (_svg_cylinder,      True),
+        "parallelogram":                   (_svg_parallelogram, False),
+        "callout":                         (_svg_callout,       False),
+        # Flowchart shapes
+        "mxgraph.flowchart.start_2":       (_svg_ellipse,       False),
+        "mxgraph.flowchart.terminate":     (_svg_ellipse,       False),
+        "mxgraph.flowchart.decision":      (_svg_rhombus,       False),
+        "mxgraph.flowchart.process":       (_svg_rect,          False),
+        "mxgraph.flowchart.data":          (_svg_parallelogram, False),
+        "mxgraph.flowchart.database":      (_svg_cylinder,      True),
+        "mxgraph.flowchart.document":      (_svg_rect,          False),
+        "mxgraph.flowchart.delay":         (_svg_rect,          False),
+        "mxgraph.flowchart.annotation_2":  (_svg_rect,          False),
+        # BPMN — approximate with rounded rect (real BPMN stencils not loaded)
+        "mxgraph.bpmn.shape":              (_svg_rect,          False),
+        # ArchiMate 3 — approximate with rect
+        "mxgraph.archimate3.application":  (_svg_rect,          False),
+        "mxgraph.archimate3.tech":         (_svg_rect,          False),
+        "mxgraph.archimate3.actor":        (_svg_rect,          False),
+        "mxgraph.archimate3.motivation":   (_svg_rect,          False),
+        "mxgraph.archimate3.strategy":     (_svg_rect,          False),
+    }
+    if shape_name in _EXACT:
+        return _EXACT[shape_name]
+
+    # Prefix fallbacks: any unknown mxgraph.* shape degrades to a rectangle
+    # so that at minimum the label text is visible.
+    _PREFIX_FALLBACKS: list[tuple[str, object, bool]] = [
+        ("mxgraph.flowchart.",  _svg_rect, False),
+        ("mxgraph.bpmn.",       _svg_rect, False),
+        ("mxgraph.archimate3.", _svg_rect, False),
+        ("mxgraph.archimate.",  _svg_rect, False),
+        ("mxgraph.eip.",        _svg_rect, False),
+        ("mxgraph.uml.",        _svg_rect, False),
+        ("mxgraph.dfd.",        _svg_rect, False),
+        ("mxgraph.",            _svg_rect, False),
+    ]
+    for prefix, fn, rl in _PREFIX_FALLBACKS:
+        if shape_name.startswith(prefix):
+            logger.debug("Unknown shape %r — using rect fallback", shape_name)
+            return fn, rl
+
+    return None
+
+
+# ---------------------------------------------------------------------------
+# mxObject / mxCell iterator
+# ---------------------------------------------------------------------------
+
+def _iter_cells(root_elem: ET.Element):
+    """Yield all mxCell elements, including those nested in mxObject wrappers.
+
+    draw.io uses ``mxObject`` as a metadata envelope around ``mxCell`` for
+    tooltips, custom properties, and BPMN / ArchiMate annotations.  Without
+    this, any vertex or edge wrapped in ``mxObject`` is silently skipped.
+    The ``mxObject``'s ``label`` attribute is copied to the inner cell's
+    ``value`` when the cell has no value of its own (common BPMN pattern).
+    """
+    for child in root_elem:
+        if child.tag == "mxCell":
+            yield child
+        elif child.tag == "mxObject":
+            obj_label = child.get("label", "")
+            for cell in child.findall("mxCell"):
+                if obj_label and not cell.get("value"):
+                    cell.set("value", obj_label)
+                yield cell
+
+
+# ---------------------------------------------------------------------------
+# Rotation helper
+# ---------------------------------------------------------------------------
+
+def _finalise_vertex(
+    local: list[str],
+    elems: list[str],
+    rotation: float,
+    ax: float, ay: float,
+    w: float, h: float,
+) -> None:
+    """Append *local* cell elements to *elems*, wrapping in a rotation transform if needed."""
+    if not local:
+        return
+    if rotation:
+        cx, cy = ax + w / 2.0, ay + h / 2.0
+        elems.append(f'<g transform="rotate({rotation:.2f} {cx:.2f} {cy:.2f})">')
+        elems.extend(e for e in local if e)
+        elems.append("</g>")
+    else:
+        elems.extend(e for e in local if e)
+
+
 def _wrap_text_to_width(text: str, max_w: float, font_size: float) -> list[str]:
     """Greedy word-wrap text to fit within *max_w* pixels.
 
@@ -360,6 +591,12 @@ def _svg_label(
     font_flag  = int(st.get("fontStyle", "0"))
     fw = "bold"   if font_flag & 1 else "normal"
     fi = "italic" if font_flag & 2 else "normal"
+    td_parts = []
+    if font_flag & 4:
+        td_parts.append("underline")
+    if font_flag & 8:
+        td_parts.append("line-through")
+    td_attr = f'text-decoration="{" ".join(td_parts)}" ' if td_parts else ""
     align   = st.get("align",         "center")
     v_align = st.get("verticalAlign", "middle")
     anchor  = _text_anchor(align)
@@ -394,7 +631,7 @@ def _svg_label(
 
     attrs = (
         f'fill="{font_color}" font-size="{font_size:.1f}" '
-        f'font-weight="{fw}" font-style="{fi}" text-anchor="{anchor}"'
+        f'font-weight="{fw}" font-style="{fi}" {td_attr}text-anchor="{anchor}"'
     )
 
     if n == 1:
@@ -425,7 +662,13 @@ def _build_abs_positions(root_elem: ET.Element) -> dict[str, tuple[float, float]
     cells: dict[str, ET.Element] = {
         c.get("id", ""): c for c in root_elem.findall("mxCell")
     }
+    # Also collect mxCell elements wrapped in mxObject metadata containers
+    # (used by BPMN, ArchiMate, and custom-property diagrams).
+    for obj in root_elem.findall("mxObject"):
+        for c in obj.findall("mxCell"):
+            cells[c.get("id", "")] = c
     cache: dict[str, tuple[float, float]] = {}
+    visiting: set[str] = set()  # cycle detection
 
     def _get(cid: str) -> tuple[float, float]:
         if cid in cache:
@@ -433,9 +676,17 @@ def _build_abs_positions(root_elem: ET.Element) -> dict[str, tuple[float, float]
         if cid in ("", "0", "1"):
             cache[cid] = (0.0, 0.0)
             return (0.0, 0.0)
+        if cid in visiting:
+            logger.warning(
+                "Circular parent reference for cell %r — treating as root-level", cid
+            )
+            cache[cid] = (0.0, 0.0)
+            return (0.0, 0.0)
+        visiting.add(cid)
 
         cell = cells.get(cid)
         if cell is None:
+            visiting.discard(cid)
             cache[cid] = (0.0, 0.0)
             return (0.0, 0.0)
 
@@ -455,6 +706,7 @@ def _build_abs_positions(root_elem: ET.Element) -> dict[str, tuple[float, float]
             result = (p_abs[0] + cx, p_abs[1] + cy)
 
         cache[cid] = result
+        visiting.discard(cid)
         return result
 
     for cid in list(cells.keys()):
@@ -491,6 +743,14 @@ def _render_vertex(
     if "group" in parsed:
         return
 
+    # Collect rendered SVG elements into a local buffer so we can apply the
+    # ``rotation`` style transform around the whole cell at the end.
+    local: list[str] = []
+    try:
+        rotation = float(st.get("rotation", "0") or 0)
+    except (ValueError, TypeError):
+        rotation = 0.0
+
     # Image cells (logos, embedded raster/SVG): emit an <image> tag using the
     # data URI from the style. Without this branch the cell falls through to
     # default rect rendering and shows as an empty white box with a black border.
@@ -502,11 +762,12 @@ def _render_vertex(
             from urllib.parse import unquote as _url_unquote
             prefix, _, encoded = img_uri.partition(",")
             img_uri = prefix + "," + _url_unquote(encoded)
-        elems.append(
+        local.append(
             f'<image x="{ax:.2f}" y="{ay:.2f}" '
             f'width="{w:.2f}" height="{h:.2f}" '
             f'preserveAspectRatio="xMidYMid meet" href="{_esc(img_uri)}"/>'
         )
+        _finalise_vertex(local, elems, rotation, ax, ay, w, h)
         return
 
     value   = _strip_html(cell.get("value", "") or "")
@@ -563,42 +824,47 @@ def _render_vertex(
         body_y = ay + start_size
         body_h = h - start_size
         if body_h > 0:
-            elems.append(
+            local.append(
                 f'<rect x="{ax:.2f}" y="{body_y:.2f}" width="{w:.2f}" '
                 f'height="{body_h:.2f}" fill="{body_fill}" '
                 f'stroke="{stroke}" stroke-width="{sw}" rx="{rx:.2f}" ry="{rx:.2f}"/>'
             )
         # 2. Header bar
-        elems.append(
+        local.append(
             f'<rect x="{ax:.2f}" y="{ay:.2f}" width="{w:.2f}" '
             f'height="{start_size:.2f}" fill="{header_fill}" '
             f'stroke="{stroke}" stroke-width="{sw}" rx="{rx:.2f}" ry="{rx:.2f}"/>'
         )
         # 3. Outer border (no fill — visual edge crisp-up)
-        elems.append(
+        local.append(
             f'<rect x="{ax:.2f}" y="{ay:.2f}" width="{w:.2f}" height="{h:.2f}" '
             f'fill="none" stroke="{stroke}" stroke-width="{sw}" '
             f'rx="{rx:.2f}" ry="{rx:.2f}"/>'
         )
-        # 4. Header label (centred in header strip)
-        elems.append(
+        # 4. Header label — respect fontColor from cell style (not hardcoded white)
+        local.append(
             _svg_label(value, ax, ay, w, start_size,
-                       {**st, "fontColor": "#FFFFFF", "verticalAlign": "middle"})
+                       {**st, "verticalAlign": "middle"})
         )
+        _finalise_vertex(local, elems, rotation, ax, ay, w, h)
         return
 
     if is_text:
-        elems.append(_svg_label(value, ax, ay, w, h, st))
+        local.append(_svg_label(value, ax, ay, w, h, st))
+        _finalise_vertex(local, elems, rotation, ax, ay, w, h)
         return
 
+    # Shape name for registry lookup (only for cells not already matched above)
+    shape_name = st.get("shape", "")
+
     if is_ell:
-        elems.append(_svg_ellipse(ax, ay, w, h, st))
+        local.append(_svg_ellipse(ax, ay, w, h, st))
     elif is_rhombus:
-        elems.append(_svg_rhombus(ax, ay, w, h, st))
+        local.append(_svg_rhombus(ax, ay, w, h, st))
     elif is_step:
-        elems.append(_svg_chevron(ax, ay, w, h, st))
+        local.append(_svg_chevron(ax, ay, w, h, st))
     elif is_trapezoid:
-        elems.append(_svg_trapezoid(ax, ay, w, h, st, orientation=trap_orientation))
+        local.append(_svg_trapezoid(ax, ay, w, h, st, orientation=trap_orientation))
     elif is_arc:
         # Convert drawio's partConcEllipse parameters back to our angle space
         # (0 = north, CW positive, fractions of circle) → (0 = east, CW, deg).
@@ -619,11 +885,24 @@ def _render_vertex(
         # Handle wrap-around (end < start after modulo)
         if end_deg <= start_deg:
             end_deg += 360.0
-        elems.append(_svg_arc(cx_v, cy_v, ro, ri, start_deg, end_deg, st))
+        local.append(_svg_arc(cx_v, cy_v, ro, ri, start_deg, end_deg, st))
     else:
-        elems.append(_svg_rect(ax, ay, w, h, st))
+        # Try the shape registry for extended shape libraries (flowchart, BPMN,
+        # ArchiMate, UML, etc.).  Unknown shapes degrade gracefully to rect so
+        # that at minimum the label text is visible.
+        shape_entry = _lookup_shape_renderer(shape_name)
+        if shape_entry is not None:
+            render_fn, returns_list = shape_entry
+            result = render_fn(ax, ay, w, h, st)
+            if returns_list:
+                local.extend(result)
+            else:
+                local.append(result)
+        else:
+            local.append(_svg_rect(ax, ay, w, h, st))
 
-    elems.append(_svg_label(value, ax, ay, w, h, st))
+    local.append(_svg_label(value, ax, ay, w, h, st))
+    _finalise_vertex(local, elems, rotation, ax, ay, w, h)
 
 
 # ---------------------------------------------------------------------------
@@ -767,31 +1046,76 @@ def _render_edge(
         _synthesise_orthogonal(src_pt, tgt_pt, st, waypoints, src_rect, tgt_rect)
 
     all_pts = [src_pt] + waypoints + [tgt_pt]
-    d = "M " + " L ".join(f"{px:.1f},{py:.1f}" for px, py in all_pts)
+    # Use smooth Bézier curves for curved edge styles; polyline for everything else
+    if "curved" in edge_style.lower() and len(all_pts) > 2:
+        d = _smooth_path(all_pts)
+    else:
+        d = "M " + " L ".join(f"{px:.1f},{py:.1f}" for px, py in all_pts)
 
     # Arrowhead marker defs
-    def _arrow_def(prefix: str, color: str, filled: bool) -> str:
+    def _arrow_def(prefix: str, arrow_type: str, color: str, filled: bool) -> str:
         mid = f"arr_{prefix}_{len(defs)}"
-        if filled:
-            defs[mid] = (
-                f'<marker id="{mid}" markerWidth="10" markerHeight="8" '
-                f'refX="9" refY="3" orient="auto" markerUnits="strokeWidth">'
-                f'<path d="M0,0 L0,6 L9,3 z" fill="{color}"/></marker>'
-            )
-        else:
+        if arrow_type in ("block", "classic", ""):
+            if filled:
+                defs[mid] = (
+                    f'<marker id="{mid}" markerWidth="10" markerHeight="8" '
+                    f'refX="9" refY="3" orient="auto" markerUnits="strokeWidth">'
+                    f'<path d="M0,0 L0,6 L9,3 z" fill="{color}"/></marker>'
+                )
+            else:
+                defs[mid] = (
+                    f'<marker id="{mid}" markerWidth="10" markerHeight="8" '
+                    f'refX="9" refY="3" orient="auto" markerUnits="strokeWidth">'
+                    f'<path d="M0,0 L9,3 L0,6" fill="none" stroke="{color}" stroke-width="1.5"/></marker>'
+                )
+        elif arrow_type == "open":
             defs[mid] = (
                 f'<marker id="{mid}" markerWidth="10" markerHeight="8" '
                 f'refX="9" refY="3" orient="auto" markerUnits="strokeWidth">'
                 f'<path d="M0,0 L9,3 L0,6" fill="none" stroke="{color}" stroke-width="1.5"/></marker>'
             )
+        elif arrow_type == "oval":
+            defs[mid] = (
+                f'<marker id="{mid}" markerWidth="8" markerHeight="8" '
+                f'refX="4" refY="4" orient="auto" markerUnits="strokeWidth">'
+                f'<circle cx="4" cy="4" r="3" fill="{color if filled else "none"}" '
+                f'stroke="{color}" stroke-width="1"/></marker>'
+            )
+        elif arrow_type == "diamond":
+            defs[mid] = (
+                f'<marker id="{mid}" markerWidth="12" markerHeight="8" '
+                f'refX="11" refY="4" orient="auto" markerUnits="strokeWidth">'
+                f'<polygon points="0,4 5,0 11,4 5,8" '
+                f'fill="{color if filled else "none"}" stroke="{color}" stroke-width="1"/></marker>'
+            )
+        elif arrow_type == "ERone":
+            defs[mid] = (
+                f'<marker id="{mid}" markerWidth="6" markerHeight="8" '
+                f'refX="5" refY="4" orient="auto" markerUnits="strokeWidth">'
+                f'<line x1="5" y1="0" x2="5" y2="8" stroke="{color}" stroke-width="1.5"/></marker>'
+            )
+        elif arrow_type in ("ERmany", "ERmandOne", "ERoneToMany"):
+            defs[mid] = (
+                f'<marker id="{mid}" markerWidth="10" markerHeight="8" '
+                f'refX="9" refY="4" orient="auto" markerUnits="strokeWidth">'
+                f'<path d="M9,4 L0,0 M9,4 L0,8 M9,0 L9,8" '
+                f'fill="none" stroke="{color}" stroke-width="1.2"/></marker>'
+            )
+        else:
+            # Unknown arrow type — fall back to filled block
+            defs[mid] = (
+                f'<marker id="{mid}" markerWidth="10" markerHeight="8" '
+                f'refX="9" refY="3" orient="auto" markerUnits="strokeWidth">'
+                f'<path d="M0,0 L0,6 L9,3 z" fill="{color}"/></marker>'
+            )
         return mid
 
     m_end = m_start = ""
     if end_arrow not in ("none", ""):
-        mid = _arrow_def("e", stroke, end_fill not in ("0", ""))
+        mid = _arrow_def("e", end_arrow, stroke, end_fill not in ("0", ""))
         m_end = f'marker-end="url(#{mid})"'
     if start_arrow not in ("none", ""):
-        mid = _arrow_def("s", stroke, True)
+        mid = _arrow_def("s", start_arrow, stroke, True)
         m_start = f'marker-start="url(#{mid})"'
 
     dash_a = 'stroke-dasharray="8,4" ' if dashed else ""
@@ -966,7 +1290,7 @@ class DrawioSvgRenderer:
             return self._empty_svg(page_w, page_h, target_width, target_height, bg)
 
         all_cells: dict[str, ET.Element] = {
-            c.get("id", ""): c for c in root_elem.findall("mxCell")
+            c.get("id", ""): c for c in _iter_cells(root_elem)
         }
         abs_pos_map = _build_abs_positions(root_elem)
 
@@ -975,19 +1299,19 @@ class DrawioSvgRenderer:
         clip_defs: dict[str, str] = {}
 
         # Vertices first (z-order: containers behind their children)
-        for cell in root_elem.findall("mxCell"):
+        for cell in _iter_cells(root_elem):
             if cell.get("vertex") == "1" and cell.find("mxGeometry") is not None:
                 _render_vertex(cell, abs_pos_map, elems, clip_defs)
 
         # Edges on top
-        for cell in root_elem.findall("mxCell"):
+        for cell in _iter_cells(root_elem):
             if cell.get("edge") == "1":
                 _render_edge(cell, abs_pos_map, all_cells, elems, defs)
 
         # Compute tight viewBox from vertex bounds
         min_x = min_y = float("inf")
         max_x = max_y = float("-inf")
-        for cell in root_elem.findall("mxCell"):
+        for cell in _iter_cells(root_elem):
             if cell.get("vertex") != "1":
                 continue
             geo = cell.find("mxGeometry")
