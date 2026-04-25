@@ -380,7 +380,7 @@ class DrawioExporter:
 
         fill = elem.get("fill", "#FFFFFF")
         stroke = elem.get("stroke", "none")
-        sw = elem.get("stroke_width", 1)
+        sw = float(elem.get("stroke_width", 1))
         rx_px = float(elem.get("rx", 0) or 0)
         opacity = elem.get("opacity")  # 0-100; None means fully opaque
         # drawio arcSize: 0-50 where 50 = arc-radius equals half the shorter side (pill).
@@ -389,9 +389,11 @@ class DrawioExporter:
         h_d = float(elem.get("h", 1))
         short_d = min(w_d, h_d)
         arc_pct = min(50.0, rx_px / (short_d / 2) * 50.0) if short_d > 0 and rx_px > 0 else 0.0
+        # When stroke_width is 0, force strokeColor=none so draw.io renders no border at all
+        effective_stroke = stroke if sw > 0 else "none"
         style = (
             f"rounded=1;arcSize={arc_pct:.1f};fillColor={fill};"
-            f"strokeColor={stroke};strokeWidth={sw};"
+            f"strokeColor={effective_stroke};strokeWidth={sw};"
         )
         if opacity is not None:
             style += f"opacity={int(opacity)};"

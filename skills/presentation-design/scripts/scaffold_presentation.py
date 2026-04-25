@@ -3,7 +3,8 @@
 scaffold_presentation.py — Scaffold a new presentation project.
 
 Usage:
-    python scripts/scaffold_presentation.py <name> [--path <dir>] [--force]
+    python scripts/scaffold_presentation.py <name> [--path <dir>] [--force] [--base <name>]
+    python scripts/scaffold_presentation.py --list-bases
 
 Creates:
     <name>/
@@ -22,15 +23,20 @@ Creates:
 from __future__ import annotations
 
 import argparse
-import shutil
 import sys
 from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent.parent
-# Sparse theme template — overrides only. Avoids copying the full base.css
-# (which would shadow every token and prevent base.css updates from cascading
-# into the deck).
-THEME_TEMPLATE = SKILL_DIR / "examples" / "minimal-theme.css"
+THEMES_DIR = SKILL_DIR / "themes"
+
+if str(SKILL_DIR) not in sys.path:
+    sys.path.insert(0, str(SKILL_DIR))
+
+from scripts.parsing.base_resolver import (  # noqa: E402
+    DEFAULT_BASE,
+    base_path_for,
+    list_available_bases,
+)
 
 STARTER_DECK = """\
 # My Presentation
@@ -90,74 +96,78 @@ content:
 ```
 """
 
+ASSET_SUBDIRS = ("images", "charts", "diagrams", "logos")
 
-def scaffold(name: str, base_path: Path, force: bool = False) -> Path:
-    """Create a new presentation project.
 
-    Args:
-        name: Project folder name.
-        base_path: Parent directory for the project.
-        force: If True, overwrite existing files.
+def _make_dirs(project: Path) -> None:
+    project.mkdir(parents=True, exist_ok=True)
+    for sub in ("input", "output"):
+        (project / sub).mkdir(exist_ok=True)
+        (project / sub / ".gitkeep").touch()
+    for sub in ASSET_SUBDIRS:
+        (project / "assets" / sub).mkdir(parents=True, exist_ok=True)
+        (project / "assets" / sub / ".gitkeep").touch()
 
-    Returns:
-        Path to the created project folder.
-    """
+
+def _write_theme(dest: Path, base: str, force: bool) -> None:
+    if dest.exists() and not force:
+        return
+    template = base_path_for(base, THEMES_DIR)
+    marker = f"/* @base: {base} */\n"
+    body = template.read_text(encoding="utf-8") if template.exists() else (
+        f"/* Theme overrides — customize tokens from {base}_base.css here */\n"
+    )
+    dest.write_text(marker + body, encoding="utf-8")
+
+
+def scaffold(name: str, base_path: Path, force: bool = False, base: str = DEFAULT_BASE) -> Path:
+    """Create a new presentation project."""
+    available = list_available_bases(THEMES_DIR)
+    if base not in available:
+        print(
+            f"Error: unknown base '{base}'. Available: {', '.join(available) or '(none)'}",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+
     project = base_path / name
     if project.exists() and not force:
         print(f"Error: '{project}' already exists. Use --force to overwrite.", file=sys.stderr)
         sys.exit(1)
 
-    # Create directories
-    project.mkdir(parents=True, exist_ok=True)
-    (project / "input").mkdir(exist_ok=True)
-    (project / "output").mkdir(exist_ok=True)
-    (project / "output" / ".gitkeep").touch()
-    for sub in ("images", "charts", "diagrams", "logos"):
-        (project / "assets" / sub).mkdir(parents=True, exist_ok=True)
-        (project / "assets" / sub / ".gitkeep").touch()
+    _make_dirs(project)
+    _write_theme(project / "theme.css", base, force)
 
-    # Copy theme.css from the skill template
-    dest_theme = project / "theme.css"
-    if not dest_theme.exists() or force:
-        if THEME_TEMPLATE.exists():
-            shutil.copy2(THEME_TEMPLATE, dest_theme)
-        else:
-            dest_theme.write_text(
-                "/* Theme overrides — customize tokens from base.css here */\n",
-                encoding="utf-8",
-            )
-
-    # Write starter presentation-definition.md
     dest_deck = project / "presentation-definition.md"
     if not dest_deck.exists() or force:
         dest_deck.write_text(STARTER_DECK, encoding="utf-8")
 
     print(f"✓ Scaffolded presentation project at: {project}")
-    print(f"  - Edit:   {dest_deck.name}")
-    print(f"  - Theme:  {dest_theme.name}")
-    print(f"  - Input:  input/  ← place source files here")
-    print(f"  - Build:  python scripts/build_presentation.py {project}")
+    print(f"  - Edit: {dest_deck.name}")
+    print(f"  - Theme: theme.css (base: {base})")
+    print(f"  - Build: python scripts/build_presentation.py {project}")
     return project
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Scaffold a new presentation project."
-    )
-    parser.add_argument("name", help="Name of the presentation project folder.")
-    parser.add_argument(
-        "--path",
-        type=Path,
-        default=Path.cwd(),
-        help="Parent directory (default: current directory).",
-    )
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Overwrite existing files.",
-    )
+    parser = argparse.ArgumentParser(description="Scaffold a new presentation project.")
+    parser.add_argument("name", nargs="?", help="Name of the presentation project folder.")
+    parser.add_argument("--path", type=Path, default=Path.cwd(),
+                        help="Parent directory (default: current directory).")
+    parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
+    parser.add_argument("--base", default=DEFAULT_BASE,
+                        help=f"Base CSS to start from (default: {DEFAULT_BASE}).")
+    parser.add_argument("--list-bases", action="store_true",
+                        help="List available *_base.css files and exit.")
     args = parser.parse_args()
-    scaffold(args.name, args.path.resolve(), args.force)
+
+    if args.list_bases:
+        for n in list_available_bases(THEMES_DIR):
+            print(n)
+        return
+    if not args.name:
+        parser.error("name is required (unless --list-bases is given)")
+    scaffold(args.name, args.path.resolve(), args.force, base=args.base)
 
 
 if __name__ == "__main__":

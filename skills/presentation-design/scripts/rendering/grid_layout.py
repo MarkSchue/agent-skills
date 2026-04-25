@@ -31,21 +31,44 @@ class GridLayoutRenderer(BaseLayoutRenderer):
         chrome: SlideChrome,
         overrides: dict[str, Any] | None,
     ) -> list[RenderBox]:
-        """Divide the body area into an R×C grid of equal-sized card slots."""
+        """Divide the body area into an R×C grid of card slots.
+
+        When *overrides* contains a ``col_widths`` list of length >= ``self.cols``,
+        columns are sized proportionally to those weights rather than equally.
+        Example: ``col_widths: [2, 1]`` gives a 2/3 + 1/3 split on a 1×2 grid.
+        """
         gap = float(self._resolve("canvas-card-gap", overrides) or 12)
 
         total_gap_x = gap * (self.cols - 1)
         total_gap_y = gap * (self.rows - 1)
 
-        slot_w = (chrome.body_w - total_gap_x) / self.cols
+        body_w_for_cols = chrome.body_w - total_gap_x
+
+        # Proportional column widths — read from per-slide override if present
+        col_widths_raw = overrides.get("col_widths") if overrides else None
+        if (
+            col_widths_raw
+            and isinstance(col_widths_raw, list)
+            and len(col_widths_raw) >= self.cols
+        ):
+            total_parts = sum(float(w) for w in col_widths_raw[: self.cols]) or 1.0
+            slot_ws = [
+                body_w_for_cols * float(w) / total_parts
+                for w in col_widths_raw[: self.cols]
+            ]
+        else:
+            equal_w = body_w_for_cols / self.cols
+            slot_ws = [equal_w] * self.cols
+
         slot_h = (chrome.body_h - total_gap_y) / self.rows
 
         slots: list[RenderBox] = []
         for r in range(self.rows):
+            x_cursor = chrome.body_x
             for c in range(self.cols):
-                x = chrome.body_x + c * (slot_w + gap)
                 y = chrome.body_y + r * (slot_h + gap)
-                slots.append(RenderBox(x, y, slot_w, slot_h))
+                slots.append(RenderBox(x_cursor, y, slot_ws[c], slot_h))
+                x_cursor += slot_ws[c] + gap
 
         return slots
 
