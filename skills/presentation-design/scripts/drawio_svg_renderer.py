@@ -1329,7 +1329,7 @@ class DrawioSvgRenderer:
                 max_x = max(max_x, ax + cw)
                 max_y = max(max_y, ay + ch)
 
-        PAD = 4.0
+        PAD = 0.0
         if min_x == float("inf"):
             vb_x, vb_y, vb_w, vb_h = 0.0, 0.0, page_w, page_h
         else:

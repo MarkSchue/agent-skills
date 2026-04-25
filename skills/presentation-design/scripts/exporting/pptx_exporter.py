@@ -907,10 +907,22 @@ class PptxExporter:
             slide_part = slide.part
             package = slide_part._package
 
-            # Allocate a new /ppt/media/imageN.svg part
-            partname = package.next_image_partname("svg")
-            img_part = ImagePart(partname, "image/svg+xml", package, svg_bytes)
-            rId = slide_part.relate_to(img_part, RT.IMAGE)
+            # PowerPoint reliably renders SVG only when the primary <a:blip>
+            # points at a raster image and the SVG is attached via an
+            # <asvg:svgBlip> extension.  Try to rasterise; if no rasteriser is
+            # available, fall back to embedding the SVG as the sole blip
+            # (works in modern Office 365 / PowerPoint 2019+).
+            png_bytes = self._svg_to_png_bytes(svg_path, svg_bytes)
+
+            png_rId: str | None = None
+            if png_bytes is not None:
+                png_partname = package.next_image_partname("png")
+                png_part = ImagePart(png_partname, "image/png", package, png_bytes)
+                png_rId = slide_part.relate_to(png_part, RT.IMAGE)
+
+            svg_partname = package.next_image_partname("svg")
+            svg_part = ImagePart(svg_partname, "image/svg+xml", package, svg_bytes)
+            svg_rId = slide_part.relate_to(svg_part, RT.IMAGE)
 
             # Unique shape id (max of existing ids + 1)
             sp_tree = slide.shapes._spTree
@@ -929,16 +941,31 @@ class PptxExporter:
             PNS = "http://schemas.openxmlformats.org/presentationml/2006/main"
             ANS = "http://schemas.openxmlformats.org/drawingml/2006/main"
             RNS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+            ASVG = "http://schemas.microsoft.com/office/drawing/2016/SVG/main"
+
+            if png_rId is not None:
+                blip_xml = (
+                    f'<a:blip r:embed="{png_rId}">'
+                    f'<a:extLst>'
+                    f'<a:ext uri="{{96DAC541-7B7A-43D3-8B79-37D633B846F1}}">'
+                    f'<asvg:svgBlip xmlns:asvg="{ASVG}" r:embed="{svg_rId}"/>'
+                    f'</a:ext>'
+                    f'</a:extLst>'
+                    f'</a:blip>'
+                )
+            else:
+                # Legacy single-SVG-blip path (Office 365 / PPT 2019+ only)
+                blip_xml = f'<a:blip r:embed="{svg_rId}"/>'
 
             pic_xml = (
                 f'<p:pic xmlns:p="{PNS}" xmlns:a="{ANS}" xmlns:r="{RNS}">'
                 f'<p:nvPicPr>'
-                f'<p:cNvPr id="{shape_id}" name="Diagram {shape_id}"/>'
+                f'<p:cNvPr id="{shape_id}" name="Icon {shape_id}"/>'
                 f'<p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr>'
                 f'<p:nvPr/>'
                 f'</p:nvPicPr>'
                 f'<p:blipFill>'
-                f'<a:blip r:embed="{rId}"/>'
+                f'{blip_xml}'
                 f'<a:stretch><a:fillRect/></a:stretch>'
                 f'</p:blipFill>'
                 f'<p:spPr>'
@@ -949,12 +976,76 @@ class PptxExporter:
                 f'</p:pic>'
             )
             sp_tree.append(_lE.fromstring(pic_xml.encode()))
-            logger.debug("Native SVG embedded: %s rId=%s", svg_path.name, rId)
+            logger.debug("SVG embedded: %s pngRId=%s svgRId=%s",
+                         svg_path.name, png_rId, svg_rId)
             return True
 
         except Exception as exc:
             logger.warning("SVG pic failed for %s: %s", getattr(svg_path, 'name', str(svg_path)), exc)
             return False
+
+    @staticmethod
+    def _svg_to_png_bytes(svg_path: "Path", svg_bytes: bytes,
+                          size: int = 256) -> "bytes | None":
+        """Rasterise an SVG to PNG bytes for use as PowerPoint blip fallback.
+
+        Tries cairosvg first; falls back to resvg or Inkscape CLI if available.
+        Returns None if no rasteriser is available — caller should then skip
+        the dual-blip insertion.
+        """
+        # Try cairosvg
+        try:
+            import cairosvg  # type: ignore
+            return cairosvg.svg2png(
+                bytestring=svg_bytes,
+                output_width=size,
+                output_height=size,
+            )
+        except Exception:
+            pass
+        # Try resvg / Inkscape CLI
+        import shutil, subprocess, sys, tempfile
+        from pathlib import Path as _P
+
+        def _find_tool(name: str) -> str | None:
+            exe = shutil.which(name)
+            if exe:
+                return exe
+            # Look in the active Python's Scripts/ directory (where pip puts
+            # console_scripts on Windows even when Scripts isn't on PATH).
+            for candidate in (
+                _P(sys.exec_prefix) / "Scripts" / f"{name}.exe",
+                _P(sys.exec_prefix) / "Scripts" / name,
+                _P(sys.exec_prefix) / f"{name}.exe",
+                _P(sys.exec_prefix) / name,
+            ):
+                if candidate.exists():
+                    return str(candidate)
+            return None
+
+        for tool, args_builder in (
+            ("resvg",    lambda src, dst: [
+                "-w", str(size), "-h", str(size), str(src), str(dst)]),
+            ("inkscape", lambda src, dst: [
+                str(src), f"--export-filename={dst}",
+                f"--export-width={size}", f"--export-height={size}"]),
+        ):
+            exe = _find_tool(tool)
+            if not exe:
+                continue
+            try:
+                with tempfile.NamedTemporaryFile(
+                    suffix=".png", delete=False
+                ) as tmp:
+                    tmp_png = tmp.name
+                cmd = [exe, *args_builder(svg_path, tmp_png)]
+                subprocess.run(cmd, check=True, capture_output=True, timeout=15)
+                data = _P(tmp_png).read_bytes()
+                _P(tmp_png).unlink(missing_ok=True)
+                return data
+            except Exception:
+                continue
+        return None
 
     def _add_icon(self, slide, elem: dict[str, Any]) -> None:
         """Render an icon element — direct SVG picture (Office 365) or Unicode fallback."""
@@ -971,13 +1062,33 @@ class PptxExporter:
             for marker in ("material icons", "material symbols", "phosphor")
         )
 
-        # Strategy 1: direct SVG picture (Office 365 native SVG support)
+        # Strategy 1: rasterise to PNG via cairosvg (most reliable across all
+        # PowerPoint versions). Phosphor / Material SVGs become crisp picture
+        # shapes that render identically everywhere.
+        if is_icon_font:
+            png_path = self._icon_resolver.resolve_png(
+                name, font_family, color, size=max(64, int(size * 4))
+            )
+            if png_path is not None:
+                try:
+                    slide.shapes.add_picture(
+                        str(png_path),
+                        _px(x), _px(y),
+                        width=_px(size), height=_px(size),
+                    )
+                    return
+                except Exception as exc:
+                    logger.warning(
+                        "PNG icon insert failed for %s: %s", name, exc
+                    )
+
+        # Strategy 2: direct SVG picture (Office 365 native SVG support)
         if is_icon_font:
             svg_path = self._icon_resolver.resolve(name, font_family, color)
             if svg_path is not None and self._add_svg_pic(slide, svg_path, x, y, size, size):
                 return
 
-        # Strategy 2: Unicode fallback
+        # Strategy 3: Unicode fallback
         fallback_char = _ICON_UNICODE_MAP.get(name, _ICON_FALLBACK_GLYPH)
         self._add_text(slide, {
             "type": "text",

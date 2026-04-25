@@ -4,6 +4,8 @@ TextCardRenderer — Renders text-card content with body text and optional bulle
 
 from __future__ import annotations
 
+from typing import Any
+
 from scripts.models.deck import CardModel
 from scripts.parsing.inline_markdown import text_and_runs, strip_inline
 from scripts.rendering.base_card import BaseCardRenderer, RenderBox
@@ -35,6 +37,15 @@ class TextCardRenderer(BaseCardRenderer):
         font_color = self.resolve("text-body-font-color")
         line_height = font_size * 1.5
         body_align = self.resolve("card-body-alignment") or "left"
+        body_v_align = self.resolve("card-body-vertical-alignment")
+        if not body_v_align and self._card and self._card.style_overrides:
+            body_v_align = (
+                self._card.style_overrides.get("body_align")
+                or self._card.style_overrides.get("body-align")
+                or self._card.style_overrides.get("body_vertical_align")
+                or self._card.style_overrides.get("body-vertical-align")
+            )
+        body_v_align = str(body_v_align).strip().lower() if body_v_align else "top"
         bullet_indent = float(self.resolve("card-body-bullet-indent") or 12)
         bullet_gap = float(self.resolve("card-bullet-gap") or 8)
         bullet_spacing = float(self.resolve("card-bullet-spacing") or 4)
@@ -53,7 +64,33 @@ class TextCardRenderer(BaseCardRenderer):
         chars_per_line_full = max(1, int(box.w / (font_size * 0.6)))
         chars_per_line_indent = max(1, int((box.w - bullet_indent - bullet_gap) / (font_size * 0.6)))
 
-        # Body paragraph
+        body_h = 0.0
+        total_h = 0.0
+        items: list[dict[str, Any]] = []
+
+        if body_text:
+            plain = strip_inline(str(body_text))
+            num_lines = max(1, len(plain) // chars_per_line_full + 1)
+            body_h = num_lines * line_height
+            total_h += body_h
+
+        if bullets:
+            for bullet in bullets:
+                bullet_str = str(bullet)
+                plain_bullet = strip_inline(bullet_str)
+                num_lines = max(1, len(plain_bullet) // chars_per_line_indent + 1)
+                bullet_h = num_lines * line_height + bullet_spacing
+                items.append({**text_and_runs(bullet_str), "h": bullet_h})
+                total_h += bullet_h
+
+        if body_text and bullets:
+            total_h += 8
+
+        if body_v_align == "middle":
+            y = box.y + max((box.h - total_h) / 2.0, 0.0)
+        elif body_v_align == "bottom":
+            y = box.y + max(box.h - total_h, 0.0)
+
         if body_text:
             plain = strip_inline(str(body_text))
             num_lines = max(1, len(plain) // chars_per_line_full + 1)
@@ -75,26 +112,15 @@ class TextCardRenderer(BaseCardRenderer):
             )
             y += body_h + 8
 
-        # Bullet list — emit as a single "bullet_list" element so exporters can use
-        # native shape types (PPTX text box with buChar paragraphs, draw.io HTML list)
         if bullets:
-            items = []
-            total_h = 0.0
-            for bullet in bullets:
-                bullet_str = str(bullet)
-                plain_bullet = strip_inline(bullet_str)
-                num_lines = max(1, len(plain_bullet) // chars_per_line_indent + 1)
-                bullet_h = num_lines * line_height + bullet_spacing
-                items.append({**text_and_runs(bullet_str), "h": bullet_h})
-                total_h += bullet_h
-
+            item_total_h = sum(item["h"] for item in items)
             box.add(
                 {
                     "type": "bullet_list",
                     "x": box.x,
                     "y": y,
                     "w": box.w,
-                    "h": total_h,
+                    "h": item_total_h,
                     "items": items,
                     "font_size": font_size,
                     "font_color": font_color,
@@ -110,5 +136,5 @@ class TextCardRenderer(BaseCardRenderer):
                     "wrap": True,
                 }
             )
-            y += total_h
+            y += item_total_h
 

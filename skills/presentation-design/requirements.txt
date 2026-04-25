@@ -9,7 +9,9 @@ python-pptx>=0.6.23
 PyYAML>=6.0
 cairosvg>=2.7.0          # SVG→PNG conversion for icon rendering in PPTX export
                           # NOTE: on Windows cairosvg requires libcairo-2.dll.
-                          # If unavailable, install svglib instead (see below).
+                          # If unavailable, install resvg-cli or svglib instead.
+resvg-cli>=0.44.0        # Pure-Rust SVG rasteriser (no native deps); used as
+                          # fallback when cairosvg cannot load libcairo.
 svglib>=1.5.1            # Fallback SVG→PNG for draw.io QA screenshots on Windows
 pywin32>=306; sys_platform == "win32"  # PowerPoint COM backend for --qa on Windows
 pillow>=10.0             # PNG resize for LibreOffice --qa backend (optional but recommended)
