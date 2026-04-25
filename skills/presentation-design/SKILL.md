@@ -383,6 +383,34 @@ In the draw.io `mxGraphModel`, set `pageWidth` and `pageHeight` accordingly:
 The renderer uses these values as the SVG `viewBox`, ensuring the content
 fills the slide area at 1:1 without scaling distortion.
 
+### 11 — Minimise card padding for diagram image-cards
+
+The default `card-padding` is **16 px** on all sides.  For diagram slides this
+wastes roughly 28 px of width and height that the diagram could use.  Always
+override it per card:
+
+```yaml
+type: image-card
+style_overrides:
+  card-padding: 4          # ← always add for diagram cards (default is 16)
+content:
+  source: "diagrams/file.drawio#page-name"
+  image_style: fullbleed
+```
+
+For framed-style diagrams, also reduce the inner frame padding:
+
+```yaml
+style_overrides:
+  card-padding: 4
+  image-framed-padding: 2  # ← default 8 px inner frame padding → 2 px
+```
+
+**Why:** The card padding is designed for text cards where breathing room
+matters.  Diagram SVGs have their own internal margins; adding 16 px of card
+padding on top reduces readability.  Using `card-padding: 4` captures almost
+all of the available area without losing the card's visual boundary.
+
 ### 11 — Supported mxGraph Feature Subset
 
 Only use the following mxGraph features.  The Python renderer does **not**

@@ -323,21 +323,34 @@ class BaseCardRenderer(ABC):
 
     # ── private rendering helpers ────────────────────────────────────────
 
+    def _pad_side(self, side: str) -> float:
+        """Return padding for *side* (``top``, ``bottom``, ``left``, ``right``).
+
+        Resolution order:
+        1. ``card-padding-<side>`` — per-side override token
+        2. ``card-padding``        — uniform padding token
+        3. Hard-coded default 16
+        """
+        per_side = self.resolve(f"card-padding-{side}")
+        if per_side is not None and per_side != "":
+            return float(per_side)
+        return float(self.resolve("card-padding") or 16)
+
     @property
     def _pad_left(self) -> float:
-        return float(self.resolve("card-padding") or 16)
+        return self._pad_side("left")
 
     @property
     def _pad_right(self) -> float:
-        return float(self.resolve("card-padding") or 16)
+        return self._pad_side("right")
 
     @property
     def _pad_top(self) -> float:
-        return float(self.resolve("card-padding") or 16)
+        return self._pad_side("top")
 
     @property
     def _pad_bottom(self) -> float:
-        return float(self.resolve("card-padding") or 16)
+        return self._pad_side("bottom")
 
     def _render_container(self, box: RenderBox) -> None:
         """Add a container rectangle element to *box*."""
@@ -368,7 +381,13 @@ class BaseCardRenderer(ABC):
         Returns:
             The Y-coordinate at which body content should start.
         """
-        y = box.y + self._pad_top
+        # card-header-margin-top governs where the title sits vertically.
+        # It defaults to card-padding but is a separate token so cards with
+        # card-padding:0 (e.g. fullbleed image cards) still align with
+        # neighbours that use the default padding.
+        _hmt = self.resolve("card-header-margin-top")
+        header_margin_top = float(_hmt) if (_hmt is not None and _hmt != "") else self._pad_top
+        y = box.y + header_margin_top
 
         title_visible_raw = self.resolve("card-title-visible")
         title_visible = title_visible_raw not in (False, "false", "False")

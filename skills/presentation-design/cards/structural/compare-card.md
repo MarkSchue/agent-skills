@@ -19,16 +19,16 @@ description: >
 ## Layout
 
 ```
-┌──────────────┬─────────────┬─────────────┬─────────────┐
-│ (topic hdr)  │  Column A   │ ★ Column B  │  Column C   │  ← header row
-├──────────────┼─────────────┼─────────────┼─────────────┤
-│ ① Feature 1  │  text       │  ✓ icon     │  text       │  ← data rows
-│ ② Feature 2  │  Limited    │  Full       │  Full       │
-├──────────────┼─────────────┼─────────────┼─────────────┤
-│ Conclusion   │             │  Best Pick  │             │  ← summary row
-└──────────────┴─────────────┴─────────────┴─────────────┘
++--------------+-------------+-------------+-------------+
+| (topic hdr)  |  Column A   | * Column B  |  Column C   |  ← header row
++--------------+-------------+-------------+-------------+
+| ① Feature 1  |  text       |  ✓ icon     |  text       |  ← data rows
+| ② Feature 2  |  Limited    |  Full       |  Full       |
++--------------+-------------+-------------+-------------+
+| Conclusion   |             |  Best Pick  |             |  ← summary row
++--------------+-------------+-------------+-------------+
 
- ★  Column B has  highlight: true  → accent background in both header and data area.
+ *  Column B has  highlight: true  → accent background in both header and data area.
 ```
 
 ---

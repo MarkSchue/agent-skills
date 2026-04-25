@@ -58,16 +58,21 @@ class ImageCardRenderer(BaseCardRenderer):
         # Resolve full asset path
         resolved_path = self._resolve_asset(image_path)
 
+        # Reserve vertical space for caption when present — all image styles honour this
+        caption_size = float(self.resolve("text-caption-font-size") or 11)
+        caption_reserved = (caption_size + 4) if caption else 0.0
+
         if image_style == "fullbleed":
-            self._render_fullbleed(box, resolved_path, alt_text)
+            self._render_fullbleed(box, resolved_path, alt_text,
+                                   caption_reserved=caption_reserved)
         elif image_style == "circular":
             self._render_circular(box, resolved_path, alt_text)
         else:
-            self._render_framed(box, resolved_path, alt_text)
+            self._render_framed(box, resolved_path, alt_text,
+                                caption_reserved=caption_reserved)
 
-        # Caption
+        # Caption text rendered below the image
         if caption:
-            caption_size = float(self.resolve("text-caption-font-size") or 11)
             box.add(
                 {
                     "type": "text",
@@ -81,14 +86,15 @@ class ImageCardRenderer(BaseCardRenderer):
                 }
             )
 
-    def _render_fullbleed(self, box: RenderBox, path: str, alt: str) -> None:
+    def _render_fullbleed(self, box: RenderBox, path: str, alt: str,
+                          *, caption_reserved: float = 0.0) -> None:
         box.add(
             {
                 "type": "image",
                 "x": box.x,
                 "y": box.y,
                 "w": box.w,
-                "h": box.h,
+                "h": box.h - caption_reserved,
                 "src": path,
                 "alt": alt,
                 "fit": "cover",
@@ -96,7 +102,8 @@ class ImageCardRenderer(BaseCardRenderer):
             }
         )
 
-    def _render_framed(self, box: RenderBox, path: str, alt: str) -> None:
+    def _render_framed(self, box: RenderBox, path: str, alt: str,
+                       *, caption_reserved: float = 0.0) -> None:
         br = self.resolve("image-framed-border-radius") or 4
         bw = self.resolve("image-framed-border-width") or 1
         bc = self.resolve("image-framed-border-color") or "#E0E0E0"
@@ -107,7 +114,7 @@ class ImageCardRenderer(BaseCardRenderer):
                 "x": box.x + pad,
                 "y": box.y + pad,
                 "w": box.w - 2 * pad,
-                "h": box.h - 2 * pad - 20,  # leave room for caption
+                "h": box.h - 2 * pad - caption_reserved,
                 "src": path,
                 "alt": alt,
                 "fit": "contain",

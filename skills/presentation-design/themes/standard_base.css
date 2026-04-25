@@ -498,6 +498,9 @@
     /* px — corner radius */
     --card-padding: 16;
     /* px — inner padding */
+    --card-header-margin-top: 16;
+    /* px — top offset for the title; independent of card-padding so cards
+       with card-padding:0 still align their title with neighbours */
     --card-shadow: 0 1 3 rgba(0, 0, 0, 0.1);
     /* box shadow */
 
@@ -2149,7 +2152,7 @@
     --card-step-step-body-font-size: 11;
     --card-step-step-body-font-color: var(--color-text-muted);
     --card-step-step-text-gap: 12;
-    --card-step-step-connector-visible: true;
+    --card-step-step-connector-visible: false;
     --card-step-step-connector-color: var(--color-border);
     --card-step-step-connector-width: 1.5;
     --card-step-step-connector-dashed: true;

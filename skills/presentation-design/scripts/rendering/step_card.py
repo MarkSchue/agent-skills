@@ -62,36 +62,41 @@ class StepCardRenderer(BaseCardRenderer):
         body_size  = float(self._tok("step-body-font-size") or 11)
         body_color = self._tok("step-body-font-color") or self.resolve("color-text-muted") or "#666"
 
-        text_gap   = float(self._tok("step-text-gap") or 12)
-        connector  = str(self._tok("step-connector-visible") or "true").lower() == "true"
+        text_gap   = float(self._tok("step-text-gap") or 8)
+        # Connector lines are off by default — text blocks below the circles
+        # provide enough visual rhythm without extra lines.
+        connector  = str(self._tok("step-connector-visible") or "false").lower() == "true"
         conn_color = self._tok("step-connector-color") or self.resolve("color-border") or "#CCCCCC"
         conn_width = float(self._tok("step-connector-width") or 1.5)
         conn_dash  = str(self._tok("step-connector-dashed") or "true").lower() == "true"
 
         # ── Geometry ──────────────────────────────────────────────────
-        # Distribute step centres along a diagonal from bottom-left to
-        # top-right of `box`. Each step gets a horizontal slot of width
-        # `slot_w`; the circle sits in its left third, text wraps to the right.
+        # Reserve vertical space at the bottom for the text block of the
+        # lowest (leftmost) step. Circles are placed on the diagonal within
+        # the upper portion; all steps then have room for text below them.
         slot_w = box.w / n
-        # vertical rise per step (ascending from bottom to top)
+        slot_margin = 8.0  # horizontal padding inside each slot
+
+        # How much height to keep clear for text beneath the lowest circle.
+        text_reserve = head_size + 4 + body_size * 4 + text_gap + 8
+
+        # Height available for the circle diagonal (must be at least 2*radius).
+        diag_h = max(box.h - text_reserve, 2 * c_radius + 4)
+
         if n > 1:
-            row_gap = (box.h - 2 * c_radius) / (n - 1)
+            row_gap = (diag_h - 2 * c_radius) / (n - 1)
         else:
             row_gap = 0
 
-        # Estimate text block height to size each row
-        text_h = head_size + 6 + body_size * 3  # ~3 lines body
-        row_h = max(2 * c_radius, text_h)
-
-        # Anchor: first step at bottom-left, last at top-right of box
         for i, step in enumerate(steps):
-            # Diagonal placement: x increases linearly, y decreases linearly
-            cx_centre = box.x + slot_w * i + c_radius + 8
-            # y baseline of the row this step occupies
-            row_top = box.y + (n - 1 - i) * row_gap
-            cy_centre = row_top + c_radius
+            slot_x = box.x + slot_w * i
 
-            # Circle (ellipse with optional fill, stroke)
+            # Circle centre: left-aligned within slot (matching text indent),
+            # diagonally placed within the reserved diagonal area.
+            cx_centre = slot_x + slot_margin + c_radius
+            cy_centre = box.y + c_radius + (n - 1 - i) * row_gap
+
+            # Circle
             box.add({
                 "type": "ellipse",
                 "x": cx_centre - c_radius,
@@ -103,8 +108,7 @@ class StepCardRenderer(BaseCardRenderer):
                 "stroke_width": c_stroke_w,
             })
 
-            # Icon centred in circle (Material Symbols / Phosphor lookup
-            # is handled by the icon element type).
+            # Icon centred in circle
             icon_name = step.get("icon")
             if icon_name:
                 box.add({
@@ -118,13 +122,10 @@ class StepCardRenderer(BaseCardRenderer):
                     "font_family": ic_font,
                 })
 
-            # Connector line to next step (drawn from this circle's centre-right
-            # to next circle's centre-left, with a vertical jog)
+            # Optional connector line to next step
             if connector and i < n - 1:
-                next_cx = box.x + slot_w * (i + 1) + c_radius + 8
-                next_row_top = box.y + (n - 2 - i) * row_gap
-                next_cy = next_row_top + c_radius
-                # Diagonal segment from this circle's right edge to next circle's left edge
+                next_cx = box.x + slot_w * (i + 1) + slot_w / 2
+                next_cy = box.y + c_radius + (n - 2 - i) * row_gap
                 box.add({
                     "type": "line",
                     "x1": cx_centre + c_radius,
@@ -136,16 +137,27 @@ class StepCardRenderer(BaseCardRenderer):
                     "dashed": conn_dash,
                 })
 
-            # Text block to the right of the circle
-            tx = cx_centre + c_radius + text_gap
-            tw = max(60.0, box.x + box.w - tx - 6)
-            ty = cy_centre - (head_size + 6 + body_size * 2) / 2
+            # ── Text block BELOW the circle ────────────────────────────
+            # Uses the full slot width so body text wraps in a proper block
+            # rather than a single long line beside the circle.
+            tx = slot_x + slot_margin
+            tw = slot_w - 2 * slot_margin
+            ty = cy_centre + c_radius + text_gap
+
+            # Available height from below the circle to the bottom of the box
+            available_h = box.y + box.h - ty
+
+            if available_h <= head_size:
+                # No space for text (can happen for the lowest/leftmost step
+                # when the circle sits near the bottom edge)
+                continue
 
             heading = str(step.get("title", "") or "")
             if heading:
+                h_height = min(head_size + 4, available_h)
                 box.add({
                     "type": "text",
-                    "x": tx, "y": ty, "w": tw, "h": head_size + 4,
+                    "x": tx, "y": ty, "w": tw, "h": h_height,
                     **text_and_runs(heading),
                     "font_size": head_size,
                     "font_color": head_color,
@@ -153,13 +165,15 @@ class StepCardRenderer(BaseCardRenderer):
                     "alignment": "left",
                     "wrap": True,
                 })
-                ty += head_size + 4
+                ty += h_height + 4
+                available_h -= h_height + 4
 
             body_text = str(step.get("body", "") or "")
-            if body_text:
+            if body_text and available_h > body_size:
                 box.add({
                     "type": "text",
-                    "x": tx, "y": ty, "w": tw, "h": body_size * 4,
+                    "x": tx, "y": ty, "w": tw,
+                    "h": max(body_size * 2, available_h),
                     **text_and_runs(body_text),
                     "font_size": body_size,
                     "font_color": body_color,

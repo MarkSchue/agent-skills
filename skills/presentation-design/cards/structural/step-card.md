@@ -8,8 +8,10 @@
 > tokens (e.g. `--card-title-visible: false`, `--card-padding: 0`).
 
 > Diagonal "stair" of 3-5 steps. Each step shows a circle (with optional
-> icon), a heading and a body. Steps ascend from the bottom-left to the
-> top-right of the card area, with optional dashed connector lines.
+> icon), a heading and a body block. Steps ascend from the bottom-left to the
+> top-right of the card area. The heading and body text sit **below** each
+> circle in a full-slot-width block, giving readable multi-line text without
+> horizontal crowding. Connector lines are hidden by default.
 
 ## When to use
 
@@ -62,7 +64,7 @@ content:
 | `--card-step-step-body-font-size`              | `11`                   |                                      |
 | `--card-step-step-body-font-color`             | `var(--color-text-muted)` |                                   |
 | `--card-step-step-text-gap`                    | `12`                   | px gap from circle to text           |
-| `--card-step-step-connector-visible`           | `true`                 | draw connector lines                 |
+| `--card-step-step-connector-visible`           | `false`                | draw connector lines between circles |
 | `--card-step-step-connector-color`             | `var(--color-border)`  |                                      |
 | `--card-step-step-connector-width`             | `1.5`                  |                                      |
 | `--card-step-step-connector-dashed`            | `true`                 |                                      |

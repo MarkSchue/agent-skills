@@ -26,6 +26,26 @@ Use this skill whenever the user:
 
 ---
 
+## Authoring principle — XML, not code
+
+**Diagrams are XML files, not programs.**
+
+Always author `.drawio` content by writing `mxGraphModel` XML directly — either
+by hand, via the MCP preview tool, or by letting the agent generate the XML text.
+
+**Never create a Python script (or any other code generator) to produce a diagram.**
+Diagram structure belongs in the `.drawio` XML file itself, not in a program that
+emits XML. A Python generator adds an indirection layer, a dependency, and a
+maintenance burden for no benefit the XML file alone cannot provide.
+
+> **Note — project-specific exception:** The AI_EAM project contains a pre-existing
+> `assets/diagrams/_generate.py` that generates `ai_eam_landscape.drawio`. This
+> script was created before this skill existed and must be maintained for that
+> project. It is **not** a pattern to follow. Do not create similar scripts for
+> new diagrams.
+
+---
+
 ## Authoring workflow
 
 ### Step 1 — Generate draw.io XML
@@ -104,6 +124,92 @@ inside `<diagram>`).
 
 ---
 
+## Always include a legend
+
+**CRITICAL rule:** Every draw.io diagram page MUST include a legend bar anchored to the
+bottom of the canvas whenever the diagram uses more than one visual concept
+(layer colour, relationship type, shape category, etc.).
+
+### What the legend contains
+
+A legend bar sits at the very bottom of the page (typically the last 40 px) and
+consists of two zones:
+
+| Zone | Position | Content |
+|---|---|---|
+| Element chips | Left-aligned | Colour-coded rounded chips, one per layer/category used on the page |
+| Relationship key | Right-aligned | Arrow symbol + label for each relationship type used on the page |
+
+Use `→` for solid/synchronous relationships (serving, composition, assignment) and
+`⇢` for dashed/derived relationships (realization, influence).
+
+### When to skip or simplify
+
+- Omit the **element chips** zone when the page uses only a single layer/category
+  (the colour is self-evident).
+- Omit the **relationship key** zone when the page contains no edges.
+- Omit the entire legend only for purely structural pages that use a single shape
+  type and no edges (e.g., a simple org-chart with only one box style).
+
+### Implementation — direct XML authoring
+
+Always write the legend directly as `mxCell` XML at the bottom of the diagram.
+Place a 1 px separator line at `y = pageHeight - 40`, element chips at
+`y = pageHeight - 34`, and relationship key items at the same `y`, right-aligned.
+
+```xml
+<!-- 1 px separator line -->
+<mxCell id="leg0" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D0D0D0;strokeColor=none;"
+  vertex="1" parent="1">
+  <mxGeometry x="40" y="608" width="1200" height="1" as="geometry" />
+</mxCell>
+
+<!-- element chip (one per layer colour used) -->
+<mxCell id="leg1" value="Strategy" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;
+  fillColor=#EDE3FF;strokeColor=#6F42C1;strokeWidth=1.2;
+  fontColor=#262626;fontSize=10;fontStyle=1;align=center;verticalAlign=middle;"
+  vertex="1" parent="1">
+  <mxGeometry x="40" y="614" width="110" height="24" as="geometry" />
+</mxCell>
+
+<!-- relationship key item (right-aligned, one per edge type) -->
+<mxCell id="leg8" value="&lt;font color='#575757'&gt;&amp;rarr; serving&lt;/font&gt;"
+  style="text;html=1;strokeColor=none;fillColor=none;align=left;
+  verticalAlign=middle;fontSize=10;fontColor=#575757;fontStyle=0;"
+  vertex="1" parent="1">
+  <mxGeometry x="1152" y="614" width="128" height="24" as="geometry" />
+</mxCell>
+```
+
+Adjust `y` values to match `pageHeight - 40` and `pageHeight - 34` for the actual
+page height used. Use `⇢` (`&amp;#x21E2;`) for dashed/derived relationships.
+
+---
+
+## No titles, subtitles, or footers inside draw.io diagrams
+
+**CRITICAL rule when using draw.io with `presentation-design`:**
+
+Never add title text, subtitle text, or footer text cells inside a draw.io
+diagram. Instead, use the fields provided by the `image-card` in the
+presentation definition:
+
+| Content type | Where it belongs |
+|---|---|
+| Diagram title / heading | `##` slide heading in `presentation-definition.md` |
+| Diagram subtitle / context | `caption:` field in the `image-card` YAML |
+| Footer / summary text | `footer:` field in the `image-card` YAML |
+
+**Why:** Title and footer cells inside the diagram duplicate content that the
+presentation system already renders outside the image. They waste vertical space
+inside the diagram canvas, reduce the diagram's information density, and create
+visual redundancy.
+
+Do NOT add `text;html=1;...` cells at the top or bottom of a diagram page for
+labelling purposes. All labelling must go through the image-card fields.
+
+---
+
 ## Integration with `presentation-design`
 
 In the presentation definition (`presentation-definition.md`), `image-card` slides
@@ -111,8 +217,11 @@ reference drawio pages using the pattern:
 
 ```markdown
 - type: image-card
+  style_overrides:
+    card-padding: 4
   content:
     image: diagrams/filename.drawio#page-name
+    image_style: fullbleed
 ```
 
 The build pipeline (`DrawioSvgRenderer`) converts this to SVG automatically:
@@ -120,9 +229,30 @@ The build pipeline (`DrawioSvgRenderer`) converts this to SVG automatically:
 2. Renders the named page to SVG (`assets/diagrams/page-name.svg`)
 3. Embeds the SVG into the PPTX and drawio output
 
+**CRITICAL — always set `card-padding: 4` for diagram image-cards.**
+The default card padding is 16 px on every side. For diagram slides this wastes
+28 px of width and 28 px of height. Override it to 4 px per instance:
+
+```yaml
+type: image-card
+style_overrides:
+  card-padding: 4          # reduces border from 16 px to 4 px on all sides
+content:
+  source: "diagrams/file.drawio#page-name"
+  image_style: fullbleed   # diagram fills the entire body area
+```
+
+For framed-style image cards (border + contain fit), also override the inner
+padding:
+```yaml
+style_overrides:
+  card-padding: 4
+  image-framed-padding: 2  # default 8 px → 2 px inner frame padding
+```
+
 **To add a new diagram to a presentation:**
 1. Create or update the `.drawio` file in `assets/diagrams/`
-2. Add or update the `image-card` entry in `presentation-definition.md`
+2. Add the `image-card` entry with `card-padding: 4` in `presentation-definition.md`
 3. Run the build: `build_presentation.py <project-dir> --format both`
 
 **File naming convention:**

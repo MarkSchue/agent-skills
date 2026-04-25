@@ -1329,28 +1329,27 @@ class DrawioSvgRenderer:
                 max_x = max(max_x, ax + cw)
                 max_y = max(max_y, ay + ch)
 
-        PAD = 16.0
+        PAD = 4.0
         if min_x == float("inf"):
             vb_x, vb_y, vb_w, vb_h = 0.0, 0.0, page_w, page_h
         else:
-            vb_x = max(0.0, min_x - PAD)
-            vb_y = max(0.0, min_y - PAD)
+            vb_x = min_x - PAD
+            vb_y = min_y - PAD
             vb_w = (max_x + PAD) - vb_x
             vb_h = (max_y + PAD) - vb_y
 
-        # Adjust viewBox to match the target frame's aspect ratio exactly.
-        # This prevents PowerPoint (and browsers) from stretching or letterboxing
-        # the SVG when it is placed in a container with a different aspect ratio.
+        # Expand viewBox to match the target cell AR so that slice fills
+        # the cell exactly without clipping any diagram content.
         if target_width and target_height and vb_w > 0 and vb_h > 0:
             target_ar = target_width / target_height
             content_ar = vb_w / vb_h
             if content_ar > target_ar:
-                # Content wider than frame → expand viewBox height
+                # content is wider → add symmetric height
                 new_h = vb_w / target_ar
                 vb_y -= (new_h - vb_h) / 2.0
                 vb_h = new_h
             elif content_ar < target_ar:
-                # Content taller than frame → expand viewBox width
+                # content is taller → add symmetric width
                 new_w = vb_h * target_ar
                 vb_x -= (new_w - vb_w) / 2.0
                 vb_w = new_w
@@ -1367,7 +1366,7 @@ class DrawioSvgRenderer:
             f'<svg xmlns="http://www.w3.org/2000/svg"'
             f' viewBox="{vb_x:.1f} {vb_y:.1f} {vb_w:.1f} {vb_h:.1f}"'
             f'{w_attr}{h_attr}'
-            f' preserveAspectRatio="xMidYMid meet"'
+            f' preserveAspectRatio="xMidYMid slice"'
             f' font-family="Segoe UI, Arial, sans-serif">\n'
             f'  <rect x="{vb_x:.1f}" y="{vb_y:.1f}" '
             f'width="{vb_w:.1f}" height="{vb_h:.1f}" fill="{bg}"/>\n'
