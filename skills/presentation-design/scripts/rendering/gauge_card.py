@@ -125,6 +125,21 @@ class GaugeCardRenderer(BaseCardRenderer):
                     "stroke_width": 0,
                 })
 
+            # Center mask ellipse — creates the donut hole in PPTX (blockArc adj3
+            # does not reliably hollow out the shape; an overlaid white ellipse does).
+            # In drawio the arc already renders as a donut; the white ellipse is harmless.
+            slide_bg = self.resolve("color-background") or "#FFFFFF"
+            box.add({
+                "type": "ellipse",
+                "x": cx - inner_r,
+                "y": cy - inner_r,
+                "w": inner_r * 2,
+                "h": inner_r * 2,
+                "fill": slide_bg,
+                "stroke": "none",
+                "stroke_width": 0,
+            })
+
             # Value label centred in the ring
             label = f"{int(round(value))}{val_suffix}"
             box.add({

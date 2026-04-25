@@ -149,6 +149,7 @@ class StepCardRenderer(BaseCardRenderer):
                     "font_color": head_color,
                     "font_weight": head_weight,
                     "alignment": "left",
+                    "wrap": True,
                 })
                 ty += head_size + 4
 
@@ -162,4 +163,5 @@ class StepCardRenderer(BaseCardRenderer):
                     "font_color": body_color,
                     "font_weight": "normal",
                     "alignment": "left",
+                    "wrap": True,
                 })

@@ -381,10 +381,16 @@ class DrawioExporter:
         fill = elem.get("fill", "#FFFFFF")
         stroke = elem.get("stroke", "none")
         sw = elem.get("stroke_width", 1)
-        rx = elem.get("rx", 0)
+        rx_px = float(elem.get("rx", 0) or 0)
         opacity = elem.get("opacity")  # 0-100; None means fully opaque
+        # drawio arcSize: 0-50 where 50 = arc-radius equals half the shorter side (pill).
+        # Convert pixel rx to drawio percentage: arcSize = rx / (min(w,h)/2) * 50 capped at 50.
+        w_d = float(elem.get("w", 1))
+        h_d = float(elem.get("h", 1))
+        short_d = min(w_d, h_d)
+        arc_pct = min(50.0, rx_px / (short_d / 2) * 50.0) if short_d > 0 and rx_px > 0 else 0.0
         style = (
-            f"rounded=1;arcSize={rx};fillColor={fill};"
+            f"rounded=1;arcSize={arc_pct:.1f};fillColor={fill};"
             f"strokeColor={stroke};strokeWidth={sw};"
         )
         if opacity is not None:

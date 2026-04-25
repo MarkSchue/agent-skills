@@ -123,7 +123,7 @@ class ProcessFlowCardRenderer(BaseCardRenderer):
                     "font_size": num_size,
                     "font_color": num_color_acc if accent else num_color,
                     "font_weight": num_weight,
-                    "alignment": "left",
+                    "alignment": "center",
                 })
                 cur_y += num_size + 6
 
@@ -138,13 +138,14 @@ class ProcessFlowCardRenderer(BaseCardRenderer):
                     "font_color": head_color_acc if accent else head_color,
                     "font_weight": head_weight,
                     "alignment": "left",
+                    "wrap": True,
                 })
                 cur_y += head_size + 6
 
             # Body
             body_text = str(step.get("body", "") or "")
             if body_text:
-                remaining = max(0, ty + th - cur_y)
+                remaining = max(1, ty + th - cur_y)
                 box.add({
                     "type": "text",
                     "x": tx, "y": cur_y, "w": tw, "h": remaining,
@@ -153,4 +154,5 @@ class ProcessFlowCardRenderer(BaseCardRenderer):
                     "font_color": body_color_acc if accent else body_color,
                     "font_weight": "normal",
                     "alignment": "left",
+                    "wrap": True,
                 })

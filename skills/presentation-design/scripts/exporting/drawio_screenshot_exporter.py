@@ -85,12 +85,17 @@ def _safe_name(title: str) -> str:
 def _svg_to_png_edge(svg_str: str, out_path: Path, width: int, height: int) -> None:
     """Render SVG to PNG using Edge/Chrome headless --screenshot."""
     tmp_svg = None
+    tmp_profile = None
     try:
         with tempfile.NamedTemporaryFile(
             suffix=".svg", delete=False, mode="w", encoding="utf-8", prefix="drawio_qa_"
         ) as tmp:
             tmp.write(svg_str)
             tmp_svg = tmp.name
+
+        # Isolated profile dir prevents Edge instances from sharing state or
+        # blocking on corporate network config downloads between slides.
+        tmp_profile = tempfile.mkdtemp(prefix="edge_qa_profile_")
 
         svg_url = "file:///" + tmp_svg.replace("\\", "/")
         cmd = [
@@ -99,6 +104,14 @@ def _svg_to_png_edge(svg_str: str, out_path: Path, width: int, height: int) -> N
             "--disable-gpu",
             "--no-sandbox",
             "--disable-software-rasterizer",
+            "--disable-extensions",
+            "--disable-component-extensions-with-background-pages",
+            "--no-first-run",
+            "--no-default-browser-check",
+            # Block all external network traffic so corporate proxy/sitelist
+            # downloads don't stall headless Edge on restricted networks.
+            "--host-rules=MAP * 127.0.0.1, EXCLUDE localhost",
+            f"--user-data-dir={tmp_profile}",
             f"--screenshot={str(out_path.resolve())}",
             f"--window-size={width},{height}",
             "--hide-scrollbars",
@@ -116,6 +129,11 @@ def _svg_to_png_edge(svg_str: str, out_path: Path, width: int, height: int) -> N
         if tmp_svg and os.path.exists(tmp_svg):
             try:
                 os.unlink(tmp_svg)
+            except OSError:
+                pass
+        if tmp_profile and os.path.exists(tmp_profile):
+            try:
+                shutil.rmtree(tmp_profile, ignore_errors=True)
             except OSError:
                 pass
 

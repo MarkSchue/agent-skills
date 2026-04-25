@@ -115,6 +115,11 @@ def _export_powerpoint(
         except Exception:
             # PowerPoint is already open and visible — that's fine, just leave it
             pass
+        try:
+            # Suppress repair/alert dialogs so headless Open() succeeds
+            pptx_app.DisplayAlerts = 0  # ppAlertsNone = 0
+        except Exception:
+            pass
         prs = pptx_app.Presentations.Open(pptx_abs, ReadOnly=True, WithWindow=False)  # type: ignore[attr-defined]
 
         for idx in range(1, prs.Slides.Count + 1):

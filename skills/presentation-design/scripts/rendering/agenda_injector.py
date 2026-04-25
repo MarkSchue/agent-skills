@@ -65,6 +65,10 @@ class AgendaInjector:
             agenda = AgendaModel.from_section_titles(section_titles)
 
         for agenda_idx, (_, section) in enumerate(content_pairs):
+            # Skip the first section: agenda only appears at section transitions,
+            # not before the opening/cover slide of the deck.
+            if agenda_idx == 0:
+                continue
             agenda_slide = self._build_agenda_slide(agenda, agenda_idx, config)
             section.slides.insert(0, agenda_slide)
 
@@ -104,20 +108,13 @@ class AgendaInjector:
         else:
             sections_payload = [e.title for e in active_agenda.entries]
 
-        # Left spacer — empty area giving the agenda card a right-aligned feel
-        spacer = CardModel(
-            title="",
-            card_type="text-card",
-            content={},
-        )
-
         # Build icon dict from config (if present and visible)
         icon_cfg = config.get("icon") or {}
         icon: dict = {}
         if isinstance(icon_cfg, dict) and icon_cfg.get("visible"):
             icon = icon_cfg
 
-        # Agenda card on the right; always single vertical column
+        # Full-width agenda card; always single vertical column
         card = CardModel(
             title="Agenda",
             card_type="agenda-card",
@@ -131,8 +128,8 @@ class AgendaInjector:
 
         slide = SlideModel(
             title="Agenda",
-            cards=[spacer, card],
-            layout="grid-1x2",
+            cards=[card],
+            layout="grid-1x1",
             is_generated=True,
         )
 

@@ -1523,7 +1523,7 @@
     /* show arrowhead at end of spine */
     --card-timeline-arrow-size: 10;
     /* arrowhead leg length (px) */
-    --card-timeline-connector-length: 10;
+    --card-timeline-connector-length: 20;
     /* tick line from spine to content (px) */
 
     /* ── Marker circle ────────────────────────────────────────── */

@@ -259,8 +259,6 @@ class PptxExporter:
         self.project_root = Path(project_root) if project_root else None
         _cache = (self.project_root / "assets" / "icons") if self.project_root else Path("/tmp/pptx_icon_cache")
         self._icon_resolver = IconResolver(_cache)
-        # Counter for unique SVG media-part names within one export session
-        self._svg_part_counter = 0
 
     def export(
         self,
@@ -373,6 +371,14 @@ class PptxExporter:
     def _render_element(self, slide, elem: dict[str, Any]) -> None:
         """Dispatch a single render element to the appropriate PPTX shape."""
         etype = elem.get("type", "")
+        # Skip shapes with zero or negative width/height — PowerPoint rejects
+        # <a:ext cx="0"> and <a:ext cy="0"> as invalid OOXML.
+        # Lines use x1/y1/x2/y2 rather than w/h so they are exempt.
+        if etype not in ("line", "placeholder"):
+            if float(elem.get("w", 1)) <= 0 or float(elem.get("h", 1)) <= 0:
+                logger.debug("Skipping zero-dimension element type=%s w=%s h=%s",
+                             etype, elem.get("w"), elem.get("h"))
+                return
         if etype == "rect":
             self._add_rect(slide, elem)
         elif etype == "text":
@@ -435,7 +441,7 @@ class PptxExporter:
         self._add_basic_shape(slide, elem, mso_shape=52)
 
     def _add_arc(self, slide, elem: dict[str, Any]) -> None:
-        """Annular sector (donut slice) using ``MSO_SHAPE.BLOCK_ARC`` (95).
+        """Annular sector (donut slice) using ``MSO_SHAPE.BLOCK_ARC`` (20).
 
         Required keys: cx, cy, outer_radius, inner_radius, start_angle, end_angle.
         Angles in degrees, 0 = east, CW positive.
@@ -450,24 +456,21 @@ class PptxExporter:
         start = float(elem["start_angle"])
         end   = float(elem["end_angle"])
 
-        # BLOCK_ARC (95) bounding box = full circle bounding box (2*ro × 2*ro).
-        # adj1 = start angle (in 60000ths of a degree, 0 = north, CW positive)
-        # adj2 = end angle   (same units)
-        # adj3 = inner radius as fraction of outer (0..50000 thousandths… actually
-        #        OOXML uses signed 60000ths-of-degree; for arc thickness we use
-        #        the fillSize via the geometry. Easiest: rely on default donut.
-        # OOXML blockArc uses adj1 = start (60000 per deg, 0 = north) and adj2 = end.
-        # Convert: our 0=east → OOXML 0=north → +90° offset.
-        adj1 = int(((start + 90.0) % 360.0) * 60000)
-        adj2 = int(((end   + 90.0) % 360.0) * 60000)
-        # adj3 = thickness as proportion of half-bounding-box (in 50000ths)
-        # ro - ri vs ro: thickness fraction t = (ro - ri) / ro
-        # OOXML blockArc adj3 default = 25000 (~50% thickness). We pass our value.
-        thick = max(0.0, min(1.0, (ro - ri) / ro if ro > 0 else 1.0))
-        adj3 = int(thick * 50000)  # half-width fraction
+        # BLOCK_ARC (20) bounding box = full circle bounding box (2*ro × 2*ro).
+        # OOXML blockArc parameters:
+        #   adj1 = stAng  — start angle in 60000ths of a degree, 0=east (3 o'clock), CW positive
+        #   adj2 = swAng  — swing (arc span) in 60000ths of a degree, positive = CW
+        #   adj3 = innerRadius fraction in 50000ths (0=solid pie, 50000=thin outer ring)
+        # Our renderer convention: 0=east, clockwise (same as OOXML stAng), so no offset needed.
+        adj1 = int((start % 360) * 60000)             # start angle (OOXML east-0, CW)
+        adj2 = int(((end - start) % 360) * 60000)     # swing angle (arc span)
+        # adj3 = inner radius as fraction of outer (OOXML 50000ths)
+        # adj3=0 → solid pie, adj3=50000 → outer edge only (thin ring)
+        inner_frac = max(0.0, min(1.0, ri / ro if ro > 0 else 0.0))
+        adj3 = int(inner_frac * 50000)
 
         shape = slide.shapes.add_shape(
-            95,  # MSO_SHAPE.BLOCK_ARC
+            20,  # MSO_SHAPE.BLOCK_ARC
             _px(cx - ro), _px(cy - ro),
             _px(ro * 2),  _px(ro * 2),
         )
@@ -508,19 +511,39 @@ class PptxExporter:
     def _add_trapezoid(self, slide, elem: dict[str, Any]) -> None:
         """Isoceles trapezoid (wider at bottom by default).
 
-        Set ``elem['orientation'] = 'down'`` (default) for a triangle-like
-        shape that narrows toward the top (pyramid layer).
+        Set ``elem['orientation'] = 'down'`` (default) for a shape that
+        narrows toward the top (pyramid layer).
         Set ``orientation = 'up'`` to flip (funnel layer narrowing downward).
 
-        MSO_SHAPE.TRAPEZOID = 8 (wider at top by default; we apply rotation
-        when orientation is the opposite).
+        MSO_SHAPE.TRAPEZOID = 3 ("trap"); narrowing is controlled via the OOXML ``adj``
+        guide value derived from ``narrow_pct``.
+        adj = (1 - narrow_pct) * 50000  — 0 = rectangle, 50000 = triangle.
         """
-        # MSO_SHAPE.TRAPEZOID (id 8) is wider at the BOTTOM in PPTX.
-        # If orientation == "up" we rotate 180° so it's wider at the top.
         orientation = str(elem.get("orientation", "down")).lower()
-        shape = self._add_basic_shape(slide, elem, mso_shape=8)
+        shape = self._add_basic_shape(slide, elem, mso_shape=3)
         if orientation == "up":
             shape.rotation = 180.0
+        # Apply narrow_pct as OOXML adj on the prstGeom avLst
+        narrow_pct = elem.get("narrow_pct")
+        if narrow_pct is not None:
+            try:
+                from pptx.oxml.ns import qn as _qn_t
+                from lxml import etree as _lE_t
+                adj_val = int((1.0 - float(narrow_pct)) * 50000)
+                adj_val = max(0, min(50000, adj_val))
+                spPr = shape._element.spPr
+                prstGeom = spPr.find(_qn_t("a:prstGeom"))
+                if prstGeom is not None:
+                    avLst = prstGeom.find(_qn_t("a:avLst"))
+                    if avLst is None:
+                        avLst = _lE_t.SubElement(prstGeom, _qn_t("a:avLst"))
+                    for gd in list(avLst.findall(_qn_t("a:gd"))):
+                        avLst.remove(gd)
+                    gd = _lE_t.SubElement(avLst, _qn_t("a:gd"))
+                    gd.set("name", "adj")
+                    gd.set("fmla", f"val {adj_val}")
+            except Exception:
+                pass
 
     def _add_basic_shape(self, slide, elem: dict[str, Any], *, mso_shape: int):
         """Shared helper that places an auto-shape and applies fill/stroke
@@ -557,13 +580,44 @@ class PptxExporter:
     def _add_rect(self, slide, elem: dict[str, Any]) -> None:
         from pptx.util import Emu
 
-        shape = slide.shapes.add_shape(
-            1,  # MSO_SHAPE.RECTANGLE
-            _px(elem["x"]),
-            _px(elem["y"]),
-            _px(elem["w"]),
-            _px(elem["h"]),
-        )
+        rx = float(elem.get("rx", 0) or 0)
+        w_px = float(elem["w"])
+        h_px = float(elem["h"])
+
+        if rx > 0:
+            # Use rounded rectangle (MSO_SHAPE 5 = roundRect).
+            # OOXML adj = corner_radius / (min(w,h)/2) * 50000 capped at 50000.
+            short = min(w_px, h_px)
+            adj_val = min(50000, int(rx / (short / 2) * 50000)) if short > 0 else 50000
+            shape = slide.shapes.add_shape(
+                5,  # MSO_SHAPE.ROUNDED_RECTANGLE
+                _px(elem["x"]), _px(elem["y"]),
+                _px(w_px), _px(h_px),
+            )
+            try:
+                from pptx.oxml.ns import qn as _rqn
+                from lxml import etree as _rE
+                spPr = shape._element.spPr
+                prstGeom = spPr.find(_rqn("a:prstGeom"))
+                if prstGeom is not None:
+                    avLst = prstGeom.find(_rqn("a:avLst"))
+                    if avLst is None:
+                        avLst = _rE.SubElement(prstGeom, _rqn("a:avLst"))
+                    for gd in list(avLst.findall(_rqn("a:gd"))):
+                        avLst.remove(gd)
+                    gd = _rE.SubElement(avLst, _rqn("a:gd"))
+                    gd.set("name", "adj")
+                    gd.set("fmla", f"val {adj_val}")
+            except Exception:
+                pass
+        else:
+            shape = slide.shapes.add_shape(
+                1,  # MSO_SHAPE.RECTANGLE
+                _px(elem["x"]),
+                _px(elem["y"]),
+                _px(w_px),
+                _px(h_px),
+            )
         fill_color = _rgb(str(elem.get("fill", "#FFFFFF")))
         if fill_color:
             shape.fill.solid()
@@ -605,8 +659,8 @@ class PptxExporter:
 
     def _add_text(self, slide, elem: dict[str, Any]) -> None:
         from pptx.util import Emu
-        w = elem.get("w", 200)
-        h = elem.get("h", elem.get("font_size", 14) * 2)
+        w = max(1.0, float(elem.get("w", 200)))
+        h = max(1.0, float(elem.get("h", elem.get("font_size", 14) * 2)))
         txBox = slide.shapes.add_textbox(
             _px(elem["x"]),
             _px(elem["y"]),
@@ -832,75 +886,41 @@ class PptxExporter:
     def _add_svg_pic(
         self, slide, svg_path: "Path", x: float, y: float, w: float, h: float
     ) -> bool:
-        """Add an SVG as a native picture in PPTX (Office 365 direct SVG support).
+        """Add an SVG icon as a PNG picture in PPTX.
 
-        Creates a ``<p:pic>`` element that references the SVG directly as its
-        blip — no PNG fallback raster needed.  Office 365 / PowerPoint 2019+
-        renders the SVG natively when the relationship content type is
-        ``image/svg+xml``.  Returns *True* on success.
+        Converts the SVG to a PNG raster via svglib so that the PPTX is
+        compatible with all PowerPoint versions (direct SVG blips cause
+        "PowerPoint could not open the file" errors).  Returns *True* on
+        success.
         """
-        from lxml import etree
-        from pptx.opc.package import Part as _OpcPart
-        from pptx.opc.packuri import PackURI as _PackURI
-        from pptx.oxml.ns import qn
+        from io import BytesIO
+
+        from pptx.util import Pt
 
         try:
-            self._svg_part_counter += 1
-            svg_data = svg_path.read_bytes()
-            slide_part = slide.part
-            pkg = slide_part.package
-            IMG_REL = (
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"
+            # Render SVG → PNG at 3× the display size for crisp icons
+            from svglib.svglib import svg2rlg
+            from reportlab.graphics import renderPM
+
+            drawing = svg2rlg(str(svg_path))
+            if drawing is None:
+                raise ValueError("svg2rlg returned None")
+            # Scale so the PNG resolution is generous (at least 128 px on the longer side)
+            scale = max(3.0, 128.0 / max(w, h, 1))
+            drawing.width = drawing.width * scale  # type: ignore[attr-defined]
+            drawing.height = drawing.height * scale  # type: ignore[attr-defined]
+            drawing.transform = (scale, 0, 0, scale, 0, 0)  # type: ignore[attr-defined]
+            png_bytes = renderPM.drawToString(drawing, fmt="PNG")
+
+            from pptx.util import Emu
+            buf = BytesIO(png_bytes)
+            slide.shapes.add_picture(
+                buf,
+                left=Emu(_px(x)),
+                top=Emu(_px(y)),
+                width=Emu(_px(w)),
+                height=Emu(_px(h)),
             )
-            R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-
-            svg_opc = _OpcPart(
-                _PackURI(f"/ppt/media/icon_{self._svg_part_counter}.svg"),
-                "image/svg+xml",
-                pkg,
-                svg_data,
-            )
-            r_id = slide_part.relate_to(svg_opc, IMG_REL)
-
-            # Get the next unused shape id to avoid conflicts
-            sp_tree = slide.shapes._spTree
-            max_id = max(
-                (int(el.get("id")) for el in sp_tree.iter()
-                 if el.get("id") and el.get("id").isdigit()),
-                default=0,
-            )
-            shape_id = max_id + 1
-
-            # Build <p:pic> directly — bypasses PIL SVG rejection in add_picture()
-            pic = etree.SubElement(sp_tree, qn("p:pic"))
-
-            nvPicPr = etree.SubElement(pic, qn("p:nvPicPr"))
-            cNvPr = etree.SubElement(nvPicPr, qn("p:cNvPr"))
-            cNvPr.set("id", str(shape_id))
-            cNvPr.set("name", f"icon_{self._svg_part_counter}.svg")
-            cNvPicPr = etree.SubElement(nvPicPr, qn("p:cNvPicPr"))
-            pic_locks = etree.SubElement(cNvPicPr, qn("a:picLocks"))
-            pic_locks.set("noChangeAspect", "1")
-            etree.SubElement(nvPicPr, qn("p:nvPr"))
-
-            blipFill = etree.SubElement(pic, qn("p:blipFill"))
-            blip = etree.SubElement(blipFill, qn("a:blip"))
-            blip.set(f"{{{R_NS}}}embed", r_id)
-            stretch = etree.SubElement(blipFill, qn("a:stretch"))
-            etree.SubElement(stretch, qn("a:fillRect"))
-
-            spPr = etree.SubElement(pic, qn("p:spPr"))
-            xfrm = etree.SubElement(spPr, qn("a:xfrm"))
-            off = etree.SubElement(xfrm, qn("a:off"))
-            off.set("x", str(_px(x)))
-            off.set("y", str(_px(y)))
-            ext_el = etree.SubElement(xfrm, qn("a:ext"))
-            ext_el.set("cx", str(_px(w)))
-            ext_el.set("cy", str(_px(h)))
-            prstGeom = etree.SubElement(spPr, qn("a:prstGeom"))
-            prstGeom.set("prst", "rect")
-            etree.SubElement(prstGeom, qn("a:avLst"))
-
             return True
 
         except Exception as exc:

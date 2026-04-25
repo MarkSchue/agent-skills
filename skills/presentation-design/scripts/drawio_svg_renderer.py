@@ -1039,6 +1039,7 @@ class DrawioSvgRenderer:
 
         body = "\n  ".join(e for e in elems if e)
         return (
+            f'<?xml version="1.0" encoding="UTF-8"?>\n'
             f'<svg xmlns="http://www.w3.org/2000/svg"'
             f' viewBox="{vb_x:.1f} {vb_y:.1f} {vb_w:.1f} {vb_h:.1f}"'
             f'{w_attr}{h_attr}'
@@ -1056,6 +1057,7 @@ class DrawioSvgRenderer:
         w_attr = f' width="{int(tw)}"' if tw else ""
         h_attr = f' height="{int(th)}"' if th else ""
         return (
+            f'<?xml version="1.0" encoding="UTF-8"?>\n'
             f'<svg xmlns="http://www.w3.org/2000/svg" '
             f'viewBox="0 0 {pw} {ph}"{w_attr}{h_attr} '
             f'preserveAspectRatio="xMidYMid meet">'

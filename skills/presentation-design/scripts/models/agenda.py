@@ -94,10 +94,11 @@ class AgendaModel:
         entries: list[AgendaEntry] = []
         for i, title in enumerate(titles):
             ov = section_overrides[i] if i < len(section_overrides) else {}
+            override_title = str(ov.get("title") or "").strip()
             entries.append(
                 AgendaEntry(
                     index=i,
-                    title=title,
+                    title=override_title or title,
                     number=str(ov.get("number") or ""),
                     info=str(ov.get("info") or ""),
                 )

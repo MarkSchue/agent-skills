@@ -160,3 +160,19 @@ class CircularInfographicCardRenderer(BaseCardRenderer):
         # separated by ring_gap).
         _emit_ring(outer_segs, outer_ri, outer_ro, style=outer_style)
         _emit_ring(inner_segs, inner_ri, inner_ro, style=inner_style)
+
+        # Center mask ellipse — creates the inner hole in PPTX (blockArc adj3
+        # does not reliably hollow out the shape). In drawio this is harmless
+        # since arcs already render hollow via arcWidth.
+        if inner_ri > 0:
+            slide_bg = self.resolve("color-background") or "#FFFFFF"
+            box.add({
+                "type": "ellipse",
+                "x": cx - inner_ri,
+                "y": cy - inner_ri,
+                "w": inner_ri * 2,
+                "h": inner_ri * 2,
+                "fill": slide_bg,
+                "stroke": "none",
+                "stroke_width": 0,
+            })

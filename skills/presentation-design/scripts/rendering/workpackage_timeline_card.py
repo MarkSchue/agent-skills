@@ -333,16 +333,16 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
                     "font_weight": mk_weight,
                     "alignment": "center",
                 })
-            # Diamond/dot marker just above the bar
-            d_size = 7.0
+            # Diamond/dot marker centred on the bar
+            d_size = max(bar_h + 4, 9.0)
             box.add({
                 "type": "ellipse",
                 "x": cx - d_size / 2,
-                "y": bar_y - d_size - 3,
+                "y": bar_y + bar_h / 2 - d_size / 2,
                 "w": d_size, "h": d_size,
                 "fill": str(self._tok("marker-color") or self.resolve("color-text-default") or "#222"),
-                "stroke": "none",
-                "stroke_width": 0,
+                "stroke": "#FFFFFF",
+                "stroke_width": 1.5,
             })
             # KW label below the bar
             kw_label = str(wp.get("kw") or "")
@@ -373,16 +373,16 @@ class WorkpackageTimelineCardRenderer(BaseCardRenderer):
                     "font_weight": mk_weight,
                     "alignment": "center",
                 })
-            # dot marker at the bar end (above the arrow)
-            d_size = 7.0
+            # dot marker at the bar end centred on the bar
+            d_size = max(bar_h + 4, 9.0)
             box.add({
                 "type": "ellipse",
                 "x": bar_x2 - d_size / 2,
-                "y": bar_y - d_size - 3,
+                "y": bar_y + bar_h / 2 - d_size / 2,
                 "w": d_size, "h": d_size,
                 "fill": str(self._tok("marker-color") or self.resolve("color-text-default") or "#222"),
-                "stroke": "none",
-                "stroke_width": 0,
+                "stroke": "#FFFFFF",
+                "stroke_width": 1.5,
             })
 
         # ── 4) Cross-workpackages (full-width rows below the bar) ─────
