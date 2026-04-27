@@ -18,7 +18,7 @@
 - Methodology / engagement model walk-throughs.
 - Maturity ladders and capability build-ups.
 - Anything that is **sequential** AND has a sense of **upward
-  progression** (process flow alone â†’ use `process-flow-card`).
+  progression** (process flow alone → use `process-flow-card`).
 
 ## Content schema
 
@@ -74,5 +74,5 @@ content:
 - Recommended layout: `grid-1x1`. The card needs the full canvas width
   to render the diagonal cleanly.
 - Number of steps: 3, 4 or 5. With more, text overlap becomes likely.
-- Icons fall back gracefully if the name is unknown â€” the circle still
+- Icons fall back gracefully if the name is unknown — the circle still
   draws.

@@ -37,7 +37,16 @@ class StatGridCardRenderer(BaseCardRenderer):
         if not stats:
             return
         stats = list(stats)[:6]
-        rows, cols = _grid_for(len(stats))
+        override_cols = self._tok("cols")
+        if override_cols is not None:
+            try:
+                forced_cols = max(1, int(float(override_cols)))
+                forced_rows = -(-len(stats) // forced_cols)  # ceiling division
+                rows, cols = forced_rows, forced_cols
+            except (TypeError, ValueError):
+                rows, cols = _grid_for(len(stats))
+        else:
+            rows, cols = _grid_for(len(stats))
 
         gap_x = float(self._tok("tile-gap-x") or 16)
         gap_y = float(self._tok("tile-gap-y") or 16)

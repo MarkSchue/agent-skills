@@ -24,14 +24,14 @@ Auto-grid based on stat count:
 
 ```
 â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚  By the numbers                                       â”‚
-â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€                        â”‚
-â”‚                                                       â”‚
-â”‚      87%      â”‚       3.2x      â”‚      42M          â”‚
-â”‚   adoption    â”‚   productivity  â”‚   data points     â”‚
-â”‚  in 6 months  â”‚     uplift      â”‚   processed/day   â”‚
-â”‚                                                       â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+│  By the numbers                                       │
+│  ─────────────────────────────                        │
+│                                                       │
+│      87%      │       3.2x      │      42M          │
+│   adoption    │   productivity  │   data points     │
+│  in 6 months  │     uplift      │   processed/day   │
+│                                                       │
+└──────────────────────────────────────────────────────┘
 ```
 
 - Large bold **value** in primary colour (default).
@@ -44,7 +44,7 @@ Auto-grid based on stat count:
 | Field | Type | Description |
 |-------|------|-------------|
 | `type` | string | Must be `stat-grid-card` |
-| `content.stats` | list | 2â€“6 stat objects (`value`, `label`, `sub`) |
+| `content.stats` | list | 2–6 stat objects (`value`, `label`, `sub`) |
 
 ## Stat Object Fields
 
@@ -58,8 +58,8 @@ Auto-grid based on stat count:
 
 All `.card-base` overrides plus `.card--stat-grid` tokens:
 
-- `card-stat-grid-tile-gap-x` / `-tile-gap-y` â€” gaps between tiles
-- `card-stat-grid-alignment` â€” `left | center | right`
+- `card-stat-grid-tile-gap-x` / `-tile-gap-y` — gaps between tiles
+- `card-stat-grid-alignment` — `left | center | right`
 - `card-stat-grid-tile-separator-visible` / `-color` / `-width`
 - `card-stat-grid-value-font-size` / `-font-color` / `-font-weight`
 - `card-stat-grid-label-font-size` / `-font-color` / `-font-weight`
@@ -74,7 +74,7 @@ content:
     - value: "87%"
       label: "Agent adoption"
       sub: "in 6 months"
-    - value: "3.2Ã—"
+    - value: "3.2×"
       label: "Productivity uplift"
       sub: "vs baseline"
     - value: "42M"

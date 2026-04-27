@@ -18,19 +18,19 @@ The card inherits the standard card chrome: title, header line, subtitle, footer
 
 ```
 â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚  [card-title]                                                               â”‚
-â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€  â”‚
-â”‚                                                                             â”‚
-â”‚  Task name                â”‚  0   1   2   3   4   5   6   7   8   9   10   â”‚
-â”‚  â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”¼â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„â”„  â”‚
-â”‚  â”€â”€ SECTION HEADER â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€   â”‚
-â”‚  Task A                  â”‚  â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ                                   â”‚
-â”‚  Task B                  â”‚          â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ                     â”‚
-â”‚  Task C  (crit)          â”‚                 â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ(crit-red)                â”‚
-â”‚  Milestone â—†             â”‚                          â—†                      â”‚
-â”‚  Task D (progress)       â”‚  â–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ (40%)                       â”‚
-â”‚                                                                             â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+│  [card-title]                                                               │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│  Task name                │  0   1   2   3   4   5   6   7   8   9   10   │
+│  ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  │
+│  ── SECTION HEADER ──────┼──────────────────────────────────────────────   │
+│  Task A                  │  ████████████                                   │
+│  Task B                  │          ██████████████████                     │
+│  Task C  (crit)          │                 ██████(crit-red)                │
+│  Milestone ◆             │                          ◆                      │
+│  Task D (progress)       │  ████░░░░░░░░░░░░░ (40%)                       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Required Fields
@@ -52,20 +52,20 @@ content:
 | `unit` | `days\|weeks\|months` | `weeks` | Unit for all start/duration values |
 | `title_col_label` | str | `Task` | Column header for the task-name column |
 | `condensed` | bool | false | Force condensed mode regardless of box width |
-| section `title` | str | â€” | Section header label; groups tasks visually |
-| task `id` | str | â€” | Short identifier shown inside the bar |
+| section `title` | str | — | Section header label; groups tasks visually |
+| task `id` | str | — | Short identifier shown inside the bar |
 | task `start` | int \| `"after:<id>"` | 0 | Offset from chart start, or dependency chain |
 | task `duration` | int | 1 | Length in `unit` |
-| task `progress` | int 0â€“100 | 0 | Completed fraction â€” shaded as progress overlay |
+| task `progress` | int 0–100 | 0 | Completed fraction — shaded as progress overlay |
 | task `color` | hex | token | Override bar fill colour |
 | task `crit` | bool | false | Mark bar as critical (red fill) |
 | task `milestone` | bool | false | Render as a diamond marker instead of a bar |
-| `start_date` | `YYYY-MM-DD` \| `YYYY-MM` | â€” | Anchor chart dates so overlays can also be expressed as ISO dates |
-| `overlays` | list | â€” | Named background spans (holidays, code-freeze, UAT, sprints, â€¦) rendered as shaded chart bands. |
-| overlay `label` | str | â€” | Text shown in the header row above the band |
+| `start_date` | `YYYY-MM-DD` \| `YYYY-MM` | — | Anchor chart dates so overlays can also be expressed as ISO dates |
+| `overlays` | list | — | Named background spans (holidays, code-freeze, UAT, sprints, …) rendered as shaded chart bands. |
+| overlay `label` | str | — | Text shown in the header row above the band |
 | overlay `start` | int \| ISO date | 0 | Band start offset / date (same rules as task `start`) |
 | overlay `duration` | int | 1 | Band length in `unit` |
-| overlay `color` | hex | token | Per-band fill colour â€” lets you colour-code overlay types |
+| overlay `color` | hex | token | Per-band fill colour — lets you colour-code overlay types |
 
 ## Supported Overrides
 
@@ -77,7 +77,7 @@ All `.card--gantt-chart` tokens via `style_overrides:` using
 | Token | Default | Role |
 |-------|---------|------|
 | `--card-gantt-label-col-pct` | 28 | % of body width for task names |
-| `--card-gantt-condensed-threshold` | 320 | px â€” auto-condensed below this width |
+| `--card-gantt-condensed-threshold` | 320 | px — auto-condensed below this width |
 | `--card-gantt-header-height` | 20 | axis tick-label row height |
 | `--card-gantt-row-height` | 22 | task row height |
 | `--card-gantt-section-height` | 18 | section header row height |
@@ -100,7 +100,7 @@ All `.card--gantt-chart` tokens via `style_overrides:` using
 | `--card-gantt-overlay-label-font-size` | 8 | band label size |
 | `--card-gantt-overlay-label-color` | `var(--color-text-muted)` | band label colour |
 
-## Example â€” Full-blown (full-slide)
+## Example — Full-blown (full-slide)
 
 ```yaml
 type: gantt-chart-card
@@ -157,7 +157,7 @@ content:
       color: "#FFF0F0"
 ```
 
-## Example â€” Condensed (quarter-slide slot)
+## Example — Condensed (quarter-slide slot)
 
 ```yaml
 type: gantt-chart-card

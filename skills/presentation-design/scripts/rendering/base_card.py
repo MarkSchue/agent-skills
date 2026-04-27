@@ -411,6 +411,7 @@ class BaseCardRenderer(ABC):
             icon_color   = str(icon_dict.get("color") or self.resolve("card-icon-color") or "#000000")
             icon_gap     = float(self.resolve("card-icon-gap") or 8)
             icon_padding = float(self.resolve("card-icon-padding") or 0)
+            icon_y_offset = float(icon_dict.get("offset") or self.resolve("card-icon-y-offset") or 0)
             icon_bg_color   = str(self.resolve("card-icon-background-color") or "transparent")
             icon_bg_radius  = float(self.resolve("card-icon-background-radius") or 0)
             icon_font_family = str(self.resolve("icon-font-family") or "Material Symbols Outlined")
@@ -432,7 +433,7 @@ class BaseCardRenderer(ABC):
                     box.add({
                         "type": "rect",
                         "x": icon_x - icon_padding,
-                        "y": y - icon_padding,
+                        "y": y + icon_y_offset - icon_padding,
                         "w": icon_size + icon_padding * 2,
                         "h": icon_size + icon_padding * 2,
                         "fill": icon_bg_color,
@@ -446,7 +447,7 @@ class BaseCardRenderer(ABC):
                 box.add({
                     "type": "icon",
                     "x": icon_x,
-                    "y": y,
+                    "y": y + icon_y_offset,
                     "w": icon_size,
                     "h": icon_size,
                     "name": icon_name,

@@ -8,18 +8,18 @@
 > tokens (e.g. `--card-title-visible: false`, `--card-padding: 0`).
 
 Hierarchical pyramid (stacked-trapezoid) for strategic hierarchy, Maslow
-needs, value pyramids, capability ladders or any "foundation â†’ apex"
+needs, value pyramids, capability ladders or any "foundation → apex"
 narrative. Layers stack bottom-up by default (the FIRST layer in `layers`
 is the widest base; the LAST is the narrowest apex).
 
 ## Layout
 
 ```
-                  â–²                    â”Œâ”€ Apex
-                â–²â–²â–²â–²                   â”‚
-              â–²â–²â–²â–²â–²â–²â–²â–²                 â”‚
-            â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²               â”‚
-          â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²             â–¼  Base
+                  ▲                    ┌─ Apex
+                ▲▲▲▲                   │
+              ▲▲▲▲▲▲▲▲                 │
+            ▲▲▲▲▲▲▲▲▲▲▲▲               │
+          ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲             ▼  Base
 ```
 
 Labels sit to the right of the pyramid by default with leader lines
@@ -30,7 +30,7 @@ to centre labels inside the layers instead.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `layers` | list of dicts | Layers from base â†’ apex (typically 3â€“5). |
+| `layers` | list of dicts | Layers from base → apex (typically 3–5). |
 
 Each layer supports:
 
@@ -44,19 +44,19 @@ Each layer supports:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `direction` | string | `"bottom-up"` (default â€” first listed = base) or `"top-down"` (first listed = apex). |
+| `direction` | string | `"bottom-up"` (default — first listed = base) or `"top-down"` (first listed = apex). |
 
 ## Supported Overrides (`style_overrides`)
 
-Any token from `.card--pyramid` â€” see [`themes/base.css`](../../themes/base.css)
+Any token from `.card--pyramid` — see [`themes/base.css`](../../themes/base.css)
 section 24. Common overrides:
 
-- `card-pyramid-layer-bg-color` / `layer-accent-bg-color` â€” layer fills.
-- `card-pyramid-layer-label-position` â€” `right` (with leader lines) or `inline`.
-- `card-pyramid-layer-gap` â€” px between layers (default `4`).
-- `card-pyramid-label-line-color` / `label-line-width` â€” leader-line styling.
+- `card-pyramid-layer-bg-color` / `layer-accent-bg-color` — layer fills.
+- `card-pyramid-layer-label-position` — `right` (with leader lines) or `inline`.
+- `card-pyramid-layer-gap` — px between layers (default `4`).
+- `card-pyramid-label-line-color` / `label-line-width` — leader-line styling.
 
-## Example â€” Strategic hierarchy
+## Example — Strategic hierarchy
 
 ```yaml
 type: pyramid-card
@@ -74,7 +74,7 @@ content:
       body:  "Continuous portfolio rationalisation"
 ```
 
-## Example â€” Inline labels
+## Example — Inline labels
 
 ```yaml
 type: pyramid-card

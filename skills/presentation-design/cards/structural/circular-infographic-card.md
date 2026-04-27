@@ -69,6 +69,6 @@ content:
 
 - Recommended layout: `grid-1x1`. The wheel auto-centres in the body.
 - Number of segments per ring can differ (e.g. inner=4, outer=6).
-- Labels are skipped automatically when a segment angle is < 12Â°.
+- Labels are skipped automatically when a segment angle is < 12°.
 - The `style: arrow` flag on a ring is reserved (currently behaves like
   `donut`); a future revision will add chevron-tipped segments.

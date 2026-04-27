@@ -25,16 +25,16 @@ optional body text. The grid adapts from 1 to 4 columns.
 â”‚  â”‚   Move legacy recordsâ€¦    â”‚  â”‚   Standard reports only.  â”‚   â”‚
 â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
 â”‚                                                                  â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
-â”‚  â”‚ âœ“ API Integration         â”‚  â”‚ âŠ˜ Mobile App              â”‚   â”‚
-â”‚  â”‚   REST endpoints v2.      â”‚  â”‚   Out of current scope.   â”‚   â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   │
+│  │ ✓ API Integration         │  │ ⊘ Mobile App              │   │
+│  │   REST endpoints v2.      │  │   Out of current scope.   │   │
+│  └───────────────────────────┘  └───────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-- **â‘ ** â€” number badge (marker: number, status: in-scope â†’ accent colour)
-- **âœ“** â€” checkmark icon badge (marker: check)
-- **âŠ˜** â€” muted badge (status: out-of-scope â†’ text-muted colour)
+- **①** — number badge (marker: number, status: in-scope → accent colour)
+- **✓** — checkmark icon badge (marker: check)
+- **⊘** — muted badge (status: out-of-scope → text-muted colour)
 
 ---
 
@@ -52,10 +52,10 @@ optional body text. The grid adapts from 1 to 4 columns.
 
 | Field | Type | Required | Description |
 |-------|------|----------|--------------|
-| `heading` | string | âœ“ | Bold item heading |
-| `body` | string | â€” | Optional muted text below the heading |
-| `status` | string | â€” | `in-scope` (default) Â· `out-of-scope` Â· `conditional` |
-| `icon` | string | â€” | Material Symbols ligature used when `marker=icon` (e.g. `"storage"`) |
+| `heading` | string | ✓ | Bold item heading |
+| `body` | string | — | Optional muted text below the heading |
+| `status` | string | — | `in-scope` (default) · `out-of-scope` · `conditional` |
+| `icon` | string | — | Material Symbols ligature used when `marker=icon` (e.g. `"storage"`) |
 
 ---
 
@@ -63,7 +63,7 @@ optional body text. The grid adapts from 1 to 4 columns.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `content.layout_columns` | int | 2 | Number of tile columns (1â€“4); overrides CSS token |
+| `content.layout_columns` | int | 2 | Number of tile columns (1–4); overrides CSS token |
 
 ---
 
@@ -90,8 +90,8 @@ underscores and the base token name:
 
 ## Design Tokens Used
 
-- `.card-base` â€” container, card title, header line, footer
-- `.card--scope` â€” all tile and badge tokens (see [token-reference.md](../references/token-reference.md))
+- `.card-base` — container, card title, header line, footer
+- `.card--scope` — all tile and badge tokens (see [token-reference.md](../references/token-reference.md))
 
 ---
 
@@ -101,7 +101,7 @@ Controlled by `--card-scope-item-marker` (or `style_overrides.card_item_marker`)
 
 | Value | Behaviour |
 |-------|-----------|
-| `number` | Sequential number (1, 2, 3 â€¦) inside a filled circle â€” **default** |
+| `number` | Sequential number (1, 2, 3 …) inside a filled circle — **default** |
 | `check` | Checkmark icon (from `--card-scope-check-icon-name`) inside a filled circle |
 | `icon` | Per-item `icon` field used as icon name; falls back to `--card-scope-check-icon-name` |
 
@@ -149,7 +149,7 @@ content:
 
 ---
 
-## Example â€” Custom Icon Marker
+## Example — Custom Icon Marker
 
 ```yaml
 type: scope-card
@@ -176,9 +176,9 @@ style_overrides:
 
 ## Notes
 
-- The number badge uses `type: ellipse` (circle) internally â€” the same primitive used by
+- The number badge uses `type: ellipse` (circle) internally — the same primitive used by
   `numbered-text-card` and `timeline-card`.
 - Setting `--card-scope-item-border-width: 0` and `--card-scope-item-bg-color: transparent`
   produces a minimal, border-free layout where tiles are separated by whitespace only.
 - The `status-label-visible` token renders a small coloured status string at the bottom-right
-  of each tile â€” useful when readers need an explicit legend.
+  of each tile — useful when readers need an explicit legend.

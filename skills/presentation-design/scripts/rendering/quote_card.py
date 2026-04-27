@@ -14,7 +14,7 @@ class QuoteCardRenderer(BaseCardRenderer):
     variant = "card--quote"
 
     def render_body(self, card: CardModel, box: RenderBox) -> None:
-        """Render quote text with left accent bar and attribution."""
+        """Render quote text with left accent bar and attribution, vertically centred."""
         content = card.content if isinstance(card.content, dict) else {}
         quote_text = content.get("quote", "")
         attribution = content.get("attribution", "")
@@ -25,10 +25,27 @@ class QuoteCardRenderer(BaseCardRenderer):
         quote_size = float(self._tok("body-font-size", 14))
         quote_color = self._tok("body-font-color")
         quote_style = self._tok("body-font-style") or "italic"
+        body_size = float(self._tok("attribution-font-size", 14))
+        caption_size = float(self._tok("role-font-size", 11))
 
-        y = box.y
+        text_x = box.x + accent_width + 12
+        text_w = box.w - accent_width - 12
+        quote_text_align = self._tok("body-alignment") or "left"
+        attribution_align = self._tok("attribution-alignment") or "left"
 
-        # Left accent bar
+        # Pre-compute total content height for vertical centering
+        chars_per_line = max(1, int(text_w / (quote_size * 0.55)))
+        quote_lines = max(1, len(quote_text) // chars_per_line + 1)
+        content_h = quote_lines * (quote_size * 1.5) + 16
+        if attribution:
+            content_h += body_size + 4
+        if role:
+            content_h += caption_size
+
+        # Vertically center the content block within the body box
+        y = box.y + max(0, (box.h - content_h) / 2)
+
+        # Left accent bar -- height matches the content block
         bar_x = box.x
         box.add(
             {
@@ -36,17 +53,13 @@ class QuoteCardRenderer(BaseCardRenderer):
                 "x": bar_x,
                 "y": y,
                 "w": accent_width,
-                "h": box.h * 0.6,
+                "h": content_h,
                 "fill": accent_color,
                 "rx": 0,
             }
         )
 
         # Quote text (indented past the accent bar)
-        text_x = bar_x + accent_width + 12
-        text_w = box.w - accent_width - 12
-        quote_text_align = self._tok("body-alignment") or "left"
-        attribution_align = self._tok("attribution-alignment") or "left"
         box.add(
             {
                 "type": "text",
@@ -62,21 +75,17 @@ class QuoteCardRenderer(BaseCardRenderer):
             }
         )
 
-        # Estimate quote text height
-        chars_per_line = max(1, int(text_w / (quote_size * 0.55)))
-        quote_lines = max(1, len(quote_text) // chars_per_line + 1)
         y += quote_lines * (quote_size * 1.5) + 16
 
         # Attribution
         if attribution:
-            body_size = float(self._tok("attribution-font-size", 14))
             box.add(
                 {
                     "type": "text",
                     "x": text_x,
                     "y": y,
                     "w": text_w,
-                    "text": f"— {attribution}",
+                    "text": f"\u2014 {attribution}",
                     "font_size": body_size,
                     "font_color": self._tok("attribution-font-color"),
                     "font_weight": "bold",
@@ -87,7 +96,6 @@ class QuoteCardRenderer(BaseCardRenderer):
 
         # Role / org
         if role:
-            caption_size = float(self._tok("role-font-size", 11))
             box.add(
                 {
                     "type": "text",

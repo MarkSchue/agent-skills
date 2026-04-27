@@ -60,15 +60,30 @@ class GridLayoutRenderer(BaseLayoutRenderer):
             equal_w = body_w_for_cols / self.cols
             slot_ws = [equal_w] * self.cols
 
-        slot_h = (chrome.body_h - total_gap_y) / self.rows
+        body_h_for_rows = chrome.body_h - total_gap_y
+        row_heights_raw = overrides.get("row_heights") if overrides else None
+        if (
+            row_heights_raw
+            and isinstance(row_heights_raw, list)
+            and len(row_heights_raw) >= self.rows
+        ):
+            total_parts = sum(float(h) for h in row_heights_raw[: self.rows]) or 1.0
+            slot_hs = [
+                body_h_for_rows * float(h) / total_parts
+                for h in row_heights_raw[: self.rows]
+            ]
+        else:
+            equal_h = body_h_for_rows / self.rows
+            slot_hs = [equal_h] * self.rows
 
         slots: list[RenderBox] = []
+        y_cursor = chrome.body_y
         for r in range(self.rows):
             x_cursor = chrome.body_x
             for c in range(self.cols):
-                y = chrome.body_y + r * (slot_h + gap)
-                slots.append(RenderBox(x_cursor, y, slot_ws[c], slot_h))
+                slots.append(RenderBox(x_cursor, y_cursor, slot_ws[c], slot_hs[r]))
                 x_cursor += slot_ws[c] + gap
+            y_cursor += slot_hs[r] + gap
 
         return slots
 

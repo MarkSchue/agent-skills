@@ -84,8 +84,11 @@ _DEFAULTS: dict[str, str] = {
 def _parse_style(style_str: str) -> dict[str, str]:
     """Parse a semicolon-separated mxGraph style string into a dict."""
     result: dict[str, str] = {}
-    for token in (style_str or "").split(";"):
-        token = token.strip()
+    # Protect the ;base64, separator inside data-URI values so the splitter
+    # does not treat it as a style-token delimiter.
+    s = (style_str or "").replace(";base64,", "\x00base64,")
+    for token in s.split(";"):
+        token = token.strip().replace("\x00", ";")
         if not token:
             continue
         if "=" in token:
@@ -645,6 +648,186 @@ def _svg_label(
     return "\n".join(parts)
 
 
+def _parse_html_runs(html: str) -> list[dict]:
+    """Parse a draw.io HTML-formatted label into a flat list of text runs.
+
+    Each element is either:
+    - {"newline": True}  — a line break (from <br/> or literal \\n in text)
+    - {"text": str, "font_size": float|None, "bold": bool, "italic": bool, "color": str|None}
+    """
+    runs: list[dict] = []
+    state: dict = {"bold": False, "italic": False, "color": None, "font_size": None}
+    stack: list[dict] = []
+    buf: list[str] = []
+
+    def _flush() -> None:
+        raw = "".join(buf)
+        buf.clear()
+        # Decode basic HTML entities in plain-text segments
+        decoded = re.sub(r"&amp;",  "&",
+                  re.sub(r"&lt;",   "<",
+                  re.sub(r"&gt;",   ">",
+                  re.sub(r"&nbsp;", "\u00a0",
+                  re.sub(r"&#([0-9]+);",          lambda m: chr(int(m.group(1))),
+                  re.sub(r"&#[xX]([0-9a-fA-F]+);", lambda m: chr(int(m.group(1), 16)),
+                         raw))))))
+        # Split on literal \n — each newline emits a newline run
+        parts = decoded.split("\n")
+        for pi, part in enumerate(parts):
+            if pi > 0:
+                runs.append({"newline": True})
+            if part.strip():
+                runs.append({**state, "text": part, "newline": False})
+
+    for token in re.split(r"(<[^>]+>)", html):
+        if not token:
+            continue
+        if token.startswith("<"):
+            _flush()
+            tl = token.lower()
+            tag_m = re.match(r"<(/?)([a-z]+)", tl)
+            if not tag_m:
+                continue
+            closing  = tag_m.group(1) == "/"
+            tag_name = tag_m.group(2)
+
+            if tag_name in ("b", "strong"):
+                if not closing:
+                    stack.append(dict(state))
+                    state = {**state, "bold": True}
+                elif stack:
+                    state = stack.pop()
+            elif tag_name in ("i", "em"):
+                if not closing:
+                    stack.append(dict(state))
+                    state = {**state, "italic": True}
+                elif stack:
+                    state = stack.pop()
+            elif tag_name == "font":
+                if not closing:
+                    stack.append(dict(state))
+                    new_s = dict(state)
+                    fs_m  = re.search(r"font-size\s*:\s*([0-9.]+)", token, re.I)
+                    if fs_m:
+                        new_s["font_size"] = float(fs_m.group(1))
+                    col_m = re.search(r"""color\s*=\s*['"]([^'"]+)['"]""", token, re.I)
+                    if col_m:
+                        new_s["color"] = col_m.group(1)
+                    state = new_s
+                elif stack:
+                    state = stack.pop()
+            elif tag_name in ("br", "p", "div", "li") and not closing:
+                # Block-level openers / <br> → line break
+                if tag_name == "br" or tag_name in ("p", "div", "li"):
+                    runs.append({"newline": True})
+            elif tag_name in ("p", "div", "li") and closing:
+                # Block-level closers → line break
+                runs.append({"newline": True})
+            # All other tags (span, a, …) are silently skipped
+        else:
+            buf.append(token)
+
+    _flush()
+    return runs
+
+
+def _svg_label_html(
+    html: str,
+    x: float, y: float, w: float, h: float,
+    st: dict,
+    padding: float = 4.0,
+) -> str:
+    """Render an HTML draw.io label honouring per-run font sizes and colours.
+
+    Falls back to _svg_label if the HTML contains no styled runs.
+    """
+    runs = _parse_html_runs(html)
+    if not runs:
+        return ""
+
+    default_fs  = float(st.get("fontSize",      "11"))
+    default_col = st.get("fontColor", "#000000")
+    align       = st.get("align",         "center")
+    v_align     = st.get("verticalAlign", "middle")
+    anchor      = _text_anchor(align)
+    do_wrap     = str(st.get("whiteSpace", "")).lower() == "wrap"
+    wrap_w      = max(1.0, w - 2 * padding)
+
+    if align == "left":
+        tx = x + padding
+    elif align == "right":
+        tx = x + w - padding
+    else:
+        tx = x + w / 2
+
+    # Expand runs → lines (list of lists of run-dicts)
+    lines: list[list[dict]] = [[]]
+    for run in runs:
+        if run.get("newline"):
+            lines.append([])
+            continue
+        fs = run.get("font_size") or default_fs
+        if do_wrap:
+            for i, part in enumerate(_wrap_text_to_width(run["text"], wrap_w, fs)):
+                if i > 0:
+                    lines.append([])
+                if part.strip():
+                    lines[-1].append({**run, "text": part, "font_size": fs})
+        else:
+            lines[-1].append({**run, "font_size": fs})
+
+    # Drop trailing empty lines
+    while lines and not lines[-1]:
+        lines.pop()
+    if not lines:
+        return ""
+
+    def _line_fs(line: list[dict]) -> float:
+        if not line:
+            return default_fs
+        return max(r.get("font_size") or default_fs for r in line)
+
+    line_heights = [_line_fs(ln) * 1.3 for ln in lines]
+    total_h      = sum(line_heights)
+    first_fs     = _line_fs(lines[0])
+
+    if v_align == "top":
+        base_y = y + first_fs + padding
+    elif v_align == "bottom":
+        base_y = y + h - total_h + first_fs - padding
+    else:
+        base_y = y + (h - total_h) / 2 + first_fs
+
+    # Build a single <text> + <tspan> tree so that runs within the same line
+    # flow horizontally (no overlap) while each new line gets its own y.
+    tspans: list[str] = []
+    line_y = base_y
+    for li, line in enumerate(lines):
+        if li > 0:
+            line_y += line_heights[li - 1]
+        for ri, run in enumerate(line):
+            fs  = run.get("font_size") or default_fs
+            fw  = "bold"   if run.get("bold")   else "normal"
+            fi  = "italic" if run.get("italic") else "normal"
+            col = run.get("color") or default_col
+            # First run on each line → explicit x/y anchor; subsequent runs
+            # inherit the current text position (flow right of previous glyph).
+            if ri == 0:
+                pos = f' x="{tx:.2f}" y="{line_y:.2f}"'
+            else:
+                pos = ""
+            tspans.append(
+                f'<tspan{pos} fill="{col}" font-size="{fs:.1f}" '
+                f'font-weight="{fw}" font-style="{fi}">{_esc(run["text"])}</tspan>'
+            )
+
+    return (
+        f'<text text-anchor="{anchor}">'
+        + "".join(tspans)
+        + "</text>"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Absolute position computation — the critical fix
 # ---------------------------------------------------------------------------
@@ -770,7 +953,9 @@ def _render_vertex(
         _finalise_vertex(local, elems, rotation, ax, ay, w, h)
         return
 
-    value   = _strip_html(cell.get("value", "") or "")
+    _raw_value = cell.get("value", "") or ""
+    _has_html  = bool(re.search(r"<(?:font|b|i|strong|em)\b", _raw_value, re.I))
+    value      = _strip_html(_raw_value) if not _has_html else _raw_value
     is_swim = "swimlane" in parsed
     is_text = (
         "text" in parsed
@@ -843,14 +1028,15 @@ def _render_vertex(
         )
         # 4. Header label — respect fontColor from cell style (not hardcoded white)
         local.append(
-            _svg_label(value, ax, ay, w, start_size,
-                       {**st, "verticalAlign": "middle"})
+            _svg_label_html(value, ax, ay, w, start_size, {**st, "verticalAlign": "middle"})
+            if _has_html else
+            _svg_label(value, ax, ay, w, start_size, {**st, "verticalAlign": "middle"})
         )
         _finalise_vertex(local, elems, rotation, ax, ay, w, h)
         return
 
     if is_text:
-        local.append(_svg_label(value, ax, ay, w, h, st))
+        local.append(_svg_label_html(value, ax, ay, w, h, st) if _has_html else _svg_label(value, ax, ay, w, h, st))
         _finalise_vertex(local, elems, rotation, ax, ay, w, h)
         return
 
@@ -901,7 +1087,7 @@ def _render_vertex(
         else:
             local.append(_svg_rect(ax, ay, w, h, st))
 
-    local.append(_svg_label(value, ax, ay, w, h, st))
+    local.append(_svg_label_html(value, ax, ay, w, h, st) if _has_html else _svg_label(value, ax, ay, w, h, st))
     _finalise_vertex(local, elems, rotation, ax, ay, w, h)
 
 
@@ -1340,19 +1526,8 @@ class DrawioSvgRenderer:
 
         # Expand viewBox to match the target cell AR so that slice fills
         # the cell exactly without clipping any diagram content.
-        if target_width and target_height and vb_w > 0 and vb_h > 0:
-            target_ar = target_width / target_height
-            content_ar = vb_w / vb_h
-            if content_ar > target_ar:
-                # content is wider → add symmetric height
-                new_h = vb_w / target_ar
-                vb_y -= (new_h - vb_h) / 2.0
-                vb_h = new_h
-            elif content_ar < target_ar:
-                # content is taller → add symmetric width
-                new_w = vb_h * target_ar
-                vb_x -= (new_w - vb_w) / 2.0
-                vb_w = new_w
+        # NOTE: We use `meet` (scale-to-fit) not `slice`, so we do NOT expand
+        # the viewBox. The diagram is rendered at its natural AR inside the box.
 
         all_defs = {**clip_defs, **defs}
         defs_block = ("<defs>" + "\n".join(all_defs.values()) + "</defs>") if all_defs else ""
@@ -1366,7 +1541,7 @@ class DrawioSvgRenderer:
             f'<svg xmlns="http://www.w3.org/2000/svg"'
             f' viewBox="{vb_x:.1f} {vb_y:.1f} {vb_w:.1f} {vb_h:.1f}"'
             f'{w_attr}{h_attr}'
-            f' preserveAspectRatio="xMidYMid slice"'
+            f' preserveAspectRatio="xMidYMid meet"'
             f' font-family="Segoe UI, Arial, sans-serif">\n'
             f'  <rect x="{vb_x:.1f}" y="{vb_y:.1f}" '
             f'width="{vb_w:.1f}" height="{vb_h:.1f}" fill="{bg}"/>\n'

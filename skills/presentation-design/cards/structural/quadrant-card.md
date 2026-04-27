@@ -16,15 +16,15 @@ in a 2Ã—2 grid with optional axis labels along the top and left edges.
 ```
             X-axis low                    X-axis high
           â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-y high    â”‚  Q1 (top-left)       â”‚  Q2 (top-right)      â”‚
-          â”‚                      â”‚                      â”‚
-          â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-y low     â”‚  Q3 (bottom-left)    â”‚  Q4 (bottom-right)   â”‚
-          â”‚                      â”‚                      â”‚
-          â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+y high    │  Q1 (top-left)       │  Q2 (top-right)      │
+          │                      │                      │
+          ├──────────────────────┼──────────────────────┤
+y low     │  Q3 (bottom-left)    │  Q4 (bottom-right)   │
+          │                      │                      │
+          └──────────────────────┴──────────────────────┘
 ```
 
-Quadrant order is row-major: top-left â†’ top-right â†’ bottom-left â†’ bottom-right.
+Quadrant order is row-major: top-left → top-right → bottom-left → bottom-right.
 
 ## Required Fields (`content`)
 
@@ -38,7 +38,7 @@ Each quadrant entry supports:
 |-------|------|-------------|
 | `title` | string | Heading of the quadrant. |
 | `body` | string | Body text (used when `items` is not provided). |
-| `items` | list of strings | Bullet items rendered with `â€¢`. Takes precedence over `body`. |
+| `items` | list of strings | Bullet items rendered with `•`. Takes precedence over `body`. |
 | `accent` | bool | If true, fills the tile with the accent colour and inverts text. |
 
 ## Optional Fields (`content`)
@@ -50,16 +50,16 @@ Each quadrant entry supports:
 
 ## Supported Overrides (`style_overrides`)
 
-Any token from `.card--quadrant` â€” see [`themes/base.css`](../../themes/base.css)
+Any token from `.card--quadrant` — see [`themes/base.css`](../../themes/base.css)
 section 22. Common overrides:
 
-- `card-quadrant-tile-bg-color` / `tile-accent-bg-color` â€” tile colours.
-- `card-quadrant-tile-border-width` â€” set to `1` for outlined tiles.
+- `card-quadrant-tile-bg-color` / `tile-accent-bg-color` — tile colours.
+- `card-quadrant-tile-border-width` — set to `1` for outlined tiles.
 - `card-quadrant-quadrant-heading-font-size` / `quadrant-body-font-size`.
-- `card-quadrant-axis-visible` â€” set to `false` to hide axis labels even
+- `card-quadrant-axis-visible` — set to `false` to hide axis labels even
   when present in content.
 
-## Example â€” Impact / Effort matrix
+## Example — Impact / Effort matrix
 
 ```yaml
 type: quadrant-card
@@ -87,7 +87,7 @@ content:
       body: "High effort, low impact. Park unless strategic value emerges."
 ```
 
-## Example â€” SWOT
+## Example — SWOT
 
 ```yaml
 type: quadrant-card

@@ -15,20 +15,20 @@ A much stronger visual break than an `agenda-card` highlight.
 
 ```
 â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ â”‚                                                  â”‚
-â”‚ â”‚                    EYEBROW                       â”‚
-â”‚ â”‚                                                  â”‚
-â”‚ â”‚   02       Section Title Goes Here               â”‚
-â”‚ â”‚            Optional subtitle / framing line      â”‚
-â”‚ â”‚                                                  â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+│ │                                                  │
+│ │                    EYEBROW                       │
+│ │                                                  │
+│ │   02       Section Title Goes Here               │
+│ │            Optional subtitle / framing line      │
+│ │                                                  │
+└────────────────────────────────────────────────────┘
 ```
 
 Use on a `grid-1x1` layout for full-bleed effect.
 
 ## Required Fields
 
-None â€” all fields are optional. At minimum supply `number` or `title`.
+None — all fields are optional. At minimum supply `number` or `title`.
 
 ## Optional Fields (`content`)
 
@@ -41,13 +41,13 @@ None â€” all fields are optional. At minimum supply `number` or `title`.
 
 ## Supported Overrides (`style_overrides`)
 
-Any token from the `.card--section-divider` block â€” see
+Any token from the `.card--section-divider` block — see
 [`themes/base.css`](../../themes/base.css) section 21. Common overrides:
 
-- `card-section-divider-bg-color` â€” flip to `var(--color-primary)` for an
+- `card-section-divider-bg-color` — flip to `var(--color-primary)` for an
   inverted/dark treatment.
 - `card-section-divider-number-font-color` / `title-font-color` /
-  `subtitle-font-color` â€” must be inverted when using a dark background.
+  `subtitle-font-color` — must be inverted when using a dark background.
 - `card-section-divider-number-font-size` / `title-font-size`.
 
 ## Example

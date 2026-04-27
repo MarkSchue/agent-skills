@@ -16,8 +16,8 @@ step may be flagged as `accent: true` to highlight the goal / end state.
 
 ```
 â”Œâ”€â”€â”  â”Œâ”€â”€â”  â”Œâ”€â”€â”  â”Œâ”€â”€â”
-â”‚01â”‚â–¶ â”‚02â”‚â–¶ â”‚03â”‚â–¶ â”‚04â”‚â–¶
-â””â”€â”€â”˜  â””â”€â”€â”˜  â””â”€â”€â”˜  â””â”€â”€â”˜
+│01│▶ │02│▶ │03│▶ │04│▶
+└──┘  └──┘  └──┘  └──┘
  step  step  step  step (accent)
 ```
 
@@ -27,7 +27,7 @@ Each chevron contains a step number, a heading, and optional body text.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `steps` | list of dicts | Ordered list of process steps (typically 3â€“6). |
+| `steps` | list of dicts | Ordered list of process steps (typically 3–6). |
 
 Each step supports:
 
@@ -39,16 +39,16 @@ Each step supports:
 
 ## Supported Overrides (`style_overrides`)
 
-Any token from `.card--process-flow` â€” see [`themes/base.css`](../../themes/base.css)
+Any token from `.card--process-flow` — see [`themes/base.css`](../../themes/base.css)
 section 23. Common overrides:
 
-- `card-process-flow-step-bg-color` / `step-accent-bg-color` â€” chevron fills.
-- `card-process-flow-chevron-tip-pct` â€” tip width as fraction of card height
+- `card-process-flow-step-bg-color` / `step-accent-bg-color` — chevron fills.
+- `card-process-flow-chevron-tip-pct` — tip width as fraction of card height
   (default `0.18`; smaller = squarer steps).
-- `card-process-flow-step-number-visible` â€” hide the large numeric label.
+- `card-process-flow-step-number-visible` — hide the large numeric label.
 - `card-process-flow-step-heading-font-size` / `step-body-font-size`.
 
-## Example â€” Project methodology
+## Example — Project methodology
 
 ```yaml
 type: process-flow-card
@@ -66,7 +66,7 @@ content:
       accent: true
 ```
 
-## Example â€” Customer journey (no step numbers)
+## Example — Customer journey (no step numbers)
 
 ```yaml
 type: process-flow-card
