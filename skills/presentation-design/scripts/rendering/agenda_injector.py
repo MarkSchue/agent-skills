@@ -144,7 +144,7 @@ class AgendaInjector:
             "canvas-padding-left": 380,
             # Uppercase "TABLE OF CONTENTS" title style
             "slide-title-font-size": 32,
-            "slide-title-font-color": "#000099",
+            "slide-title-font-color": "var(--color-primary)",
             "slide-title-font-weight": "700",
         }
 
