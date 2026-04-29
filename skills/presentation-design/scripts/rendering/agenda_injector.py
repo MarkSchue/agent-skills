@@ -136,11 +136,24 @@ class AgendaInjector:
             icon=icon,
         )
 
+        # Slide-level overrides: enable left panel so the agenda slide matches
+        # the MHP template (navy sidebar + "Table of Contents" slide title).
+        slide_overrides: dict = {
+            "slide-left-panel-visible": True,
+            # Push content right of the left panel
+            "canvas-padding-left": 380,
+            # Uppercase "TABLE OF CONTENTS" title style
+            "slide-title-font-size": 32,
+            "slide-title-font-color": "#000099",
+            "slide-title-font-weight": "700",
+        }
+
         slide = SlideModel(
-            title="Agenda",
+            title="Table of Contents",
             cards=[card],
             layout="grid-1x1",
             is_generated=True,
+            slide_overrides=slide_overrides,
         )
 
         return slide

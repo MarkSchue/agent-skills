@@ -78,7 +78,8 @@ class StepCardRenderer(BaseCardRenderer):
         slot_margin = 8.0  # horizontal padding inside each slot
 
         # How much height to keep clear for text beneath the lowest circle.
-        text_reserve = head_size + 4 + body_size * 4 + text_gap + 8
+        # Allow 2 lines for headings (long titles like "Short Term — Leverage…")
+        text_reserve = head_size * 2 + 8 + body_size * 4 + text_gap + 8
 
         # Height available for the circle diagonal (must be at least 2*radius).
         diag_h = max(box.h - text_reserve, 2 * c_radius + 4)
@@ -154,7 +155,7 @@ class StepCardRenderer(BaseCardRenderer):
 
             heading = str(step.get("title", "") or "")
             if heading:
-                h_height = min(head_size + 4, available_h)
+                h_height = min(head_size * 2 + 8, available_h)
                 box.add({
                     "type": "text",
                     "x": tx, "y": ty, "w": tw, "h": h_height,

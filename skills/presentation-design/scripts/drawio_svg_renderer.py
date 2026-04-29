@@ -605,6 +605,17 @@ def _svg_label(
     anchor  = _text_anchor(align)
     line_h  = font_size * 1.3
 
+    # Apply drawio spacing* offsets (spacingLeft/Right/Top/Bottom) to shrink
+    # the layout box before padding is applied.
+    sp_left   = float(st.get("spacingLeft",   0))
+    sp_right  = float(st.get("spacingRight",  0))
+    sp_top    = float(st.get("spacingTop",    0))
+    sp_bottom = float(st.get("spacingBottom", 0))
+    x = x + sp_left
+    y = y + sp_top
+    w = w - sp_left - sp_right
+    h = h - sp_top  - sp_bottom
+
     # Word-wrap if the cell style requests it (drawio whiteSpace=wrap),
     # otherwise just split on explicit newlines. Padding is reserved on
     # both sides of the box.
@@ -750,6 +761,18 @@ def _svg_label_html(
     align       = st.get("align",         "center")
     v_align     = st.get("verticalAlign", "middle")
     anchor      = _text_anchor(align)
+
+    # Apply drawio spacing* offsets (spacingLeft/Right/Top/Bottom) to shrink
+    # the layout box before padding is applied.
+    sp_left   = float(st.get("spacingLeft",   0))
+    sp_right  = float(st.get("spacingRight",  0))
+    sp_top    = float(st.get("spacingTop",    0))
+    sp_bottom = float(st.get("spacingBottom", 0))
+    x = x + sp_left
+    y = y + sp_top
+    w = w - sp_left - sp_right
+    h = h - sp_top  - sp_bottom
+
     do_wrap     = str(st.get("whiteSpace", "")).lower() == "wrap"
     wrap_w      = max(1.0, w - 2 * padding)
 
@@ -934,17 +957,55 @@ def _render_vertex(
     except (ValueError, TypeError):
         rotation = 0.0
 
-    # Image cells (logos, embedded raster/SVG): emit an <image> tag using the
-    # data URI from the style. Without this branch the cell falls through to
-    # default rect rendering and shows as an empty white box with a black border.
+    # Image cells (logos, embedded raster/SVG): render inline for maximum
+    # compatibility with PPTX and draw.io viewers (data: URI <image> tags are
+    # not reliably rendered by PowerPoint or the draw.io SVG engine).
     if parsed.get("shape") == "image" and "image" in parsed:
         img_uri = parsed["image"]
-        # Data URIs may have been URL-encoded by the exporter to avoid the
-        # draw.io style-string semicolon parser. Decode for SVG embedding.
+
+        # ── base64-encoded SVG → inline <g> with scaled paths ──────────────
+        if img_uri.startswith("data:image/svg+xml;base64,"):
+            import base64 as _b64
+            import xml.etree.ElementTree as _ET2
+            try:
+                b64_data = img_uri[len("data:image/svg+xml;base64,"):]
+                inner_svg = _b64.b64decode(b64_data).decode("utf-8")
+                inner_root = _ET2.fromstring(inner_svg)
+                vb_parts = inner_root.get("viewBox", "0 0 256 256").split()
+                vb_x = float(vb_parts[0]); vb_y = float(vb_parts[1])
+                vb_w = float(vb_parts[2]); vb_h = float(vb_parts[3])
+                sx = w / vb_w; sy = h / vb_h
+                root_fill = inner_root.get("fill", "black")
+                # Strip XML namespace from element tags
+                ns_re = re.compile(r"^\{[^}]+\}")
+                parts: list[str] = [
+                    f'<g transform="translate({ax:.2f},{ay:.2f})'
+                    f' scale({sx:.6f},{sy:.6f})"'
+                    f' clip-path="none">'
+                ]
+                for child in inner_root.iter():
+                    tag = ns_re.sub("", child.tag)
+                    if tag == "svg":
+                        continue
+                    attrs = {ns_re.sub("", k): v for k, v in child.attrib.items()}
+                    if "fill" not in attrs:
+                        attrs["fill"] = root_fill
+                    attr_str = " ".join(f'{k}="{_esc(v)}"' for k, v in attrs.items())
+                    parts.append(f'<{tag} {attr_str}/>')
+                parts.append("</g>")
+                local.append("".join(parts))
+                _finalise_vertex(local, elems, rotation, ax, ay, w, h)
+                return
+            except Exception:
+                pass  # fall through to <image> fallback below
+
+        # ── URL-encoded SVG data URI ────────────────────────────────────────
         if img_uri.startswith("data:image/svg+xml,") and "%3C" in img_uri:
             from urllib.parse import unquote as _url_unquote
             prefix, _, encoded = img_uri.partition(",")
             img_uri = prefix + "," + _url_unquote(encoded)
+
+        # ── fallback: <image> tag (for raster/external URIs) ───────────────
         local.append(
             f'<image x="{ax:.2f}" y="{ay:.2f}" '
             f'width="{w:.2f}" height="{h:.2f}" '

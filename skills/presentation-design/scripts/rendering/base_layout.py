@@ -86,6 +86,26 @@ class BaseLayoutRenderer(ABC):
             }
         )
 
+        # Left panel — decorative coloured strip (e.g. for agenda slides)
+        left_panel_raw = self._resolve("slide-left-panel-visible", overrides)
+        left_panel_visible = left_panel_raw in (True, "true", "True", "1", 1)
+        left_panel_w = float(
+            self._resolve("slide-left-panel-width", overrides) or 0
+        )
+        if left_panel_visible and left_panel_w > 0:
+            panel_color = str(
+                self._resolve("slide-left-panel-color", overrides) or "#000099"
+            )
+            canvas.add({
+                "type": "rect",
+                "x": 0,
+                "y": 0,
+                "w": left_panel_w,
+                "h": canvas_h,
+                "fill": panel_color,
+                "rx": 0,
+            })
+
         # Margins
         ml = float(self._resolve("canvas-padding-left", overrides) or 48)
         mr = float(self._resolve("canvas-padding-right", overrides) or 48)
