@@ -63,12 +63,16 @@ class DeckParser:
             # ── # Section ────────────────────────────────────────────────
             m = _RE_SECTION.match(line)
             if m:
-                current_section = SectionModel(title=m.group(1).strip())
+                title = m.group(1).strip()
+                if not deck.title:
+                    # First # heading is the deck title only — not an agenda section
+                    deck.title = title
+                    i += 1
+                    continue
+                current_section = SectionModel(title=title)
                 deck.sections.append(current_section)
                 current_slide = None
                 current_card = None
-                if not deck.title:
-                    deck.title = current_section.title
                 i += 1
                 continue
 

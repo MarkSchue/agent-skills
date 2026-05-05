@@ -64,10 +64,13 @@ class AgendaInjector:
         else:
             agenda = AgendaModel.from_section_titles(section_titles)
 
-        for agenda_idx, (_, section) in enumerate(content_pairs):
-            # Skip the first section: agenda only appears at section transitions,
-            # not before the opening/cover slide of the deck.
-            if agenda_idx == 0:
+        for agenda_idx, (orig_idx, section) in enumerate(content_pairs):
+            # Skip only if this was the very first section in the deck (the
+            # cover/title section when it has a non-empty title).  When the
+            # first section is anonymous (empty title) it is already excluded
+            # by the content_pairs filter, so no content section should be
+            # skipped.
+            if agenda_idx == 0 and orig_idx == 0:
                 continue
             agenda_slide = self._build_agenda_slide(agenda, agenda_idx, config)
             section.slides.insert(0, agenda_slide)

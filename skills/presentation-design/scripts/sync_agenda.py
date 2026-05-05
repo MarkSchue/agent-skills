@@ -70,13 +70,21 @@ def _parse_agenda_config(lines: list[str], start: int, end: int) -> dict:
 
 
 def _extract_section_titles(lines: list[str], agenda_start: int, agenda_end: int) -> list[str]:
-    """Return all ``# Heading`` titles from *lines*, skipping the agenda block."""
+    """Return ``# Heading`` titles from *lines*, skipping the agenda block.
+
+    The very first ``#`` heading in the file is the deck/presentation title and
+    is intentionally excluded — it is not an agenda section.
+    """
     titles: list[str] = []
+    first_seen = False
     for i, line in enumerate(lines):
         if agenda_start <= i <= agenda_end:
             continue
         m = _RE_H1.match(line)
         if m:
+            if not first_seen:
+                first_seen = True  # skip the deck title
+                continue
             titles.append(m.group(1).strip())
     return titles
 
