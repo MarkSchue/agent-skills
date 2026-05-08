@@ -143,6 +143,8 @@ class AgendaInjector:
         # the MHP template (navy sidebar + "Table of Contents" slide title).
         slide_overrides: dict = {
             "slide-left-panel-visible": True,
+            "slide-left-panel-width": 350,
+            "slide-left-panel-image": "images/tk_headquarters.jpg",
             # Push content right of the left panel
             "canvas-padding-left": 380,
             # Uppercase "TABLE OF CONTENTS" title style

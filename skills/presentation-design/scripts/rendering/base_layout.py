@@ -93,18 +93,33 @@ class BaseLayoutRenderer(ABC):
             self._resolve("slide-left-panel-width", overrides) or 0
         )
         if left_panel_visible and left_panel_w > 0:
-            panel_color = str(
-                self._resolve("slide-left-panel-color", overrides) or "#000099"
-            )
-            canvas.add({
-                "type": "rect",
-                "x": 0,
-                "y": 0,
-                "w": left_panel_w,
-                "h": canvas_h,
-                "fill": panel_color,
-                "rx": 0,
-            })
+            panel_image = str(
+                self._resolve("slide-left-panel-image", overrides) or ""
+            ).strip()
+            if panel_image:
+                # Render image filling the full left panel (cover mode)
+                canvas.add({
+                    "type": "image",
+                    "src": panel_image,
+                    "x": 0,
+                    "y": 0,
+                    "w": left_panel_w,
+                    "h": canvas_h,
+                    "fit": "cover",
+                })
+            else:
+                panel_color = str(
+                    self._resolve("slide-left-panel-color", overrides) or "#000099"
+                )
+                canvas.add({
+                    "type": "rect",
+                    "x": 0,
+                    "y": 0,
+                    "w": left_panel_w,
+                    "h": canvas_h,
+                    "fill": panel_color,
+                    "rx": 0,
+                })
 
         # Margins
         ml = float(self._resolve("canvas-padding-left", overrides) or 48)
@@ -119,13 +134,38 @@ class BaseLayoutRenderer(ABC):
             title_size = float(
                 self._resolve("slide-title-font-size", overrides) or 28
             )
+            title_icon = str(self._resolve("slide-title-icon", overrides) or "").strip()
+            title_icon_size = float(self._resolve("slide-title-icon-size", overrides) or title_size)
+            title_icon_color = str(self._resolve("slide-title-icon-color", overrides) or
+                                   self._resolve("slide-title-font-color", overrides) or "#1A1A1A")
+            title_h = title_size * 1.2 + 8
+            title_x = ml
+            title_w = canvas_w - ml - mr
+            if title_icon:
+                title_icon_family = str(self._resolve("slide-title-icon-family", overrides) or "Phosphor")
+                # Draw icon to the left of the title text
+                canvas.add({
+                    "type": "icon",
+                    "name": title_icon,
+                    "font_family": title_icon_family,
+                    "x": title_x,
+                    "y": y_cursor,
+                    "w": title_icon_size,
+                    "h": title_icon_size,
+                    "font_size": title_icon_size,
+                    "color": title_icon_color,
+                    "alignment": "left",
+                    "vertical_align": "middle",
+                })
+                title_x += title_icon_size + 8
+                title_w -= title_icon_size + 8
             canvas.add(
                 {
                     "type": "text",
-                    "x": ml,
+                    "x": title_x,
                     "y": y_cursor,
-                    "w": canvas_w - ml - mr,
-                    "h": title_size * 1.2 + 8,
+                    "w": title_w,
+                    "h": title_h,
                     "text": slide.title,
                     "font_size": title_size,
                     "font_color": self._resolve("slide-title-font-color", overrides)
@@ -140,7 +180,7 @@ class BaseLayoutRenderer(ABC):
                     or "left",
                 }
             )
-            y_cursor += title_size * 1.2 + 8
+            y_cursor += title_h
 
         # Subtitle
         if slide.subtitle:
